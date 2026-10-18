@@ -1,0 +1,42 @@
+{
+  "id": "npm-axios-absolute-url",
+  "description": "axios client with baseURL fetches a user-supplied path",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "enrichment": {
+    "CVE-2025-27152": {
+      "kev": false,
+      "epss": 0.2
+    }
+  },
+  "_note": "enrichment values are FIXTURE signals, not live KEV/EPSS",
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/npm-axios-absolute-url#1",
+      "facts": {
+        "package": "axios",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-27152"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "vuln_symbols": [
+          "axios.request",
+          "buildFullPath"
+        ],
+        "advisory_summary": "SSRF / credential leak: an absolute URL passed to an instance with baseURL ignores baseURL.",
+        "created_at": "2026-09-01T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "proxy.js calls client.get(req.query.path) on a baseURL instance with auth header"
+      }
+    }
+  ]
+}

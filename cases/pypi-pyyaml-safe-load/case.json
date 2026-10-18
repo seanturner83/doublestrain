@@ -1,0 +1,44 @@
+{
+  "id": "pypi-pyyaml-safe-load",
+  "description": "PyYAML used only via safe_load",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "enrichment": {
+    "CVE-2020-14343": {
+      "kev": false,
+      "epss": 0.05
+    }
+  },
+  "_note": "enrichment values are FIXTURE signals, not live KEV/EPSS",
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/pypi-pyyaml-safe-load#1",
+      "facts": {
+        "package": "PyYAML",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2020-14343"
+          ],
+          [
+            "PyYAML"
+          ]
+        ],
+        "vuln_symbols": [
+          "yaml.full_load",
+          "yaml.load",
+          "FullLoader"
+        ],
+        "advisory_summary": "Arbitrary code execution when untrusted YAML is parsed with full_load / FullLoader.",
+        "created_at": "2026-09-01T00:00:00Z",
+        "import_name": "yaml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "only yaml.safe_load is used"
+      }
+    }
+  ]
+}

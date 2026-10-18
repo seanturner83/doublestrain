@@ -1,0 +1,201 @@
+{
+ "id": "real-go-rest-api",
+ "description": "qiangxue/go-rest-api (ozzo-routing) (OSV-generated; labelled blind 2026-10-18)",
+ "repo": "repo",
+ "exposure": "public-internet",
+ "_note": "enrichment empty: run the harness with --enrich live",
+ "enrichment": {},
+ "candidates": [
+  {
+   "kind": "keep",
+   "pr": "local/real-go-rest-api#1",
+   "facts": {
+    "package": "github.com/dgrijalva/jwt-go",
+    "version": "v3.2.0+incompatible",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2020-26160",
+      "GHSA-w73w-5m7g-f7qc",
+      "GO-2020-0017",
+      "SNYK-GOLANG-GITHUBCOMDGRIJALVAJWTGO-596515"
+     ],
+     [
+      "github.com/dgrijalva/jwt-go"
+     ]
+    ],
+    "advisory_summary": "Authorization bypass in github.com/dgrijalva/jwt-go \u2014 jwt-go allows attackers to bypass intended access restrictions in situations with `[]string{}` for `m[\"aud\"]` (which is allowed by the specification). Because the type assertion fails, \"\" is the value of aud. This is a security problem if the JWT token is presented to a service that lacks its own audience check. There is no patch available and users of jwt-go are advised to migrate to [golang-jwt](https://github.com/golang-jwt/jwt) at version 3.2.1",
+    "vuln_symbols": [
+     "github.com/dgrijalva/jwt-go.MapClaims.VerifyAudience"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [],
+    "severity": "HIGH",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app authenticates with ozzo-routing auth.JWT (internal/auth/middleware.go:15), which uses jwt.Parser.Parse with MapClaims (ozzo-routing/v2@v2.3.0 auth/handlers.go:268-278); MapClaims.Valid in jwt-go v3.2.0 only checks exp/iat/nbf and never calls VerifyAudience. Neither the app nor ozzo-routing calls MapClaims.VerifyAudience anywhere, and the app does no audience check.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-rest-api#2",
+   "facts": {
+    "package": "gopkg.in/yaml.v2",
+    "version": "v2.2.2",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2019-11254",
+      "GHSA-wxc4-f4m6-wwqv",
+      "GO-2020-0036"
+     ],
+     [
+      "gopkg.in/yaml.v2"
+     ]
+    ],
+    "advisory_summary": "Excessive Platform Resource Consumption within a Loop in Kubernetes \u2014 The Kubernetes API Server component in versions 1.1-1.14, and versions prior to 1.15.10, 1.16.7 and 1.17.3 allows an authorized user who sends malicious YAML payloads to cause the kube-apiserver to consume excessive CPU cycles while parsing YAML.",
+    "vuln_symbols": [
+     "gopkg.in/yaml.v2.Decoder.Decode",
+     "gopkg.in/yaml.v2.Unmarshal",
+     "gopkg.in/yaml.v2.UnmarshalStrict",
+     "gopkg.in/yaml.v2.yaml_parser_decrease_flow_level",
+     "gopkg.in/yaml.v2.yaml_parser_fetch_more_tokens",
+     "gopkg.in/yaml.v2.yaml_parser_fetch_stream_start",
+     "gopkg.in/yaml.v2.yaml_parser_fetch_value",
+     "gopkg.in/yaml.v2.yaml_parser_remove_simple_key",
+     "gopkg.in/yaml.v2.yaml_parser_save_simple_key"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "2.2.8"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "yaml.Unmarshal is called only in config.Load (internal/config/config.go:49) on the server's own config file, path from the -config CLI flag (cmd/server/main.go:29,37); no request data is ever parsed as YAML, and yaml.v2 is not used by other non-test deps (zap/ozzo only reference it in go.sum). Only an operator controlling the config file could trigger this.",
+    "confidence": "medium",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-rest-api#3",
+   "facts": {
+    "package": "gopkg.in/yaml.v2",
+    "version": "v2.2.2",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2021-4235",
+      "GHSA-r88r-gmrh-7j83",
+      "GO-2021-0061"
+     ],
+     [
+      "gopkg.in/yaml.v2"
+     ]
+    ],
+    "advisory_summary": "YAML Go package vulnerable to denial of service \u2014 Due to unbounded alias chasing, a maliciously crafted YAML file can cause the system to consume significant system resources. If parsing user input, this may be used as a denial of service vector.",
+    "vuln_symbols": [
+     "gopkg.in/yaml.v2.Decoder.Decode",
+     "gopkg.in/yaml.v2.Unmarshal",
+     "gopkg.in/yaml.v2.UnmarshalStrict",
+     "gopkg.in/yaml.v2.decoder.unmarshal"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "2.2.3"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "yaml.Unmarshal is called only in config.Load (internal/config/config.go:49) on the local config file named by the -config flag (cmd/server/main.go:29,37); attacker-controlled data never reaches the YAML decoder, so unbounded alias chasing cannot be triggered remotely.",
+    "confidence": "medium",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-rest-api#4",
+   "facts": {
+    "package": "gopkg.in/yaml.v2",
+    "version": "v2.2.2",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2022-3064",
+      "GHSA-6q6q-88xp-6f2r",
+      "GO-2022-0956"
+     ],
+     [
+      "gopkg.in/yaml.v2"
+     ]
+    ],
+    "advisory_summary": "yaml package for Go can consume excessive amounts of CPU or memory \u2014 Parsing malicious or large YAML documents can consume excessive amounts of CPU or memory",
+    "vuln_symbols": [
+     "gopkg.in/yaml.v2.Decoder.Decode",
+     "gopkg.in/yaml.v2.Unmarshal",
+     "gopkg.in/yaml.v2.UnmarshalStrict",
+     "gopkg.in/yaml.v2.decoder.unmarshal",
+     "gopkg.in/yaml.v2.yaml_parser_increase_flow_level",
+     "gopkg.in/yaml.v2.yaml_parser_roll_indent"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "2.2.4"
+    ],
+    "severity": "HIGH",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "yaml.Unmarshal is called only in config.Load (internal/config/config.go:49) on the operator-supplied config file (cmd/server/main.go:29,37); no HTTP input is decoded as YAML, so a malicious YAML document cannot be supplied by an attacker.",
+    "confidence": "medium",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  }
+ ]
+}

@@ -1,0 +1,2678 @@
+{
+ "id": "real-go-clean-arch",
+ "description": "bxcodec/go-clean-arch (echo) (OSV-generated; labelled blind 2026-10-18)",
+ "repo": "repo",
+ "exposure": "public-internet",
+ "_note": "enrichment empty: run the harness with --enrich live",
+ "enrichment": {},
+ "candidates": [
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#1",
+   "facts": {
+    "package": "github.com/labstack/echo/v4",
+    "version": "v4.11.4",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-55677",
+      "GHSA-vfp3-v2gw-7wfq",
+      "GO-2026-6293"
+     ],
+     [
+      "github.com/labstack/echo/v4"
+     ]
+    ],
+    "advisory_summary": "Echo: Encoded slash (%2F) bypasses route-level protection and exposes static files \u2014 ### Summary\n\nEcho's router and static file handler disagree on URL path decoding. The router matches routes using the raw encoded path (preserving `%2F` as-is), while `StaticDirectoryHandler` unescapes `%2F` to `/` before resolving filesystem paths. This allows an attacker to bypass route-level access controls and read static files without authorization.\n\n### Details\n\n**Root cause 1 \u2014 `router.go` lines 798-802:**\nThe router uses `req.URL.RawPath` for route matching when `useEscapedPathForRouting` is false (the",
+    "vuln_symbols": [
+     "github.com/labstack/echo/v4.Echo.Static",
+     "github.com/labstack/echo/v4.Echo.StaticFS",
+     "github.com/labstack/echo/v4.Group.Static",
+     "github.com/labstack/echo/v4.Group.StaticFS",
+     "github.com/labstack/echo/v4.StaticDirectoryHandler",
+     "github.com/labstack/echo/v4/middleware.Static",
+     "github.com/labstack/echo/v4/middleware.StaticWithConfig"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "4.15.3"
+    ],
+    "severity": "HIGH",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never registers static file serving: grep finds no Static/StaticFS/middleware.Static calls in the repo, and echo.New (echo@v4.11.4/echo.go:361-385) registers no static routes. Routes are only the four article handlers in internal/rest/article.go:44-47, so StaticDirectoryHandler (echo_fs.go:54) is never on a request path.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#2",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2024-45337",
+      "GHSA-v778-237x-gjrc",
+      "GO-2024-3321"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Misuse of connection.serverAuthenticate may cause authorization bypass in golang.org/x/crypto \u2014 Applications and libraries which misuse connection.serverAuthenticate (via callback field ServerConfig.PublicKeyCallback) may be susceptible to an authorization bypass.\n\nThe documentation for ServerConfig.PublicKeyCallback says that \"A call to this function does not guarantee that the key offered is in fact used to authenticate.\" Specifically, the SSH protocol allows clients to inquire about whether a public key is acceptable before proving control of the corresponding private key. PublicKeyCallback",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.ServerConfig.PublicKeyCallback",
+     "golang.org/x/crypto/ssh.connection.serverAuthenticate"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.31.0"
+    ],
+    "severity": "CRITICAL",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#3",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-22869",
+      "GHSA-hcg3-q754-cr77",
+      "GO-2025-3487"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "golang.org/x/crypto Vulnerable to Denial of Service (DoS) via Slow or Incomplete Key Exchange \u2014 SSH servers which implement file transfer protocols are vulnerable to a denial of service attack from clients which complete the key exchange slowly, or not at all, causing pending content to be read into memory, but never transmitted.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.Client.Dial",
+     "golang.org/x/crypto/ssh.Client.DialContext",
+     "golang.org/x/crypto/ssh.Client.DialTCP",
+     "golang.org/x/crypto/ssh.Client.Listen",
+     "golang.org/x/crypto/ssh.Client.ListenTCP",
+     "golang.org/x/crypto/ssh.Client.ListenUnix",
+     "golang.org/x/crypto/ssh.Client.NewSession",
+     "golang.org/x/crypto/ssh.Dial",
+     "golang.org/x/crypto/ssh.DiscardRequests",
+     "golang.org/x/crypto/ssh.NewClient",
+     "golang.org/x/crypto/ssh.NewClientConn",
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.Request.Reply",
+     "golang.org/x/crypto/ssh.Session.Close",
+     "golang.org/x/crypto/ssh.Session.CombinedOutput",
+     "golang.org/x/crypto/ssh.Session.Output",
+     "golang.org/x/crypto/ssh.Session.RequestPty",
+     "golang.org/x/crypto/ssh.Session.RequestSubsystem",
+     "golang.org/x/crypto/ssh.Session.Run",
+     "golang.org/x/crypto/ssh.Session.SendRequest",
+     "golang.org/x/crypto/ssh.Session.Setenv",
+     "golang.org/x/crypto/ssh.Session.Shell",
+     "golang.org/x/crypto/ssh.Session.Signal",
+     "golang.org/x/crypto/ssh.Session.Start",
+     "golang.org/x/crypto/ssh.Session.WindowChange",
+     "golang.org/x/crypto/ssh.channel.Accept",
+     "golang.org/x/crypto/ssh.channel.Close",
+     "golang.org/x/crypto/ssh.channel.CloseWrite",
+     "golang.org/x/crypto/ssh.channel.Read",
+     "golang.org/x/crypto/ssh.channel.ReadExtended",
+     "golang.org/x/crypto/ssh.channel.Reject",
+     "golang.org/x/crypto/ssh.channel.SendRequest",
+     "golang.org/x/crypto/ssh.channel.Write",
+     "golang.org/x/crypto/ssh.channel.WriteExtended",
+     "golang.org/x/crypto/ssh.connection.SendAuthBanner",
+     "golang.org/x/crypto/ssh.curve25519sha256.Client",
+     "golang.org/x/crypto/ssh.curve25519sha256.Server",
+     "golang.org/x/crypto/ssh.dhGEXSHA.Client",
+     "golang.org/x/crypto/ssh.dhGEXSHA.Server",
+     "golang.org/x/crypto/ssh.dhGroup.Client",
+     "golang.org/x/crypto/ssh.dhGroup.Server",
+     "golang.org/x/crypto/ssh.ecdh.Client",
+     "golang.org/x/crypto/ssh.ecdh.Server",
+     "golang.org/x/crypto/ssh.extChannel.Read",
+     "golang.org/x/crypto/ssh.extChannel.Write",
+     "golang.org/x/crypto/ssh.handshakeTransport.kexLoop",
+     "golang.org/x/crypto/ssh.handshakeTransport.recordWriteError",
+     "golang.org/x/crypto/ssh.handshakeTransport.writePacket",
+     "golang.org/x/crypto/ssh.mux.OpenChannel",
+     "golang.org/x/crypto/ssh.mux.SendRequest",
+     "golang.org/x/crypto/ssh.newHandshakeTransport",
+     "golang.org/x/crypto/ssh.sessionStdin.Close",
+     "golang.org/x/crypto/ssh.sshClientKeyboardInteractive.Challenge",
+     "golang.org/x/crypto/ssh.tcpListener.Accept",
+     "golang.org/x/crypto/ssh.tcpListener.Close",
+     "golang.org/x/crypto/ssh.unixListener.Accept",
+     "golang.org/x/crypto/ssh.unixListener.Close"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.35.0"
+    ],
+    "severity": "HIGH",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#4",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-47913",
+      "GHSA-56w8-48fp-6mgv",
+      "GO-2025-4116"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Potential denial of service in golang.org/x/crypto/ssh/agent \u2014 SSH clients receiving SSH_AGENT_SUCCESS when expecting a typed response will panic and cause early termination of the client process.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh/agent.agentKeyringSigner.Sign",
+     "golang.org/x/crypto/ssh/agent.agentKeyringSigner.SignWithAlgorithm",
+     "golang.org/x/crypto/ssh/agent.client.List",
+     "golang.org/x/crypto/ssh/agent.client.Sign",
+     "golang.org/x/crypto/ssh/agent.client.SignWithFlags",
+     "golang.org/x/crypto/ssh/agent.client.Signers"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.43.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#5",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-58181",
+      "GHSA-j5w8-q4qc-rx2x",
+      "GO-2025-4134"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "golang.org/x/crypto/ssh allows an attacker to cause unbounded memory consumption \u2014 SSH servers parsing GSSAPI authentication requests do not validate the number of mechanisms specified in the request, allowing an attacker to cause unbounded memory consumption.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.parseGSSAPIPayload"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.45.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#6",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-47914",
+      "GHSA-f6x5-jh6r-wrfv",
+      "GO-2025-4135"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "golang.org/x/crypto/ssh/agent vulnerable to panic if message is malformed due to out of bounds read \u2014 SSH Agent servers do not validate the size of messages when processing new identity requests, which may cause the program to panic if the message is malformed due to an out of bounds read.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh/agent.ForwardToAgent",
+     "golang.org/x/crypto/ssh/agent.ServeAgent",
+     "golang.org/x/crypto/ssh/agent.parseConstraints"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.45.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#7",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39833",
+      "GHSA-jppx-rxg9-jmrx",
+      "GO-2026-5005"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Invoking key constraints not enforced in golang.org/x/crypto/ssh/agent \u2014 The in-memory keyring returned by NewKeyring() silently accepted keys with the ConfirmBeforeUse constraint but never enforced it. The key would sign without any confirmation prompt, with no indication to the caller that the constraint was not in effect. NewKeyring() now returns an error when unsupported constraints are requested.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh/agent.keyring.Add"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "CRITICAL",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The vulnerable code is in golang.org/x/crypto/ssh/agent keyring/client Add, and ssh/agent is not imported anywhere in the app or its production dependencies. The only x/crypto packages linked are acme/autocert via echo@v4.11.4/echo.go:57-58.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#8",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39832",
+      "GHSA-f5wc-c3c7-36mc",
+      "GO-2026-5006"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Invoking agent constraints dropped when forwarding keys in golang.org/x/crypto/ssh/agent \u2014 When adding a key to a remote agent constraint extensions such as restrict-destination-v00@openssh.com were not serialized in the request. Destination restrictions were silently stripped when forwarding keys, allowing unrestricted use of the key on the remote host. The client now serializes all constraint extensions. Additionally, the in-memory keyring returned by NewKeyring() now rejects keys with unsupported constraint extensions instead of silently ignoring them.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh/agent.client.Add",
+     "golang.org/x/crypto/ssh/agent.keyring.Add"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "CRITICAL",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The vulnerable code is in golang.org/x/crypto/ssh/agent keyring/client Add, and ssh/agent is not imported anywhere in the app or its production dependencies. The only x/crypto packages linked are acme/autocert via echo@v4.11.4/echo.go:57-58.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#9",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-46597",
+      "GHSA-q4h4-gmj2-qvw2",
+      "GO-2026-5013"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Invoking byte arithmetic causes underflow and panic in golang.org/x/crypto/ssh \u2014 An incorrectly placed cast from bytes to int allowed for server-side panic in the AES-GCM packet decoder for well-crafted inputs.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.Dial",
+     "golang.org/x/crypto/ssh.NewClientConn",
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.curve25519sha256.Client",
+     "golang.org/x/crypto/ssh.curve25519sha256.Server",
+     "golang.org/x/crypto/ssh.dhGEXSHA.Client",
+     "golang.org/x/crypto/ssh.dhGEXSHA.Server",
+     "golang.org/x/crypto/ssh.dhGroup.Client",
+     "golang.org/x/crypto/ssh.dhGroup.Server",
+     "golang.org/x/crypto/ssh.ecdh.Client",
+     "golang.org/x/crypto/ssh.ecdh.Server",
+     "golang.org/x/crypto/ssh.gcmCipher.readCipherPacket",
+     "golang.org/x/crypto/ssh.mlkem768WithCurve25519sha256.Client",
+     "golang.org/x/crypto/ssh.mlkem768WithCurve25519sha256.Server"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "HIGH",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#10",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39828",
+      "GHSA-45gg-vh54-h5m9",
+      "GO-2026-5014"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "golang.org/x/crypto vulnerable to invoking bypass of certificate restrictions \u2014 When an SSH server authentication callback returned PartialSuccessError with non-nil Permissions, those permissions were silently discarded, potentially dropping certificate restrictions such as force-command after a second factor succeeded. Returning non-nil Permissions with PartialSuccessError now results in a connection error.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.connection.serverAuthenticate"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#11",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39835",
+      "GHSA-78mq-xcr3-xm33",
+      "GO-2026-5015"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "golang.org/x/crypto is vulnerable to invoking server panic during CheckHostKey/Authenticate flow \u2014 SSH servers which use CertChecker as a public key callback without setting IsUserAuthority or IsHostAuthority could be caused to panic by a client presenting a certificate. CertChecker now returns an error instead of panicking when these callbacks are nil.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.CertChecker.Authenticate",
+     "golang.org/x/crypto/ssh.CertChecker.CheckHostKey"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#12",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39827",
+      "GHSA-qpw4-5x99-6vjp",
+      "GO-2026-5016"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Invoking memory leak when rejecting channels can lead to DoS in golang.org/x/crypto/ssh \u2014 An authenticated SSH client that repeatedly opened channels which were rejected by the server caused unbounded memory growth, eventually crashing the server process and affecting all connected users. Rejected channels are now properly removed from the connection's internal state and released for garbage collection.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.channel.Reject"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#13",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39830",
+      "GHSA-vgwf-h737-ff37",
+      "GO-2026-5017"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Invoking client can cause server deadlock on unexpected responses in golang.org/x/crypto/ssh \u2014 A malicious SSH peer could send unsolicited global request responses to fill an internal buffer, blocking the connection's read loop. The blocked goroutine could not be released by calling Close(), resulting in a resource leak per connection. Unsolicited global responses are now discarded.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.Client.Listen",
+     "golang.org/x/crypto/ssh.Client.ListenTCP",
+     "golang.org/x/crypto/ssh.Client.ListenUnix",
+     "golang.org/x/crypto/ssh.Dial",
+     "golang.org/x/crypto/ssh.NewClientConn",
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.Session.CombinedOutput",
+     "golang.org/x/crypto/ssh.Session.Output",
+     "golang.org/x/crypto/ssh.Session.RequestPty",
+     "golang.org/x/crypto/ssh.Session.RequestSubsystem",
+     "golang.org/x/crypto/ssh.Session.Run",
+     "golang.org/x/crypto/ssh.Session.SendRequest",
+     "golang.org/x/crypto/ssh.Session.Setenv",
+     "golang.org/x/crypto/ssh.Session.Shell",
+     "golang.org/x/crypto/ssh.Session.Signal",
+     "golang.org/x/crypto/ssh.Session.Start",
+     "golang.org/x/crypto/ssh.Session.WindowChange",
+     "golang.org/x/crypto/ssh.channel.SendRequest",
+     "golang.org/x/crypto/ssh.channel.handlePacket",
+     "golang.org/x/crypto/ssh.mux.SendRequest",
+     "golang.org/x/crypto/ssh.mux.handleGlobalPacket",
+     "golang.org/x/crypto/ssh.tcpListener.Close",
+     "golang.org/x/crypto/ssh.unixListener.Close"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "CRITICAL",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#14",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39829",
+      "GHSA-w879-237q-wc7r",
+      "GO-2026-5018"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Invoking pathological RSA/DSA parameters may cause DoS in golang.org/x/crypto/ssh \u2014 The RSA and DSA public key parsers did not enforce size limits on key parameters. A crafted public key with an excessively large modulus or DSA parameter could cause several minutes of CPU consumption during signature verification. This could be triggered by unauthenticated clients during public key authentication. RSA moduli are now limited to 8192 bits, and DSA parameters are validated per FIPS 186-2.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.Dial",
+     "golang.org/x/crypto/ssh.NewClientConn",
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.NewSignerFromKey",
+     "golang.org/x/crypto/ssh.ParseAuthorizedKey",
+     "golang.org/x/crypto/ssh.ParseKnownHosts",
+     "golang.org/x/crypto/ssh.ParsePrivateKey",
+     "golang.org/x/crypto/ssh.ParsePrivateKeyWithPassphrase",
+     "golang.org/x/crypto/ssh.ParsePublicKey",
+     "golang.org/x/crypto/ssh.ParseRawPrivateKey",
+     "golang.org/x/crypto/ssh.ParseRawPrivateKeyWithPassphrase",
+     "golang.org/x/crypto/ssh.checkDSAParams",
+     "golang.org/x/crypto/ssh.parseDSA",
+     "golang.org/x/crypto/ssh.parseRSA"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "HIGH",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#15",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39831",
+      "GHSA-89gr-r52h-f8rx",
+      "GO-2026-5019"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Invoking bypass of FIDO/U2F security keys physical interaction in golang.org/x/crypto/ssh \u2014 The Verify() method for FIDO/U2F security key types (sk-ecdsa-sha2-nistp256@openssh.com, sk-ssh-ed25519@openssh.com) did not check the User Presence flag. Signatures generated without physical touch were accepted, allowing unattended use of a hardware security key. To restore the previous behavior, return a \"no-touch-required\" extension in Permissions.Extensions from PublicKeyCallback.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.CertChecker.Authenticate",
+     "golang.org/x/crypto/ssh.CertChecker.CheckCert",
+     "golang.org/x/crypto/ssh.CertChecker.CheckHostKey",
+     "golang.org/x/crypto/ssh.Certificate.Verify",
+     "golang.org/x/crypto/ssh.Dial",
+     "golang.org/x/crypto/ssh.NewClientConn",
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.connection.serverAuthenticate",
+     "golang.org/x/crypto/ssh.skECDSAPublicKey.Verify",
+     "golang.org/x/crypto/ssh.skEd25519PublicKey.Verify"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "CRITICAL",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#16",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39834",
+      "GHSA-rm3j-f69w-wqmq",
+      "GO-2026-5020"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Invoking infinite loop on large channel writes in golang.org/x/crypto/ssh \u2014 When writing data larger than 4GB in a single Write call on an SSH channel, an integer overflow in the internal payload size calculation caused the write loop to spin indefinitely, sending empty packets without making progress. The size comparison now uses int64 to prevent truncation.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.Dial",
+     "golang.org/x/crypto/ssh.NewClientConn",
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.Session.CombinedOutput",
+     "golang.org/x/crypto/ssh.Session.Output",
+     "golang.org/x/crypto/ssh.Session.Run",
+     "golang.org/x/crypto/ssh.Session.Shell",
+     "golang.org/x/crypto/ssh.Session.Start",
+     "golang.org/x/crypto/ssh.channel.Write",
+     "golang.org/x/crypto/ssh.channel.WriteExtended",
+     "golang.org/x/crypto/ssh.curve25519sha256.Client",
+     "golang.org/x/crypto/ssh.curve25519sha256.Server",
+     "golang.org/x/crypto/ssh.dhGEXSHA.Client",
+     "golang.org/x/crypto/ssh.dhGEXSHA.Server",
+     "golang.org/x/crypto/ssh.dhGroup.Client",
+     "golang.org/x/crypto/ssh.dhGroup.Server",
+     "golang.org/x/crypto/ssh.ecdh.Client",
+     "golang.org/x/crypto/ssh.ecdh.Server",
+     "golang.org/x/crypto/ssh.extChannel.Write",
+     "golang.org/x/crypto/ssh.mlkem768WithCurve25519sha256.Client",
+     "golang.org/x/crypto/ssh.mlkem768WithCurve25519sha256.Server"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "CRITICAL",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#17",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-42508",
+      "GHSA-5cgq-3rg8-m6cv",
+      "GO-2026-5021"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Invoking auth bypass via unenforced @revoked status in golang.org/x/crypto/ssh/knownhosts \u2014 Previously, a revoked 'SignatureKey' belonging to a CA was not correctly checked for revocation. Now, both the 'key' and 'key.SignatureKey' are checked for @revoked.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh/knownhosts.hostKeyDB.IsRevoked"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "CRITICAL",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/crypto/ssh/knownhosts is not imported by the app or any production dependency. The only x/crypto packages linked are acme/autocert via echo@v4.11.4/echo.go:57-58, which do not use ssh.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#18",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-46595",
+      "GHSA-x527-x647-q7gg",
+      "GO-2026-5023"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Invoking VerifiedPublicKeyCallback permissions skip enforcement in golang.org/x/crypto/ssh \u2014 Previously, CVE-2024-45337 fixed an authorization bypass for misused ssh server configurations; if any other type of callback is passed other than public key, then the source-address validation would be skipped.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.connection.serverAuthenticate"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "CRITICAL",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#19",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-46598",
+      "GHSA-9m57-25v3-79x9",
+      "GO-2026-5033"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Invoking pathological inputs can lead to client panic in golang.org/x/crypto/ssh/agent \u2014 For certain crafted inputs, a 'ed25519.PrivateKey' was created by casting malformed wire bytes, leading to a panic when used.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh/agent.ForwardToAgent",
+     "golang.org/x/crypto/ssh/agent.ServeAgent",
+     "golang.org/x/crypto/ssh/agent.parseEd25519Cert",
+     "golang.org/x/crypto/ssh/agent.parseEd25519Key"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.52.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#20",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "GO-2026-5932"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "The golang.org/x/crypto/openpgp package is unmaintained, unsafe by design, and has known security issues \u2014 The golang.org/x/crypto/openpgp package is unsafe by design, has numerous known security issues, is not maintained, and should not be used.\n\nIf you are required to interoperate with OpenPGP systems and need a maintained package, consider github.com/ProtonMail/go-crypto/openpgp which is a maintained fork that aims to be a drop-in replacement for this package.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/openpgp",
+     "golang.org/x/crypto/openpgp/packet",
+     "golang.org/x/crypto/openpgp/armor",
+     "golang.org/x/crypto/openpgp/clearsign",
+     "golang.org/x/crypto/openpgp/errors",
+     "golang.org/x/crypto/openpgp/elgamal",
+     "golang.org/x/crypto/openpgp/s2k"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 0.98
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/crypto/openpgp is not imported by the app or by any production dependency; the only x/crypto packages pulled in are acme and acme/autocert via echo@v4.11.4/echo.go:57-58.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#21",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-56854",
+      "GO-2026-6303"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Source-address critical option not enforced for non-public-key auth callbacks in golang.org/x/crypto/ssh \u2014 The source-address critical option in the Permissions returned by an authentication callback was only enforced for the PublicKeyCallback and VerifiedPublicKeyCallback paths, extending the fix for CVE-2026-46595. Permissions returned by the PasswordCallback, KeyboardInteractiveCallback, NoClientAuthCallback, and GSSAPIWithMICConfig.AllowLogin callbacks were not validated against the client's remote address, so a source-address restriction set by those callbacks was silently ignored. The ch",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.connection.serverAuthenticate"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#22",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-78662",
+      "GO-2026-6354"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Prevent DoS on deadlocked undecided channel in golang.org/x/crypto/ssh \u2014 Previously, a channel registered in the mux's chanList is not usable until it is established. A malicious peer was able flood the channel's incomingRequests, deadlocking the entire connection.\n\nNow, we add an atomic established state, set when a channel becomes usable. Until such a time, handlePacket drops every packet other than the open confirmation/failure, without blocking and without tearing down the connection.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.Dial",
+     "golang.org/x/crypto/ssh.NewClientConn",
+     "golang.org/x/crypto/ssh.NewControlClientConn",
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.channel.Accept",
+     "golang.org/x/crypto/ssh.channel.handlePacket",
+     "golang.org/x/crypto/ssh.channel.responseMessageReceived"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.56.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#23",
+   "facts": {
+    "package": "golang.org/x/crypto",
+    "version": "v0.19.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-56855",
+      "GO-2026-6355"
+     ],
+     [
+      "golang.org/x/crypto"
+     ]
+    ],
+    "advisory_summary": "Prevent DoS on deadlocked established channel in golang.org/x/crypto/ssh \u2014 Previously, after a channel has been established, a malicious peer could send crafted messages that would deadlock the entire connection.\n\nNow, we handle all RFC 4254 channel messages; global requests are handled explicitly. Then, treat all other messages as a protocol error and tear the connection down instead of buffering and blocking.",
+    "vuln_symbols": [
+     "golang.org/x/crypto/ssh.Dial",
+     "golang.org/x/crypto/ssh.NewClientConn",
+     "golang.org/x/crypto/ssh.NewControlClientConn",
+     "golang.org/x/crypto/ssh.NewServerConn",
+     "golang.org/x/crypto/ssh.channel.handlePacket"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.56.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports golang.org/x/crypto/ssh (or ssh/agent, ssh/knownhosts); its only x/crypto path is echo@v4.11.4/echo.go:57-58 importing acme/autocert, which does not import ssh. The service is an HTTP REST API (app/main.go:64-88, internal/rest/article.go:44-47) with no SSH server, client or agent code.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#24",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2023-45288",
+      "BIT-golang-2023-45288",
+      "GHSA-4v7x-pqxf-cx7m",
+      "GO-2024-2687"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "net/http, x/net/http2: close connections when receiving too many headers \u2014 An attacker may cause an HTTP/2 endpoint to read arbitrary amounts of header data by sending an excessive number of CONTINUATION frames. Maintaining HPACK state requires parsing and processing all HEADERS and CONTINUATION frames on a connection. When a request's headers exceed MaxHeaderBytes, no memory is allocated to store the excess headers, but they are still parsed. This permits an attacker to cause an HTTP/2 endpoint to read arbitrary amounts of header data, all associated with a request which is going to be reject",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.ClientConn.Close",
+     "golang.org/x/net/http2.ClientConn.Ping",
+     "golang.org/x/net/http2.ClientConn.RoundTrip",
+     "golang.org/x/net/http2.ClientConn.Shutdown",
+     "golang.org/x/net/http2.ConfigureServer",
+     "golang.org/x/net/http2.ConfigureTransport",
+     "golang.org/x/net/http2.ConfigureTransports",
+     "golang.org/x/net/http2.ConnectionError.Error",
+     "golang.org/x/net/http2.ErrCode.String",
+     "golang.org/x/net/http2.FrameHeader.String",
+     "golang.org/x/net/http2.FrameType.String",
+     "golang.org/x/net/http2.FrameWriteRequest.String",
+     "golang.org/x/net/http2.Framer.ReadFrame",
+     "golang.org/x/net/http2.Framer.WriteContinuation",
+     "golang.org/x/net/http2.Framer.WriteData",
+     "golang.org/x/net/http2.Framer.WriteDataPadded",
+     "golang.org/x/net/http2.Framer.WriteGoAway",
+     "golang.org/x/net/http2.Framer.WriteHeaders",
+     "golang.org/x/net/http2.Framer.WritePing",
+     "golang.org/x/net/http2.Framer.WritePriority",
+     "golang.org/x/net/http2.Framer.WritePushPromise",
+     "golang.org/x/net/http2.Framer.WriteRSTStream",
+     "golang.org/x/net/http2.Framer.WriteRawFrame",
+     "golang.org/x/net/http2.Framer.WriteSettings",
+     "golang.org/x/net/http2.Framer.WriteSettingsAck",
+     "golang.org/x/net/http2.Framer.WriteWindowUpdate",
+     "golang.org/x/net/http2.Framer.readMetaFrame",
+     "golang.org/x/net/http2.GoAwayError.Error",
+     "golang.org/x/net/http2.ReadFrameHeader",
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.Setting.String",
+     "golang.org/x/net/http2.SettingID.String",
+     "golang.org/x/net/http2.SettingsFrame.ForeachSetting",
+     "golang.org/x/net/http2.StreamError.Error",
+     "golang.org/x/net/http2.Transport.CloseIdleConnections",
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.bufferedWriter.Flush",
+     "golang.org/x/net/http2.bufferedWriter.Write",
+     "golang.org/x/net/http2.chunkWriter.Write",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.connError.Error",
+     "golang.org/x/net/http2.dataBuffer.Read",
+     "golang.org/x/net/http2.duplicatePseudoHeaderError.Error",
+     "golang.org/x/net/http2.gzipReader.Close",
+     "golang.org/x/net/http2.gzipReader.Read",
+     "golang.org/x/net/http2.headerFieldNameError.Error",
+     "golang.org/x/net/http2.headerFieldValueError.Error",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.pipe.Read",
+     "golang.org/x/net/http2.priorityWriteScheduler.CloseStream",
+     "golang.org/x/net/http2.priorityWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.pseudoHeaderError.Error",
+     "golang.org/x/net/http2.requestBody.Close",
+     "golang.org/x/net/http2.requestBody.Read",
+     "golang.org/x/net/http2.responseWriter.Flush",
+     "golang.org/x/net/http2.responseWriter.FlushError",
+     "golang.org/x/net/http2.responseWriter.Push",
+     "golang.org/x/net/http2.responseWriter.SetReadDeadline",
+     "golang.org/x/net/http2.responseWriter.SetWriteDeadline",
+     "golang.org/x/net/http2.responseWriter.Write",
+     "golang.org/x/net/http2.responseWriter.WriteHeader",
+     "golang.org/x/net/http2.responseWriter.WriteString",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.serverConn.CloseConn",
+     "golang.org/x/net/http2.serverConn.Flush",
+     "golang.org/x/net/http2.stickyErrWriter.Write",
+     "golang.org/x/net/http2.transportResponseBody.Close",
+     "golang.org/x/net/http2.transportResponseBody.Read",
+     "golang.org/x/net/http2.writeData.String"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.23.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The x/net/http2 server/transport is only wired by echo's StartH2CServer (echo@v4.11.4/echo.go:834-841), and the app calls e.Start (app/main.go:88), which serves with a plain stdlib http.Server (echo.go:678-686, configureServer 774-811) with no TLS or h2c. Stdlib's bundled HTTP/2 is not x/net, and the app makes no outbound HTTP/2 client calls.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#25",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2024-45338",
+      "GHSA-w32m-9786-jp63",
+      "GO-2024-3333"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Non-linear parsing of case-insensitive content in golang.org/x/net/html \u2014 An attacker can craft an input to the Parse functions that would be processed non-linearly with respect to its length, resulting in extremely slow parsing. This could cause a denial of service.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.htmlIntegrationPoint",
+     "golang.org/x/net/html.inBodyIM",
+     "golang.org/x/net/html.inTableIM",
+     "golang.org/x/net/html.parseDoctype"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.33.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/net/html is not imported by the app or any production dependency (echo, validator.v9, mysql, logrus, gommon, godotenv). Request bodies are only JSON-bound into domain.Article (internal/rest/article.go:101).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#26",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-22870",
+      "GHSA-qxp5-gwg8-xv66",
+      "GO-2025-3503"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "HTTP Proxy bypass using IPv6 Zone IDs in golang.org/x/net \u2014 Matching of hosts against proxy patterns can improperly treat an IPv6 zone ID as a hostname component. For example, when the NO_PROXY environment variable is set to \"*.example.com\", a request to \"[::1%25.example.com]:80` will incorrectly match and not be proxied.",
+    "vuln_symbols": [
+     "golang.org/x/net/http/httpproxy.config.useProxy",
+     "golang.org/x/net/http/httpproxy.domainMatch.match",
+     "golang.org/x/net/proxy.Dial",
+     "golang.org/x/net/proxy.FromEnvironment",
+     "golang.org/x/net/proxy.FromEnvironmentUsing",
+     "golang.org/x/net/proxy.PerHost.AddFromString",
+     "golang.org/x/net/proxy.PerHost.Dial",
+     "golang.org/x/net/proxy.PerHost.DialContext",
+     "golang.org/x/net/proxy.PerHost.dialerForRequest"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.36.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/net/proxy and http/httpproxy are not imported by the app or its production dependencies, and the app makes no outbound HTTP requests. Stdlib net/http uses its own vendored httpproxy, not this module.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#27",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-22872",
+      "GHSA-vvgc-356p-c3xw",
+      "GO-2025-3595"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Incorrect Neutralization of Input During Web Page Generation in x/net in golang.org/x/net \u2014 The tokenizer incorrectly interprets tags with unquoted attribute values that end with a solidus character (/) as self-closing. When directly using Tokenizer, this can result in such tags incorrectly being marked as self-closing, and when using the Parse functions, this can result in content following such tags as being placed in the wrong scope during DOM construction, but only when tags are in foreign content (e.g. <math>, <svg>, etc contexts).",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.Tokenizer.Next",
+     "golang.org/x/net/html.Tokenizer.readStartTag"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.38.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/net/html is not imported by the app or any production dependency (echo, validator.v9, mysql, logrus, gommon, godotenv). Request bodies are only JSON-bound into domain.Article (internal/rest/article.go:101).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#28",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-47911",
+      "GHSA-w4gw-w5jq-g9jh",
+      "GO-2026-4440"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Quadratic parsing complexity in golang.org/x/net/html \u2014 The html.Parse function in golang.org/x/net/html has quadratic parsing complexity when processing certain inputs, which can lead to denial of service (DoS) if an attacker provides specially crafted HTML content.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.45.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/net/html is not imported by the app or any production dependency (echo, validator.v9, mysql, logrus, gommon, godotenv). Request bodies are only JSON-bound into domain.Article (internal/rest/article.go:101).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#29",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-58190",
+      "GO-2026-4441"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Infinite parsing loop in golang.org/x/net \u2014 The html.Parse function in golang.org/x/net/html has an infinite parsing loop when processing certain inputs, which can lead to denial of service (DoS) if an attacker provides specially crafted HTML content.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.inRowIM"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.45.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/net/html is not imported by the app or any production dependency (echo, validator.v9, mysql, logrus, gommon, godotenv). Request bodies are only JSON-bound into domain.Article (internal/rest/article.go:101).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#30",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-33814",
+      "BIT-golang-2026-33814",
+      "GO-2026-4918"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Infinite loop in HTTP/2 transport when given bad SETTINGS_MAX_FRAME_SIZE in net/http/internal/http2 in golang.org/x/net \u2014 When processing HTTP/2 SETTINGS frames, transport will enter an infinite loop of writing CONTINUATION frames if it receives a SETTINGS_MAX_FRAME_SIZE with a value of 0.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.clientConnReadLoop.processSettingsNoWrite",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.53.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The vulnerable code is in the x/net/http2 client Transport. The app makes no outbound HTTP calls, and the x/net/http2 package is only referenced by echo's StartH2CServer (echo@v4.11.4/echo.go:834-841), which the app does not use (it calls e.Start at app/main.go:88).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#31",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-42506",
+      "GO-2026-5025"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Invoking incorrect handling of namespaced elements in foreign content in golang.org/x/net/html \u2014 Parsing arbitrary HTML which is then rendered using Render can result in an unexpected HTML tree. This can be leveraged to execute XSS attacks in applications that attempt to sanitize input HTML before rendering.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/net/html is not imported by the app or any production dependency (echo, validator.v9, mysql, logrus, gommon, godotenv). Request bodies are only JSON-bound into domain.Article (internal/rest/article.go:101).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#32",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39821",
+      "GO-2026-5026"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Invoking failure to reject ASCII-only Punycode-encoded labels in golang.org/x/net/idna \u2014 The ToASCII and ToUnicode functions incorrectly accept Punycode-encoded labels that decode to an ASCII-only label. For example, ToUnicode(\"xn--example-.com\") incorrectly returns the name \"example.com\" rather than an error.\n\nThis behavior can lead to privilege escalation in programs using the idna package. For example, a program which performs privilege checks on the ASCII hostname may reject \"example.com\" but permit \"xn--example-.com\". If that program subsequently converts the ASCII hostname to Unicode, it",
+    "vuln_symbols": [
+     "golang.org/x/net/idna.Profile.ToASCII",
+     "golang.org/x/net/idna.Profile.ToUnicode",
+     "golang.org/x/net/idna.Profile.process",
+     "golang.org/x/net/idna.ToASCII",
+     "golang.org/x/net/idna.ToUnicode"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "x/net/idna is only reached through autocert (x/crypto@v0.19.0/acme/autocert/autocert.go:78,270), wired only by echo's StartAutoTLS (echo.go:735-739). The app uses e.Start (app/main.go:88), so AutoTLSManager.GetCertificate/HostWhitelist never run; echo.New only builds a struct literal (echo.go:367-369).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#33",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-42502",
+      "GO-2026-5027"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Invoking incorrect handling of HTML elements in foreign content in golang.org/x/net/html \u2014 Parsing arbitrary HTML which is then rendered using Render can result in an unexpected HTML tree. This can be leveraged to execute XSS attacks in applications that attempt to sanitize input HTML before rendering.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/net/html is not imported by the app or any production dependency (echo, validator.v9, mysql, logrus, gommon, godotenv). Request bodies are only JSON-bound into domain.Article (internal/rest/article.go:101).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#34",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-25680",
+      "GHSA-5cv4-jp36-h3mw",
+      "GO-2026-5028"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Go Net HTML parser is vulnerable to denial of service \u2014 In Go Net (`golang.org/x/net`) before verion 0.55.0, parsing arbitrary HTML can consume excessive CPU time, possibly leading to denial of service.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/net/html is not imported by the app or any production dependency (echo, validator.v9, mysql, logrus, gommon, godotenv). Request bodies are only JSON-bound into domain.Article (internal/rest/article.go:101).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#35",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-25681",
+      "GO-2026-5029"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Invoking incorrect handling of character references in DOCTYPE nodes in golang.org/x/net/html \u2014 Parsing arbitrary HTML which is then rendered using Render can result in an unexpected HTML tree. This can be leveraged to execute XSS attacks in applications that attempt to sanitize input HTML before rendering.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/net/html is not imported by the app or any production dependency (echo, validator.v9, mysql, logrus, gommon, godotenv). Request bodies are only JSON-bound into domain.Article (internal/rest/article.go:101).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#36",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-27136",
+      "GO-2026-5030"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Invoking duplicate attributes can cause XSS in golang.org/x/net/html \u2014 Parsing arbitrary HTML which is then rendered using Render can result in an unexpected HTML tree. This can be leveraged to execute XSS attacks in applications that attempt to sanitize input HTML before rendering.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/net/html is not imported by the app or any production dependency (echo, validator.v9, mysql, logrus, gommon, godotenv). Request bodies are only JSON-bound into domain.Article (internal/rest/article.go:101).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#37",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-46600",
+      "BIT-golang-2026-46600",
+      "GO-2026-5942"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Parsing an invalid SVCB or HTTPS RR can panic in golang.org/x/net/dns/dnsmessage \u2014 Parsing an invalid SVCB or HTTPS RR can panic when the size of a parameter value overflows the message buffer.",
+    "vuln_symbols": [
+     "golang.org/x/net/dns/dnsmessage.Message.Unpack",
+     "golang.org/x/net/dns/dnsmessage.Parser.Additional",
+     "golang.org/x/net/dns/dnsmessage.Parser.AllAdditionals",
+     "golang.org/x/net/dns/dnsmessage.Parser.AllAnswers",
+     "golang.org/x/net/dns/dnsmessage.Parser.AllAuthorities",
+     "golang.org/x/net/dns/dnsmessage.Parser.Answer",
+     "golang.org/x/net/dns/dnsmessage.Parser.Authority",
+     "golang.org/x/net/dns/dnsmessage.Parser.HTTPSResource",
+     "golang.org/x/net/dns/dnsmessage.Parser.SVCBResource",
+     "golang.org/x/net/dns/dnsmessage.unpackSVCBResource"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.56.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/net/dns/dnsmessage is not imported by the app or any production dependency. Stdlib net uses its own vendored copy.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#38",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-78659",
+      "BIT-golang-2026-78659",
+      "GO-2026-6603"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "HTTP/2 server memory exhaustion due to Trailer headers in net/http \u2014 When \"Trailer\" headers are sent by a client, the HTTP server internally uses the header values to populate the Request.Trailer map passed to the server handler. Because Request.Trailer is a map, each entry incurs memory overhead. For HTTP/2 servers, a malicious client can exploit this by sending a \"Trailer\" header that declares a large number of fields, causing the server to allocate a disproportionate amount of memory while bypassing Server.MaxHeaderValueCount and Server.MaxHeaderBytes limits. This exploit is not applicable ",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.ClientConn.Close",
+     "golang.org/x/net/http2.ClientConn.Ping",
+     "golang.org/x/net/http2.ClientConn.RoundTrip",
+     "golang.org/x/net/http2.ClientConn.Shutdown",
+     "golang.org/x/net/http2.ConfigureServer",
+     "golang.org/x/net/http2.ConfigureTransport",
+     "golang.org/x/net/http2.ConfigureTransports",
+     "golang.org/x/net/http2.ConnectionError.Error",
+     "golang.org/x/net/http2.ErrCode.String",
+     "golang.org/x/net/http2.FrameHeader.String",
+     "golang.org/x/net/http2.FrameType.String",
+     "golang.org/x/net/http2.FrameWriteRequest.String",
+     "golang.org/x/net/http2.Framer.ReadFrame",
+     "golang.org/x/net/http2.Framer.ReadFrameForHeader",
+     "golang.org/x/net/http2.Framer.ReadFrameHeader",
+     "golang.org/x/net/http2.Framer.WriteContinuation",
+     "golang.org/x/net/http2.Framer.WriteData",
+     "golang.org/x/net/http2.Framer.WriteDataPadded",
+     "golang.org/x/net/http2.Framer.WriteGoAway",
+     "golang.org/x/net/http2.Framer.WriteHeaders",
+     "golang.org/x/net/http2.Framer.WritePing",
+     "golang.org/x/net/http2.Framer.WritePriority",
+     "golang.org/x/net/http2.Framer.WritePriorityUpdate",
+     "golang.org/x/net/http2.Framer.WritePushPromise",
+     "golang.org/x/net/http2.Framer.WriteRSTStream",
+     "golang.org/x/net/http2.Framer.WriteRawFrame",
+     "golang.org/x/net/http2.Framer.WriteSettings",
+     "golang.org/x/net/http2.Framer.WriteSettingsAck",
+     "golang.org/x/net/http2.Framer.WriteWindowUpdate",
+     "golang.org/x/net/http2.Framer.readMetaFrame",
+     "golang.org/x/net/http2.GoAwayError.Error",
+     "golang.org/x/net/http2.ReadFrameHeader",
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.Setting.String",
+     "golang.org/x/net/http2.SettingID.String",
+     "golang.org/x/net/http2.SettingsFrame.ForeachSetting",
+     "golang.org/x/net/http2.StreamError.Error",
+     "golang.org/x/net/http2.Transport.CloseIdleConnections",
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.bufferedWriter.Flush",
+     "golang.org/x/net/http2.bufferedWriter.Write",
+     "golang.org/x/net/http2.bufferedWriterTimeoutWriter.Write",
+     "golang.org/x/net/http2.chunkWriter.Write",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.connError.Error",
+     "golang.org/x/net/http2.dataBuffer.Read",
+     "golang.org/x/net/http2.duplicatePseudoHeaderError.Error",
+     "golang.org/x/net/http2.gzipReader.Close",
+     "golang.org/x/net/http2.gzipReader.Read",
+     "golang.org/x/net/http2.headerFieldNameError.Error",
+     "golang.org/x/net/http2.headerFieldValueError.Error",
+     "golang.org/x/net/http2.netHTTPClientConn.Close",
+     "golang.org/x/net/http2.netHTTPClientConn.RoundTrip",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.pipe.Read",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.CloseStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.OpenStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC9218.OpenStream",
+     "golang.org/x/net/http2.pseudoHeaderError.Error",
+     "golang.org/x/net/http2.requestBody.Close",
+     "golang.org/x/net/http2.requestBody.Read",
+     "golang.org/x/net/http2.responseWriter.Flush",
+     "golang.org/x/net/http2.responseWriter.FlushError",
+     "golang.org/x/net/http2.responseWriter.Push",
+     "golang.org/x/net/http2.responseWriter.SetReadDeadline",
+     "golang.org/x/net/http2.responseWriter.SetWriteDeadline",
+     "golang.org/x/net/http2.responseWriter.Write",
+     "golang.org/x/net/http2.responseWriter.WriteHeader",
+     "golang.org/x/net/http2.responseWriter.WriteString",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.serverConn.CloseConn",
+     "golang.org/x/net/http2.serverConn.Flush",
+     "golang.org/x/net/http2.stickyErrWriter.Write",
+     "golang.org/x/net/http2.transportResponseBody.Close",
+     "golang.org/x/net/http2.transportResponseBody.Read",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip",
+     "golang.org/x/net/http2.writeData.String"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.60.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The x/net/http2 server/transport is only wired by echo's StartH2CServer (echo@v4.11.4/echo.go:834-841), and the app calls e.Start (app/main.go:88), which serves with a plain stdlib http.Server (echo.go:678-686, configureServer 774-811) with no TLS or h2c. Stdlib's bundled HTTP/2 is not x/net, and the app makes no outbound HTTP/2 client calls.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#39",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-78660",
+      "BIT-golang-2026-78660",
+      "GO-2026-6610"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "HTTP/2 transport accepts malformed framing-related headers in net/http \u2014 Historically, we have been rather lax about malformed framing-related headers in our HTTP/2 implementation, as they cannot interfere with HTTP/2 framing. However, this makes it possible for our HTTP/2 implementation to forward responses containing such headers to an HTTP/1 client when acting as a reverse proxy. If the HTTP/1 client also does not behave strictly enough, this can result in response smuggling.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.clientConnReadLoop.handleResponse",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.60.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The vulnerable code is in the x/net/http2 client Transport. The app makes no outbound HTTP calls, and the x/net/http2 package is only referenced by echo's StartH2CServer (echo@v4.11.4/echo.go:834-841), which the app does not use (it calls e.Start at app/main.go:88).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#40",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-78669",
+      "BIT-golang-2026-78669",
+      "GO-2026-6611"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Excessive CPU consumption from repeated initial window changes in net/http \u2014 A malicious HTTP/2 peer can cause excessive CPU consumption in the client or server by opening a large number of streams and then sending many small SETTINGS frames containing SETTINGS_INITIAL_WINDOW_SIZE values.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.ClientConn.Close",
+     "golang.org/x/net/http2.ClientConn.Ping",
+     "golang.org/x/net/http2.ClientConn.RoundTrip",
+     "golang.org/x/net/http2.ClientConn.Shutdown",
+     "golang.org/x/net/http2.ClientConn.addStreamLocked",
+     "golang.org/x/net/http2.ConfigureServer",
+     "golang.org/x/net/http2.ConfigureTransport",
+     "golang.org/x/net/http2.ConfigureTransports",
+     "golang.org/x/net/http2.ConnectionError.Error",
+     "golang.org/x/net/http2.ErrCode.String",
+     "golang.org/x/net/http2.FrameHeader.String",
+     "golang.org/x/net/http2.FrameType.String",
+     "golang.org/x/net/http2.FrameWriteRequest.Consume",
+     "golang.org/x/net/http2.FrameWriteRequest.String",
+     "golang.org/x/net/http2.Framer.ReadFrame",
+     "golang.org/x/net/http2.Framer.ReadFrameForHeader",
+     "golang.org/x/net/http2.Framer.ReadFrameHeader",
+     "golang.org/x/net/http2.Framer.WriteContinuation",
+     "golang.org/x/net/http2.Framer.WriteData",
+     "golang.org/x/net/http2.Framer.WriteDataPadded",
+     "golang.org/x/net/http2.Framer.WriteGoAway",
+     "golang.org/x/net/http2.Framer.WriteHeaders",
+     "golang.org/x/net/http2.Framer.WritePing",
+     "golang.org/x/net/http2.Framer.WritePriority",
+     "golang.org/x/net/http2.Framer.WritePriorityUpdate",
+     "golang.org/x/net/http2.Framer.WritePushPromise",
+     "golang.org/x/net/http2.Framer.WriteRSTStream",
+     "golang.org/x/net/http2.Framer.WriteRawFrame",
+     "golang.org/x/net/http2.Framer.WriteSettings",
+     "golang.org/x/net/http2.Framer.WriteSettingsAck",
+     "golang.org/x/net/http2.Framer.WriteWindowUpdate",
+     "golang.org/x/net/http2.GoAwayError.Error",
+     "golang.org/x/net/http2.ReadFrameHeader",
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.Server.serveConn",
+     "golang.org/x/net/http2.Setting.String",
+     "golang.org/x/net/http2.SettingID.String",
+     "golang.org/x/net/http2.SettingsFrame.ForeachSetting",
+     "golang.org/x/net/http2.StreamError.Error",
+     "golang.org/x/net/http2.Transport.CloseIdleConnections",
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.Transport.newClientConn",
+     "golang.org/x/net/http2.bufferedWriter.Flush",
+     "golang.org/x/net/http2.bufferedWriter.Write",
+     "golang.org/x/net/http2.bufferedWriterTimeoutWriter.Write",
+     "golang.org/x/net/http2.chunkWriter.Write",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.clientConnReadLoop.processSettingsNoWrite",
+     "golang.org/x/net/http2.clientConnReadLoop.processWindowUpdate",
+     "golang.org/x/net/http2.clientConnReadLoop.streamByID",
+     "golang.org/x/net/http2.clientStream.awaitFlowControl",
+     "golang.org/x/net/http2.clientStream.cleanupWriteRequest",
+     "golang.org/x/net/http2.connError.Error",
+     "golang.org/x/net/http2.dataBuffer.Read",
+     "golang.org/x/net/http2.duplicatePseudoHeaderError.Error",
+     "golang.org/x/net/http2.gzipReader.Close",
+     "golang.org/x/net/http2.gzipReader.Read",
+     "golang.org/x/net/http2.headerFieldNameError.Error",
+     "golang.org/x/net/http2.headerFieldValueError.Error",
+     "golang.org/x/net/http2.netHTTPClientConn.Close",
+     "golang.org/x/net/http2.netHTTPClientConn.RoundTrip",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.outflow.add",
+     "golang.org/x/net/http2.outflow.available",
+     "golang.org/x/net/http2.outflow.setConnFlow",
+     "golang.org/x/net/http2.outflow.take",
+     "golang.org/x/net/http2.pipe.Read",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.CloseStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.OpenStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.Pop",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC9218.OpenStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC9218.Pop",
+     "golang.org/x/net/http2.pseudoHeaderError.Error",
+     "golang.org/x/net/http2.randomWriteScheduler.Pop",
+     "golang.org/x/net/http2.requestBody.Close",
+     "golang.org/x/net/http2.requestBody.Read",
+     "golang.org/x/net/http2.responseWriter.Flush",
+     "golang.org/x/net/http2.responseWriter.FlushError",
+     "golang.org/x/net/http2.responseWriter.Push",
+     "golang.org/x/net/http2.responseWriter.SetReadDeadline",
+     "golang.org/x/net/http2.responseWriter.SetWriteDeadline",
+     "golang.org/x/net/http2.responseWriter.Write",
+     "golang.org/x/net/http2.responseWriter.WriteHeader",
+     "golang.org/x/net/http2.responseWriter.WriteString",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.Pop",
+     "golang.org/x/net/http2.serverConn.CloseConn",
+     "golang.org/x/net/http2.serverConn.Flush",
+     "golang.org/x/net/http2.serverConn.newStream",
+     "golang.org/x/net/http2.serverConn.processSettingInitialWindowSize",
+     "golang.org/x/net/http2.serverConn.processWindowUpdate",
+     "golang.org/x/net/http2.serverConn.scheduleFrameWrite",
+     "golang.org/x/net/http2.stickyErrWriter.Write",
+     "golang.org/x/net/http2.transportResponseBody.Close",
+     "golang.org/x/net/http2.transportResponseBody.Read",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip",
+     "golang.org/x/net/http2.writeData.String"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.60.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The x/net/http2 server/transport is only wired by echo's StartH2CServer (echo@v4.11.4/echo.go:834-841), and the app calls e.Start (app/main.go:88), which serves with a plain stdlib http.Server (echo.go:678-686, configureServer 774-811) with no TLS or h2c. Stdlib's bundled HTTP/2 is not x/net, and the app makes no outbound HTTP/2 client calls.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#41",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-78663",
+      "BIT-golang-2026-78663",
+      "GO-2026-6612"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Double flow control refund on HTTP/2 server streams in net/http \u2014 The HTTP/2 server can refund connection-level flow control twice for the same data: Once when a client resets a stream (refunding data for any sent-but-unread portion of the stream), and again when a request handler reads the buffered data. A malicious client can exploit this to bypass the configured connection-level flow control limit (MaxReceiveBufferPerConnection). Total buffered data is still limited by the concurrent stream limit and stream-level flow control.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.ClientConn.Close",
+     "golang.org/x/net/http2.ClientConn.Ping",
+     "golang.org/x/net/http2.ClientConn.RoundTrip",
+     "golang.org/x/net/http2.ClientConn.Shutdown",
+     "golang.org/x/net/http2.ConfigureServer",
+     "golang.org/x/net/http2.ConfigureTransport",
+     "golang.org/x/net/http2.ConfigureTransports",
+     "golang.org/x/net/http2.ConnectionError.Error",
+     "golang.org/x/net/http2.ErrCode.String",
+     "golang.org/x/net/http2.FrameHeader.String",
+     "golang.org/x/net/http2.FrameType.String",
+     "golang.org/x/net/http2.FrameWriteRequest.String",
+     "golang.org/x/net/http2.Framer.ReadFrame",
+     "golang.org/x/net/http2.Framer.ReadFrameForHeader",
+     "golang.org/x/net/http2.Framer.ReadFrameHeader",
+     "golang.org/x/net/http2.Framer.WriteContinuation",
+     "golang.org/x/net/http2.Framer.WriteData",
+     "golang.org/x/net/http2.Framer.WriteDataPadded",
+     "golang.org/x/net/http2.Framer.WriteGoAway",
+     "golang.org/x/net/http2.Framer.WriteHeaders",
+     "golang.org/x/net/http2.Framer.WritePing",
+     "golang.org/x/net/http2.Framer.WritePriority",
+     "golang.org/x/net/http2.Framer.WritePriorityUpdate",
+     "golang.org/x/net/http2.Framer.WritePushPromise",
+     "golang.org/x/net/http2.Framer.WriteRSTStream",
+     "golang.org/x/net/http2.Framer.WriteRawFrame",
+     "golang.org/x/net/http2.Framer.WriteSettings",
+     "golang.org/x/net/http2.Framer.WriteSettingsAck",
+     "golang.org/x/net/http2.Framer.WriteWindowUpdate",
+     "golang.org/x/net/http2.GoAwayError.Error",
+     "golang.org/x/net/http2.ReadFrameHeader",
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.Setting.String",
+     "golang.org/x/net/http2.SettingID.String",
+     "golang.org/x/net/http2.SettingsFrame.ForeachSetting",
+     "golang.org/x/net/http2.StreamError.Error",
+     "golang.org/x/net/http2.Transport.CloseIdleConnections",
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.bufferedWriter.Flush",
+     "golang.org/x/net/http2.bufferedWriter.Write",
+     "golang.org/x/net/http2.bufferedWriterTimeoutWriter.Write",
+     "golang.org/x/net/http2.chunkWriter.Write",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.connError.Error",
+     "golang.org/x/net/http2.dataBuffer.Read",
+     "golang.org/x/net/http2.duplicatePseudoHeaderError.Error",
+     "golang.org/x/net/http2.gzipReader.Close",
+     "golang.org/x/net/http2.gzipReader.Read",
+     "golang.org/x/net/http2.headerFieldNameError.Error",
+     "golang.org/x/net/http2.headerFieldValueError.Error",
+     "golang.org/x/net/http2.netHTTPClientConn.Close",
+     "golang.org/x/net/http2.netHTTPClientConn.RoundTrip",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.pipe.Read",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.CloseStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.OpenStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC9218.OpenStream",
+     "golang.org/x/net/http2.pseudoHeaderError.Error",
+     "golang.org/x/net/http2.requestBody.Close",
+     "golang.org/x/net/http2.requestBody.Read",
+     "golang.org/x/net/http2.responseWriter.Flush",
+     "golang.org/x/net/http2.responseWriter.FlushError",
+     "golang.org/x/net/http2.responseWriter.Push",
+     "golang.org/x/net/http2.responseWriter.SetReadDeadline",
+     "golang.org/x/net/http2.responseWriter.SetWriteDeadline",
+     "golang.org/x/net/http2.responseWriter.Write",
+     "golang.org/x/net/http2.responseWriter.WriteHeader",
+     "golang.org/x/net/http2.responseWriter.WriteString",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.serverConn.CloseConn",
+     "golang.org/x/net/http2.serverConn.Flush",
+     "golang.org/x/net/http2.serverConn.closeStream",
+     "golang.org/x/net/http2.serverConn.handlerDone",
+     "golang.org/x/net/http2.serverConn.newWriterAndRequest",
+     "golang.org/x/net/http2.serverConn.newWriterAndRequestNoBody",
+     "golang.org/x/net/http2.serverConn.noteBodyRead",
+     "golang.org/x/net/http2.serverConn.processHeaders",
+     "golang.org/x/net/http2.serverConn.runHandler",
+     "golang.org/x/net/http2.serverConn.scheduleHandler",
+     "golang.org/x/net/http2.stickyErrWriter.Write",
+     "golang.org/x/net/http2.transportResponseBody.Close",
+     "golang.org/x/net/http2.transportResponseBody.Read",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip",
+     "golang.org/x/net/http2.writeData.String"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.60.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The x/net/http2 server/transport is only wired by echo's StartH2CServer (echo@v4.11.4/echo.go:834-841), and the app calls e.Start (app/main.go:88), which serves with a plain stdlib http.Server (echo.go:678-686, configureServer 774-811) with no TLS or h2c. Stdlib's bundled HTTP/2 is not x/net, and the app makes no outbound HTTP/2 client calls.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#42",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.21.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-97032",
+      "BIT-golang-2026-97032",
+      "GO-2026-6617"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "HTTP/2 server crash due to HPACK encoder race in net/http \u2014 HTTP/2 servers could end up crashing due to inadvertently modifying its HPACK encoder concurrently. This happens because the server modifies the HPACK encoder from two goroutines without synchronization: one uses the encoder to encode a HEADERS frame as part of a response sent to a client and the other modifies the encoder's table size when handling a SETTINGS frame containing SETTINGS_HEADER_TABLE_SIZE that a client sends. A malicious client can repeatedly send a request while changing the header table size to crash the server.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.ClientConn.Close",
+     "golang.org/x/net/http2.ClientConn.Ping",
+     "golang.org/x/net/http2.ClientConn.RoundTrip",
+     "golang.org/x/net/http2.ClientConn.Shutdown",
+     "golang.org/x/net/http2.ConfigureServer",
+     "golang.org/x/net/http2.ConfigureTransport",
+     "golang.org/x/net/http2.ConfigureTransports",
+     "golang.org/x/net/http2.ConnectionError.Error",
+     "golang.org/x/net/http2.ErrCode.String",
+     "golang.org/x/net/http2.FrameHeader.String",
+     "golang.org/x/net/http2.FrameType.String",
+     "golang.org/x/net/http2.FrameWriteRequest.String",
+     "golang.org/x/net/http2.Framer.ReadFrame",
+     "golang.org/x/net/http2.Framer.ReadFrameForHeader",
+     "golang.org/x/net/http2.Framer.ReadFrameHeader",
+     "golang.org/x/net/http2.Framer.WriteContinuation",
+     "golang.org/x/net/http2.Framer.WriteData",
+     "golang.org/x/net/http2.Framer.WriteDataPadded",
+     "golang.org/x/net/http2.Framer.WriteGoAway",
+     "golang.org/x/net/http2.Framer.WriteHeaders",
+     "golang.org/x/net/http2.Framer.WritePing",
+     "golang.org/x/net/http2.Framer.WritePriority",
+     "golang.org/x/net/http2.Framer.WritePriorityUpdate",
+     "golang.org/x/net/http2.Framer.WritePushPromise",
+     "golang.org/x/net/http2.Framer.WriteRSTStream",
+     "golang.org/x/net/http2.Framer.WriteRawFrame",
+     "golang.org/x/net/http2.Framer.WriteSettings",
+     "golang.org/x/net/http2.Framer.WriteSettingsAck",
+     "golang.org/x/net/http2.Framer.WriteWindowUpdate",
+     "golang.org/x/net/http2.GoAwayError.Error",
+     "golang.org/x/net/http2.ReadFrameHeader",
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.Setting.String",
+     "golang.org/x/net/http2.SettingID.String",
+     "golang.org/x/net/http2.SettingsFrame.ForeachSetting",
+     "golang.org/x/net/http2.StreamError.Error",
+     "golang.org/x/net/http2.Transport.CloseIdleConnections",
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.bufferedWriter.Flush",
+     "golang.org/x/net/http2.bufferedWriter.Write",
+     "golang.org/x/net/http2.bufferedWriterTimeoutWriter.Write",
+     "golang.org/x/net/http2.chunkWriter.Write",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.connError.Error",
+     "golang.org/x/net/http2.dataBuffer.Read",
+     "golang.org/x/net/http2.duplicatePseudoHeaderError.Error",
+     "golang.org/x/net/http2.gzipReader.Close",
+     "golang.org/x/net/http2.gzipReader.Read",
+     "golang.org/x/net/http2.headerFieldNameError.Error",
+     "golang.org/x/net/http2.headerFieldValueError.Error",
+     "golang.org/x/net/http2.netHTTPClientConn.Close",
+     "golang.org/x/net/http2.netHTTPClientConn.RoundTrip",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.pipe.Read",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.CloseStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.OpenStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC9218.OpenStream",
+     "golang.org/x/net/http2.pseudoHeaderError.Error",
+     "golang.org/x/net/http2.requestBody.Close",
+     "golang.org/x/net/http2.requestBody.Read",
+     "golang.org/x/net/http2.responseWriter.Flush",
+     "golang.org/x/net/http2.responseWriter.FlushError",
+     "golang.org/x/net/http2.responseWriter.Push",
+     "golang.org/x/net/http2.responseWriter.SetReadDeadline",
+     "golang.org/x/net/http2.responseWriter.SetWriteDeadline",
+     "golang.org/x/net/http2.responseWriter.Write",
+     "golang.org/x/net/http2.responseWriter.WriteHeader",
+     "golang.org/x/net/http2.responseWriter.WriteString",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.serverConn.CloseConn",
+     "golang.org/x/net/http2.serverConn.Flush",
+     "golang.org/x/net/http2.serverConn.processSetting",
+     "golang.org/x/net/http2.serverConn.startFrameWrite",
+     "golang.org/x/net/http2.stickyErrWriter.Write",
+     "golang.org/x/net/http2.transportResponseBody.Close",
+     "golang.org/x/net/http2.transportResponseBody.Read",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip",
+     "golang.org/x/net/http2.writeData.String"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.60.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The x/net/http2 server/transport is only wired by echo's StartH2CServer (echo@v4.11.4/echo.go:834-841), and the app calls e.Start (app/main.go:88), which serves with a plain stdlib http.Server (echo.go:678-686, configureServer 774-811) with no TLS or h2c. Stdlib's bundled HTTP/2 is not x/net, and the app makes no outbound HTTP/2 client calls.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#43",
+   "facts": {
+    "package": "golang.org/x/sys",
+    "version": "v0.17.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39824",
+      "GO-2026-5024"
+     ],
+     [
+      "golang.org/x/sys"
+     ]
+    ],
+    "advisory_summary": "[affects only goos=windows] Invoking integer overflow in NewNTUnicodeString in golang.org/x/sys/windows \u2014 NewNTUnicodeString does not check for string length overflow. When provided with a string that overflows the maximum size of a NTUnicodeString (a 16-bit number of bytes), it returns a truncated string rather than an error.",
+    "vuln_symbols": [
+     "golang.org/x/sys/windows.NewNTUnicodeString"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.44.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/sys/windows is only imported by logrus terminal_check_windows.go, which is build-constrained to Windows. On linux/amd64, NewNTUnicodeString is not compiled in, and the app never calls it.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#44",
+   "facts": {
+    "package": "golang.org/x/text",
+    "version": "v0.14.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-56852",
+      "GO-2026-5970"
+     ],
+     [
+      "golang.org/x/text"
+     ]
+    ],
+    "advisory_summary": "Infinite loop on invalid input in golang.org/x/text \u2014 A norm.Iter can enter an infinite loop when handling input containing invalid UTF-8 bytes.",
+    "vuln_symbols": [
+     "golang.org/x/text/unicode/norm.Form.Append",
+     "golang.org/x/text/unicode/norm.Form.AppendString",
+     "golang.org/x/text/unicode/norm.Form.Bytes",
+     "golang.org/x/text/unicode/norm.Form.FirstBoundary",
+     "golang.org/x/text/unicode/norm.Form.FirstBoundaryInString",
+     "golang.org/x/text/unicode/norm.Form.IsNormal",
+     "golang.org/x/text/unicode/norm.Form.IsNormalString",
+     "golang.org/x/text/unicode/norm.Form.LastBoundary",
+     "golang.org/x/text/unicode/norm.Form.NextBoundary",
+     "golang.org/x/text/unicode/norm.Form.NextBoundaryInString",
+     "golang.org/x/text/unicode/norm.Form.Properties",
+     "golang.org/x/text/unicode/norm.Form.PropertiesString",
+     "golang.org/x/text/unicode/norm.Form.QuickSpan",
+     "golang.org/x/text/unicode/norm.Form.QuickSpanString",
+     "golang.org/x/text/unicode/norm.Form.Span",
+     "golang.org/x/text/unicode/norm.Form.SpanString",
+     "golang.org/x/text/unicode/norm.Form.String",
+     "golang.org/x/text/unicode/norm.Form.Transform",
+     "golang.org/x/text/unicode/norm.Iter.Init",
+     "golang.org/x/text/unicode/norm.Iter.InitString",
+     "golang.org/x/text/unicode/norm.Iter.Next",
+     "golang.org/x/text/unicode/norm.Iter.Seek",
+     "golang.org/x/text/unicode/norm.nextComposed",
+     "golang.org/x/text/unicode/norm.normReader.Read",
+     "golang.org/x/text/unicode/norm.normWriter.Write"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.39.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/text/unicode/norm is not imported by any production package. The only x/text import in the dependency set is go-playground/locales@v0.14.1/cmd/generate_resources.go (x/text/unicode/cldr), a standalone generator main package that is not linked into the app.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-clean-arch#45",
+   "facts": {
+    "package": "golang.org/x/text",
+    "version": "v0.14.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-56851",
+      "GO-2026-6629"
+     ],
+     [
+      "golang.org/x/text"
+     ]
+    ],
+    "advisory_summary": "Panic parsing crafted input in x/text/secure/precis in golang.org/x/text \u2014 The Nickname profile can panic with an out-of-bounds slice error when transforming crafted input into a short destination buffer.",
+    "vuln_symbols": [
+     "golang.org/x/text/secure/precis.Profile.Append",
+     "golang.org/x/text/secure/precis.Profile.AppendCompareKey",
+     "golang.org/x/text/secure/precis.Profile.Bytes",
+     "golang.org/x/text/secure/precis.Profile.Compare",
+     "golang.org/x/text/secure/precis.Profile.CompareKey",
+     "golang.org/x/text/secure/precis.Profile.NewTransformer",
+     "golang.org/x/text/secure/precis.Profile.String",
+     "golang.org/x/text/secure/precis.Transformer.Bytes",
+     "golang.org/x/text/secure/precis.Transformer.String",
+     "golang.org/x/text/secure/precis.Transformer.Transform",
+     "golang.org/x/text/secure/precis.nickAdditionalMapping.Transform"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.41.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/text/secure/precis is not imported by the app or any production dependency. The only x/text use is the locales cmd generator (go-playground/locales@v0.14.1/cmd/generate_resources.go), which is not part of the binary.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  }
+ ]
+}

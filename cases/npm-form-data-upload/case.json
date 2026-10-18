@@ -1,0 +1,42 @@
+{
+  "id": "npm-form-data-upload",
+  "description": "multipart uploads built with form-data",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "enrichment": {
+    "CVE-2025-7783": {
+      "kev": false,
+      "epss": 0.2
+    }
+  },
+  "_note": "enrichment values are FIXTURE signals, not live KEV/EPSS",
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/npm-form-data-upload#1",
+      "facts": {
+        "package": "form-data",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-7783"
+          ],
+          [
+            "form-data"
+          ]
+        ],
+        "vuln_symbols": [
+          "FormData",
+          "_generateBoundary"
+        ],
+        "advisory_summary": "Predictable multipart boundary (Math.random) lets attacker-influenced field values inject parts.",
+        "created_at": "2026-09-01T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "uploader.js builds a FormData with user-controlled fields and submits it"
+      }
+    }
+  ]
+}

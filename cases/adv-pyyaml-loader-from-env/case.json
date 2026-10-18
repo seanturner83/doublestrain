@@ -1,0 +1,44 @@
+{
+  "id": "adv-pyyaml-loader-from-env",
+  "description": "yaml.load with a Loader chosen by getattr from an env var defaulting to FullLoader",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "enrichment": {
+    "CVE-2020-14343": {
+      "kev": false,
+      "epss": 0.2
+    }
+  },
+  "_note": "ADVERSARIAL fixture: targets a blind spot of the grep pre-pass. Enrichment values are FIXTURE signals.",
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/adv-pyyaml-loader-from-env#1",
+      "facts": {
+        "package": "PyYAML",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2020-14343"
+          ],
+          [
+            "PyYAML"
+          ]
+        ],
+        "vuln_symbols": [
+          "yaml.full_load",
+          "yaml.load",
+          "FullLoader"
+        ],
+        "advisory_summary": "Arbitrary code execution when untrusted YAML is parsed with full_load / FullLoader.",
+        "created_at": "2026-09-01T00:00:00Z",
+        "import_name": "yaml"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "LOADER = getattr(yaml, os.environ.get('YAML_LOADER', 'FullLoader')); yaml.load(request.data, Loader=LOADER)"
+      }
+    }
+  ]
+}

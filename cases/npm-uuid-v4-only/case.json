@@ -1,0 +1,43 @@
+{
+  "id": "npm-uuid-v4-only",
+  "description": "uuid used only for v4(); advisory is v3/v5/v6 with a caller buffer",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "enrichment": {
+    "CVE-2026-41907": {
+      "kev": false,
+      "epss": 0.02
+    }
+  },
+  "_note": "enrichment values are FIXTURE signals, not live KEV/EPSS",
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/npm-uuid-v4-only#1",
+      "facts": {
+        "package": "uuid",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41907"
+          ],
+          [
+            "uuid"
+          ]
+        ],
+        "vuln_symbols": [
+          "v3",
+          "v5",
+          "v6"
+        ],
+        "advisory_summary": "Out-of-bounds write when v3/v5/v6 are called with a caller-supplied buffer and offset.",
+        "created_at": "2026-09-01T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "only uuid.v4() with no buffer is called"
+      }
+    }
+  ]
+}

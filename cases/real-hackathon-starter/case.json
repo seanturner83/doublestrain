@@ -1,0 +1,49 @@
+{
+  "id": "real-hackathon-starter",
+  "description": "hackathon-starter (OSV-generated; labelled blind 2026-10-15)",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-hackathon-starter#1",
+      "facts": {
+        "package": "braces",
+        "version": "3.0.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93687",
+            "GHSA-vfj7-8cjw-p6xm"
+          ],
+          [
+            "braces"
+          ]
+        ],
+        "advisory_summary": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns \u2014 braces through 3.0.3 contains a stack overflow vulnerability in the recursive AST walkers that lack depth guards. Attackers can supply deeply nested brace patterns under the character limit to exhaust the call stack and terminate the Node.js process with an uncaught RangeError.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "braces@3.0.3 is reached only via micromatch <- find-yarn-workspace-root <- patch-package, run in the npm postinstall script (package.json:18); no app runtime code imports micromatch/braces (the only mentions are package.json, README, CHANGELOG and CI).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    }
+  ]
+}

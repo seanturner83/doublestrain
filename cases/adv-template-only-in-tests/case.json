@@ -1,0 +1,41 @@
+{
+  "id": "adv-template-only-in-tests",
+  "description": "_.template appears only in a test helper; runtime uses merge",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "enrichment": {
+    "CVE-2021-23337": {
+      "kev": false,
+      "epss": 0.2
+    }
+  },
+  "_note": "ADVERSARIAL fixture: targets a blind spot of the grep pre-pass. Enrichment values are FIXTURE signals.",
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/adv-template-only-in-tests#1",
+      "facts": {
+        "package": "lodash",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-23337"
+          ],
+          [
+            "lodash"
+          ]
+        ],
+        "vuln_symbols": [
+          "_.template"
+        ],
+        "advisory_summary": "Command injection via the `template` function's options (variable / sourceURL).",
+        "created_at": "2026-09-01T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "template is used only by test/fixtures.js (dev/test code, never loaded by the server)"
+      }
+    }
+  ]
+}

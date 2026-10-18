@@ -1,0 +1,41 @@
+{
+  "id": "npm-qs-parse",
+  "description": "qs.parse on the raw query string",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "enrichment": {
+    "CVE-2022-24999": {
+      "kev": false,
+      "epss": 0.04
+    }
+  },
+  "_note": "enrichment values are FIXTURE signals, not live KEV/EPSS",
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/npm-qs-parse#1",
+      "facts": {
+        "package": "qs",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-24999"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "vuln_symbols": [
+          "qs.parse"
+        ],
+        "advisory_summary": "Prototype pollution via crafted query strings (__proto__ keys) in qs.parse.",
+        "created_at": "2026-09-01T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "src/search.js parses req.url's query with qs.parse"
+      }
+    }
+  ]
+}

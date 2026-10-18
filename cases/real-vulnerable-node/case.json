@@ -1,0 +1,252 @@
+{
+  "id": "real-vulnerable-node",
+  "description": "vulnerable-node (OSV-generated; labelled blind 2026-10-15)",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-vulnerable-node#1",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "2.1.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102276",
+            "GHSA-6j4f-fj2g-mc7p"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion \u2014 ### Summary\n\n`parseCommaParts()` can exhaust the native stack and crash the process. There are two distinct ways to trigger it, both reachable from a single untrusted pattern string.\n\nThis is the parsing-side counterpart to CVE-2026-14257 / GHSA-mh99-v99m-4gvg. That fix made `expand_()` iterative and documented a constant-stack-depth guarantee, but `parseCommaParts()` was left recursive, so the guarantee only held for one of the two parsing paths.\n\n### Vector 1 - unbounded recursion on `post`\n\n`parseC",
+        "vuln_symbols": [
+          "parseCommaParts",
+          "expand_",
+          "post",
+          "push.apply",
+          "Function.prototype.apply",
+          "max"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.19",
+          "2.1.5",
+          "3.0.7",
+          "5.0.10"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "brace-expansion is reached only via ejs -> jake -> filelist -> minimatch (lockfile); ejs@3.1.10's runtime lib/ejs.js requires only fs/path/utils (jake is for its CLI/build), and the app only uses require('ejs').renderFile (server.js:26). No app code calls minimatch/brace-expansion.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-vulnerable-node#2",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "2.1.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102277",
+            "GHSA-q2hr-2g5m-vwhr"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service \u2014 ### Summary\n\nExpanding `{a},b}`-shaped input takes time quadratic in the number of literal `}` characters, blocking the event loop.\n\nBash preserves a quirk where a brace group followed by a comma set still expands (`{a},b}`). The parser implements this by rewriting the string and restarting the scan. Each pass absorbs exactly one `}` and re-scans from the beginning, so `n` trailing braces cost `n` full passes.\n\n### Reproduction\n\n```js\nconst build = n => '{a}' + '}'.repeat(n) + ',z}'\n\nfor (const n o",
+        "vuln_symbols": [
+          "n",
+          "escClose",
+          "max",
+          "maxLength",
+          "expand",
+          "minimatch"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.21",
+          "2.1.7",
+          "3.0.9",
+          "5.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "brace-expansion is reached only via ejs -> jake -> filelist -> minimatch (lockfile); ejs@3.1.10's runtime lib/ejs.js requires only fs/path/utils (jake is for its CLI/build), and the app only uses require('ejs').renderFile (server.js:26). No app code calls minimatch/brace-expansion.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-vulnerable-node#3",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "2.1.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102278",
+            "GHSA-qhr7-859c-m2p7"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion \u2014 ### Summary\n\n`expand_()` recurses once per level of brace *nesting*. Deeply nested input exhausts the native stack and crashes the process.\n\nThis is distinct from CVE-2026-14257 / GHSA-mh99-v99m-4gvg, which made the *tail* iterative (recursion on `m.post`, driven by how many groups are chained). Nesting depth drives a different recursion that the tail fix never touched, so the documented constant-stack-depth guarantee only ever covered chained input, not nested input.\n\nIt is also distinct from GHS",
+        "vuln_symbols": [
+          "expand_",
+          "m.post",
+          "parseCommaParts",
+          "MAX_PATTERN_LENGTH",
+          "max",
+          "maxLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.20",
+          "2.1.6",
+          "3.0.8",
+          "5.0.11"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "brace-expansion is reached only via ejs -> jake -> filelist -> minimatch (lockfile); ejs@3.1.10's runtime lib/ejs.js requires only fs/path/utils (jake is for its CLI/build), and the app only uses require('ejs').renderFile (server.js:26). No app code calls minimatch/brace-expansion.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-vulnerable-node#4",
+      "facts": {
+        "package": "morgan",
+        "version": "1.12.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-87859",
+            "GHSA-9f6g-j8ch-79g4"
+          ],
+          [
+            "morgan"
+          ]
+        ],
+        "advisory_summary": "morgan vulnerable to Log Injection via unescaped double quote in quoted log fields \u2014 ### Impact\n\nMorgan writes attacker-controlled request data to the access log. Its escaping (added in 1.11.0 and 1.12.0) neutralizes control characters, the Unicode line separators, and backslash, but not the double quote (`0x22`), which is the field delimiter of the Apache combined log format morgan emits. An attacker who controls a quoted field (`:user-agent`, `:referrer`, the request URL, or the Basic auth `:remote-user`) can inject a double quote to close the field early and forge additional fields in the l",
+        "vuln_symbols": [
+          "combined",
+          "common",
+          "default"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "server.js:46 app.use(morgan('combined')) logs the attacker-controlled request URL, referrer and user-agent in quoted fields for every request; morgan@1.12.0 does not escape '\"'.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-vulnerable-node#5",
+      "facts": {
+        "package": "proxy-addr",
+        "version": "2.0.7",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-90711",
+            "GHSA-jqcg-44mw-7w3h"
+          ],
+          [
+            "proxy-addr"
+          ]
+        ],
+        "advisory_summary": "proxy-addr vulnerable to IP spoofing via IPv4-mapped IPv6 trust subnet \u2014 ### Impact\n\n`proxy-addr` determines which network hops are trusted proxies so that `X-Forwarded-For` can be believed. When an application configures a trust subnet as an IPv4-mapped IPv6 address with a short prefix, such as `::ffff:10.0.0.0/8` (the correct spelling is `::ffff:10.0.0.0/104`), the subnet compiles with all-zero leading bits and matches every IPv4 address instead of the block it names. The same happens for any IPv6 trust subnet with zero leading bits, such as `::/1`.\n\nEvery unauthenticated client is then trus",
+        "vuln_symbols": [
+          "req.ip",
+          "req.ips"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.8"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs 'trust proxy' set to an IPv4-mapped/zero-prefix IPv6 subnet; server.js never sets trust proxy (grep finds none), so proxy-addr trust is false.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    }
+  ]
+}

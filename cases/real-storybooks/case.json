@@ -1,0 +1,1555 @@
+{
+  "id": "real-storybooks",
+  "description": "real-storybooks (OSV-generated; labelled blind 2026-10-16)",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#1",
+      "facts": {
+        "package": "body-parser",
+        "version": "1.20.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-12590",
+            "GHSA-v422-hmwv-36x6"
+          ],
+          [
+            "body-parser"
+          ]
+        ],
+        "advisory_summary": "body-parser vulnerable to denial of service when invalid limit value silently disables size enforcement \u2014 ### Impact\n\nWhen body-parser is configured with an invalid `limit` option value, such as an unparseable string or `NaN`, `bytes.parse()` returns `null` and the request body size check is silently skipped. Applications that rely on `limit` as their primary safeguard against oversized request bodies will accept arbitrarily large payloads, leading to excessive memory and CPU usage and denial of service.\n\nThis issue affects applications that pass a programmatically computed or user-configurabl",
+        "vuln_symbols": [
+          "limit",
+          "NaN",
+          "bytes.parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.20.6",
+          "2.3.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "app.js:28-29 use express.urlencoded/express.json with no limit option, so body-parser lib/types/json.js:56-58 and urlencoded.js:53-55 use the valid default bytes.parse('100kb'). The invalid-limit condition never arises; limit is not attacker- or config-derived.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#2",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.14",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-13149",
+            "GHSA-3jxr-9vmj-r5cp"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups \u2014 ### Summary\nbrace-expansion's expand() exhibits exponential-time - O(2\u207f) - behavior in the number of consecutive non-expanding {} groups. A short, all-ASCII input (~90 bytes/30 groups) blocks the calling thread for minutes; a slightly longer input hangs it effectively indefinitely. Because the dominant consumers run on Node's single-threaded event loop, one small input can fully stall a worker/process.\n\nIn `expand_`, `post` is computed unconditionally at the top of the function, before the early-return",
+        "vuln_symbols": [
+          "expand_",
+          "post"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.16",
+          "2.1.2",
+          "5.0.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "brace-expansion is reached at runtime only via express-handlebars->glob->minimatch; express-handlebars lib/express-handlebars.js:283-288 always globs the constant pattern '**/*'+extname ('.hbs', app.js:69) over server-owned views/partials, and minimatch brace-expands only the pattern, not file names. nodemon (other parent) is a devDependency that is never loaded by the server. No attacker string reaches expand().",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#3",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.14",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102276",
+            "GHSA-6j4f-fj2g-mc7p"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion \u2014 ### Summary\n\n`parseCommaParts()` can exhaust the native stack and crash the process. There are two distinct ways to trigger it, both reachable from a single untrusted pattern string.\n\nThis is the parsing-side counterpart to CVE-2026-14257 / GHSA-mh99-v99m-4gvg. That fix made `expand_()` iterative and documented a constant-stack-depth guarantee, but `parseCommaParts()` was left recursive, so the guarantee only held for one of the two parsing paths.\n\n### Vector 1 - unbounded recursion on `post`\n\n`parseC",
+        "vuln_symbols": [
+          "parseCommaParts",
+          "expand_",
+          "post",
+          "push.apply",
+          "Function.prototype.apply",
+          "max"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.19",
+          "2.1.5",
+          "3.0.7",
+          "5.0.10"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "brace-expansion is reached at runtime only via express-handlebars->glob->minimatch; express-handlebars lib/express-handlebars.js:283-288 always globs the constant pattern '**/*'+extname ('.hbs', app.js:69) over server-owned views/partials, and minimatch brace-expands only the pattern, not file names. nodemon (other parent) is a devDependency that is never loaded by the server. No attacker string reaches expand().",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#4",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.14",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-14257",
+            "GHSA-mh99-v99m-4gvg"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash \u2014 ### Summary\n\n`expand()` bounds the *number* of results it produces (the `max` option,\n`100_000` by default) but not their *length*. By chaining many brace groups,\nan attacker keeps the result count under `max` while making every result grow\nwith the number of groups. Building `max` long results \u2014 plus the intermediate\narrays combined at each brace group \u2014 exhausts memory and crashes the Node\nprocess with an **uncatchable** out-of-memory error. `try/catch` around\n`expand()` does not help: the fatal erro",
+        "vuln_symbols": [
+          "expand",
+          "max",
+          "N",
+          "expand_",
+          "minimatch",
+          "glob"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.17",
+          "2.1.3",
+          "3.0.3",
+          "5.0.8"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "brace-expansion is reached at runtime only via express-handlebars->glob->minimatch; express-handlebars lib/express-handlebars.js:283-288 always globs the constant pattern '**/*'+extname ('.hbs', app.js:69) over server-owned views/partials, and minimatch brace-expands only the pattern, not file names. nodemon (other parent) is a devDependency that is never loaded by the server. No attacker string reaches expand().",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#5",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.14",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102277",
+            "GHSA-q2hr-2g5m-vwhr"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service \u2014 ### Summary\n\nExpanding `{a},b}`-shaped input takes time quadratic in the number of literal `}` characters, blocking the event loop.\n\nBash preserves a quirk where a brace group followed by a comma set still expands (`{a},b}`). The parser implements this by rewriting the string and restarting the scan. Each pass absorbs exactly one `}` and re-scans from the beginning, so `n` trailing braces cost `n` full passes.\n\n### Reproduction\n\n```js\nconst build = n => '{a}' + '}'.repeat(n) + ',z}'\n\nfor (const n o",
+        "vuln_symbols": [
+          "n",
+          "escClose",
+          "max",
+          "maxLength",
+          "expand",
+          "minimatch"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.21",
+          "2.1.7",
+          "3.0.9",
+          "5.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "brace-expansion is reached at runtime only via express-handlebars->glob->minimatch; express-handlebars lib/express-handlebars.js:283-288 always globs the constant pattern '**/*'+extname ('.hbs', app.js:69) over server-owned views/partials, and minimatch brace-expands only the pattern, not file names. nodemon (other parent) is a devDependency that is never loaded by the server. No attacker string reaches expand().",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#6",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.14",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102278",
+            "GHSA-qhr7-859c-m2p7"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion \u2014 ### Summary\n\n`expand_()` recurses once per level of brace *nesting*. Deeply nested input exhausts the native stack and crashes the process.\n\nThis is distinct from CVE-2026-14257 / GHSA-mh99-v99m-4gvg, which made the *tail* iterative (recursion on `m.post`, driven by how many groups are chained). Nesting depth drives a different recursion that the tail fix never touched, so the documented constant-stack-depth guarantee only ever covered chained input, not nested input.\n\nIt is also distinct from GHS",
+        "vuln_symbols": [
+          "expand_",
+          "m.post",
+          "parseCommaParts",
+          "MAX_PATTERN_LENGTH",
+          "max",
+          "maxLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.20",
+          "2.1.6",
+          "3.0.8",
+          "5.0.11"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "brace-expansion is reached at runtime only via express-handlebars->glob->minimatch; express-handlebars lib/express-handlebars.js:283-288 always globs the constant pattern '**/*'+extname ('.hbs', app.js:69) over server-owned views/partials, and minimatch brace-expands only the pattern, not file names. nodemon (other parent) is a devDependency that is never loaded by the server. No attacker string reaches expand().",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#7",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.14",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69152",
+            "GHSA-rgw5-rvv9-x895"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation \u2014 ### Summary\n\nThe `maxLength` mitigation added in `5.0.8` for GHSA-mh99-v99m-4gvg / CVE-2026-14257 is incomplete. It bounds the accumulator where results are *combined*, but not the intermediate arrays that feed it. A ~25 KB input still crashes the Node process with an **uncatchable** out-of-memory error, so `try/catch` around `expand()` does not help.\n\nA second, related path in the same function lets a ~400 KB input block the event loop for over two minutes without ever exceeding the memory bound.",
+        "vuln_symbols": [
+          "maxLength",
+          "expand",
+          "combine",
+          "expand_",
+          "values",
+          "A"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.18",
+          "2.1.4",
+          "3.0.6",
+          "5.0.9"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "brace-expansion is reached at runtime only via express-handlebars->glob->minimatch; express-handlebars lib/express-handlebars.js:283-288 always globs the constant pattern '**/*'+extname ('.hbs', app.js:69) over server-owned views/partials, and minimatch brace-expands only the pattern, not file names. nodemon (other parent) is a devDependency that is never loaded by the server. No attacker string reaches expand().",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#8",
+      "facts": {
+        "package": "braces",
+        "version": "3.0.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93687",
+            "GHSA-vfj7-8cjw-p6xm"
+          ],
+          [
+            "braces"
+          ]
+        ],
+        "advisory_summary": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns \u2014 braces through 3.0.3 contains a stack overflow vulnerability in the recursive AST walkers that lack depth guards. Attackers can supply deeply nested brace patterns under the character limit to exhaust the call stack and terminate the Node.js process with an uncaught RangeError.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "braces 3.0.3 is dev-only (lockfile dev:true) and pulled solely by nodemon->chokidar (devDependency, `npm run dev` watcher); the server (app.js) never requires it and nodemon's watch globs are local config, not attacker input.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#9",
+      "facts": {
+        "package": "express-handlebars",
+        "version": "4.0.6",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-32820",
+            "BIT-handlebars-2021-32820",
+            "GHSA-fr76-2wp8-fp92"
+          ],
+          [
+            "express-handlebars"
+          ]
+        ],
+        "advisory_summary": "Insecure template handling in Express-handlebars \u2014 Express-handlebars is a Handlebars view engine for Express. Express-handlebars mixes pure template data with engine configuration options through the Express render API. More specifically, the layout parameter may trigger file disclosure vulnerabilities in downstream applications. This potential vulnerability is somewhat restricted in that only files with existing extentions (i.e. file.extension) can be included, files that lack an extension will have `.handlebars` appended to them. For complete details refer to the referenced GHSL-2021-018 re",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.3.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Every res.render call passes constant top-level keys (routes/index.js:10-12 layout:'login'; :20-23 name/stories; routes/stories.js:57-59,82-84,151-153,168), so 'layout' read at express-handlebars lib/express-handlebars.js:226 and resolved at :348-357 is never attacker-controlled; req.body/req.query are never spread into render options, and no in-app prototype pollution sets 'layout'.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#10",
+      "facts": {
+        "package": "handlebars",
+        "version": "4.7.9",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-106446",
+            "GHSA-8r5x-fm3f-whwj"
+          ],
+          [
+            "handlebars"
+          ]
+        ],
+        "advisory_summary": "Handlebars: JavaScript Injection via AST Type Confusion in compile (bypass of CVE-2026-33937) \u2014 ## Summary\n\n`Handlebars.compile()` and `Handlebars.precompile()` accept a pre-parsed AST as well as a template string. Handlebars 4.7.9 added validation for such ASTs. It only checks values on `PathExpression`, `NumberLiteral` and `BooleanLiteral` nodes, and the compiler still writes several other AST values into the generated JavaScript unchecked.\n\nIf an application passes an untrusted object to `compile()` or `precompile()`, such as a parsed JSON request body, that object can carry arbitrary JavaS",
+        "vuln_symbols": [
+          "Handlebars.compile",
+          "Handlebars.precompile",
+          "PathExpression",
+          "NumberLiteral",
+          "BooleanLiteral",
+          "compile"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.7.10"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "handlebars.compile is only called by express-handlebars _compileTemplate (lib/express-handlebars.js:256-257) on template strings read from views/*.hbs files on disk (:119-125, :322); no AST or request object is ever passed to compile/precompile.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#11",
+      "facts": {
+        "package": "handlebars",
+        "version": "4.7.9",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-106445",
+            "GHSA-p8wg-vrv2-v86f"
+          ],
+          [
+            "handlebars"
+          ]
+        ],
+        "advisory_summary": "Handlebars: JavaScript Injection via Own Property Check Bypass \u2014 ## Summary\n\nHandlebars can expose the `Function` constructor despite its prototype-access deny list. When a template reaches `Function.prototype`, its own `constructor` property is returned before the deny list is checked. An attacker who can render a controlled template with `allowProtoMethodsByDefault: true` can inject and execute arbitrary JavaScript, leading to Remote Code Execution on the server.\n\n## Description\n\n`lookupProperty` trusts own properties:\n\n```js\nif (Object.prototype.hasOwnProperty.call(parent, propertyName)) {\n",
+        "vuln_symbols": [
+          "Function.prototype",
+          "lookupProperty",
+          "resultIsAllowed"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.7.10"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Templates are server-owned views/*.hbs files compiled by express-handlebars (lib/express-handlebars.js:119-125); attacker data only supplies context values, never template source, and the app sets no runtimeOptions (app.js:60-70) so allowProtoMethodsByDefault stays false.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#12",
+      "facts": {
+        "package": "handlebars",
+        "version": "4.7.9",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-106444",
+            "GHSA-xw65-4hp5-5hc7"
+          ],
+          [
+            "handlebars"
+          ]
+        ],
+        "advisory_summary": "Handlebars: JavaScript Injection via Unsafe Inline Embedding of Precompiled Templates \u2014 ## Summary\n\n`Handlebars.precompile()` generates JavaScript source that is commonly embedded in browser `<script>` elements. Before the fix, static template text containing `</script>` was emitted unchanged. HTML parsers recognize `</script>` even inside a JavaScript string literal, closing the surrounding script element and allowing following attacker-controlled markup to be parsed and executed.\n\nThis affects applications that precompile attacker-controlled templates and embed the generated source directly ",
+        "vuln_symbols": [
+          "Handlebars.precompile",
+          "quotedString",
+          "output"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.7.10"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "precompile is only used when options.precompiled is set (express-handlebars lib/express-handlebars.js:109-122), which the app never does; templates are server-owned files and no precompiled source is embedded in pages.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#13",
+      "facts": {
+        "package": "ip-address",
+        "version": "10.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54272",
+            "GHSA-22jq-vg5j-6vgg"
+          ],
+          [
+            "ip-address"
+          ]
+        ],
+        "advisory_summary": "ip-address: misclassification of IPv4-mapped/NAT64 IPv6 addresses can bypass SSRF and trust-boundary checks \u2014 ### Summary\n\n`Address6`'s special-property checks misclassify IPv4-mapped (`::ffff:0:0/96`) and NAT64 well-known (`64:ff9b::/96`) IPv6 addresses. These checks classify an address by its IPv6 wrapper rather than by the IPv4 address it embeds, so `isLoopback()`, `isLinkLocal()`, `isMulticast()`, and `isUnspecified()` all return `false` for literals such as `::ffff:127.0.0.1` or `::ffff:169.254.169.254` that actually route to loopback, RFC 1918, or link-local (cloud-metadata) destinations",
+        "vuln_symbols": [
+          "Address6",
+          "isLoopback",
+          "isLinkLocal",
+          "isMulticast",
+          "isUnspecified",
+          "isPrivate"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.2.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ip-address is reached only via mongodb->socks, which loads it for SOCKS5 proxy connections (mongodb lib/cmap/connect.js:337) configured from the server's MONGO_URI/env; socks (build/common/helpers.js:132-155) only parses the server-configured proxy/target hosts and never uses the classifier/subnet methods for any trust decision. The app (app.js, routes/*) never imports ip-address and no request data reaches it.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#14",
+      "facts": {
+        "package": "ip-address",
+        "version": "10.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101910",
+            "GHSA-2vr4-cq9g-pvrc"
+          ],
+          [
+            "ip-address"
+          ]
+        ],
+        "advisory_summary": "ip-address: no classifier recognizes the NAT64 local-use range 64:ff9b:1::/48, allowing SSRF and trust-boundary bypass \u2014 ### Summary\n\nNo classifier on `Address6` recognizes the NAT64 local-use range `64:ff9b:1::/48` (RFC 8215). `isPrivate()`, `isLoopback()`, `isLinkLocal()` and their siblings all return `false` for every address in it, so an internal IPv4 destination written through a local-use NAT64 prefix (`64:ff9b:1:7f00:0:100::` for `127.0.0.1`, `64:ff9b:1:a9fe:a9:fe00::` for `169.254.169.254`) reads as an ordinary global address. `getType()` names the range `'NAT64 (local-use)'`, so the l",
+        "vuln_symbols": [
+          "Address6",
+          "isPrivate",
+          "isLoopback",
+          "isLinkLocal",
+          "getType",
+          "embeddedIPv4"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.5.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ip-address is reached only via mongodb->socks, which loads it for SOCKS5 proxy connections (mongodb lib/cmap/connect.js:337) configured from the server's MONGO_URI/env; socks (build/common/helpers.js:132-155) only parses the server-configured proxy/target hosts and never uses the classifier/subnet methods for any trust decision. The app (app.js, routes/*) never imports ip-address and no request data reaches it.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#15",
+      "facts": {
+        "package": "ip-address",
+        "version": "10.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69198",
+            "GHSA-4xrf-jv44-h6hh"
+          ],
+          [
+            "ip-address"
+          ]
+        ],
+        "advisory_summary": "ip-address: a CIDR suffix on the parsed address suppresses special-use classification and can bypass SSRF and trust-boundary checks \u2014 ### Summary\n\nEvery special-use classification method is built on `isInSubnet`, which short-circuits to `false` whenever the address's own subnet mask is *shorter* than the reference range's mask. That mask comes verbatim from the CIDR suffix on the parsed input, so appending a suffix such as `/0` suppresses classification entirely: `isLoopback()`, `isPrivate()`, `isLinkLocal()`, `isCGNAT()`, `isMulticast()`, `isUnspecified()`, `isBroadcast()`, `isULA()`, and `ge",
+        "vuln_symbols": [
+          "isInSubnet",
+          "isLoopback",
+          "isPrivate",
+          "isLinkLocal",
+          "isCGNAT",
+          "isMulticast"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.2.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ip-address is reached only via mongodb->socks, which loads it for SOCKS5 proxy connections (mongodb lib/cmap/connect.js:337) configured from the server's MONGO_URI/env; socks (build/common/helpers.js:132-155) only parses the server-configured proxy/target hosts and never uses the classifier/subnet methods for any trust decision. The app (app.js, routes/*) never imports ip-address and no request data reaches it.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#16",
+      "facts": {
+        "package": "ip-address",
+        "version": "10.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101911",
+            "GHSA-h3mg-xc3c-68pw"
+          ],
+          [
+            "ip-address"
+          ]
+        ],
+        "advisory_summary": "ip-address: Address6 builds a parse diagnostic proportional to the input with no length bound, allowing a single long string to stall or crash the process \u2014 ### Summary\n\n`new Address6()` and `Address6.isValid()` place no bound on the length of the string they parse. When the string contains a character that cannot appear in an IPv6 address, the parser builds a diagnostic that wraps every such character in a 34-byte `<span class=\"parse-error\">`, so the work and the memory scale with the input rather than with an address. A 1 MiB string of `!` costs about 110 MB and 70 ms of synchronous work, 8 ",
+        "vuln_symbols": [
+          "Address6.isValid",
+          "RangeError",
+          "AddressError",
+          "isValid",
+          "parse",
+          "parseMessage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.7.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Address6 parsing in socks (build/common/helpers.js:150-155) only sees server-configured proxy/destination hosts from MONGO_URI-derived mongodb options (mongodb lib/cmap/connect.js:337); the app never passes request strings to ip-address, so no unbounded attacker string reaches the parser.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#17",
+      "facts": {
+        "package": "ip-address",
+        "version": "10.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101912",
+            "GHSA-j6r3-76f7-8jcv"
+          ],
+          [
+            "ip-address"
+          ]
+        ],
+        "advisory_summary": "ip-address: isInSubnet() and isHostInSubnet() compare addresses of different families as if they shared an address space, allowing an allowlist check to admit an address outside its range \u2014 ### Summary\n\n`isInSubnet()` and `isHostInSubnet()` accept an address of either family and compare masked binary strings without checking that both operands are the same family. `Address4` pads to 32 bits and `Address6` to 128, so whenever the leading bits agree the strings are equal: `new Address6('a00::1').isInSubnet(new Address4('10.0.0.0/8'))` is `true`, and `new Address4('32.0.0.1').isInSubnet(new Addre",
+        "vuln_symbols": [
+          "isInSubnet",
+          "isHostInSubnet",
+          "Address4",
+          "Address6",
+          "n",
+          "v4"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.7.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ip-address is reached only via mongodb->socks, which loads it for SOCKS5 proxy connections (mongodb lib/cmap/connect.js:337) configured from the server's MONGO_URI/env; socks (build/common/helpers.js:132-155) only parses the server-configured proxy/target hosts and never uses the classifier/subnet methods for any trust decision. The app (app.js, routes/*) never imports ip-address and no request data reaches it.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#18",
+      "facts": {
+        "package": "ip-address",
+        "version": "10.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69192",
+            "GHSA-mwp4-54f8-5fhr"
+          ],
+          [
+            "ip-address"
+          ]
+        ],
+        "advisory_summary": "ip-address: Address4 decodes leading-zero octets as decimal while resolvers decode them as octal, allowing SSRF and trust-boundary bypass \u2014 ### Summary\n\n`Address4` accepts an octet written with a leading zero and decodes it as decimal, while the WHATWG URL host parser, `inet_aton`, and `getaddrinfo` all decode a leading zero as octal. The library and the network stack therefore disagree about which host a string names. `new Address4('012.0.0.1')` reports `correctForm()` of `12.0.0.1` and `isPrivate()` of `false`, but `fetch('http://012.0.0.1/')` connects to `10.0.0.1`.\n\nAn application that bui",
+        "vuln_symbols": [
+          "Address4",
+          "inet_aton",
+          "getaddrinfo",
+          "correctForm",
+          "isPrivate",
+          "Address4.parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.3.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ip-address is reached only via mongodb->socks, which loads it for SOCKS5 proxy connections (mongodb lib/cmap/connect.js:337) configured from the server's MONGO_URI/env; socks (build/common/helpers.js:132-155) only parses the server-configured proxy/target hosts and never uses the classifier/subnet methods for any trust decision. The app (app.js, routes/*) never imports ip-address and no request data reaches it.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#19",
+      "facts": {
+        "package": "ip-address",
+        "version": "10.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101913",
+            "GHSA-rpw4-54j3-4h4q"
+          ],
+          [
+            "ip-address"
+          ]
+        ],
+        "advisory_summary": "ip-address: Address6.isLinkLocal() recognizes fe80::/64 rather than fe80::/10, allowing SSRF and trust-boundary bypass to on-link hosts \u2014 ### Summary\n\n`Address6.isLinkLocal()` recognizes `fe80::/64` rather than `fe80::/10`. Link-local unicast is the whole `/10` under RFC 4291 \u00a72.4 and the IANA IPv6 Special-Purpose Address Registry, so the method returns `false` for every link-local address outside the one `/64` that stateless address autoconfiguration happens to use. `new Address6('fe81::1').isLinkLocal()` is `false`.\n\nThe library contradicts itself on the same object: for `fe81::1`, `getType(",
+        "vuln_symbols": [
+          "Address6.isLinkLocal",
+          "getType",
+          "getScope",
+          "isLinkLocal",
+          "isHostInSubnet",
+          "Address4.isLinkLocal"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.5.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ip-address is reached only via mongodb->socks, which loads it for SOCKS5 proxy connections (mongodb lib/cmap/connect.js:337) configured from the server's MONGO_URI/env; socks (build/common/helpers.js:132-155) only parses the server-configured proxy/target hosts and never uses the classifier/subnet methods for any trust decision. The app (app.js, routes/*) never imports ip-address and no request data reaches it.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#20",
+      "facts": {
+        "package": "moment",
+        "version": "2.30.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-17495",
+            "GHSA-4p3w-j4w9-5jqw"
+          ],
+          [
+            "moment"
+          ]
+        ],
+        "advisory_summary": "moment vulnerable to Path Traversal via crafted non-string locale name \u2014 ### Impact\n\nmoment before 2.31.0 is vulnerable to path traversal in `moment.locale()`. When an application passes a non-string, attacker-influenced value to `moment.locale()`, a specially crafted object can bypass the locale name validation and cause moment to load a file from an attacker-controlled path. This is a further bypass of the validation added in 2.29.2 for [CVE-2022-24785](https://github.com/moment/moment/security/advisories/GHSA-8hfj-j24r-96c4).\n\nThis affects server-side (npm) users only. Plain string input is",
+        "vuln_symbols": [
+          "moment.locale"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.31.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "moment is used only in helpers/hbs.js:5 (moment(date).utc().format(format)) with DB dates and constant format strings from views/dashboard.hbs:18 and views/stories/show.hbs:8; moment.locale() is never called by the app or any runtime dependency.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#21",
+      "facts": {
+        "package": "mongoose",
+        "version": "7.8.9",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-73562",
+            "BIT-mongoose-2026-73562",
+            "GHSA-664h-wqgq-64gw"
+          ],
+          [
+            "mongoose"
+          ]
+        ],
+        "advisory_summary": "Mongoose: Prototype pollution in mongoose update casting via __proto__-prefixed dotted path (Schema._getSchema/path getter) \u2014 ### Impact\n_What kind of vulnerability is it? Who is impacted?_\n\nPrototype pollution in update casting: passing a user-controlled update to a Mongoose update, like `MyModel.updateOne(filter, req.body)`, can cause Mongoose to set `$fullPath` and `$parentSchemaDocArray` on `Object.prototype`.\n\nExample:\n\n```javascript\nconst mongoose = require('mongoose');\nconsole.log('before:', Object.prototype.$fullPath);            // undefined\n\nconst User = mongoose.model('User', new mo",
+        "vuln_symbols": [
+          "$fullPath",
+          "$parentSchemaDocArray",
+          "Object.prototype"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.13.10",
+          "7.8.10",
+          "8.24.1",
+          "9.7.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Authenticated owner's PUT /stories/:id (method-override app.js:32-41) passes raw req.body (express.json / urlencoded, app.js:28-29) to Story.findOneAndUpdate at routes/stories.js:105. A dotted key whose first segment is __proto__ survives utils.mergeClone (key is not a special property) and hits castUpdate walkUpdatePath -> schema._getSchema (lib/helpers/query/castUpdate.js:333) -> search() where schema.path('__proto__') returns Object.prototype from the plain this.paths object (lib/schema.js:997-1000), then $fullPath is assigned on it (lib/schema.js:2552-2640). Any Google-login user can create a story to own one.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#22",
+      "facts": {
+        "package": "morgan",
+        "version": "1.10.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-5078",
+            "GHSA-4vj7-5mj6-jm8m"
+          ],
+          [
+            "morgan"
+          ]
+        ],
+        "advisory_summary": "morgan vulnerable to Log Forging via unneutralized control characters in :remote-user \u2014 ### Impact\n\nMorgan's `:remote-user` token extracts the Basic auth username from the `Authorization` header and writes it to the log stream without neutralizing control characters. An attacker can send a crafted `Authorization: Basic` header containing CR/LF characters to inject forged log lines, corrupting the one-request-per-line structure of access logs.\n\nThe built-in `combined`, `common`, `default`, and `short` formats are affected, as well as any custom format that includes `:remote-user`.\n\n### Patches\n",
+        "vuln_symbols": [
+          "Authorization",
+          "combined",
+          "common",
+          "default",
+          "short"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "morgan is mounted only when NODE_ENV==='development' (app.js:44-46), and the deployed start script sets NODE_ENV=production (package.json scripts.start), so it is not in the production request path. Even in dev it uses the 'dev' format (morgan index.js:183-201), which does not include :remote-user.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#23",
+      "facts": {
+        "package": "morgan",
+        "version": "1.10.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-87859",
+            "GHSA-9f6g-j8ch-79g4"
+          ],
+          [
+            "morgan"
+          ]
+        ],
+        "advisory_summary": "morgan vulnerable to Log Injection via unescaped double quote in quoted log fields \u2014 ### Impact\n\nMorgan writes attacker-controlled request data to the access log. Its escaping (added in 1.11.0 and 1.12.0) neutralizes control characters, the Unicode line separators, and backslash, but not the double quote (`0x22`), which is the field delimiter of the Apache combined log format morgan emits. An attacker who controls a quoted field (`:user-agent`, `:referrer`, the request URL, or the Basic auth `:remote-user`) can inject a double quote to close the field early and forge additional fields in the l",
+        "vuln_symbols": [
+          "combined",
+          "common",
+          "default"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "morgan is mounted only when NODE_ENV==='development' (app.js:44-46), and the deployed start script sets NODE_ENV=production (package.json scripts.start), so it is not in the production request path. Even in dev it uses the 'dev' format (morgan index.js:183-201), which has no quoted fields (no :user-agent/:referrer/:remote-user, and :url is unquoted).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#24",
+      "facts": {
+        "package": "morgan",
+        "version": "1.10.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-15603",
+            "GHSA-jxfw-x594-9x9m"
+          ],
+          [
+            "morgan"
+          ]
+        ],
+        "advisory_summary": "morgan vulnerable to Log Forging via unescaped Unicode line separators \u2014 ### Impact\n\nMorgan writes attacker-controlled request data to the access log through its tokens. The 1.11.0 fix neutralizes C0 control characters, DEL, and backslash, but it does not escape the Unicode line separators `U+0085` (NEL), `U+2028` (LINE SEPARATOR), or `U+2029` (PARAGRAPH SEPARATOR). These code points are reachable through several tokens, including the request URL (`:url`), request headers such as `:user-agent` and `:referrer`, arbitrary `:req[header]` values, and the Basic auth username (`:remote-user`). NEL i",
+        "vuln_symbols": [
+          "combined",
+          "common",
+          "default",
+          "short"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.12.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "morgan is mounted only when NODE_ENV==='development' (app.js:44-46), and the deployed start script sets NODE_ENV=production (package.json scripts.start), so it is not in the production request path. Even in dev it uses the 'dev' format (morgan index.js:183-201); that format does log :url, so the issue would only apply to a dev-mode deployment.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#25",
+      "facts": {
+        "package": "passport",
+        "version": "0.4.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-25896",
+            "GHSA-v923-w3x8-wh69",
+            "SNYK-JS-PASSPORT-2840631"
+          ],
+          [
+            "passport"
+          ]
+        ],
+        "advisory_summary": "Passport vulnerable to session regeneration when a users logs in or out \u2014 This affects the package passport before 0.6.0. When a user logs in or logs out, the session is regenerated instead of being closed.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.6.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Login happens via GET /auth/google/callback with passport.authenticate (routes/auth.js:11-17) and express-session (app.js:75-86); passport 0.4.1 SessionManager.logIn (lib/sessionmanager.js:12-27) writes the user into the existing session without regenerating its ID, so session fixation is possible on every login. The app adds no req.session.regenerate of its own.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#26",
+      "facts": {
+        "package": "proxy-addr",
+        "version": "2.0.7",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-90711",
+            "GHSA-jqcg-44mw-7w3h"
+          ],
+          [
+            "proxy-addr"
+          ]
+        ],
+        "advisory_summary": "proxy-addr vulnerable to IP spoofing via IPv4-mapped IPv6 trust subnet \u2014 ### Impact\n\n`proxy-addr` determines which network hops are trusted proxies so that `X-Forwarded-For` can be believed. When an application configures a trust subnet as an IPv4-mapped IPv6 address with a short prefix, such as `::ffff:10.0.0.0/8` (the correct spelling is `::ffff:10.0.0.0/104`), the subnet compiles with all-zero leading bits and matches every IPv4 address instead of the block it names. The same happens for any IPv6 trust subnet with zero leading bits, such as `::/1`.\n\nEvery unauthenticated client is then trus",
+        "vuln_symbols": [
+          "req.ip",
+          "req.ips"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.8"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The app never sets 'trust proxy' (grep of app.js/routes/config finds none), so express keeps the default false (express lib/application.js:86) and compileTrust compiles an empty list (lib/utils.js:234). No IPv4-mapped or zero-prefix trust subnet is ever compiled, and req.ip is never used.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#27",
+      "facts": {
+        "package": "qs",
+        "version": "6.14.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82417",
+            "GHSA-4mjr-xmp4-gh2g"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs: Denial of Service via Attacker Controlled isBuffer \u2014 ### Summary\n\n`qs.stringify()` calls `utils.isBuffer()` on every value it serializes, and `utils.isBuffer()` invokes `obj.constructor.isBuffer(obj)` without checking that it is callable. A value whose own `constructor.isBuffer` is a non-function makes `qs` call a non-callable and throw `TypeError`. Such a value is produced **by `qs.parse` itself** from an untrusted query string when `plainObjects: true` or `allowPrototypes: true` is set, so a pure-`qs` `parse` \u2192 `stringify` round-trip \u2014 no `JSON.parse` \u2014 turns an unauthenticated query str",
+        "vuln_symbols": [
+          "qs.stringify",
+          "utils.isBuffer",
+          "constructor.isBuffer",
+          "TypeError",
+          "qs.parse",
+          "parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "qs 6.14.2 is the top-level copy used by express's query parser, which calls only qs.parse(str,{allowPrototypes:true}) (express lib/utils.js:288-291). The vulnerable utils.isBuffer is only called from qs.stringify (qs lib/stringify.js:127), and neither the app nor express stringifies parsed query objects with qs.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#28",
+      "facts": {
+        "package": "qs",
+        "version": "6.14.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-8723",
+            "GHSA-q8mj-m7cp-5q26"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs has a remotely triggerable DoS: qs.stringify crashes with TypeError on null/undefined entries in comma-format arrays when encodeValuesOnly is set \u2014 ### Summary\n\n`qs.stringify` throws `TypeError` when called with `arrayFormat: 'comma'` and `encodeValuesOnly: true` on an array containing `null` or `undefined`. The throw is synchronous and not handled by any of qs's null-related options (`skipNulls`, `strictNullHandling`).\n\n### Details\n\nIn the comma + `encodeValuesOnly` branch, `lib/stringify.js:145` mapped the array through the raw encoder before joining:\n\n```js\nobj = utils.maybeMap(obj, enco",
+        "vuln_symbols": [
+          "qs.stringify",
+          "TypeError",
+          "skipNulls",
+          "strictNullHandling",
+          "encodeValuesOnly",
+          "utils.encode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.15.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "qs 6.14.2 is the top-level copy used by express's query parser, which calls only qs.parse(str,{allowPrototypes:true}) (express lib/utils.js:288-291). The bug is in qs.stringify with arrayFormat:'comma' + encodeValuesOnly, which nothing in the app or its runtime dependencies calls.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#29",
+      "facts": {
+        "package": "qs",
+        "version": "6.14.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82562",
+            "GHSA-x5fp-wj9c-mxmx"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs array-limit bypass via bracket-key comma parsing \u2014 ### Summary\n\n`qs` `v6.15.3` allows bracket-key input to bypass `arrayLimit` and `throwOnLimitExceeded` when `comma: true`. The input `a[]=1,2,3,4` succeeds with `arrayLimit: 3`, while the equivalent plain-key input is rejected.\n\nAffected version tested:\n\n```text\nqs v6.15.3\ncommit 18d085e919dae70c8f1b200ab99323058edab2c2\n```\n\n### Details\n\n`parseArrayValue()` enforces the comma limit only for flat values. The `a[]` form is marked non-flat, so its comma-separated value is wrapped after parsing and the inner array is not checked. A single param",
+        "vuln_symbols": [
+          "arrayLimit",
+          "throwOnLimitExceeded",
+          "parseArrayValue",
+          "RangeError"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "qs 6.14.2 is the top-level copy used by express's query parser, which calls only qs.parse(str,{allowPrototypes:true}) (express lib/utils.js:288-291). Express does not set comma:true, and the default is comma:false (qs lib/parse.js:16), so the comma-parsing arrayLimit bypass branch (parse.js:39,133) is never taken.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#30",
+      "facts": {
+        "package": "qs",
+        "version": "6.15.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82417",
+            "GHSA-4mjr-xmp4-gh2g"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs: Denial of Service via Attacker Controlled isBuffer \u2014 ### Summary\n\n`qs.stringify()` calls `utils.isBuffer()` on every value it serializes, and `utils.isBuffer()` invokes `obj.constructor.isBuffer(obj)` without checking that it is callable. A value whose own `constructor.isBuffer` is a non-function makes `qs` call a non-callable and throw `TypeError`. Such a value is produced **by `qs.parse` itself** from an untrusted query string when `plainObjects: true` or `allowPrototypes: true` is set, so a pure-`qs` `parse` \u2192 `stringify` round-trip \u2014 no `JSON.parse` \u2014 turns an unauthenticated query str",
+        "vuln_symbols": [
+          "qs.stringify",
+          "utils.isBuffer",
+          "constructor.isBuffer",
+          "TypeError",
+          "qs.parse",
+          "parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "qs 6.15.1 is the copy nested under body-parser, which loads it only for the extended urlencoded parser (body-parser lib/types/urlencoded.js:137,239-240); app.js:28 sets extended:false (querystring parser), so this copy is never loaded. Even if it were, body-parser only calls qs.parse, never stringify.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#31",
+      "facts": {
+        "package": "qs",
+        "version": "6.15.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-8723",
+            "GHSA-q8mj-m7cp-5q26"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs has a remotely triggerable DoS: qs.stringify crashes with TypeError on null/undefined entries in comma-format arrays when encodeValuesOnly is set \u2014 ### Summary\n\n`qs.stringify` throws `TypeError` when called with `arrayFormat: 'comma'` and `encodeValuesOnly: true` on an array containing `null` or `undefined`. The throw is synchronous and not handled by any of qs's null-related options (`skipNulls`, `strictNullHandling`).\n\n### Details\n\nIn the comma + `encodeValuesOnly` branch, `lib/stringify.js:145` mapped the array through the raw encoder before joining:\n\n```js\nobj = utils.maybeMap(obj, enco",
+        "vuln_symbols": [
+          "qs.stringify",
+          "TypeError",
+          "skipNulls",
+          "strictNullHandling",
+          "encodeValuesOnly",
+          "utils.encode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.15.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "qs 6.15.1 is the copy nested under body-parser, which loads it only for the extended urlencoded parser (body-parser lib/types/urlencoded.js:137,239-240); app.js:28 sets extended:false (querystring parser), so this copy is never loaded. The bug is in stringify with comma+encodeValuesOnly, which is never called.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#32",
+      "facts": {
+        "package": "qs",
+        "version": "6.15.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82562",
+            "GHSA-x5fp-wj9c-mxmx"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs array-limit bypass via bracket-key comma parsing \u2014 ### Summary\n\n`qs` `v6.15.3` allows bracket-key input to bypass `arrayLimit` and `throwOnLimitExceeded` when `comma: true`. The input `a[]=1,2,3,4` succeeds with `arrayLimit: 3`, while the equivalent plain-key input is rejected.\n\nAffected version tested:\n\n```text\nqs v6.15.3\ncommit 18d085e919dae70c8f1b200ab99323058edab2c2\n```\n\n### Details\n\n`parseArrayValue()` enforces the comma limit only for flat values. The `a[]` form is marked non-flat, so its comma-separated value is wrapped after parsing and the inner array is not checked. A single param",
+        "vuln_symbols": [
+          "arrayLimit",
+          "throwOnLimitExceeded",
+          "parseArrayValue",
+          "RangeError"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "qs 6.15.1 is the copy nested under body-parser, which loads it only for the extended urlencoded parser (body-parser lib/types/urlencoded.js:137,239-240); app.js:28 sets extended:false (querystring parser), so this copy is never loaded. body-parser also never passes comma:true.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-storybooks#33",
+      "facts": {
+        "package": "semver",
+        "version": "7.0.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-25883",
+            "GHSA-c2qf-rxjj-qqgw"
+          ],
+          [
+            "semver"
+          ]
+        ],
+        "advisory_summary": "semver vulnerable to Regular Expression Denial of Service \u2014 Versions of the package semver before 7.5.2 on the 7.x branch, before 6.3.1 on the 6.x branch, and all other versions before 5.7.2 are vulnerable to Regular Expression Denial of Service (ReDoS) via the function new Range, when untrusted user data is provided as a range.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.7.2",
+          "6.3.1",
+          "7.5.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "semver 7.0.0 (lockfile dev:true) is nested under simple-update-notifier, pulled only by nodemon (devDependency). The server never loads it, and the ranges it compares are package versions, not attacker data.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-16 (blind: before any judge run; agent-labelled)"
+      }
+    }
+  ]
+}

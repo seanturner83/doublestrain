@@ -1,0 +1,41 @@
+{
+  "id": "npm-lodash-template-used",
+  "description": "user-supplied email template rendered with _.template",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "enrichment": {
+    "CVE-2021-23337": {
+      "kev": false,
+      "epss": 0.2
+    }
+  },
+  "_note": "enrichment values are FIXTURE signals, not live KEV/EPSS",
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/npm-lodash-template-used#1",
+      "facts": {
+        "package": "lodash",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-23337"
+          ],
+          [
+            "lodash"
+          ]
+        ],
+        "vuln_symbols": [
+          "_.template"
+        ],
+        "advisory_summary": "Command injection via the `template` function's options (variable / sourceURL).",
+        "created_at": "2026-09-01T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "routes/email.js passes request-controlled template + options to _.template"
+      }
+    }
+  ]
+}

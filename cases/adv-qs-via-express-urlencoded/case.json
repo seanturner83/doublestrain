@@ -1,0 +1,41 @@
+{
+  "id": "adv-qs-via-express-urlencoded",
+  "description": "qs never imported; express.urlencoded({extended:true}) parses bodies with qs",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "enrichment": {
+    "CVE-2022-24999": {
+      "kev": false,
+      "epss": 0.2
+    }
+  },
+  "_note": "ADVERSARIAL fixture: targets a blind spot of the grep pre-pass. Enrichment values are FIXTURE signals.",
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/adv-qs-via-express-urlencoded#1",
+      "facts": {
+        "package": "qs",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-24999"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "vuln_symbols": [
+          "qs.parse"
+        ],
+        "advisory_summary": "Prototype pollution via crafted query strings (__proto__ keys) in qs.parse.",
+        "created_at": "2026-09-01T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "transitive: body-parser's extended urlencoded parser calls qs.parse on every form POST body"
+      }
+    }
+  ]
+}

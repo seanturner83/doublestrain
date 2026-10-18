@@ -1,0 +1,1175 @@
+{
+ "id": "real-go-gin-example",
+ "description": "eddycjy/go-gin-example (Gin) (OSV-generated; labelled blind 2026-10-18)",
+ "repo": "repo",
+ "exposure": "public-internet",
+ "_note": "enrichment empty: run the harness with --enrich live",
+ "enrichment": {},
+ "candidates": [
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#1",
+   "facts": {
+    "package": "github.com/astaxie/beego",
+    "version": "v1.9.3-0.20171218111859-f16688817aa4",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2019-16354",
+      "CVE-2019-16355",
+      "GHSA-f6px-w8rh-7r89",
+      "GHSA-hf4p-4j9r-3cvx",
+      "GO-2021-0084"
+     ],
+     [
+      "github.com/astaxie/beego"
+     ]
+    ],
+    "advisory_summary": "Beego has a file creation race condition \u2014 The File Session Manager in Beego 1.10.0 allows local users to read session files because there is a race condition involving file creation within a directory with weak permissions.",
+    "vuln_symbols": [
+     "github.com/astaxie/beego/session.FileProvider.SessionRead",
+     "github.com/astaxie/beego/session.FileProvider.SessionRegenerate",
+     "github.com/astaxie/beego/session.Manager.GetSessionStore",
+     "github.com/astaxie/beego/session.Manager.SessionRegenerateID",
+     "github.com/astaxie/beego/session.Manager.SessionStart"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "1.12.2"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app never imports github.com/astaxie/beego/session; its only beego import is beego/validation (routers/api/auth.go:6, pkg/app/form.go:4), which depends only on stdlib. No session manager/FileProvider is ever constructed.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#2",
+   "facts": {
+    "package": "github.com/astaxie/beego",
+    "version": "v1.9.3-0.20171218111859-f16688817aa4",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2022-31259",
+      "GHSA-qx32-f6g6-fcfr",
+      "GO-2022-0463"
+     ],
+     [
+      "github.com/astaxie/beego"
+     ]
+    ],
+    "advisory_summary": "Access control bypass due to broad route matching in github.com/beego/beego and beego/v2 \u2014 Routes in the beego HTTP router can match unintended patterns. This overly-broad matching may permit an attacker to bypass access controls.\n\nFor example, the pattern \"/a/b/:name\" can match the URL \"/a.xml/b/\". This may bypass access control applied to the prefix \"/a/\".",
+    "vuln_symbols": [
+     "github.com/astaxie/beego.App.Run",
+     "github.com/astaxie/beego.ControllerRegister.FindPolicy",
+     "github.com/astaxie/beego.ControllerRegister.FindRouter",
+     "github.com/astaxie/beego.ControllerRegister.ServeHTTP",
+     "github.com/astaxie/beego.FilterRouter.ValidRouter",
+     "github.com/astaxie/beego.InitBeegoBeforeTest",
+     "github.com/astaxie/beego.Run",
+     "github.com/astaxie/beego.RunWithMiddleWares",
+     "github.com/astaxie/beego.TestBeegoInit",
+     "github.com/astaxie/beego.Tree.Match",
+     "github.com/astaxie/beego.adminApp.Run"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app only imports github.com/astaxie/beego/validation (routers/api/auth.go:6, routers/api/v1/tag.go:7, routers/api/v1/article.go:7, pkg/app/form.go:4, pkg/app/request.go:4); beego/validation imports only stdlib. The beego root package (ControllerRegister/Tree.Match/App.Run) is never imported; HTTP routing is done by gin (routers/router.go:21, main.go:42-49).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#3",
+   "facts": {
+    "package": "github.com/astaxie/beego",
+    "version": "v1.9.3-0.20171218111859-f16688817aa4",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2022-31836",
+      "GHSA-95f9-94vc-665h",
+      "GO-2022-0569"
+     ],
+     [
+      "github.com/astaxie/beego"
+     ]
+    ],
+    "advisory_summary": "Path traversal in github.com/beego/beego and beego/v2 \u2014 The leafInfo.match() function uses path.join() to deal with wildcard values which can lead to cross directory risk.",
+    "vuln_symbols": [
+     "github.com/astaxie/beego.App.Run",
+     "github.com/astaxie/beego.ControllerRegister.FindPolicy",
+     "github.com/astaxie/beego.ControllerRegister.FindRouter",
+     "github.com/astaxie/beego.ControllerRegister.ServeHTTP",
+     "github.com/astaxie/beego.FilterRouter.ValidRouter",
+     "github.com/astaxie/beego.InitBeegoBeforeTest",
+     "github.com/astaxie/beego.Run",
+     "github.com/astaxie/beego.RunWithMiddleWares",
+     "github.com/astaxie/beego.TestBeegoInit",
+     "github.com/astaxie/beego.Tree.Match",
+     "github.com/astaxie/beego.adminApp.Run"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app only imports github.com/astaxie/beego/validation (routers/api/auth.go:6, routers/api/v1/tag.go:7, routers/api/v1/article.go:7, pkg/app/form.go:4, pkg/app/request.go:4); beego/validation imports only stdlib. The beego root package (ControllerRegister/Tree.Match/App.Run) is never imported; HTTP routing is done by gin (routers/router.go:21, main.go:42-49).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#4",
+   "facts": {
+    "package": "github.com/astaxie/beego",
+    "version": "v1.9.3-0.20171218111859-f16688817aa4",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2021-30080",
+      "GHSA-28r6-jm5h-mrgg",
+      "GO-2022-0572"
+     ],
+     [
+      "github.com/astaxie/beego"
+     ]
+    ],
+    "advisory_summary": "Access control bypass via incorrect route lookup in github.com/beego/beego and beego/v2 \u2014 An issue was discovered in the route lookup process in beego which attackers to bypass access control.",
+    "vuln_symbols": [
+     "github.com/astaxie/beego.App.Run",
+     "github.com/astaxie/beego.ControllerRegister.FindPolicy",
+     "github.com/astaxie/beego.ControllerRegister.FindRouter",
+     "github.com/astaxie/beego.ControllerRegister.ServeHTTP",
+     "github.com/astaxie/beego.FilterRouter.ValidRouter",
+     "github.com/astaxie/beego.InitBeegoBeforeTest",
+     "github.com/astaxie/beego.Run",
+     "github.com/astaxie/beego.RunWithMiddleWares",
+     "github.com/astaxie/beego.TestBeegoInit",
+     "github.com/astaxie/beego.Tree.Match",
+     "github.com/astaxie/beego.adminApp.Run"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The app only imports github.com/astaxie/beego/validation (routers/api/auth.go:6, routers/api/v1/tag.go:7, routers/api/v1/article.go:7, pkg/app/form.go:4, pkg/app/request.go:4); beego/validation imports only stdlib. The beego root package (ControllerRegister/Tree.Match/App.Run) is never imported; HTTP routing is done by gin (routers/router.go:21, main.go:42-49).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#5",
+   "facts": {
+    "package": "github.com/dgrijalva/jwt-go",
+    "version": "v3.1.0+incompatible",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2020-26160",
+      "GHSA-w73w-5m7g-f7qc",
+      "GO-2020-0017",
+      "SNYK-GOLANG-GITHUBCOMDGRIJALVAJWTGO-596515"
+     ],
+     [
+      "github.com/dgrijalva/jwt-go"
+     ]
+    ],
+    "advisory_summary": "Authorization bypass in github.com/dgrijalva/jwt-go \u2014 jwt-go allows attackers to bypass intended access restrictions in situations with `[]string{}` for `m[\"aud\"]` (which is allowed by the specification). Because the type assertion fails, \"\" is the value of aud. This is a security problem if the JWT token is presented to a service that lacks its own audience check. There is no patch available and users of jwt-go are advised to migrate to [golang-jwt](https://github.com/golang-jwt/jwt) at version 3.2.1",
+    "vuln_symbols": [
+     "github.com/dgrijalva/jwt-go.MapClaims.VerifyAudience"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [],
+    "severity": "HIGH",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Tokens are parsed with jwt.ParseWithClaims into a custom Claims struct embedding jwt.StandardClaims (pkg/util/jwt.go:12-15, 39), never MapClaims. Neither the app nor jwt-go's own validation calls MapClaims.VerifyAudience (MapClaims.Valid only checks exp/iat/nbf, map_claims.go), and the app does no audience check at all.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#6",
+   "facts": {
+    "package": "github.com/gin-gonic/gin",
+    "version": "v1.4.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2023-26125",
+      "GHSA-3vp4-m3rf-835h"
+     ],
+     [
+      "github.com/gin-gonic/gin"
+     ]
+    ],
+    "advisory_summary": "Improper input validation in github.com/gin-gonic/gin \u2014 Versions of the package github.com/gin-gonic/gin before version 1.9.0 are vulnerable to Improper Input Validation by allowing an attacker to use a specially crafted request via the X-Forwarded-Prefix header, potentially leading to cache poisoning.\n\n**Note:** Although this issue does not pose a significant threat on its own it can serve as an input vector for other more impactful vulnerabilities. However, successful exploitation may depend on the server configuration and whether the header is used in the application logic.",
+    "vuln_symbols": [],
+    "vuln_symbols_source": "heuristic",
+    "fixed": [
+     "1.9.0"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "reachable",
+    "note": "routers/router.go:21 uses gin.New(), whose defaults set RedirectTrailingSlash=true (gin.go New). For any request that matches a route only with/without a trailing slash (e.g. GET /api/v1/tags/), handleHTTPRequest calls redirectTrailingSlash, which builds the Location from the attacker-supplied X-Forwarded-Prefix header without validation (gin@v1.4.0 gin.go:444).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#7",
+   "facts": {
+    "package": "github.com/gin-gonic/gin",
+    "version": "v1.4.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2019-25211",
+      "GHSA-869c-j7wc-8jqv",
+      "GO-2024-2955"
+     ],
+     [
+      "github.com/gin-gonic/gin"
+     ]
+    ],
+    "advisory_summary": "Gin mishandles a wildcard at the end of an origin string \u2014 parseWildcardRules in Gin-Gonic CORS middleware before 1.6.0 mishandles a wildcard at the end of an origin string, e.g., https://example.community/* is allowed when the intention is that only https://example.com/* should be allowed, and http://localhost.example.com/* is allowed when the intention is that only http://localhost/* should be allowed.",
+    "vuln_symbols": [],
+    "vuln_symbols_source": "heuristic",
+    "fixed": [
+     "1.6.0"
+    ],
+    "severity": "CRITICAL",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The flaw is in parseWildcardRules of the gin-contrib/cors middleware; gin v1.4.0 contains no CORS code and the app does not import or use any CORS middleware (routers/router.go:21-23 registers only gin.Logger and gin.Recovery).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#8",
+   "facts": {
+    "package": "github.com/gin-gonic/gin",
+    "version": "v1.4.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2020-36567",
+      "GHSA-6vm3-jj99-7229",
+      "GO-2020-0001"
+     ],
+     [
+      "github.com/gin-gonic/gin"
+     ]
+    ],
+    "advisory_summary": "Gin's default logger allows unsanitized input that can allow remote attackers to inject arbitrary log lines \u2014 Gin is a HTTP web framework written in Go (Golang). Unsanitized input in the default logger in github.com/gin-gonic/gin before v1.6.0 allows remote attackers to inject arbitrary log lines.",
+    "vuln_symbols": [
+     "github.com/gin-gonic/gin.Default",
+     "github.com/gin-gonic/gin.Logger",
+     "github.com/gin-gonic/gin.LoggerWithConfig",
+     "github.com/gin-gonic/gin.LoggerWithFormatter",
+     "github.com/gin-gonic/gin.LoggerWithWriter"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "1.6.0"
+    ],
+    "severity": "HIGH",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "reachable",
+    "note": "routers/router.go:22 installs gin.Logger(); in gin v1.4.0 LoggerWithConfig (logger.go ~230-270) logs c.Request.URL.Path and RawQuery from every request via defaultLogFormatter without sanitizing newlines/control characters, so a remote client can inject log lines.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#9",
+   "facts": {
+    "package": "github.com/gin-gonic/gin",
+    "version": "v1.4.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2020-28483",
+      "GHSA-h395-qcrw-5vmq",
+      "GO-2021-0052",
+      "SNYK-GOLANG-GITHUBCOMGINGONICGIN-1041736"
+     ],
+     [
+      "github.com/gin-gonic/gin"
+     ]
+    ],
+    "advisory_summary": "Inconsistent interpretation of HTTP Requests in github.com/gin-gonic/gin \u2014 Due to improper HTTP header sanitization, a malicious user can spoof their source IP address by setting the X-Forwarded-For header. This may allow a user to bypass IP based restrictions, or obfuscate their true source.",
+    "vuln_symbols": [
+     "github.com/gin-gonic/gin.Context.ClientIP",
+     "github.com/gin-gonic/gin.Context.Next",
+     "github.com/gin-gonic/gin.Context.RemoteIP",
+     "github.com/gin-gonic/gin.Engine.HandleContext",
+     "github.com/gin-gonic/gin.Engine.Run",
+     "github.com/gin-gonic/gin.Engine.RunFd",
+     "github.com/gin-gonic/gin.Engine.RunListener",
+     "github.com/gin-gonic/gin.Engine.RunTLS",
+     "github.com/gin-gonic/gin.Engine.RunUnix",
+     "github.com/gin-gonic/gin.Engine.ServeHTTP"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "1.7.7"
+    ],
+    "severity": "HIGH",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "reachable",
+    "note": "gin.New() sets ForwardedByClientIP=true (gin.go New), and the gin.Logger middleware installed at routers/router.go:22 calls c.ClientIP() for every request (gin@v1.4.0 logger.go:254), which returns the attacker-supplied X-Forwarded-For/X-Real-Ip value (context.go:640-648). Impact here is IP spoofing in access logs; the app has no other IP-based logic.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#10",
+   "facts": {
+    "package": "github.com/gin-gonic/gin",
+    "version": "v1.4.0",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2023-29401",
+      "GHSA-2c4m-59x9-fr2g",
+      "GO-2023-1737"
+     ],
+     [
+      "github.com/gin-gonic/gin"
+     ]
+    ],
+    "advisory_summary": "Gin Web Framework does not properly sanitize filename parameter of Context.FileAttachment function \u2014 The filename parameter of the Context.FileAttachment function is not properly sanitized. A maliciously crafted filename can cause the Content-Disposition header to be sent with an unexpected filename value or otherwise modify the Content-Disposition header. For example, a filename of \"setup.bat&quot;;x=.txt\" will be sent as a file named \"setup.bat\".\n\nIf the FileAttachment function is called with names provided by an untrusted source, this may permit an attacker to cause a file to be served with",
+    "vuln_symbols": [
+     "github.com/gin-gonic/gin.Context.FileAttachment"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "1.9.1"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Context.FileAttachment exists in gin v1.4.0 (context.go:881) but is never called by the app (no reference anywhere in app sources); files are served via r.StaticFS (routers/router.go:25-27), which does not set Content-Disposition.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#11",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2022-41727",
+      "GHSA-qgc7-mgm3-q253",
+      "GO-2023-1572"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Denial of service via crafted TIFF image in golang.org/x/image/tiff \u2014 An attacker can craft a malformed TIFF image which will consume a significant amount of memory when passed to DecodeConfig. This could lead to a denial of service.",
+    "vuln_symbols": [
+     "golang.org/x/image/tiff.Decode",
+     "golang.org/x/image/tiff.DecodeConfig",
+     "golang.org/x/image/tiff.decoder.ifdUint",
+     "golang.org/x/image/tiff.newDecoder"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.5.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/tiff; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#12",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2023-29408",
+      "GHSA-x92r-3vfx-4cv3",
+      "GO-2023-1989"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Golang TIFF decoder does not place a limit on the size of compressed tile data \u2014 The TIFF decoder does not place a limit on the size of compressed tile data. A maliciously-crafted image can exploit this to cause a small image (both in terms of pixel width/height, and encoded size) to make the decoder decode large amounts of compressed data, consuming excessive memory and CPU.",
+    "vuln_symbols": [
+     "golang.org/x/image/tiff.Decode",
+     "golang.org/x/image/tiff.DecodeConfig",
+     "golang.org/x/image/tiff.newDecoder"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.10.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/tiff; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#13",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2023-29407",
+      "GHSA-j3p8-6mrq-6g7h",
+      "GO-2023-1990"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Excessive CPU consumption when decoding 0-height images in golang.org/x/image/tiff \u2014 A maliciously-crafted image can cause excessive CPU consumption in decoding.\n\nA tiled image with a height of 0 and a very large width can cause excessive CPU consumption, despite the image size (width * height) appearing to be zero.",
+    "vuln_symbols": [
+     "golang.org/x/image/tiff.Decode",
+     "golang.org/x/image/tiff.DecodeConfig",
+     "golang.org/x/image/tiff.newDecoder"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.10.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/tiff; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#14",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2024-24792",
+      "GHSA-9phm-fm57-rhg8",
+      "GO-2024-2937"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Panic when parsing invalid palette-color images in golang.org/x/image \u2014 Parsing a corrupt or malicious image with invalid color indices can cause a panic.",
+    "vuln_symbols": [
+     "golang.org/x/image/tiff.Decode",
+     "golang.org/x/image/tiff.decoder.decode"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.18.0"
+    ],
+    "severity": "HIGH",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/tiff; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#15",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-33809",
+      "GHSA-44p7-9xx4-hf2g",
+      "GO-2026-4815"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Go Images vulnerable to an out-of-memory error via a crafted TIFF file \u2014 A maliciously crafted TIFF file can cause image decoding to attempt to allocate up 4GiB of memory, causing either excessive resource consumption or an out-of-memory error.",
+    "vuln_symbols": [
+     "golang.org/x/image/tiff.Decode",
+     "golang.org/x/image/tiff.DecodeConfig",
+     "golang.org/x/image/tiff.buffer.ReadAt",
+     "golang.org/x/image/tiff.buffer.Slice",
+     "golang.org/x/image/tiff.buffer.fill"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.38.0"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/tiff; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#16",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-33813",
+      "GO-2026-4961"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Panic when decoding large WEBP image on 32-bit platforms in golang.org/x/image \u2014 Parsing a WEBP image with an invalid, large size panics on 32-bit platforms.",
+    "vuln_symbols": [
+     "golang.org/x/image/webp.Decode",
+     "golang.org/x/image/webp.DecodeConfig",
+     "golang.org/x/image/webp.decode"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.42.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/webp; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4). The bug is also 32-bit only, while the target is linux/amd64.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#17",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-33812",
+      "GO-2026-4962"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Excessive memory allocation when decoding malicious SFNT in golang.org/x/image \u2014 Parsing a malicious font file can cause excessive memory allocation.",
+    "vuln_symbols": [
+     "golang.org/x/image/font/sfnt.Collection.Font",
+     "golang.org/x/image/font/sfnt.Font.GlyphAdvance",
+     "golang.org/x/image/font/sfnt.Font.GlyphBounds",
+     "golang.org/x/image/font/sfnt.Font.GlyphIndex",
+     "golang.org/x/image/font/sfnt.Font.GlyphName",
+     "golang.org/x/image/font/sfnt.Font.Kern",
+     "golang.org/x/image/font/sfnt.Font.LoadGlyph",
+     "golang.org/x/image/font/sfnt.Font.Name",
+     "golang.org/x/image/font/sfnt.Font.WriteSourceTo",
+     "golang.org/x/image/font/sfnt.Parse",
+     "golang.org/x/image/font/sfnt.ParseCollection",
+     "golang.org/x/image/font/sfnt.ParseCollectionReaderAt",
+     "golang.org/x/image/font/sfnt.ParseReaderAt",
+     "golang.org/x/image/font/sfnt.source.view"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.39.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/font/sfnt; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4). Fonts are parsed by freetype/truetype, not sfnt.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#18",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-42500",
+      "GO-2026-5031"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Panic when reading out of bound palette index in golang.org/x/image/bmp \u2014 Decoding a paletted BMP file with an out-of-range palette index results in a panic when accessing pixels in the invalid image.",
+    "vuln_symbols": [
+     "golang.org/x/image/bmp.Decode",
+     "golang.org/x/image/bmp.decodePaletted"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.41.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/bmp; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#19",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-46599",
+      "GHSA-q675-qj96-32m9",
+      "GO-2026-5032"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "golang.org/x/image/tiff has excessive resource consumption in PackBits decompression \u2014 The TIFF decoder does not place a limit on the size of PackBits-compressed data. A maliciously-crafted image can exploit this to cause a small image (both in terms of pixel width/height and encoded size) to make the decoder decode large amounts of compressed data.",
+    "vuln_symbols": [
+     "golang.org/x/image/tiff.Decode",
+     "golang.org/x/image/tiff.unpackBits"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.41.0"
+    ],
+    "severity": "HIGH",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/tiff; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#20",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-46601",
+      "GO-2026-5061"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Panic on VP8 alpha channel size mismatch in x/image/webp in golang.org/x/image \u2014 The webp decoder can panic when processing a VP8 chunk with dimensions that do not match the canvas size.",
+    "vuln_symbols": [
+     "golang.org/x/image/webp.Decode",
+     "golang.org/x/image/webp.DecodeConfig",
+     "golang.org/x/image/webp.decode",
+     "golang.org/x/image/webp"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.43.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/webp; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#21",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-46602",
+      "GO-2026-5062"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Lack of limit on tile sizes in x/image/tiff in golang.org/x/image \u2014 The TIFF decoder does not set a limit on the size of tiles in tiled images, permitting a malicious or corrupt image containing a very large tile to cause unbounded memory consumption.",
+    "vuln_symbols": [
+     "golang.org/x/image/tiff.Decode"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.43.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/tiff; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#22",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-46604",
+      "GO-2026-5066"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Panic decoding image with out-of-bounds strip offset in x/image/tiff in golang.org/x/image \u2014 The TIFF decoder can panic when decoding an invalid image with an out-of-bounds strip offset.",
+    "vuln_symbols": [
+     "golang.org/x/image/tiff.Decode"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.43.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/tiff; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#23",
+   "facts": {
+    "package": "golang.org/x/image",
+    "version": "v0.0.0-20180628062038-cc896f830ced",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-46603",
+      "GO-2026-6222"
+     ],
+     [
+      "golang.org/x/image"
+     ]
+    ],
+    "advisory_summary": "Excessive memory allocation during VP8L decoding in golang.org/x/image \u2014 VP8L decoding in golang.org/x/image/vp8l can allocate an excessive amount of memory when processing a crafted VP8L image containing many unused Huffman tree groups. This allows a remote attacker to cause a denial of service via memory exhaustion.",
+    "vuln_symbols": [
+     "golang.org/x/image/vp8l.Decode",
+     "golang.org/x/image/vp8l.decoder.decodeHuffmanGroups",
+     "golang.org/x/image/vp8l.decoder.decodeHuffmanTree"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.45.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Only golang.org/x/image/font and math/fixed are imported (by github.com/golang/freetype truetype/face.go etc., used for poster text rendering); x/image/font itself imports only stdlib + math/fixed. No package in the app or its non-test deps imports x/image/vp8l; the app decodes images only via stdlib image/jpeg (service/article_service/article_poster.go:6, pkg/qrcode/qrcode.go:4).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#24",
+   "facts": {
+    "package": "golang.org/x/sys",
+    "version": "v0.0.0-20190921204832-2dccfee4fd3e",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2022-29526",
+      "BIT-golang-2022-29526",
+      "GHSA-p782-xgp4-8hr8",
+      "GO-2022-0493"
+     ],
+     [
+      "golang.org/x/sys"
+     ]
+    ],
+    "advisory_summary": "golang.org/x/sys/unix has Incorrect privilege reporting in syscall \u2014 Go before 1.17.10 and 1.18.x before 1.18.2 has Incorrect Privilege Reporting in syscall. When called with a non-zero flags parameter, the Faccessat function could incorrectly report that a file is accessible.\n\n### Specific Go Packages Affected\ngolang.org/x/sys/unix",
+    "vuln_symbols": [
+     "golang.org/x/sys/unix.Faccessat"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.0.0-20220412211240-33da011f77ad"
+    ],
+    "severity": "MODERATE",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "No app or dependency code calls unix.Faccessat (only x/sys's own tests). The only internal caller is unix.Access (x/sys unix/syscall_linux.go:26), which passes flags=0, while the bug needs non-zero flags; x/sys/unix is pulled in only for things like go-isatty terminal checks.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-gin-example#25",
+   "facts": {
+    "package": "golang.org/x/sys",
+    "version": "v0.0.0-20190921204832-2dccfee4fd3e",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39824",
+      "GO-2026-5024"
+     ],
+     [
+      "golang.org/x/sys"
+     ]
+    ],
+    "advisory_summary": "[affects only goos=windows] Invoking integer overflow in NewNTUnicodeString in golang.org/x/sys/windows \u2014 NewNTUnicodeString does not check for string length overflow. When provided with a string that overflows the maximum size of a NTUnicodeString (a 16-bit number of bytes), it returns a truncated string rather than an error.",
+    "vuln_symbols": [
+     "golang.org/x/sys/windows.NewNTUnicodeString"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.44.0"
+    ],
+    "severity": "",
+    "direct": false,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "golang.org/x/sys/windows is Windows-only and not compiled for linux/amd64; moreover NewNTUnicodeString does not exist in x/sys v0.0.0-20190921204832 (no definition in the module source), and nothing in the app references it.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  }
+ ]
+}

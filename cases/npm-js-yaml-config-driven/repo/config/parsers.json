@@ -1,0 +1,10 @@
+{
+  "application/yaml": {
+    "module": "js-yaml",
+    "fn": "load"
+  },
+  "application/json": {
+    "module": "./json-strict",
+    "fn": "parse"
+  }
+}

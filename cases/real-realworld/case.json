@@ -1,0 +1,2475 @@
+{
+  "id": "real-realworld",
+  "description": "realworld (OSV-generated; labelled blind 2026-10-15)",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#1",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44494",
+            "GHSA-35jp-ww65-95wh"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "axios Vulnerable to Full Man-in-the-Middle via Prototype Pollution Gadget in `config.proxy` \u2014 # Vulnerability Disclosure: Full Man-in-the-Middle via Prototype Pollution Gadget in `config.proxy`\n\n## Summary\n\nThe Axios library is vulnerable to a Prototype Pollution \"Gadget\" attack that allows any `Object.prototype` pollution in the application's dependency tree to be escalated into a **full Man-in-the-Middle (MITM) attack** \u2014 intercepting, reading, and modifying all HTTP traffic including authentication credentials.\n\nThe HTTP adapter at `lib/adapters/http.js:670` reads `config.proxy` via standar",
+        "vuln_symbols": [
+          "config.proxy",
+          "Object.prototype",
+          "proxy",
+          "setProxy",
+          "transformResponse",
+          "assertOptions"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.16.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "hijacked"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#2",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44495",
+            "GHSA-3g43-6gmg-66jw"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "axios Vulnerable to Credential Theft and Response Hijacking via Prototype Pollution Gadget in Config Merge \u2014 ## Summary\n\nAxios versions before the fixed releases contain prototype-pollution gadgets in request config processing. If another vulnerability in the same JavaScript process has already polluted `Object.prototype.transformResponse`, affected Axios versions may treat that inherited value as request configuration or as an option validator.\n\nAxios does not itself create the prototype pollution. Exploitability requires a separate prototype-pollution vulnerability or equivalent attacker con",
+        "vuln_symbols": [
+          "Object.prototype.transformResponse",
+          "Object.prototype",
+          "auth",
+          "transformResponse",
+          "mergeConfig",
+          "transformData"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "hijacked"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#3",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-62718",
+            "GHSA-3p68-rc4w-qgx5"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios has a NO_PROXY Hostname Normalization Bypass that Leads to SSRF \u2014 Axios does not correctly handle hostname normalization when checking `NO_PROXY` rules.\nRequests to loopback addresses like `localhost.` (with a trailing dot) or `[::1]` (IPv6 literal) skip `NO_PROXY` matching and go through the configured proxy.\n\nThis goes against what developers expect and lets attackers force requests through a proxy, even if `NO_PROXY` is set up to protect loopback or internal services.\n\nAccording to [RFC 1034 \u00a73.1](https://datatracker.ietf.org/doc/html/rfc1034#section-3.1) and [RFC 3986 \u00a73.2.2](https:/",
+        "vuln_symbols": [
+          "NO_PROXY",
+          "localhost"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.0",
+          "1.15.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#4",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42044",
+            "GHSA-3w6x-2g7m-8v23"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Invisible JSON Response Tampering via Prototype Pollution Gadget in `parseReviver` \u2014 # Vulnerability Disclosure: Invisible JSON Response Tampering via Prototype Pollution Gadget in `parseReviver`\n\n## Summary\n\nThe Axios library is vulnerable to a Prototype Pollution \"Gadget\" attack that allows any `Object.prototype` pollution in the application's dependency tree to be escalated into **surgical, invisible modification of all JSON API responses** \u2014 including privilege escalation, balance manipulation, and authorization bypass.\n\nThe default `transformResponse` function at `lib/defaults/inde",
+        "vuln_symbols": [
+          "parseReviver",
+          "Object.prototype",
+          "transformResponse",
+          "this",
+          "assertOptions",
+          "Object.prototype.parseReviver"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.15.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#5",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67313",
+            "GHSA-42h9-826w-cgv3"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Excessive recursion in formDataToJSON can cause denial of service \u2014 ## Summary\nAxios versions `0.28.0` and later contain uncontrolled recursion in `formDataToJSON`, the helper behind the public `axios.formToJSON()` / named `formToJSON` API and the default request transform used when FormData is sent with an `application/json` content type.\n\nApplications are affected when they pass attacker-controlled `FormData` field names into this functionality. A field name with thousands of nested bracket segments can exhaust the JavaScript call stack and throw `RangeError: Maximum call stack size e",
+        "vuln_symbols": [
+          "formDataToJSON",
+          "axios.formToJSON",
+          "formToJSON",
+          "FormData",
+          "transformRequest",
+          "data"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.33.0",
+          "1.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#6",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25639",
+            "GHSA-43fc-jf86-j433"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios is Vulnerable to Denial of Service via __proto__ Key in mergeConfig \u2014 # Denial of Service via **proto** Key in mergeConfig\n\n### Summary\n\nThe `mergeConfig` function in axios crashes with a TypeError when processing configuration objects containing `__proto__` as an own property. An attacker can trigger this by providing a malicious configuration object created via `JSON.parse()`, causing complete denial of service.\n\n### Details\n\nThe vulnerability exists in `lib/core/mergeConfig.js` at lines 98-101:\n\n```javascript\nutils.forEach(Object.keys({ ...config1, ...config2 }), function computeConfi",
+        "vuln_symbols": [
+          "mergeConfig",
+          "JSON.parse",
+          "prop",
+          "Object.keys",
+          "Object.prototype",
+          "Axios._request"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.30.3",
+          "1.13.5"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#7",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42037",
+            "GHSA-445q-vr5w-6q77"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: CRLF Injection in multipart/form-data body via unsanitized blob.type in formDataToStream \u2014 ### Summary\nThe `FormDataPart` constructor in `lib/helpers/formDataToStream.js` interpolates `value.type` directly into the `Content-Type` header of each multipart part without sanitizing CRLF (`\\r\\n`) sequences. An attacker who controls the `.type` property of a Blob/File-like object (e.g., via a user-uploaded file in a Node.js proxy service) can inject arbitrary MIME part headers into the multipart form-data body. This bypasses Node.js v18+ built-in header protections because the injection targe",
+        "vuln_symbols": [
+          "FormDataPart",
+          "value.type",
+          "formDataToStream",
+          "value.name"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#8",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58754",
+            "GHSA-4hjh-wcwx-xvwj"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios is vulnerable to DoS attack through lack of data size check \u2014 ## Summary\n\nWhen Axios runs on Node.js and is given a URL with the `data:` scheme, it does not perform HTTP. Instead, its Node http adapter decodes the entire payload into memory (`Buffer`/`Blob`) and returns a synthetic 200 response.\nThis path ignores `maxContentLength` / `maxBodyLength` (which only protect HTTP responses), so an attacker can supply a very large `data:` URI and cause the process to allocate unbounded memory and crash (DoS), even if the caller requested `responseType: 'stream'`.\n\n## Details\n\nThe Node adapter (",
+        "vuln_symbols": [
+          "Buffer",
+          "Blob",
+          "maxContentLength",
+          "maxBodyLength",
+          "fromDataURI",
+          "config.maxContentLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.30.2",
+          "1.12.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#9",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42034",
+            "GHSA-5c9x-8gcm-mpgx"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios' HTTP adapter-streamed uploads bypass maxBodyLength when maxRedirects: 0 \u2014 ### Summary\n\nFor stream request bodies, maxBodyLength is bypassed when maxRedirects is set to 0 (native http/https transport path). Oversized streamed uploads are sent fully even when the caller sets strict body limits.\n\n### Details\n\nRelevant flow in lib/adapters/http.js:\n  - 556-564: maxBodyLength check applies only to buffered/non-stream data.\n  - 681-682: maxRedirects === 0 selects native http/https transport.\n  - 694-699: options.maxBodyLength is set, but native transport does not enforce it.\n  - 925-945: stre",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#10",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42039",
+            "GHSA-62hf-57xw-28j9"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: unbounded recursion in toFormData causes DoS via deeply nested request data \u2014 ### Summary\ntoFormData recursively walks nested objects with no depth limit, so a deeply nested value passed as request data crashes the Node.js process with a RangeError.\n\n### Details\nlib/helpers/toFormData.js:210 defines an inner `build(value, path)` that recurses into every object/array child (line 225: `build(el, path ? path.concat(key) : [key])`). The only safeguard is a `stack` array used to detect circular references; there is no maximum depth and no try/catch around the recursion. Because `build` calls",
+        "vuln_symbols": [
+          "stack",
+          "build",
+          "toFormData",
+          "FormData",
+          "AxiosURLSearchParams",
+          "buildURL"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#11",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42035",
+            "GHSA-6chq-wfr3-2hj9"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Header Injection via Prototype Pollution \u2014 ### Summary\n\nA prototype pollution gadget exists in the Axios HTTP adapter (lib/adapters/http.js) that allows an attacker to inject arbitrary HTTP headers into outgoing requests. The vulnerability exploits duck-type checking of the data payload, where if Object.prototype is polluted with getHeaders, append, pipe, on, once, and Symbol.toStringTag, Axios misidentifies any plain object payload as a FormData instance and calls the attacker-controlled getHeaders() function, merging the returned headers into the outgoing request.\n\nThe vulnerable code",
+        "vuln_symbols": [
+          "Authorization"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#12",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67319",
+            "GHSA-7q8q-rj6j-mhjq"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Nested axios option objects can consume polluted prototype values \u2014 ## Summary\n\nAxios can consume inherited properties from nested request option objects when the JavaScript process already has a polluted `Object.prototype`.\n\nThe top-level merged config is protected with a null prototype, but nested plain objects such as `auth` and `paramsSerializer` are cloned into ordinary objects. If application code passes placeholders such as `auth: {}` or `paramsSerializer: {}`, inherited `username`, `password`, `encode`, or `serialize` properties can influence outbound requests.\n\n## Impact\n\nThis ",
+        "vuln_symbols": [
+          "Object.prototype",
+          "auth",
+          "paramsSerializer",
+          "username",
+          "password",
+          "encode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.33.0",
+          "1.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#13",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44490",
+            "GHSA-898c-q2cr-xwhg"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "axios has DoS & Header Injection via Prototype Pollution Read-Side Gadgets in axios merge functions \u2014 ## Summary\n\naxios `1.15.2` exposes two read-side prototype-pollution gadgets. When `Object.prototype` is polluted by an upstream dependency in the same process (e.g. lodash `_.merge` / [CVE-2018-16487](https://nvd.nist.gov/vuln/detail/CVE-2018-16487)), axios silently picks up the polluted values:\n\n1. **Header injection** - `lib/utils.js` line 406 builds `merge()`'s accumulator as `result = {}`, so `result[targetKey]` (line 414) walks `Object.prototype` and the polluted bucket's own keys are co",
+        "vuln_symbols": [
+          "Object.prototype",
+          "_.merge",
+          "merge",
+          "hasOwnProperty",
+          "Object.defineProperty",
+          "descriptor.get"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.0",
+          "1.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#14",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-39338",
+            "GHSA-8hc4-vh64-cxmj"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Server-Side Request Forgery in axios \u2014 axios 1.7.2 allows SSRF via unexpected behavior where requests for path relative URLs get processed as protocol relative URLs.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.7.4"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#15",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101902",
+            "GHSA-9fr6-4gfg-395g"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Prototype-Pollution Gadget in the Default Instance Allows Inherited Object.prototype.method to Override HTTP Method \u2014 ## Summary\n\nAxios default-instance requests that omit an explicit method can read an inherited `method` value from `Object.prototype`. If another vulnerability in the same process pollutes `Object.prototype.method`, calls such as `axios.request({ url })` and `axios({ url })` can send a state-changing HTTP method instead of the expected default `GET`.\n\nAxios does not create the prototype pollution source. This is a read-side gadget in axios request dispatch.\n\n## Impact\n\nI",
+        "vuln_symbols": [
+          "method",
+          "Object.prototype",
+          "Object.prototype.method",
+          "GET",
+          "DELETE",
+          "POST"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.34.0",
+          "1.20.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#16",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40175",
+            "GHSA-fvcv-3m26-pcqx"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios has Unrestricted Cloud Metadata Exfiltration via Header Injection Chain \u2014 # Vulnerability Disclosure: Unrestricted Cloud Metadata Exfiltration via Header Injection Chain\n\n## Summary\nThe Axios library is vulnerable to a specific gadget-style attack chain in which **prototype pollution** in a third-party dependency may be leveraged to inject unsanitized header values into outbound requests.\n\nAxios can be used as a gadget after pollution occurs elsewhere because header values merged from attacker-controlled prototype properties are not sanitized for CRLF (`\\r\\n`) characters before being wri",
+        "vuln_symbols": [
+          "qs",
+          "minimist",
+          "ini",
+          "Object.prototype",
+          "xhr.js"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.0",
+          "1.15.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#17",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44496",
+            "GHSA-hfxv-24rg-xrqf"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Regular Expression Denial of Service (ReDoS) via Cookie Name Injection \u2014 ## Summary\n\nAxios versions before `0.32.0` on the `0.x` line and before `1.16.0` on the `1.x` line build a regular expression from the configured XSRF cookie name without escaping regex metacharacters. In standard browser environments, an attacker who can influence the cookie name passed to axios can cause expensive regex backtracking while axios reads `document.cookie`.\n\nThe practical impact is client-side availability degradation, such as freezing the affected browser tab while axios prepares a request. The issue",
+        "vuln_symbols": [
+          "document.cookie",
+          "name",
+          "xsrfCookieName",
+          "cookies.read"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.0",
+          "1.16.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#18",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44486",
+            "GHSA-j5f8-grm9-p9fc"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Proxy-Authorization header leaks to redirect target when proxy is re-evaluated to direct connection \u2014 ### Summary\n\nAxios\u2019 Node.js HTTP adapter can leak proxy credentials to a redirect target in affected versions. When a request is sent through an authenticated proxy, Axios may add a `Proxy-Authorization` header. If Axios then follows a redirect and the redirected request is no longer sent through that proxy, the stale `Proxy-Authorization` header can remain on the redirected request and be sent to the redirect target.\n\nThis affects Node.js's use of Axios with automatic redirects enabled",
+        "vuln_symbols": [
+          "HTTP_PROXY",
+          "HTTPS_PROXY",
+          "NO_PROXY",
+          "setProxy",
+          "beforeRedirects.proxy",
+          "afca61a"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.0",
+          "1.16.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#19",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101904",
+            "GHSA-j8rh-479h-cp32"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Header Injection via Inherited headers After Minimal Interceptor \u2014 ## Summary\n\nAxios request interceptors may return a replacement config object. If an interceptor returns a plain object without an own `headers` property, `dispatchRequest()` later evaluates `config.headers` and can resolve an inherited `Object.prototype.headers` value. In a process where another vulnerability has polluted `Object.prototype.headers`, axios can send attacker-controlled headers.\n\nAxios does not create the prototype pollution source, and the interceptor itself is trusted caller code. The vulnerable behavior",
+        "vuln_symbols": [
+          "headers",
+          "dispatchRequest",
+          "config.headers",
+          "Object.prototype.headers",
+          "Object.prototype.common",
+          "config"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.20.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#20",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-27152",
+            "GHSA-jr5f-v2jv-69x6"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "axios Requests Vulnerable To Possible SSRF and Credential Leakage via Absolute URL \u2014 ### Summary\n\nA previously reported issue in axios demonstrated that using protocol-relative URLs could lead to SSRF (Server-Side Request Forgery). Reference: axios/axios#6463\n\nA similar problem that occurs when passing absolute URLs rather than protocol-relative URLs to axios has been identified. Even if \u2060`baseURL` is set, axios sends the request to the specified absolute URL, potentially causing SSRF and credential leakage. This issue impacts both server-side and client-side usage of axios.\n\n### Details\n\nCons",
+        "vuln_symbols": [
+          "baseURL",
+          "attacker.test",
+          "get"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.30.0",
+          "1.8.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#21",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42038",
+            "GHSA-m7pr-hjqh-92cm"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: no_proxy bypass via IP alias allows SSRF \u2014 The fix for no_proxy hostname normalization bypass (#10661) is incomplete.When no_proxy=localhost is set, requests to 127.0.0.1 and [::1] still route through the proxy instead of bypassing it.\n\nThe shouldBypassProxy() function does pure string matching \u2014 it does not \nresolve IP aliases or loopback equivalents. As a result:\n- no_proxy=localhost does NOT block 127.0.0.1 or [::1]\n- no_proxy=127.0.0.1 does NOT block localhost or [::1]\n\n\nPOC :\nprocess.env.no_proxy = 'localhost';\nprocess.env.http_proxy = 'http://attacker-proxy:8888';\n\n```(base) sriso",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#22",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67316",
+            "GHSA-mmx7-hfxf-jppx"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Prototype pollution gadgets can alter axios request construction \u2014 ## Summary\n\naxios is vulnerable to read-side prototype-pollution gadgets when `Object.prototype` has already been polluted by another vulnerability or dependency. The most broadly reachable issue is in the bodyless method aliases: `axios.get()`, `axios.delete()`, `axios.head()`, and `axios.options()` read inherited `data` before config normalization, causing attacker-controlled body data to be sent on requests that did not explicitly set a body.\n\nAdditional low-level paths affect consumers that call exported adapters/hel",
+        "vuln_symbols": [
+          "Object.prototype",
+          "axios.get",
+          "axios.delete",
+          "axios.head",
+          "axios.options",
+          "data"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.33.0",
+          "1.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#23",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44487",
+            "GHSA-p92q-9vqr-4j8v"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Proxy-Authorization Credential Leak to Origin Server Across HTTP-to-HTTPS Redirect in Axios Node.js HTTP Adapter \u2014 ## Summary\n\nAxios\u2019s Node.js HTTP adapter may forward a `Proxy-Authorization` header to a redirected origin during specific proxy-to-direct redirect flows.\n\nThis affects Node.js usage, where an initial HTTP request is sent through an authenticated HTTP proxy, redirects are followed, and the redirected URL is no longer proxied. Under affected redirect shapes, the final origin can receive the proxy credential that was intended only for the outbound proxy.\n\n## Impact\n\nA malicio",
+        "vuln_symbols": [
+          "config.proxy",
+          "HTTPS_PROXY",
+          "NO_PROXY",
+          "setProxy",
+          "afca61a",
+          "removeProxyAuthorization"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.0",
+          "1.16.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#24",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42033",
+            "GHSA-pf86-5x62-jrwf"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Prototype Pollution Gadgets - Response Tampering, Data Exfiltration, and Request Hijacking \u2014 ## Summary\n\nWhen `Object.prototype` has been polluted by any co-dependency with keys that axios reads without a `hasOwnProperty` guard, an attacker can (a) silently intercept and modify every JSON response before the application sees it, or (b) fully hijack the underlying HTTP transport, gaining access to request credentials, headers, and body. The precondition is prototype pollution from a separate source in the same process -- lodash < 4.17.21, or any of several other common npm packages with ",
+        "vuln_symbols": [
+          "Object.prototype",
+          "hasOwnProperty",
+          "Axios._request",
+          "mergeConfig",
+          "this.defaults",
+          "transformResponse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#25",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67312",
+            "GHSA-pmv8-rq9r-6j72"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Deep formToJSON Key Recursion Can Cause Denial of Service \u2014 ## Summary\n\nAxios versions starting with `0.28.0` contain uncontrolled recursion in `formDataToJSON`, which is exposed as `axios.formToJSON()` and used internally when axios serialises `FormData` with `Content-Type: application/json`.\n\nIf an application passes attacker-controlled `FormData` field names to this functionality, a field name with thousands of nested bracket segments can exhaust the JavaScript call stack and cause denial of service for that request or, in applications without appropriate error handling, process term",
+        "vuln_symbols": [
+          "formDataToJSON",
+          "axios.formToJSON",
+          "FormData",
+          "formToJSON",
+          "transformRequest",
+          "toFormData"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.33.0",
+          "1.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#26",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42043",
+            "GHSA-pmwg-cvhr-8vh7"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Incomplete Fix for CVE-2025-62718 \u2014 NO_PROXY Protection Bypassed via RFC 1122 Loopback Subnet (127.0.0.0/8) in Axios 1.15.0 \u2014 **1. Executive Summary**\nThis report documents an **incomplete security patch** for the previously disclosed vulnerability **GHSA-3p68-rc4w-qgx5 (CVE-2025-62718)**, which affects the `NO_PROXY` hostname resolution logic in the Axios HTTP library.\n\n**Background \u2014 The Original Vulnerability**\nThe original vulnerability (GHSA-3p68-rc4w-qgx5) disclosed that Axios did not normalize hostnames before comparing them against `NO_PROXY` rules. Specifically, a request to `h",
+        "vuln_symbols": [
+          "NO_PROXY",
+          "normalizeNoProxyHost",
+          "localhost",
+          "setProxy",
+          "shouldBypassProxy",
+          "lo"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "compromised credentials"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#27",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42264",
+            "GHSA-q8qp-cvcw-x6jj"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios has prototype pollution read-side gadgets in HTTP adapter that allow credential injection and request hijacking \u2014 ## Summary\n\nFive config properties in the HTTP adapter are read via direct property access without `hasOwnProperty` guards, making them exploitable as prototype pollution gadgets. When `Object.prototype` is polluted by another dependency in the same process, axios silently picks up these polluted values on every outbound HTTP request.\n\n## Affected Properties\n\n1. **`config.auth`** (`lib/adapters/http.js` line 617)  Injects attacker-controlled `Authorization` header on all requ",
+        "vuln_symbols": [
+          "hasOwnProperty",
+          "Object.prototype",
+          "config.auth",
+          "Authorization",
+          "config.baseURL",
+          "config.socketPath"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.15.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#28",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42036",
+            "GHSA-vf2m-468p-8v99"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: HTTP adapter streamed responses bypass maxContentLength \u2014 ### Summary\n\nWhen responseType: 'stream' is used, Axios returns the response stream without enforcing maxContentLength. This bypasses configured response-size limits and allows unbounded downstream consumption.\n\n### Details\nIn lib/adapters/http.js:\n  - 786-789: for responseType === 'stream', Axios immediately settles with the stream.\n  - 797-810: maxContentLength enforcement exists only in the non-stream buffering branch.\n\nSo callers may set maxContentLength and still receive/read arbitrarily large streamed responses.\n\n### PoC\n\nE",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#29",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42041",
+            "GHSA-w9j2-pvgh-6h63"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy \u2014 # Vulnerability Disclosure: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy\n\n## Summary\n\nThe Axios library is vulnerable to a Prototype Pollution \"Gadget\" attack that allows any `Object.prototype` pollution to **silently suppress all HTTP error responses** (401, 403, 500, etc.), causing them to be treated as successful responses. This completely bypasses application-level authentication and error handling.\n\nThe root cause is that `validateStatus` is the **onl",
+        "vuln_symbols": [
+          "validateStatus",
+          "Object.prototype",
+          "mergeDirectKeys",
+          "in",
+          "Object.prototype.validateStatus",
+          "defaultToConfig2"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#30",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42040",
+            "GHSA-xhjh-pmcv-23jw"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams \u2014 # Vulnerability Disclosure: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams\n\n## Summary\n\nThe `encode()` function in `lib/helpers/AxiosURLSearchParams.js` contains a character mapping (`charMap`) at line 21 that **reverses** the safe percent-encoding of null bytes. After `encodeURIComponent('\\x00')` correctly produces the safe sequence `%00`, the charMap entry `'%00': '\\x00'` converts it back to a raw null byte.\n\nThis is a clear encoding defect: every other charMap entry encodes in the safe direction (lit",
+        "vuln_symbols": [
+          "encode",
+          "charMap",
+          "buildURL",
+          "AxiosURLSearchParams.toString",
+          "paramsSerializer",
+          "AxiosURLSearchParams"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#31",
+      "facts": {
+        "package": "axios",
+        "version": "1.6.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42042",
+            "GHSA-xx6v-rp6x-q39c"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion \u2014 # Vulnerability Disclosure: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion\n\n## Summary\n\nThe Axios library's XSRF token protection logic uses JavaScript truthy/falsy semantics instead of strict boolean comparison for the `withXSRFToken` config property. When this property is set to any truthy non-boolean value (via prototype pollution or misconfiguration), the same-origin check (`isURLSameOrigin`) is **short-circuited**, causing XSRF tok",
+        "vuln_symbols": [
+          "withXSRFToken",
+          "isURLSameOrigin",
+          "hasStandardBrowserEnv",
+          "Object.prototype.withXSRFToken"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axios is never imported by the app's runtime code: the only imports are e2e/src/server/server.spec.ts:1 and e2e/src/support/test-setup.ts:3 (test harness; also an nx build-tool dependency). src/ has no HTTP client usage, so no request config, URL or response reaches axios.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#32",
+      "facts": {
+        "package": "body-parser",
+        "version": "1.20.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-45590",
+            "GHSA-qwcr-r2fm-qrc7"
+          ],
+          [
+            "body-parser"
+          ]
+        ],
+        "advisory_summary": "body-parser vulnerable to denial of service when url encoding is enabled \u2014 ### Impact\n\nbody-parser <1.20.3 is vulnerable to denial of service when url encoding is enabled. A malicious actor using a specially crafted payload could flood the server with a large number of requests, resulting in denial of service.\n\n### Patches\n\nthis issue is patched in 1.20.3\n\n### References\n",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.20.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Vulnerable copy is express's nested body-parser@1.20.1 (node_modules/express/node_modules/body-parser), used only via express.urlencoded/json; the app never calls those and instead uses top-level body-parser@1.20.2 (src/main.ts:3,14-15).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#33",
+      "facts": {
+        "package": "body-parser",
+        "version": "1.20.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-12590",
+            "GHSA-v422-hmwv-36x6"
+          ],
+          [
+            "body-parser"
+          ]
+        ],
+        "advisory_summary": "body-parser vulnerable to denial of service when invalid limit value silently disables size enforcement \u2014 ### Impact\n\nWhen body-parser is configured with an invalid `limit` option value, such as an unparseable string or `NaN`, `bytes.parse()` returns `null` and the request body size check is silently skipped. Applications that rely on `limit` as their primary safeguard against oversized request bodies will accept arbitrarily large payloads, leading to excessive memory and CPU usage and denial of service.\n\nThis issue affects applications that pass a programmatically computed or user-configurabl",
+        "vuln_symbols": [
+          "limit",
+          "NaN",
+          "bytes.parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.20.6",
+          "2.3.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires an invalid `limit` option; app calls bodyParser.json() and bodyParser.urlencoded({ extended: true }) with no limit (src/main.ts:14-15), and the express-bundled 1.20.1 copy is not used at all.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#34",
+      "facts": {
+        "package": "body-parser",
+        "version": "1.20.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-45590",
+            "GHSA-qwcr-r2fm-qrc7"
+          ],
+          [
+            "body-parser"
+          ]
+        ],
+        "advisory_summary": "body-parser vulnerable to denial of service when url encoding is enabled \u2014 ### Impact\n\nbody-parser <1.20.3 is vulnerable to denial of service when url encoding is enabled. A malicious actor using a specially crafted payload could flood the server with a large number of requests, resulting in denial of service.\n\n### Patches\n\nthis issue is patched in 1.20.3\n\n### References\n",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.20.3"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "src/main.ts:15 app.use(bodyParser.urlencoded({ extended: true })) on all routes; body-parser@1.20.2/lib/types/urlencoded.js:156-163 passes depth: Infinity to qs.parse on attacker-supplied request bodies, the CVE-2024-45590 condition.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#35",
+      "facts": {
+        "package": "body-parser",
+        "version": "1.20.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-12590",
+            "GHSA-v422-hmwv-36x6"
+          ],
+          [
+            "body-parser"
+          ]
+        ],
+        "advisory_summary": "body-parser vulnerable to denial of service when invalid limit value silently disables size enforcement \u2014 ### Impact\n\nWhen body-parser is configured with an invalid `limit` option value, such as an unparseable string or `NaN`, `bytes.parse()` returns `null` and the request body size check is silently skipped. Applications that rely on `limit` as their primary safeguard against oversized request bodies will accept arbitrarily large payloads, leading to excessive memory and CPU usage and denial of service.\n\nThis issue affects applications that pass a programmatically computed or user-configurabl",
+        "vuln_symbols": [
+          "limit",
+          "NaN",
+          "bytes.parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.20.6",
+          "2.3.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires an invalid/NaN `limit` option; src/main.ts:14-15 configure json and urlencoded parsers with the default limit.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#36",
+      "facts": {
+        "package": "cookie",
+        "version": "0.5.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-47764",
+            "GHSA-pxg6-pf52-xh8x"
+          ],
+          [
+            "cookie"
+          ]
+        ],
+        "advisory_summary": "cookie accepts cookie name, path, and domain with out of bounds characters \u2014 ### Impact\n\nThe cookie name could be used to set other fields of the cookie, resulting in an unexpected cookie value. For example, `serialize(\"userName=<script>alert('XSS3')</script>; Max-Age=2592000; a\", value)` would result in `\"userName=<script>alert('XSS3')</script>; Max-Age=2592000; a=test\"`, setting `userName` cookie to `<script>` and ignoring `value`.\n\nA similar escape can be used for `path` and `domain`, which could be abused to alter other fields of the cookie.\n\n### Patches\n\nUpgrade to 0.7.0, which updates th",
+        "vuln_symbols": [
+          "userName",
+          "value",
+          "path",
+          "domain",
+          "name"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "cookie@0.5.0 is used by express only for res.cookie()/res.clearCookie() serialization; the app never sets cookies (no res.cookie in src/), and it is token-header auth (src/app/routes/auth/auth.ts:4-12).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#37",
+      "facts": {
+        "package": "express",
+        "version": "4.18.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-43796",
+            "GHSA-qw6h-vgh9-j6wx"
+          ],
+          [
+            "express"
+          ]
+        ],
+        "advisory_summary": "express vulnerable to XSS via response.redirect() \u2014 ### Impact\n\nIn express <4.20.0, passing untrusted user input - even after sanitizing it - to `response.redirect()` may execute untrusted code\n\n### Patches\n\nthis issue is patched in express 4.20.0\n\n### Workarounds\n\nusers are encouraged to upgrade to the patched version of express, but otherwise can workaround this issue by making sure any untrusted inputs are safe, ideally by validating them against an explicit allowlist\n\n### Details\n\nsuccessful exploitation of this vector requires the following:\n\n1. The attacker MUST control the input to resp",
+        "vuln_symbols": [
+          "response.redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.20.0",
+          "5.0.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Vulnerable function is res.redirect(); no res.redirect/res.location call anywhere in src/ (all handlers use res.json). serve-static's own directory redirect does not use res.redirect.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#38",
+      "facts": {
+        "package": "express",
+        "version": "4.18.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-29041",
+            "GHSA-rv95-896h-c2vc"
+          ],
+          [
+            "express"
+          ]
+        ],
+        "advisory_summary": "Express.js Open Redirect in malformed URLs \u2014 ### Impact\n\nVersions of Express.js prior to 4.19.2 and pre-release alpha and beta versions before 5.0.0-beta.3 are affected by an open redirect vulnerability using malformed URLs.\n\nWhen a user of Express performs a redirect using a user-provided URL Express performs an encode [using `encodeurl`](https://github.com/pillarjs/encodeurl) on the contents before passing it to the `location` header. This can cause malformed URLs to be evaluated in unexpected ways by common redirect allow list implementations in Express applications, leading to an Open Redi",
+        "vuln_symbols": [
+          "encodeurl",
+          "location",
+          "res.location",
+          "res.redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.19.2",
+          "5.0.0-beta.3"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Open redirect is in res.location()/res.redirect() with user-supplied URLs; the app never calls either (src/ only uses res.json/res.status).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#39",
+      "facts": {
+        "package": "follow-redirects",
+        "version": "1.15.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-28849",
+            "GHSA-cxjh-pqwp-8mfp"
+          ],
+          [
+            "follow-redirects"
+          ]
+        ],
+        "advisory_summary": "follow-redirects' Proxy-Authorization header kept across hosts \u2014 When using [axios](https://github.com/axios/axios), its dependency follow-redirects only clears authorization header during cross-domain redirect, but allows the proxy-authentication header which contains credentials too.\n\n## Steps To Reproduce & PoC\n\nTest code:\n\n```js\nconst axios = require('axios');\n\naxios.get('http://127.0.0.1:10081/', {\n headers: {\n 'AuThorization': 'Rear Test',\n 'ProXy-AuthoriZation': 'Rear Test',\n 'coOkie': 't=1'\n }\n})\n .then((response) => {\n console.log(response);\n })\n```\n\nWhen I meet the cross-domain redir",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.15.6"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "follow-redirects is pulled in only by axios, which the app runtime never imports (only e2e tests: e2e/src/support/test-setup.ts:3); no proxies or outbound requests in src/.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#40",
+      "facts": {
+        "package": "follow-redirects",
+        "version": "1.15.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-26159",
+            "GHSA-jchw-25xp-jwwc"
+          ],
+          [
+            "follow-redirects"
+          ]
+        ],
+        "advisory_summary": "Follow Redirects improperly handles URLs in the url.parse() function \u2014 Versions of the package follow-redirects before 1.15.4 are vulnerable to Improper Input Validation due to the improper handling of URLs by the url.parse() function. When new URL() throws an error, it can be manipulated to misinterpret the hostname. An attacker could exploit this weakness to redirect traffic to a malicious site, potentially leading to information disclosure, phishing attacks, or other security breaches.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.15.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "follow-redirects is reached only via axios, used only in e2e tests (e2e/src/server/server.spec.ts:1); app runtime makes no outbound HTTP requests.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#41",
+      "facts": {
+        "package": "follow-redirects",
+        "version": "1.15.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40895",
+            "GHSA-r4q5-vmmm-2653"
+          ],
+          [
+            "follow-redirects"
+          ]
+        ],
+        "advisory_summary": "follow-redirects leaks Custom Authentication Headers to Cross-Domain Redirect Targets \u2014 ## Summary\n\nWhen an HTTP request follows a cross-domain redirect (301/302/307/308), `follow-redirects` only strips `authorization`, `proxy-authorization`, and `cookie` headers (matched by regex at index.js:469-476). Any custom authentication header (e.g., `X-API-Key`, `X-Auth-Token`, `Api-Key`, `Token`) is forwarded verbatim to the redirect target.\n\nSince `follow-redirects` is the redirect-handling dependency for **axios** (105K+ stars), this vulnerability affects the entire axios ecosystem.\n\n## Affected Co",
+        "vuln_symbols": [
+          "authorization",
+          "cookie",
+          "Token",
+          "index.js",
+          "evil.com",
+          "sensitiveHeaders"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "follow-redirects is reached only via axios, used only in e2e tests; app runtime makes no outbound HTTP requests, so there are no redirects or custom auth headers.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#42",
+      "facts": {
+        "package": "form-data",
+        "version": "4.0.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-7783",
+            "GHSA-fjxv-7rqg-78g4"
+          ],
+          [
+            "form-data"
+          ]
+        ],
+        "advisory_summary": "form-data uses unsafe random function in form-data for choosing boundary \u2014 ### Summary\n\nform-data uses `Math.random()` to select a boundary value for multipart form-encoded data. This can lead to a security issue if an attacker:\n1. can observe other values produced by Math.random in the target application, and\n2. can control one field of a request made using form-data\n\nBecause the values of Math.random() are pseudo-random and predictable (see: https://blog.securityevaluators.com/hacking-the-javascript-lottery-80cc437e3b7f), an attacker who can observe a few sequential values can determine the ",
+        "vuln_symbols": [
+          "Math.random",
+          "undici",
+          "parrot409"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.5.4",
+          "3.0.4",
+          "4.0.4"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "form-data is a dependency of axios only (lockfile), and axios is used only in e2e tests; the app never builds multipart requests.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#43",
+      "facts": {
+        "package": "form-data",
+        "version": "4.0.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-12143",
+            "GHSA-hmw2-7cc7-3qxx"
+          ],
+          [
+            "form-data"
+          ]
+        ],
+        "advisory_summary": "form-data: CRLF injection in form-data via unescaped multipart field names and filenames \u2014 ## Summary\n\n`form-data` builds `multipart/form-data` request bodies. Through v4.0.5, the `field` name passed to `FormData#append` and the `filename` option are concatenated directly into the `Content-Disposition` header with no escaping of CR (`\\r`), LF (`\\n`), or `\"`. An application that uses **untrusted input as a field name or filename** therefore lets an attacker terminate the header line and either inject additional headers or smuggle whole additional multipart parts into the request the application",
+        "vuln_symbols": [
+          "field",
+          "filename",
+          "_multiPartHeader",
+          "_getContentDisposition",
+          "is_admin",
+          "role"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.5.6",
+          "3.0.5",
+          "4.0.6"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "form-data is a dependency of axios only, and axios is used only in e2e tests; there is no multipart request construction in src/.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#44",
+      "facts": {
+        "package": "jws",
+        "version": "3.2.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-65945",
+            "GHSA-869p-cjfg-cm3x"
+          ],
+          [
+            "jws"
+          ]
+        ],
+        "advisory_summary": "auth0/node-jws Improperly Verifies HMAC Signature \u2014 ### Overview\nAn improper signature verification vulnerability exists when using auth0/node-jws with the HS256 algorithm under specific conditions.\n\n### Am I Affected?\nYou are affected by this vulnerability if you meet all of the following preconditions:\n\n1. Application uses the auth0/node-jws implementation of JSON Web Signatures, versions <=3.2.2 || 4.0.0\n2. Application uses the jws.createVerify() function for HMAC algorithms\n3. Application uses user-provided data from the JSON Web Signature Protected Header or Payload in the HMAC secret loo",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.2.3",
+          "4.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs an HMAC secret lookup that uses data from the JWS header/payload; the app verifies with a static secret (src/app/routes/auth/auth.ts:16-27 express-jwt secret: process.env.JWT_SECRET, algorithms HS256) and signs with a static secret (token.utils.ts:4).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#45",
+      "facts": {
+        "package": "path-to-regexp",
+        "version": "0.1.7",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-45296",
+            "CVE-2026-4867",
+            "GHSA-37ch-88jc-xwx2",
+            "GHSA-9wv6-86v2-598j"
+          ],
+          [
+            "path-to-regexp"
+          ]
+        ],
+        "advisory_summary": "path-to-regexp outputs backtracking regular expressions \u2014 ### Impact\n\nA bad regular expression is generated any time you have two parameters within a single segment, separated by something that is not a period (`.`). For example, `/:a-:b`.\n\n### Patches\n\nFor users of 0.1, upgrade to `0.1.10`. All other users should upgrade to `8.0.0`.\n\nThese versions add backtrack protection when a custom regex pattern is not provided:\n\n- [0.1.10](https://github.com/pillarjs/path-to-regexp/releases/tag/v0.1.10)\n- [1.9.0](https://github.com/pillarjs/path-to-regexp/releases/tag/v1.9.0)\n- [3.3.0](https://github.co",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.1.10",
+          "0.1.13",
+          "1.9.0",
+          "3.3.0",
+          "6.3.0",
+          "8.0.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a route with two parameters in one path segment (e.g. /:a-:b); all routes use one param per segment (/profiles/:username, /articles/:slug/comments/:id in src/app/routes/*/*.controller.ts).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#46",
+      "facts": {
+        "package": "path-to-regexp",
+        "version": "0.1.7",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-52798",
+            "GHSA-rhx6-c78j-4q9w"
+          ],
+          [
+            "path-to-regexp"
+          ]
+        ],
+        "advisory_summary": "path-to-regexp contains a ReDoS \u2014 ### Impact\n\nThe regular expression that is vulnerable to backtracking can be generated in versions before 0.1.12 of `path-to-regexp`, originally reported in CVE-2024-45296\n\n### Patches\n\nUpgrade to 0.1.12.\n\n### Workarounds\n\nAvoid using two parameters within a single path segment, when the separator is not `.` (e.g. no `/:a-:b`). Alternatively, you can define the regex used for both parameters and ensure they do not overlap to allow backtracking.\n\n### References\n\n- https://github.com/advisories/GHSA-9wv6-86v2-598j\n- https://blakeembrey.com/posts/2024-09-web-redo",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.1.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CVE-2024-52798 also needs multiple params in one segment; routes only use single per-segment params (article.controller.ts:88-231, profile.controller.ts:15-55).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#47",
+      "facts": {
+        "package": "proxy-addr",
+        "version": "2.0.7",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-90711",
+            "GHSA-jqcg-44mw-7w3h"
+          ],
+          [
+            "proxy-addr"
+          ]
+        ],
+        "advisory_summary": "proxy-addr vulnerable to IP spoofing via IPv4-mapped IPv6 trust subnet \u2014 ### Impact\n\n`proxy-addr` determines which network hops are trusted proxies so that `X-Forwarded-For` can be believed. When an application configures a trust subnet as an IPv4-mapped IPv6 address with a short prefix, such as `::ffff:10.0.0.0/8` (the correct spelling is `::ffff:10.0.0.0/104`), the subnet compiles with all-zero leading bits and matches every IPv4 address instead of the block it names. The same happens for any IPv6 trust subnet with zero leading bits, such as `::/1`.\n\nEvery unauthenticated client is then trus",
+        "vuln_symbols": [
+          "req.ip",
+          "req.ips"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.8"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs 'trust proxy' set to an IPv4-mapped/zero-prefix IPv6 subnet; the app never sets trust proxy (src/main.ts), so express uses proxy-addr with trust=false.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#48",
+      "facts": {
+        "package": "qs",
+        "version": "6.11.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82417",
+            "GHSA-4mjr-xmp4-gh2g"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs: Denial of Service via Attacker Controlled isBuffer \u2014 ### Summary\n\n`qs.stringify()` calls `utils.isBuffer()` on every value it serializes, and `utils.isBuffer()` invokes `obj.constructor.isBuffer(obj)` without checking that it is callable. A value whose own `constructor.isBuffer` is a non-function makes `qs` call a non-callable and throw `TypeError`. Such a value is produced **by `qs.parse` itself** from an untrusted query string when `plainObjects: true` or `allowPrototypes: true` is set, so a pure-`qs` `parse` \u2192 `stringify` round-trip \u2014 no `JSON.parse` \u2014 turns an unauthenticated query str",
+        "vuln_symbols": [
+          "qs.stringify",
+          "utils.isBuffer",
+          "constructor.isBuffer",
+          "TypeError",
+          "qs.parse",
+          "parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs qs.stringify on parsed untrusted data; express@4.18.2 calls only qs.parse (lib/utils.js:290) and the app never calls qs.stringify.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#49",
+      "facts": {
+        "package": "qs",
+        "version": "6.11.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-15284",
+            "GHSA-6rw7-vpxm-498p"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs's arrayLimit bypass in its bracket notation allows DoS via memory exhaustion \u2014 ### Summary\n\nThe `arrayLimit` option in qs did not enforce limits for bracket notation (`a[]=1&a[]=2`), only for indexed notation (`a[0]=1`). This is a consistency bug; `arrayLimit` should apply uniformly across all array notations.\n\n**Note:** The default `parameterLimit` of 1000 effectively mitigates the DoS scenario originally described. With default options, bracket notation cannot produce arrays larger than `parameterLimit` regardless of `arrayLimit`, because each `a[]=value` consumes one parameter slot. The ",
+        "vuln_symbols": [
+          "arrayLimit",
+          "parameterLimit",
+          "options.arrayLimit"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.14.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "qs.parse is reached with attacker input (express query parser, express@4.18.2/lib/utils.js:290; body-parser urlencoded src/main.ts:15), but only with the default parameterLimit of 1000. The advisory says that limit mitigates the bracket-notation DoS, so the precondition is not met.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#50",
+      "facts": {
+        "package": "qs",
+        "version": "6.11.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-2391",
+            "GHSA-w7fw-mjwx-w883"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs's arrayLimit bypass in comma parsing allows denial of service \u2014 ### Summary\nThe `arrayLimit` option in qs does not enforce limits for comma-separated values when `comma: true` is enabled, allowing attackers to cause denial-of-service via memory exhaustion. This is a bypass of the array limit enforcement, similar to the bracket notation bypass addressed in GHSA-6rw7-vpxm-498p (CVE-2025-15284).\n\n### Details\nWhen the `comma` option is set to `true` (not the default, but configurable in applications), qs allows parsing comma-separated strings as arrays (e.g., `?param=a,b,c` becomes `['a', 'b', ",
+        "vuln_symbols": [
+          "arrayLimit",
+          "comma",
+          "parseArrayValue",
+          "utils.combine",
+          "currentArrayLength",
+          "throwOnLimitExceeded"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.14.2"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs the `comma: true` parse option; neither express's query parser (express@4.18.2/lib/utils.js:290, allowPrototypes only) nor body-parser@1.20.2 urlencoded.js:158-164 sets comma.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#51",
+      "facts": {
+        "package": "send",
+        "version": "0.18.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-43799",
+            "GHSA-m6fv-jmcg-4jfg"
+          ],
+          [
+            "send"
+          ]
+        ],
+        "advisory_summary": "send vulnerable to template injection that can lead to XSS \u2014 ### Impact\n\npassing untrusted user input - even after sanitizing it - to `SendStream.redirect()` may execute untrusted code\n\n### Patches\n\nthis issue is patched in send 0.19.0\n\n### Workarounds\n\nusers are encouraged to upgrade to the patched version of express, but otherwise can workaround this issue by making sure any untrusted inputs are safe, ideally by validating them against an explicit allowlist\n\n### Details\n\nsuccessful exploitation of this vector requires the following:\n\n1. The attacker MUST control the input to response.redirec",
+        "vuln_symbols": [
+          "SendStream.redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.19.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Vulnerable template is SendStream.redirect's default HTML (send@0.18.0/index.js:484-486), which runs only when no 'directory' listener is attached. serve-static always attaches one (serve-static@1.15.0/index.js:68), and the app never calls res.sendFile.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#52",
+      "facts": {
+        "package": "serve-static",
+        "version": "1.15.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-43800",
+            "GHSA-cm22-4g7w-348p"
+          ],
+          [
+            "serve-static"
+          ]
+        ],
+        "advisory_summary": "serve-static vulnerable to template injection that can lead to XSS \u2014 ### Impact\n\npassing untrusted user input - even after sanitizing it - to `redirect()` may execute untrusted code\n\n### Patches\n\nthis issue is patched in serve-static 1.16.0\n\n### Workarounds\n\nusers are encouraged to upgrade to the patched version of express, but otherwise can workaround this issue by making sure any untrusted inputs are safe, ideally by validating them against an explicit allowlist\n\n### Details\n\nsuccessful exploitation of this vector requires the following:\n\n1. The attacker MUST control the input to response.re",
+        "vuln_symbols": [
+          "redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.16.0",
+          "2.1.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "src/main.ts:19 app.use(express.static(__dirname + '/assets')) and assets contains a directory (src/assets/images, copied by project.json build assets). GET /images?<payload> triggers serve-static@1.15.0/index.js:197-199, which builds the redirect HTML from the request URL (the advisory's code path, though escapeHtml limits exploitability).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-realworld#53",
+      "facts": {
+        "package": "uuid",
+        "version": "8.3.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41907",
+            "CVE-2026-41988",
+            "GHSA-w5hq-g745-h8pq"
+          ],
+          [
+            "uuid"
+          ]
+        ],
+        "advisory_summary": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided \u2014 ### Summary\n\nThe `v3()`, `v5()`, and `v6()` [API methods](https://github.com/uuidjs/uuid#api-summary) (not `uuid` release versions) accept external output buffers but do not reject out-of-range writes (small `buf` or large `offset`).  \nBy contrast, `v4()`, `v1()`, and `v7()` API methods explicitly throw `RangeError` on invalid bounds.\n\nThis inconsistency allows **silent partial writes** into caller-provided buffers.\n\n\n### Affected code\n\n- `src/v35.ts` (`v3()`/`v5()` path) writes `buf[offset + i]` without bounds validation.\n- ",
+        "vuln_symbols": [
+          "v3",
+          "v5",
+          "v6",
+          "buf",
+          "offset",
+          "v4"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "11.1.1",
+          "12.0.1",
+          "13.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "uuid is only a dependency of @ngneat/falso, which is imported only in the Prisma seed script (src/prisma/seed.ts:8, tooling); the app never calls uuid v3/v5/v6 with a buffer.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-15 (blind: before any judge run; agent-labelled)"
+      }
+    }
+  ]
+}

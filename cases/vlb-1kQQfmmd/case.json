@@ -1,0 +1,195 @@
+{
+  "id": "vlb-1kQQfmmd",
+  "description": "@cypress/request 2.88.11 (vuln-bench case 1kQQfmmd). Real dependency advisories surfaced by the 2026-10-05 scanner runs; this is a LIBRARY, so 'reachable' means the library's own code exercises the vulnerable path under default options.",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment values are FIXTURE signals, not live KEV/EPSS",
+  "enrichment": {
+    "CVE-2025-7783": {
+      "kev": false,
+      "epss": 0.15
+    },
+    "CVE-2026-12143": {
+      "kev": false,
+      "epss": 0.03
+    },
+    "CVE-2025-15284": {
+      "kev": false,
+      "epss": 0.12
+    },
+    "CVE-2026-2391": {
+      "kev": false,
+      "epss": 0.12
+    },
+    "CVE-2026-82417": {
+      "kev": false,
+      "epss": 0.04
+    },
+    "CVE-2026-41907": {
+      "kev": false,
+      "epss": 0.02
+    }
+  },
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/vlb-1kQQfmmd#1",
+      "facts": {
+        "package": "form-data",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-7783"
+          ],
+          [
+            "form-data"
+          ]
+        ],
+        "vuln_symbols": [
+          "FormData",
+          "_generateBoundary"
+        ],
+        "advisory_summary": "Unsafe random function (Math.random) generates a predictable multipart boundary.",
+        "created_at": "2026-10-05T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Request.prototype.form() does `new FormData()` (request.js:1253); the formData option goes through it"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/vlb-1kQQfmmd#2",
+      "facts": {
+        "package": "form-data",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-12143"
+          ],
+          [
+            "form-data"
+          ]
+        ],
+        "vuln_symbols": [
+          "FormData.append"
+        ],
+        "advisory_summary": "Form field override via CRLF injection in field names/values.",
+        "created_at": "2026-10-05T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "formData option entries are appended to the FormData instance by request"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/vlb-1kQQfmmd#3",
+      "facts": {
+        "package": "qs",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-15284"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "vuln_symbols": [
+          "qs.parse"
+        ],
+        "advisory_summary": "DoS via improper input validation in array parsing (arrayLimit bypass with bracket notation).",
+        "created_at": "2026-10-05T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Request.prototype.qs() parses the URI's existing query with qs.parse (request.js:1216) under default options"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/vlb-1kQQfmmd#4",
+      "facts": {
+        "package": "qs",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-2391"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "vuln_symbols": [
+          "qs.parse",
+          "comma"
+        ],
+        "advisory_summary": "arrayLimit bypass in comma parsing allows DoS; only applies when qs.parse is called with the `comma: true` option.",
+        "created_at": "2026-10-05T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "request never sets comma:true; parseOptions default to {} \u2014 reachable only if a caller opts in via qsParseOptions"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/vlb-1kQQfmmd#5",
+      "facts": {
+        "package": "qs",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82417"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "vuln_symbols": [
+          "qs.stringify"
+        ],
+        "advisory_summary": "DoS via improper validation in stringify: a crafted object passed to qs.stringify causes excessive CPU/memory use.",
+        "created_at": "2026-10-05T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "qs() and form() call qs.stringify on caller-supplied objects (request.js:1225, 1249)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/vlb-1kQQfmmd#6",
+      "facts": {
+        "package": "uuid",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41907"
+          ],
+          [
+            "uuid"
+          ]
+        ],
+        "vuln_symbols": [
+          "v3",
+          "v5",
+          "v6"
+        ],
+        "advisory_summary": "Out-of-bounds write when v3/v5/v6 are called with a caller-supplied buffer and offset.",
+        "created_at": "2026-10-05T00:00:00Z"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "only `v4` is imported (lib/auth.js:4, lib/multipart.js:3), called with no buffer"
+      }
+    }
+  ]
+}

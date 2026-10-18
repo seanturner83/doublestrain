@@ -1,0 +1,3089 @@
+{
+  "id": "real-nodegoat",
+  "description": "OWASP NodeGoat @ c5cb68a (fetch.sh), prod dependencies; OSV-generated. Label each `expect`.",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#1",
+      "facts": {
+        "package": "body-parser",
+        "version": "1.18.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-45590",
+            "GHSA-qwcr-r2fm-qrc7"
+          ],
+          [
+            "body-parser"
+          ]
+        ],
+        "advisory_summary": "body-parser vulnerable to denial of service when url encoding is enabled \u2014 ### Impact\n\nbody-parser <1.20.3 is vulnerable to denial of service when url encoding is enabled. A malicious actor using a specially crafted payload could flood the server with a large number of requests, resulting in denial of service.\n\n### Patches\n\nthis issue is patched in 1.20.3\n\n### References\n",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.20.3"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "the 1.20.3 fix adds a depth limit to the qs-backed EXTENDED urlencoded parser; server.js:72 mounts bodyParser.urlencoded({extended:false}) (querystring, parameterLimit 1000), so the vulnerable parser never runs. VERIFIED 2026-10-11 against the lockfile's tarball (integrity hash matched): body-parser@1.18.3 lib/types/urlencoded.js picks simpleparser (querystring) when extended===false; the 1.20.3 fix (diffed against 1.20.2) only adds depth/strictDepth to extendedparser's qs.parse.",
+        "labelled_by": "claude-opus code read 2026-10-11",
+        "confidence": "high"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#2",
+      "facts": {
+        "package": "body-parser",
+        "version": "1.18.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-12590",
+            "GHSA-v422-hmwv-36x6"
+          ],
+          [
+            "body-parser"
+          ]
+        ],
+        "advisory_summary": "body-parser vulnerable to denial of service when invalid limit value silently disables size enforcement \u2014 ### Impact\n\nWhen body-parser is configured with an invalid `limit` option value, such as an unparseable string or `NaN`, `bytes.parse()` returns `null` and the request body size check is silently skipped. Applications that rely on `limit` as their primary safeguard against oversized request bodies will accept arbitrarily large payloads, leading to excessive memory and CPU usage and denial of service.\n\nThis issue affects applications that pass a programmatically computed or user-configurabl",
+        "vuln_symbols": [
+          "limit",
+          "NaN",
+          "bytes.parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.20.6",
+          "2.3.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#3",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.11",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-13149",
+            "GHSA-3jxr-9vmj-r5cp"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups \u2014 ### Summary\nbrace-expansion's expand() exhibits exponential-time - O(2\u207f) - behavior in the number of consecutive non-expanding {} groups. A short, all-ASCII input (~90 bytes/30 groups) blocks the calling thread for minutes; a slightly longer input hangs it effectively indefinitely. Because the dominant consumers run on Node's single-threaded event loop, one small input can fully stall a worker/process.\n\nIn `expand_`, `post` is computed unconditionally at the top of the function, before the early-return",
+        "vuln_symbols": [
+          "expand_",
+          "post"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.16",
+          "2.1.2",
+          "5.0.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#4",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.11",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102276",
+            "GHSA-6j4f-fj2g-mc7p"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion \u2014 ### Summary\n\n`parseCommaParts()` can exhaust the native stack and crash the process. There are two distinct ways to trigger it, both reachable from a single untrusted pattern string.\n\nThis is the parsing-side counterpart to CVE-2026-14257 / GHSA-mh99-v99m-4gvg. That fix made `expand_()` iterative and documented a constant-stack-depth guarantee, but `parseCommaParts()` was left recursive, so the guarantee only held for one of the two parsing paths.\n\n### Vector 1 - unbounded recursion on `post`\n\n`parseC",
+        "vuln_symbols": [
+          "parseCommaParts",
+          "expand_",
+          "post",
+          "push.apply",
+          "Function.prototype.apply",
+          "max"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.19",
+          "2.1.5",
+          "3.0.7",
+          "5.0.10"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#5",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.11",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33750",
+            "GHSA-f886-m6hf-6m8v"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: Zero-step sequence causes process hang and memory exhaustion \u2014 ### Impact\n\nA brace pattern with a zero step value (e.g., `{1..2..0}`) causes the sequence generation loop to run indefinitely, making the process hang for seconds and allocate heaps of memory.\n\nThe loop in question:\n\nhttps://github.com/juliangruber/brace-expansion/blob/daa71bcb4a30a2df9bcb7f7b8daaf2ab30e5794a/src/index.ts#L184\n\n`test()` is one of\n\nhttps://github.com/juliangruber/brace-expansion/blob/daa71bcb4a30a2df9bcb7f7b8daaf2ab30e5794a/src/index.ts#L107-L113\n\nThe increment is computed as `Math.abs(0) = 0`, so ",
+        "vuln_symbols": [
+          "test",
+          "RangeError",
+          "expand"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.13",
+          "2.0.3",
+          "3.0.2",
+          "5.0.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#6",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.11",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-14257",
+            "GHSA-mh99-v99m-4gvg"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash \u2014 ### Summary\n\n`expand()` bounds the *number* of results it produces (the `max` option,\n`100_000` by default) but not their *length*. By chaining many brace groups,\nan attacker keeps the result count under `max` while making every result grow\nwith the number of groups. Building `max` long results \u2014 plus the intermediate\narrays combined at each brace group \u2014 exhausts memory and crashes the Node\nprocess with an **uncatchable** out-of-memory error. `try/catch` around\n`expand()` does not help: the fatal erro",
+        "vuln_symbols": [
+          "expand",
+          "max",
+          "N",
+          "expand_",
+          "minimatch",
+          "glob"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.17",
+          "2.1.3",
+          "3.0.3",
+          "5.0.8"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#7",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.11",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102277",
+            "GHSA-q2hr-2g5m-vwhr"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service \u2014 ### Summary\n\nExpanding `{a},b}`-shaped input takes time quadratic in the number of literal `}` characters, blocking the event loop.\n\nBash preserves a quirk where a brace group followed by a comma set still expands (`{a},b}`). The parser implements this by rewriting the string and restarting the scan. Each pass absorbs exactly one `}` and re-scans from the beginning, so `n` trailing braces cost `n` full passes.\n\n### Reproduction\n\n```js\nconst build = n => '{a}' + '}'.repeat(n) + ',z}'\n\nfor (const n o",
+        "vuln_symbols": [
+          "n",
+          "escClose",
+          "max",
+          "maxLength",
+          "expand",
+          "minimatch"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.21",
+          "2.1.7",
+          "3.0.9",
+          "5.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "all 11 lockfile entry points are dev tooling (grunt*, jshint, nodemon, cypress, selenium-webdriver) or the forever CLI; nothing loaded by the running app expands attacker-supplied patterns",
+        "labelled_by": "claude-opus code read 2026-10-07"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#8",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.11",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102278",
+            "GHSA-qhr7-859c-m2p7"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion \u2014 ### Summary\n\n`expand_()` recurses once per level of brace *nesting*. Deeply nested input exhausts the native stack and crashes the process.\n\nThis is distinct from CVE-2026-14257 / GHSA-mh99-v99m-4gvg, which made the *tail* iterative (recursion on `m.post`, driven by how many groups are chained). Nesting depth drives a different recursion that the tail fix never touched, so the documented constant-stack-depth guarantee only ever covered chained input, not nested input.\n\nIt is also distinct from GHS",
+        "vuln_symbols": [
+          "expand_",
+          "m.post",
+          "parseCommaParts",
+          "MAX_PATTERN_LENGTH",
+          "max",
+          "maxLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.20",
+          "2.1.6",
+          "3.0.8",
+          "5.0.11"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#9",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.11",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69152",
+            "GHSA-rgw5-rvv9-x895"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation \u2014 ### Summary\n\nThe `maxLength` mitigation added in `5.0.8` for GHSA-mh99-v99m-4gvg / CVE-2026-14257 is incomplete. It bounds the accumulator where results are *combined*, but not the intermediate arrays that feed it. A ~25 KB input still crashes the Node process with an **uncatchable** out-of-memory error, so `try/catch` around `expand()` does not help.\n\nA second, related path in the same function lets a ~400 KB input block the event loop for over two minutes without ever exceeding the memory bound.",
+        "vuln_symbols": [
+          "maxLength",
+          "expand",
+          "combine",
+          "expand_",
+          "values",
+          "A"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.18",
+          "2.1.4",
+          "3.0.6",
+          "5.0.9"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#10",
+      "facts": {
+        "package": "brace-expansion",
+        "version": "1.1.11",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-5889",
+            "GHSA-v6h2-p8h4-qcjw"
+          ],
+          [
+            "brace-expansion"
+          ]
+        ],
+        "advisory_summary": "brace-expansion Regular Expression Denial of Service vulnerability \u2014 A vulnerability was found in juliangruber brace-expansion up to 1.1.11/2.0.1/3.0.0/4.0.0. It has been rated as problematic. Affected by this issue is the function expand of the file index.js. The manipulation leads to inefficient regular expression complexity. The attack may be launched remotely. The complexity of an attack is rather high. The exploitation is known to be difficult. The exploit has been disclosed to the public and may be used. Upgrading to version 1.1.12, 2.0.2, 3.0.1 and 4.0.1 is able to address this issue. T",
+        "vuln_symbols": [
+          "a5b98a4f30d7813266b221435e1eaaf25a1b0ac5"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.12",
+          "2.0.2",
+          "3.0.1",
+          "4.0.1"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#11",
+      "facts": {
+        "package": "braces",
+        "version": "2.3.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-4068",
+            "GHSA-grv7-fg5c-xmjg"
+          ],
+          [
+            "braces"
+          ]
+        ],
+        "advisory_summary": "Uncontrolled resource consumption in braces \u2014 The NPM package `braces` fails to limit the number of characters it can handle, which could lead to Memory Exhaustion. In `lib/parse.js,` if a malicious user sends \"imbalanced braces\" as input, the parsing will enter a loop, which will cause the program to start allocating heap memory without freeing it at any moment of the loop. Eventually, the JavaScript heap limit is reached, and the program will crash.\n",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.0.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#12",
+      "facts": {
+        "package": "braces",
+        "version": "2.3.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93687",
+            "GHSA-vfj7-8cjw-p6xm"
+          ],
+          [
+            "braces"
+          ]
+        ],
+        "advisory_summary": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns \u2014 braces through 3.0.3 contains a stack overflow vulnerability in the recursive AST walkers that lack depth guards. Attackers can supply deeply nested brace patterns under the character limit to exhaust the call stack and terminate the Node.js process with an uncaught RangeError.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#13",
+      "facts": {
+        "package": "bson",
+        "version": "1.0.9",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2019-2391",
+            "GHSA-4jwp-vfvf-657p"
+          ],
+          [
+            "bson"
+          ]
+        ],
+        "advisory_summary": "Deserialization of Untrusted Data in bson \u2014 Incorrect parsing of certain JSON input may result in js-bson not correctly serializing BSON. This may cause unexpected application behaviour including data disclosure.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "note": "UNLABELLED: advisory too vague ('certain JSON input') to decide reachability without bson source Re-checked 2026-10-11: the jev+local tier accepts reachable@0.85 here (precondition check: general_use), but it remains unverifiable without bson source."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#14",
+      "facts": {
+        "package": "bson",
+        "version": "1.0.9",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2020-7610",
+            "GHSA-v8w9-2789-6hhr",
+            "SNYK-JS-BSON-561052"
+          ],
+          [
+            "bson"
+          ]
+        ],
+        "advisory_summary": "Deserialization of Untrusted Data in bson \u2014 All versions of bson before 1.1.4 are vulnerable to Deserialization of Untrusted Data. The package will ignore an unknown value for an object's _bsontype, leading to cases where an object is serialized as a document rather than the intended BSON type.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.4"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "req.body.memo (bodyParser.json -> arbitrary object incl. _bsontype; urlencoded is extended:false) is inserted via memosCol.insert (app/routes/memos.js:13 -> app/data/memos-dao.js:23), so bson serialises attacker-shaped objects",
+        "labelled_by": "claude-opus code read 2026-10-07"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#15",
+      "facts": {
+        "package": "cookie",
+        "version": "0.3.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-47764",
+            "GHSA-pxg6-pf52-xh8x"
+          ],
+          [
+            "cookie"
+          ]
+        ],
+        "advisory_summary": "cookie accepts cookie name, path, and domain with out of bounds characters \u2014 ### Impact\n\nThe cookie name could be used to set other fields of the cookie, resulting in an unexpected cookie value. For example, `serialize(\"userName=<script>alert('XSS3')</script>; Max-Age=2592000; a\", value)` would result in `\"userName=<script>alert('XSS3')</script>; Max-Age=2592000; a=test\"`, setting `userName` cookie to `<script>` and ignoring `value`.\n\nA similar escape can be used for `path` and `domain`, which could be abused to alter other fields of the cookie.\n\n### Patches\n\nUpgrade to 0.7.0, which updates th",
+        "vuln_symbols": [
+          "userName",
+          "value",
+          "path",
+          "domain",
+          "name"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "cookie name/path/domain are constants or config (express-session, csurf, express); the only res.cookie call (app/routes/session.js:229) sits in commented-out code \u2014 no untrusted value reaches serialize()'s name/path/domain",
+        "labelled_by": "claude-opus code read 2026-10-07"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#16",
+      "facts": {
+        "package": "debug",
+        "version": "2.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2017-20165",
+            "GHSA-9vvw-cc9w-f27h"
+          ],
+          [
+            "debug"
+          ]
+        ],
+        "advisory_summary": "debug Inefficient Regular Expression Complexity vulnerability \u2014 A vulnerability classified as problematic has been found in debug-js debug up to 3.0.x. This affects the function useColors of the file src/node.js. The manipulation of the argument str leads to inefficient regular expression complexity. Upgrading to version 3.1.0 is able to address this issue. The name of the patch is c38a0166c266a679c8de012d4eaccec3f944e685. It is recommended to upgrade the affected component. The identifier VDB-217665 was assigned to this vulnerability. The patch has been backported to the 2.6.x branch in versi",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.9",
+          "3.1.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#17",
+      "facts": {
+        "package": "debug",
+        "version": "2.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2017-16137",
+            "GHSA-gxpj-cx7g-858c"
+          ],
+          [
+            "debug"
+          ]
+        ],
+        "advisory_summary": "Regular Expression Denial of Service in debug \u2014 Affected versions of `debug` are vulnerable to regular expression denial of service when untrusted user input is passed into the `o` formatter. \n\nAs it takes 50,000 characters to block the event loop for 2 seconds, this issue is a low severity issue.\n\nThis was later re-introduced in version v3.2.0, and then repatched in versions 3.2.7 and 4.3.1.\n\n## Recommendation\n\nVersion 2.x.x: Update to version 2.6.9 or later.\nVersion 3.1.x: Update to version 3.1.0 or later.\nVersion 3.2.x: Update to version 3.2.7 or later.\nVersion 4.x.x: Update to version 4.3.",
+        "vuln_symbols": [
+          "o"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.9",
+          "3.1.0",
+          "3.2.7",
+          "4.3.1"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#18",
+      "facts": {
+        "package": "debug",
+        "version": "4.1.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2017-16137",
+            "GHSA-gxpj-cx7g-858c"
+          ],
+          [
+            "debug"
+          ]
+        ],
+        "advisory_summary": "Regular Expression Denial of Service in debug \u2014 Affected versions of `debug` are vulnerable to regular expression denial of service when untrusted user input is passed into the `o` formatter. \n\nAs it takes 50,000 characters to block the event loop for 2 seconds, this issue is a low severity issue.\n\nThis was later re-introduced in version v3.2.0, and then repatched in versions 3.2.7 and 4.3.1.\n\n## Recommendation\n\nVersion 2.x.x: Update to version 2.6.9 or later.\nVersion 3.1.x: Update to version 3.1.0 or later.\nVersion 3.2.x: Update to version 3.2.7 or later.\nVersion 4.x.x: Update to version 4.3.",
+        "vuln_symbols": [
+          "o"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.9",
+          "3.1.0",
+          "3.2.7",
+          "4.3.1"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#19",
+      "facts": {
+        "package": "decode-uri-component",
+        "version": "0.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45822",
+            "GHSA-vcc3-ghjq-m6fr"
+          ],
+          [
+            "decode-uri-component"
+          ]
+        ],
+        "advisory_summary": "decode-uri-component: Denial of service via exponential decoding of malformed percent-encoded input \u2014 ### Impact\nAn attacker who can supply input to `decodeUriComponent()` (directly or via a dependency that uses this package on URL/query/path data) can cause excessive CPU usage and application unresponsiveness. This is an availability issue; there is no known memory corruption, data disclosure, or remote code execution impact.\n\n### Patches\nUpgrade to `decode-uri-component@0.5.0`.\n\n### Workarounds\nLimit the size of the input.",
+        "vuln_symbols": [
+          "decodeUriComponent"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.5.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#20",
+      "facts": {
+        "package": "decode-uri-component",
+        "version": "0.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-38900",
+            "GHSA-w573-4hg7-7wgq"
+          ],
+          [
+            "decode-uri-component"
+          ]
+        ],
+        "advisory_summary": "decode-uri-component vulnerable to Denial of Service (DoS) \u2014 decode-uri-component 0.2.0 is vulnerable to Improper Input Validation resulting in DoS.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#21",
+      "facts": {
+        "package": "express",
+        "version": "4.16.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-43796",
+            "GHSA-qw6h-vgh9-j6wx"
+          ],
+          [
+            "express"
+          ]
+        ],
+        "advisory_summary": "express vulnerable to XSS via response.redirect() \u2014 ### Impact\n\nIn express <4.20.0, passing untrusted user input - even after sanitizing it - to `response.redirect()` may execute untrusted code\n\n### Patches\n\nthis issue is patched in express 4.20.0\n\n### Workarounds\n\nusers are encouraged to upgrade to the patched version of express, but otherwise can workaround this issue by making sure any untrusted inputs are safe, ideally by validating them against an explicit allowlist\n\n### Details\n\nsuccessful exploitation of this vector requires the following:\n\n1. The attacker MUST control the input to resp",
+        "vuln_symbols": [
+          "response.redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.20.0",
+          "5.0.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "app/routes/index.js:72 res.redirect(req.query.url): attacker controls the whole redirect target, which is exactly the advisory's precondition",
+        "labelled_by": "claude-opus code read 2026-10-11"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#22",
+      "facts": {
+        "package": "express",
+        "version": "4.16.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-29041",
+            "GHSA-rv95-896h-c2vc"
+          ],
+          [
+            "express"
+          ]
+        ],
+        "advisory_summary": "Express.js Open Redirect in malformed URLs \u2014 ### Impact\n\nVersions of Express.js prior to 4.19.2 and pre-release alpha and beta versions before 5.0.0-beta.3 are affected by an open redirect vulnerability using malformed URLs.\n\nWhen a user of Express performs a redirect using a user-provided URL Express performs an encode [using `encodeurl`](https://github.com/pillarjs/encodeurl) on the contents before passing it to the `location` header. This can cause malformed URLs to be evaluated in unexpected ways by common redirect allow list implementations in Express applications, leading to an Open Redi",
+        "vuln_symbols": [
+          "encodeurl",
+          "location",
+          "res.location",
+          "res.redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.19.2",
+          "5.0.0-beta.3"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "app/routes/index.js:72 res.redirect(req.query.url) passes attacker input straight to express's redirect/encodeurl path. The CVE matters to apps with an allow-list; NodeGoat has none, so it adds nothing beyond the deliberate open redirect, but the vulnerable code does run on attacker input",
+        "labelled_by": "claude-opus code read 2026-10-11"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#23",
+      "facts": {
+        "package": "fsevents",
+        "version": "1.2.9",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-45311",
+            "GHSA-8r6j-v8pm-fqw3"
+          ],
+          [
+            "fsevents"
+          ]
+        ],
+        "advisory_summary": "Code injection in fsevents \u2014 fsevents before 1.2.11 depends on the https://fsevents-binaries.s3-us-west-2.amazonaws.com URL, which might allow an adversary to execute arbitrary code if any JavaScript project (that depends on fsevents) distributes code that was obtained from that URL at a time when it was controlled by an adversary.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.2.11"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "note": "UNLABELLED: install-time binary download (darwin optional dep): not a runtime reachability question"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#24",
+      "facts": {
+        "package": "fsevents",
+        "version": "1.2.9",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-xv2f-5jw4-v95m",
+            "MAL-2023-462"
+          ],
+          [
+            "fsevents"
+          ]
+        ],
+        "advisory_summary": "Malicious code in fsevents (npm) \u2014 \n---\n_-= Per source details. Do not edit below this line.=-_\n\n## Source: ghsa-malware (acdc3ae57250fab51aeff6e3938ed40197a1b74eb688a72cd5d7eee0c77a7167)\nThis advisory is intended to inform the npm ecosystem with details to resolve a third-party malware incident that may have impacted your infrastructure if you are directly or transitively dependent on the [fsevents](https://www.npmjs.com/package/fsevents) npm package.\n\n## Overview\n\n[fsevents](https://www.npmjs.com/package/fsevents) v1.0.0 <= v1.2.10 downloaded binary executables that contained unintended code",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.2.11"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": true
+      },
+      "expect": {
+        "note": "MALWARE (OSV MAL-2023-462): bypasses reachability, grades Act \u2014 no reachability label applies"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#25",
+      "facts": {
+        "package": "helmet-csp",
+        "version": "1.2.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c3m8-x3cg-qm2c"
+          ],
+          [
+            "helmet-csp"
+          ]
+        ],
+        "advisory_summary": "Configuration Override in helmet-csp \u2014 Versions of `helmet-csp` before to 2.9.1 are vulnerable to a Configuration Override affecting the application's Content Security Policy (CSP). The package's browser sniffing for Firefox deletes the `default-src` CSP policy, which is the fallback policy. This allows an attacker to remove an application's default CSP, possibly rendering the application vulnerable to Cross-Site Scripting.\n\n\n## Recommendation\n\nUpgrade to version 2.9.1 or later. Setting the `browserSniff` configuration to `false` in vulnerable versions also mitigates the issue.",
+        "vuln_symbols": [
+          "browserSniff"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#26",
+      "facts": {
+        "package": "i",
+        "version": "0.3.6",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-3820",
+            "GHSA-x55w-vjjp-222r"
+          ],
+          [
+            "i"
+          ]
+        ],
+        "advisory_summary": "inflect vulnerable to Inefficient Regular Expression Complexity \u2014 inflect is customizable inflections for nodejs. inflect is vulnerable to Inefficient Regular Expression Complexity",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#27",
+      "facts": {
+        "package": "ini",
+        "version": "1.3.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2020-7788",
+            "GHSA-qqgx-2p2h-9c37",
+            "SNYK-JS-INI-1048974"
+          ],
+          [
+            "ini"
+          ]
+        ],
+        "advisory_summary": "ini before 1.3.6 vulnerable to Prototype Pollution via ini.parse \u2014 ### Overview\nThe `ini` npm package before version 1.3.6 has a Prototype Pollution vulnerability.\n\nIf an attacker submits a malicious INI file to an application that parses it with `ini.parse`, they will pollute the prototype on the application. This can be exploited further depending on the context.\n\n### Patches\n\nThis has been patched in 1.3.6.\n\n### Steps to reproduce\n\npayload.ini\n```\n[__proto__]\npolluted = \"polluted\"\n```\n\npoc.js:\n```\nvar fs = require('fs')\nvar ini = require('ini')\n\nvar parsed = ini.parse(fs.readFileSync('./pay",
+        "vuln_symbols": [
+          "ini.parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.6"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#28",
+      "facts": {
+        "package": "kind-of",
+        "version": "6.0.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2019-20149",
+            "GHSA-6c8f-qphg-qjgp"
+          ],
+          [
+            "kind-of"
+          ]
+        ],
+        "advisory_summary": "Validation Bypass in kind-of \u2014 Versions of `kind-of` 6.x prior to 6.0.3 are vulnerable to a Validation Bypass. A maliciously crafted object can alter the result of the type check, allowing attackers to bypass the type checking validation. \n\n\n## Recommendation\n\nUpgrade to versions 6.0.3 or later.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.0.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#29",
+      "facts": {
+        "package": "marked",
+        "version": "0.3.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-21681",
+            "GHSA-5v2h-r2cx-5xgj"
+          ],
+          [
+            "marked"
+          ]
+        ],
+        "advisory_summary": "Inefficient Regular Expression Complexity in marked \u2014 ### Impact\n\n_What kind of vulnerability is it?_\n\nDenial of service.\n\nThe regular expression `inline.reflinkSearch` may cause catastrophic backtracking against some strings.\nPoC is the following.\n\n```javascript\nimport * as marked from 'marked';\n\nconsole.log(marked.parse(`[x]: x\n\n\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](\\\\[\\\\](`));\n```\n\n_Who is impacted?_\n\nAnyone who runs untrusted m",
+        "vuln_symbols": [
+          "inline.reflinkSearch"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.0.10"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#30",
+      "facts": {
+        "package": "marked",
+        "version": "0.3.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2017-1000427",
+            "GHSA-7px7-7xjx-hxm8"
+          ],
+          [
+            "marked"
+          ]
+        ],
+        "advisory_summary": "Marked vulnerable to XSS from data URIs \u2014 marked version 0.3.6 and earlier is vulnerable to an XSS attack in the data: URI parser.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.7"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#31",
+      "facts": {
+        "package": "marked",
+        "version": "0.3.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2018-25110",
+            "GHSA-p9wx-2529-fp83"
+          ],
+          [
+            "marked"
+          ]
+        ],
+        "advisory_summary": "Marked allows Regular Expression Denial of Service (ReDoS) attacks \u2014 Marked prior to version 0.3.17 is vulnerable to a Regular Expression Denial of Service (ReDoS) attack due to catastrophic backtracking in several regular expressions used for parsing HTML tags and markdown links. An attacker can exploit this vulnerability by providing specially crafted markdown input, such as deeply nested or repetitively structured brackets or tag attributes, which cause the parser to hang and lead to a Denial of Service.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.17"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#32",
+      "facts": {
+        "package": "marked",
+        "version": "0.3.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-21680",
+            "GHSA-rrrm-qjm4-v8hf"
+          ],
+          [
+            "marked"
+          ]
+        ],
+        "advisory_summary": "Inefficient Regular Expression Complexity in marked \u2014 ### Impact\n\n_What kind of vulnerability is it?_\n\nDenial of service.\n\nThe regular expression `block.def` may cause catastrophic backtracking against some strings.\nPoC is the following.\n\n```javascript\nimport * as marked from \"marked\";\n\nmarked.parse(`[x]:${' '.repeat(1500)}x ${' '.repeat(1500)} x`);\n```\n\n_Who is impacted?_\n\nAnyone who runs untrusted markdown through marked and does not use a worker with a time limit.\n\n### Patches\n\n_Has the problem been patched?_\n\nYes\n\n_What versions should users upgrade to?_\n\n4.0.10\n\n### Workarounds\n\n_Is there",
+        "vuln_symbols": [
+          "block.def"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.0.10"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#33",
+      "facts": {
+        "package": "marked",
+        "version": "0.3.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2016-10531",
+            "GHSA-vfvf-mqq8-rwqc"
+          ],
+          [
+            "marked"
+          ]
+        ],
+        "advisory_summary": "Sanitization bypass using HTML Entities in marked \u2014 Affected versions of `marked` are susceptible to a cross-site scripting vulnerability in link components when `sanitize:true` is configured. \n\n## Proof of Concept\n\nThis flaw exists because link URIs containing HTML entities get processed in an abnormal manner. Any HTML Entities get parsed on a best-effort basis and included in the resulting link, while if that parsing fails that character is omitted.\n\nFor example:\n\nA link URI such as\n```\njavascript&#x58document;alert&#40;1&#41;\n```\nRenders a valid link that when clicked will execute `alert(1)",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.6"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#34",
+      "facts": {
+        "package": "marked",
+        "version": "0.3.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2017-16114",
+            "GHSA-x5pg-88wf-qq4p"
+          ],
+          [
+            "marked"
+          ]
+        ],
+        "advisory_summary": "Regular Expression Denial of Service in marked \u2014 Affected versions of `marked` are vulnerable to a regular expression denial of service. \n\nThe amplification in this vulnerability is significant, with 1,000 characters resulting in the event loop being blocked for around 6 seconds.\n\n\n## Recommendation\n\nUpdate to version 0.3.9 or later.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.9"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#35",
+      "facts": {
+        "package": "micromatch",
+        "version": "3.1.10",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-4067",
+            "GHSA-952p-6rrq-rcjv"
+          ],
+          [
+            "micromatch"
+          ]
+        ],
+        "advisory_summary": "Regular Expression Denial of Service (ReDoS) in micromatch \u2014 The NPM package `micromatch` prior to version 4.0.8 is vulnerable to Regular Expression Denial of Service (ReDoS). The vulnerability occurs in `micromatch.braces()` in `index.js` because the pattern `.*` will greedily match anything. By passing a malicious payload, the pattern matching will keep backtracking to the input while it doesn't find the closing bracket. As the input size increases, the consumption time will also increase until it causes the application to hang or slow down. There was a merged fix but further testing shows t",
+        "vuln_symbols": [
+          "micromatch.braces",
+          "index.js"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.0.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#36",
+      "facts": {
+        "package": "minimatch",
+        "version": "3.0.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-27904",
+            "GHSA-23c5-xmqv-rm74"
+          ],
+          [
+            "minimatch"
+          ]
+        ],
+        "advisory_summary": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions \u2014 ### Summary\n\nNested `*()` extglobs produce regexps with nested unbounded quantifiers (e.g. `(?:(?:a|b)*)*`), which exhibit catastrophic backtracking in V8. With a 12-byte pattern `*(*(*(a|b)))` and an 18-byte non-matching input, `minimatch()` stalls for over 7 seconds. Adding a single nesting level or a few input characters pushes this to minutes. This is the most severe finding: it is triggered by the default `minimatch()` API with no special options, and the minimum viable pattern is only 12 byt",
+        "vuln_symbols": [
+          "AST.toRegExpSource",
+          "a",
+          "z",
+          "this.set",
+          "matchOne",
+          "time_total"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.2.3",
+          "3.1.4",
+          "4.2.5",
+          "5.1.8",
+          "6.2.2",
+          "7.4.8",
+          "8.0.6",
+          "9.0.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#37",
+      "facts": {
+        "package": "minimatch",
+        "version": "3.0.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-26996",
+            "GHSA-3ppc-4f35-3m26"
+          ],
+          [
+            "minimatch"
+          ]
+        ],
+        "advisory_summary": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern \u2014 ### Summary\n`minimatch` is vulnerable to Regular Expression Denial of Service (ReDoS) when a glob pattern contains many consecutive `*` wildcards followed by a literal character that doesn't appear in the test string. Each `*` compiles to a separate `[^/]*?` regex group, and when the match fails, V8's regex engine backtracks exponentially across all possible splits.\n\nThe time complexity is O(4^N) where N is the number of `*` characters. With N=15, a single `minimatch()` call takes ~2 seconds. With N=34, it hang",
+        "vuln_symbols": [
+          "X"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.2.1",
+          "3.1.3",
+          "4.2.4",
+          "5.1.7",
+          "6.2.1",
+          "7.4.7",
+          "8.0.5",
+          "9.0.6"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#38",
+      "facts": {
+        "package": "minimatch",
+        "version": "3.0.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-27903",
+            "GHSA-7r86-cg39-jmmj"
+          ],
+          [
+            "minimatch"
+          ]
+        ],
+        "advisory_summary": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments \u2014 ### Summary\n\n`matchOne()` performs unbounded recursive backtracking when a glob pattern contains multiple non-adjacent `**` (GLOBSTAR) segments and the input path does not match. The time complexity is O(C(n, k)) -- binomial -- where `n` is the number of path segments and `k` is the number of globstars. With k=11 and n=30, a call to the default `minimatch()` API stalls for roughly 5 seconds. With k=13, it exceeds 15 seconds. No memoization or call budget exists to bound this behavior.\n\n---\n",
+        "vuln_symbols": [
+          "matchOne",
+          "n",
+          "k",
+          "time_total"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.2.3",
+          "3.1.3",
+          "4.2.5",
+          "5.1.8",
+          "6.2.2",
+          "7.4.8",
+          "8.0.6",
+          "9.0.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#39",
+      "facts": {
+        "package": "minimatch",
+        "version": "3.0.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-3517",
+            "GHSA-f8q6-p94x-37v3"
+          ],
+          [
+            "minimatch"
+          ]
+        ],
+        "advisory_summary": "minimatch ReDoS vulnerability \u2014 A vulnerability was found in the minimatch package. This flaw allows a Regular Expression Denial of Service (ReDoS) when calling the braceExpand function with specific arguments, resulting in a Denial of Service.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.0.5"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#40",
+      "facts": {
+        "package": "minimist",
+        "version": "0.0.10",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2020-7598",
+            "GHSA-vh95-rmgr-6w4m"
+          ],
+          [
+            "minimist"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in minimist \u2014 Affected versions of `minimist` are vulnerable to prototype pollution. Arguments are not properly sanitized, allowing an attacker to modify the prototype of `Object`, causing the addition or modification of an existing property that will exist on all objects.  \nParsing the argument `--__proto__.y=Polluted` adds a `y` property with value `Polluted` to all objects. The argument `--__proto__=Polluted` raises and uncaught error and crashes the application.  \nThis is exploitable if attackers have control over the arguments being passed to `minimist`.\n\n\n## Recommend",
+        "vuln_symbols": [
+          "y",
+          "Polluted"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.1",
+          "1.2.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#41",
+      "facts": {
+        "package": "minimist",
+        "version": "0.0.10",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-44906",
+            "GHSA-xvch-5gv4-984h"
+          ],
+          [
+            "minimist"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in minimist \u2014 Minimist prior to 1.2.6 and 0.2.4 is vulnerable to Prototype Pollution via file `index.js`, function `setKey()` (lines 69-95).",
+        "vuln_symbols": [
+          "index.js",
+          "setKey"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.4",
+          "1.2.6"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#42",
+      "facts": {
+        "package": "minimist",
+        "version": "0.0.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2020-7598",
+            "GHSA-vh95-rmgr-6w4m"
+          ],
+          [
+            "minimist"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in minimist \u2014 Affected versions of `minimist` are vulnerable to prototype pollution. Arguments are not properly sanitized, allowing an attacker to modify the prototype of `Object`, causing the addition or modification of an existing property that will exist on all objects.  \nParsing the argument `--__proto__.y=Polluted` adds a `y` property with value `Polluted` to all objects. The argument `--__proto__=Polluted` raises and uncaught error and crashes the application.  \nThis is exploitable if attackers have control over the arguments being passed to `minimist`.\n\n\n## Recommend",
+        "vuln_symbols": [
+          "y",
+          "Polluted"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.1",
+          "1.2.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#43",
+      "facts": {
+        "package": "minimist",
+        "version": "0.0.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-44906",
+            "GHSA-xvch-5gv4-984h"
+          ],
+          [
+            "minimist"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in minimist \u2014 Minimist prior to 1.2.6 and 0.2.4 is vulnerable to Prototype Pollution via file `index.js`, function `setKey()` (lines 69-95).",
+        "vuln_symbols": [
+          "index.js",
+          "setKey"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.4",
+          "1.2.6"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#44",
+      "facts": {
+        "package": "minimist",
+        "version": "1.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2020-7598",
+            "GHSA-vh95-rmgr-6w4m"
+          ],
+          [
+            "minimist"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in minimist \u2014 Affected versions of `minimist` are vulnerable to prototype pollution. Arguments are not properly sanitized, allowing an attacker to modify the prototype of `Object`, causing the addition or modification of an existing property that will exist on all objects.  \nParsing the argument `--__proto__.y=Polluted` adds a `y` property with value `Polluted` to all objects. The argument `--__proto__=Polluted` raises and uncaught error and crashes the application.  \nThis is exploitable if attackers have control over the arguments being passed to `minimist`.\n\n\n## Recommend",
+        "vuln_symbols": [
+          "y",
+          "Polluted"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.1",
+          "1.2.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#45",
+      "facts": {
+        "package": "minimist",
+        "version": "1.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-44906",
+            "GHSA-xvch-5gv4-984h"
+          ],
+          [
+            "minimist"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in minimist \u2014 Minimist prior to 1.2.6 and 0.2.4 is vulnerable to Prototype Pollution via file `index.js`, function `setKey()` (lines 69-95).",
+        "vuln_symbols": [
+          "index.js",
+          "setKey"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.4",
+          "1.2.6"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#46",
+      "facts": {
+        "package": "minimist",
+        "version": "1.2.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-44906",
+            "GHSA-xvch-5gv4-984h"
+          ],
+          [
+            "minimist"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in minimist \u2014 Minimist prior to 1.2.6 and 0.2.4 is vulnerable to Prototype Pollution via file `index.js`, function `setKey()` (lines 69-95).",
+        "vuln_symbols": [
+          "index.js",
+          "setKey"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.4",
+          "1.2.6"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#47",
+      "facts": {
+        "package": "mixin-deep",
+        "version": "1.3.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2019-10746",
+            "GHSA-fhjf-83wg-r2j9",
+            "SNYK-JS-MIXINDEEP-450212"
+          ],
+          [
+            "mixin-deep"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in mixin-deep \u2014 Versions of `mixin-deep` prior to 2.0.1 or 1.3.2 are vulnerable to Prototype Pollution. The `mixinDeep` function fails to validate which Object properties it updates. This allows attackers to modify the prototype of Object, causing the addition or modification of an existing property on all objects.\n\n\n## Recommendation\n\nIf you are using `mixin-deep` 2.x, upgrade to version 2.0.1 or later.\nIf you are using `mixin-deep` 1.x, upgrade to version 1.3.2 or later.",
+        "vuln_symbols": [
+          "mixinDeep"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.2",
+          "2.0.1"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#48",
+      "facts": {
+        "package": "mongodb",
+        "version": "2.2.36",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-mh5c-679w-hh4r"
+          ],
+          [
+            "mongodb"
+          ]
+        ],
+        "advisory_summary": "Denial of Service in mongodb \u2014 Versions of `mongodb` prior to 3.1.13 are vulnerable to Denial of Service. The package fails to properly catch an exception when a collection name is invalid and the DB does not exist, crashing the application.\n\n\n## Recommendation\n\nUpgrade to version 3.1.13 or later.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.13"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "the crash needs an invalid collection name on a missing DB; every db.collection() call uses a string literal (users, memos, contributions, allocations, counters in app/data/*-dao.js), so no attacker data reaches the collection name",
+        "labelled_by": "claude-opus code read 2026-10-11"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#49",
+      "facts": {
+        "package": "ms",
+        "version": "0.7.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2017-20162",
+            "GHSA-w9mr-4mfr-499f"
+          ],
+          [
+            "ms"
+          ]
+        ],
+        "advisory_summary": "Vercel ms Inefficient Regular Expression Complexity vulnerability \u2014 A vulnerability, which was classified as problematic, has been found in vercel ms up to 1.x. This issue affects the function parse of the file index.js. The manipulation of the argument str leads to inefficient regular expression complexity. The attack may be initiated remotely. The exploit has been disclosed to the public and may be used. Upgrading to version 2.0.0 is able to address this issue. The name of the patch is caae2988ba2a37765d055c4eee63d383320ee662. It is recommended to upgrade the affected component. The associat",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#50",
+      "facts": {
+        "package": "nconf",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-21803",
+            "GHSA-6xwr-q98w-rvg7"
+          ],
+          [
+            "nconf"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in nconf \u2014 nconf before 0.11.4. When using the memory engine, it is possible to store a nested JSON representation of the configuration. The .set() function, that is responsible for setting the configuration properties, is vulnerable to Prototype Pollution. By providing a crafted property, it is possible to modify the properties on the Object.prototype.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#51",
+      "facts": {
+        "package": "nconf",
+        "version": "0.6.9",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-21803",
+            "GHSA-6xwr-q98w-rvg7"
+          ],
+          [
+            "nconf"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in nconf \u2014 nconf before 0.11.4. When using the memory engine, it is possible to store a nested JSON representation of the configuration. The .set() function, that is responsible for setting the configuration properties, is vulnerable to Prototype Pollution. By providing a crafted property, it is possible to modify the properties on the Object.prototype.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#52",
+      "facts": {
+        "package": "on-headers",
+        "version": "1.0.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-7339",
+            "GHSA-76c9-3jph-rj3q"
+          ],
+          [
+            "on-headers"
+          ]
+        ],
+        "advisory_summary": "on-headers is vulnerable to http response header manipulation \u2014 ### Impact\n\nA bug in on-headers versions `< 1.1.0` may result in response headers being inadvertently modified when an array is passed to `response.writeHead()`\n\n### Patches\n\nUsers should upgrade to `1.1.0`\n\n### Workarounds\n\nUses are encouraged to upgrade to `1.1.0`, but this issue can be worked around by passing an object to `response.writeHead()` rather than an array.",
+        "vuln_symbols": [
+          "response.writeHead"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "only triggered by response.writeHead(status, headersArray); the app's one writeHead (app/routes/research.js:18) passes an object, and express/express-session don't pass arrays",
+        "labelled_by": "claude-opus code read 2026-10-07"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#53",
+      "facts": {
+        "package": "path-to-regexp",
+        "version": "0.1.7",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-45296",
+            "CVE-2026-4867",
+            "GHSA-37ch-88jc-xwx2",
+            "GHSA-9wv6-86v2-598j"
+          ],
+          [
+            "path-to-regexp"
+          ]
+        ],
+        "advisory_summary": "path-to-regexp outputs backtracking regular expressions \u2014 ### Impact\n\nA bad regular expression is generated any time you have two parameters within a single segment, separated by something that is not a period (`.`). For example, `/:a-:b`.\n\n### Patches\n\nFor users of 0.1, upgrade to `0.1.10`. All other users should upgrade to `8.0.0`.\n\nThese versions add backtrack protection when a custom regex pattern is not provided:\n\n- [0.1.10](https://github.com/pillarjs/path-to-regexp/releases/tag/v0.1.10)\n- [1.9.0](https://github.com/pillarjs/path-to-regexp/releases/tag/v1.9.0)\n- [3.3.0](https://github.co",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.1.10",
+          "0.1.13",
+          "1.9.0",
+          "3.3.0",
+          "6.3.0",
+          "8.0.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "needs two params in one path segment (/:a-:b); the only parameterised route is /allocations/:userId (app/routes/index.js:63)",
+        "labelled_by": "claude-opus code read 2026-10-07"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#54",
+      "facts": {
+        "package": "path-to-regexp",
+        "version": "0.1.7",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-52798",
+            "GHSA-rhx6-c78j-4q9w"
+          ],
+          [
+            "path-to-regexp"
+          ]
+        ],
+        "advisory_summary": "path-to-regexp contains a ReDoS \u2014 ### Impact\n\nThe regular expression that is vulnerable to backtracking can be generated in versions before 0.1.12 of `path-to-regexp`, originally reported in CVE-2024-45296\n\n### Patches\n\nUpgrade to 0.1.12.\n\n### Workarounds\n\nAvoid using two parameters within a single path segment, when the separator is not `.` (e.g. no `/:a-:b`). Alternatively, you can define the regex used for both parameters and ensure they do not overlap to allow backtracking.\n\n### References\n\n- https://github.com/advisories/GHSA-9wv6-86v2-598j\n- https://blakeembrey.com/posts/2024-09-web-redo",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.1.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "same precondition as CVE-2024-45296 (two params in one segment); no such route",
+        "labelled_by": "claude-opus code read 2026-10-07"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#55",
+      "facts": {
+        "package": "proxy-addr",
+        "version": "2.0.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-90711",
+            "GHSA-jqcg-44mw-7w3h"
+          ],
+          [
+            "proxy-addr"
+          ]
+        ],
+        "advisory_summary": "proxy-addr vulnerable to IP spoofing via IPv4-mapped IPv6 trust subnet \u2014 ### Impact\n\n`proxy-addr` determines which network hops are trusted proxies so that `X-Forwarded-For` can be believed. When an application configures a trust subnet as an IPv4-mapped IPv6 address with a short prefix, such as `::ffff:10.0.0.0/8` (the correct spelling is `::ffff:10.0.0.0/104`), the subnet compiles with all-zero leading bits and matches every IPv4 address instead of the block it names. The same happens for any IPv6 trust subnet with zero leading bits, such as `::/1`.\n\nEvery unauthenticated client is then trus",
+        "vuln_symbols": [
+          "req.ip",
+          "req.ips"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.8"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "needs a 'trust proxy' subnet written as a short-prefix IPv4-mapped IPv6 (or zero-leading-bit) range; the app never sets 'trust proxy' (no match in server.js, app/, config/), so proxy-addr trusts nothing",
+        "labelled_by": "claude-opus code read 2026-10-11"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#56",
+      "facts": {
+        "package": "qs",
+        "version": "6.5.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82417",
+            "GHSA-4mjr-xmp4-gh2g"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs: Denial of Service via Attacker Controlled isBuffer \u2014 ### Summary\n\n`qs.stringify()` calls `utils.isBuffer()` on every value it serializes, and `utils.isBuffer()` invokes `obj.constructor.isBuffer(obj)` without checking that it is callable. A value whose own `constructor.isBuffer` is a non-function makes `qs` call a non-callable and throw `TypeError`. Such a value is produced **by `qs.parse` itself** from an untrusted query string when `plainObjects: true` or `allowPrototypes: true` is set, so a pure-`qs` `parse` \u2192 `stringify` round-trip \u2014 no `JSON.parse` \u2014 turns an unauthenticated query str",
+        "vuln_symbols": [
+          "qs.stringify",
+          "utils.isBuffer",
+          "constructor.isBuffer",
+          "TypeError",
+          "qs.parse",
+          "parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "needs qs.stringify on a value produced by qs.parse with plainObjects/allowPrototypes; nothing in the app or express stringifies request-parsed data",
+        "labelled_by": "claude-opus code read 2026-10-07"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#57",
+      "facts": {
+        "package": "qs",
+        "version": "6.5.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-15284",
+            "GHSA-6rw7-vpxm-498p"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs's arrayLimit bypass in its bracket notation allows DoS via memory exhaustion \u2014 ### Summary\n\nThe `arrayLimit` option in qs did not enforce limits for bracket notation (`a[]=1&a[]=2`), only for indexed notation (`a[0]=1`). This is a consistency bug; `arrayLimit` should apply uniformly across all array notations.\n\n**Note:** The default `parameterLimit` of 1000 effectively mitigates the DoS scenario originally described. With default options, bracket notation cannot produce arrays larger than `parameterLimit` regardless of `arrayLimit`, because each `a[]=value` consumes one parameter slot. The ",
+        "vuln_symbols": [
+          "arrayLimit",
+          "parameterLimit",
+          "options.arrayLimit"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.14.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "express's extended query parser and body-parser urlencoded({extended:true}) run qs.parse on attacker query strings/bodies; bracket-notation arrays are parsed (impact capped by default parameterLimit 1000)",
+        "labelled_by": "claude-opus code read 2026-10-07"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#58",
+      "facts": {
+        "package": "qs",
+        "version": "6.5.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-24999",
+            "GHSA-hrpp-h998-j3pp"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs vulnerable to Prototype Pollution \u2014 qs before 6.10.3 allows attackers to cause a Node process hang because an `__ proto__` key can be used. In many typical web framework use cases, an unauthenticated remote attacker can place the attack payload in the query string of the URL that is used to visit the application, such as `a[__proto__]=b&a[__proto__]&a[length]=100000000`. The fix was backported to qs 6.9.7, 6.8.3, 6.7.3, 6.6.1, 6.5.3, 6.4.1, 6.3.3, and 6.2.4.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.10.3",
+          "6.2.4",
+          "6.3.3",
+          "6.4.1",
+          "6.5.3",
+          "6.6.1",
+          "6.7.3",
+          "6.8.3",
+          "6.9.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "express 4.16.4's default 'extended' query parser runs qs 6.5.2 (the only qs in the lock, fix 6.5.3) on every request's query string; the app never changes 'query parser'",
+        "labelled_by": "claude-opus code read 2026-10-11"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#59",
+      "facts": {
+        "package": "semver",
+        "version": "5.6.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-25883",
+            "GHSA-c2qf-rxjj-qqgw"
+          ],
+          [
+            "semver"
+          ]
+        ],
+        "advisory_summary": "semver vulnerable to Regular Expression Denial of Service \u2014 Versions of the package semver before 7.5.2 on the 7.x branch, before 6.3.1 on the 6.x branch, and all other versions before 5.7.2 are vulnerable to Regular Expression Denial of Service (ReDoS) via the function new Range, when untrusted user data is provided as a range.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.7.2",
+          "6.3.1",
+          "7.5.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#60",
+      "facts": {
+        "package": "semver",
+        "version": "5.7.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-25883",
+            "GHSA-c2qf-rxjj-qqgw"
+          ],
+          [
+            "semver"
+          ]
+        ],
+        "advisory_summary": "semver vulnerable to Regular Expression Denial of Service \u2014 Versions of the package semver before 7.5.2 on the 7.x branch, before 6.3.1 on the 6.x branch, and all other versions before 5.7.2 are vulnerable to Regular Expression Denial of Service (ReDoS) via the function new Range, when untrusted user data is provided as a range.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.7.2",
+          "6.3.1",
+          "7.5.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#61",
+      "facts": {
+        "package": "send",
+        "version": "0.16.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-43799",
+            "GHSA-m6fv-jmcg-4jfg"
+          ],
+          [
+            "send"
+          ]
+        ],
+        "advisory_summary": "send vulnerable to template injection that can lead to XSS \u2014 ### Impact\n\npassing untrusted user input - even after sanitizing it - to `SendStream.redirect()` may execute untrusted code\n\n### Patches\n\nthis issue is patched in send 0.19.0\n\n### Workarounds\n\nusers are encouraged to upgrade to the patched version of express, but otherwise can workaround this issue by making sure any untrusted inputs are safe, ideally by validating them against an explicit allowlist\n\n### Details\n\nsuccessful exploitation of this vector requires the following:\n\n1. The attacker MUST control the input to response.redirec",
+        "vuln_symbols": [
+          "SendStream.redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.19.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "express.static is serve-static, which registers a 'directory' listener, so SendStream.redirect() delegates and send's vulnerable redirect template is never rendered; app res.redirect calls are Express's. VERIFIED 2026-10-11 against the lockfile's tarball (integrity hash matched): send@0.16.2 SendStream.redirect returns early by emitting 'directory' when a listener exists (index.js:478); serve-static@1.13.2 always registers one (redirect or 404 listener, index.js:68), and NodeGoat never calls sendFile/download.",
+        "labelled_by": "claude-opus code read 2026-10-07",
+        "confidence": "high"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#62",
+      "facts": {
+        "package": "serve-static",
+        "version": "1.13.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-43800",
+            "GHSA-cm22-4g7w-348p"
+          ],
+          [
+            "serve-static"
+          ]
+        ],
+        "advisory_summary": "serve-static vulnerable to template injection that can lead to XSS \u2014 ### Impact\n\npassing untrusted user input - even after sanitizing it - to `redirect()` may execute untrusted code\n\n### Patches\n\nthis issue is patched in serve-static 1.16.0\n\n### Workarounds\n\nusers are encouraged to upgrade to the patched version of express, but otherwise can workaround this issue by making sure any untrusted inputs are safe, ideally by validating them against an explicit allowlist\n\n### Details\n\nsuccessful exploitation of this vector requires the following:\n\n1. The attacker MUST control the input to response.re",
+        "vuln_symbols": [
+          "redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.16.0",
+          "2.1.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "express.static(app/assets) (server.js:121) runs serve-static's directory-redirect listener whenever a request names an asset directory (images/, js/, vendor/) without a trailing slash, and it echoes the attacker's raw pathname into the redirect page. The cheap tier's reason (res.redirect -> serve-static) is wrong. Weaponising it is doubtful because the location always starts with '/', so this is reachable code with low exploitability VERIFIED 2026-10-11 against the lockfile's tarball (integrity hash matched): serve-static@1.13.2 createRedirectDirectoryListener renders the request's originalUrl (pathname+query, escaped) into the redirect page; collapseLeadingSlashes keeps it starting with a single '/', and the response sets CSP default-src 'self', so it's reachable but very unlikely to be exploitable.",
+        "labelled_by": "claude-opus code read 2026-10-11",
+        "confidence": "high"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#63",
+      "facts": {
+        "package": "set-value",
+        "version": "0.4.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2019-10747",
+            "GHSA-4g88-fppr-53pp",
+            "SNYK-JS-SETVALUE-450213"
+          ],
+          [
+            "set-value"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in set-value \u2014 Versions of `set-value` prior to 3.0.1 or 2.0.1 are vulnerable to Prototype Pollution. The `set` function fails to validate which Object properties it updates. This allows attackers to modify the prototype of Object, causing the addition or modification of an existing property on all objects.\n\n\n\n\n## Recommendation\n\nIf you are using `set-value` 3.x, upgrade to version 3.0.1 or later.\nIf you are using `set-value` 2.x, upgrade to version 2.0.1 or later.",
+        "vuln_symbols": [
+          "set"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.1",
+          "3.0.1"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#64",
+      "facts": {
+        "package": "set-value",
+        "version": "0.4.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-23440",
+            "GHSA-4jqc-8m5r-9rpr"
+          ],
+          [
+            "set-value"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in set-value \u2014 This affects the package `set-value`. A type confusion vulnerability can lead to a bypass of CVE-2019-10747 when the user-provided keys used in the path parameter are arrays.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.1",
+          "3.0.3",
+          "4.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#65",
+      "facts": {
+        "package": "set-value",
+        "version": "2.0.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2019-10747",
+            "GHSA-4g88-fppr-53pp",
+            "SNYK-JS-SETVALUE-450213"
+          ],
+          [
+            "set-value"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in set-value \u2014 Versions of `set-value` prior to 3.0.1 or 2.0.1 are vulnerable to Prototype Pollution. The `set` function fails to validate which Object properties it updates. This allows attackers to modify the prototype of Object, causing the addition or modification of an existing property on all objects.\n\n\n\n\n## Recommendation\n\nIf you are using `set-value` 3.x, upgrade to version 3.0.1 or later.\nIf you are using `set-value` 2.x, upgrade to version 2.0.1 or later.",
+        "vuln_symbols": [
+          "set"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.1",
+          "3.0.1"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#66",
+      "facts": {
+        "package": "set-value",
+        "version": "2.0.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-23440",
+            "GHSA-4jqc-8m5r-9rpr"
+          ],
+          [
+            "set-value"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in set-value \u2014 This affects the package `set-value`. A type confusion vulnerability can lead to a bypass of CVE-2019-10747 when the user-provided keys used in the path parameter are arrays.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.1",
+          "3.0.3",
+          "4.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#67",
+      "facts": {
+        "package": "swig",
+        "version": "1.4.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-25345",
+            "GHSA-2rq5-699j-x7p6"
+          ],
+          [
+            "swig"
+          ]
+        ],
+        "advisory_summary": "Arbitrary local file read vulnerability during template rendering  \u2014 Directory traversal vulnerability in swig-templates thru 2.0.4 and swig thru 1.4.2, allows attackers to read arbitrary files via the include or extends tags.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "traversal needs attacker control of an include/extends path or of template source; every view uses the literal {% extends \"./layout.html\" %}, render names are constants (tutorial pages come from a fixed list, app/routes/tutorial.js), and nothing calls swig.render/compile on input",
+        "labelled_by": "claude-opus code read 2026-10-11"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#68",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59873",
+            "GHSA-23hp-3jrh-7fpw"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "node-tar: Decompression/parse DoS via unlimited input \u2014 ### Summary\nA **Decompression/parse DoS via unlimited input** vulnerability in `node-tar` allows an attacker to exhaust server resources (disk space and CPU). Because the library does not enforce hard upper bounds on total decompressed data or entry counts, a small, maliciously crafted \"Gzip Bomb\" can be used to fill a server's storage and crash services.\n\n### Details\nThe `node-tar` library does not enforce a hard upper bound on archive size or the volume of decompressed data processed during extraction. While the `maxReadSize` option exi",
+        "vuln_symbols": [
+          "maxReadSize",
+          "Unpack"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.19"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#69",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24842",
+            "GHSA-34x7-hfp2-rc4v"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal \u2014 ### Summary\nnode-tar contains a vulnerability where the security check for hardlink entries uses different path resolution semantics than the actual hardlink creation logic. This mismatch allows an attacker to craft a malicious TAR archive that bypasses path traversal protections and creates hardlinks to arbitrary files outside the extraction directory.\n\n### Details\nThe vulnerability exists in `lib/unpack.js`. When extracting a hardlink, two functions handle the linkpath differently:\n\n**Security check in `[S",
+        "vuln_symbols": [
+          "this.cwd"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#70",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-32804",
+            "GHSA-3jfq-g458-7qm9"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "Arbitrary File Creation/Overwrite due to insufficient absolute path sanitization \u2014 ### Impact\n\nArbitrary File Creation, Arbitrary File Overwrite, Arbitrary Code Execution\n\n`node-tar` aims to prevent extraction of absolute file paths by turning absolute paths into relative paths when the `preservePaths` flag is not set to `true`. This is achieved by stripping the absolute path root from any absolute file paths contained in a tar file. For example `/home/user/.bashrc` would turn into `home/user/.bashrc`. \n\nThis logic was insufficient when file paths contained repeated path roots such as `////hom",
+        "vuln_symbols": [
+          "preservePaths",
+          "onentry",
+          "entry.path",
+          "filter"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.2.2",
+          "4.4.14",
+          "5.0.6",
+          "6.1.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#71",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-37713",
+            "GHSA-5955-9wpr-37jh"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "Arbitrary File Creation/Overwrite on Windows via insufficient relative path sanitization \u2014 ### Impact\n\nArbitrary File Creation, Arbitrary File Overwrite, Arbitrary Code Execution\n\nnode-tar aims to guarantee that any file whose location would be outside of the extraction target directory is not extracted. This is, in part, accomplished by sanitizing absolute paths of entries within the archive, skipping archive entries that contain `..` path portions, and resolving the sanitized paths against the extraction target directory.\n\nThis logic was insufficient on Windows systems when extracting tar fi",
+        "vuln_symbols": [
+          "entry.absolute"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.4.18",
+          "5.0.10",
+          "6.1.9"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#72",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-26960",
+            "GHSA-83g3-92jg-28cx"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction \u2014 ### Summary\n`tar.extract()` in Node `tar` allows an attacker-controlled archive to create a hardlink inside the extraction directory that points to a file outside the extraction root, using default options.\n\nThis enables **arbitrary file read and write** as the extracting user (no root, no chmod, no `preservePaths`).\n\nSeverity is high because the primitive bypasses path protections and turns archive extraction into a direct filesystem access primitive.\n\n### Details\nThe bypass chain uses two syml",
+        "vuln_symbols": [
+          "tar.extract",
+          "preservePaths",
+          "exfil",
+          "STRIPABSOLUTEPATH",
+          "mkdir",
+          "TAR_MODULE"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.8"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#73",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-23745",
+            "GHSA-8qq5-rm4j-mr97"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization \u2014 ### Summary\n\nThe `node-tar` library (`<= 7.5.2`) fails to sanitize the `linkpath` of `Link` (hardlink) and `SymbolicLink` entries when `preservePaths` is false (the default secure behavior). This allows malicious archives to bypass the extraction root restriction, leading to **Arbitrary File Overwrite** via hardlinks and **Symlink Poisoning** via absolute symlink targets.\n\n### Details\n\nThe vulnerability exists in `src/unpack.ts` within the `[HARDLINK]` and `[SYMLINK]` methods.\n\n**1. Ha",
+        "vuln_symbols": [
+          "linkpath",
+          "Link",
+          "SymbolicLink",
+          "preservePaths",
+          "entry.linkpath",
+          "path.resolve"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#74",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59874",
+            "GHSA-8x88-c5mf-7j5w"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "node-tar: Negative tar entry size causes infinite loop in archive replace \u2014 ### Summary\n\nA checksum-valid tar archive with a negative base-256 encoded entry size can make `tar.replace()` loop forever while scanning the existing archive. Applications that update attacker-controlled tar archives can have a worker process pinned indefinitely, causing denial of service.\n\n### Details\n\nThe public `tar.replace()` API scans the existing archive before appending replacement entries. During this scan, it parses each tar header and advances the archive position by the parsed entry size rounded to a 512-b",
+        "vuln_symbols": [
+          "tar.replace",
+          "poc.mjs"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.18"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#75",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-31802",
+            "GHSA-9ppj-qmqm-q256"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "node-tar Symlink Path Traversal via Drive-Relative Linkpath \u2014 ### Summary\n`tar` (npm) can be tricked into creating a symlink that points outside the extraction directory by using a drive-relative symlink target such as `C:../../../target.txt`, which enables file overwrite outside `cwd` during normal `tar.x()` extraction.\n\n### Details\nThe extraction logic in `Unpack[STRIPABSOLUTEPATH]` validates `..` segments against a resolved path that still uses the original drive-relative value, and only afterwards rewrites the stored `linkpath` to the stripped value.\n\nWhat happens with `linkpath: \"C:../../",
+        "vuln_symbols": [
+          "cwd",
+          "tar.x",
+          "linkpath",
+          "stripAbsolutePath",
+          "poc.cjs",
+          "PWNED"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.11"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#76",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-37701",
+            "GHSA-9r2w-394v-53qc"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "Arbitrary File Creation/Overwrite via insufficient symlink protection due to directory cache poisoning using symbolic links \u2014 ### Impact\n\nArbitrary File Creation, Arbitrary File Overwrite, Arbitrary Code Execution\n\n`node-tar` aims to guarantee that any file whose location would be modified by a symbolic link is not extracted. This is, in part, achieved by ensuring that extracted directories are not symlinks. Additionally, in order to prevent unnecessary stat calls to determine whether a given path is a directory, paths are cached when directories are created.\n\nThis logic was insufficient when ",
+        "vuln_symbols": [
+          "FOO",
+          "foo",
+          "entry",
+          "entry.path",
+          "fs.realpath",
+          "path.resolve"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.4.16",
+          "5.0.8",
+          "6.1.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#77",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-28863",
+            "GHSA-f5x3-32g6-xq36"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "Denial of service while parsing a tar file due to lack of folders count validation \u2014 ## Description: \nDuring some analysis today on npm's `node-tar` package I came across the folder creation process, Basicly if you provide node-tar with a path like this `./a/b/c/foo.txt` it would create every folder and sub-folder here a, b and c until it reaches the last folder to create `foo.txt`, In-this case I noticed that there's no validation at all on the amount of folders being created, that said we're actually able to CPU and memory consume the system running node-tar and even crash the nodejs client ",
+        "vuln_symbols": [
+          "foo.txt"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#78",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59875",
+            "GHSA-gvwx-54wh-qm9j"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records \u2014 ## Summary\n\n`node-tar` strips trailing `NUL` bytes from long-name (`L`) and long-linkpath (`K`) GNU extended headers but does **not** apply the same sanitization to equivalent fields delivered via PAX (`x` typeflag) extended headers. A PAX record of the form `path=visible.txt\\x00hidden.txt` is parsed verbatim into `entry.path` and flows into `fs.lstat()` / `fs.open()`, which Node.js core rejects with `ERR_INVALID_ARG_VALUE`. The throw originates inside an `FSReqCallback` async chain that is **not** wrapped by the cons",
+        "vuln_symbols": [
+          "NUL",
+          "L",
+          "K",
+          "x",
+          "entry.path",
+          "fs.lstat"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.17"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#79",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-29786",
+            "GHSA-qffp-2rhf-9h96"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "tar has Hardlink Path Traversal via Drive-Relative Linkpath \u2014 ### Summary\n`tar` (npm) can be tricked into creating a hardlink that points outside the extraction directory by using a drive-relative link target such as `C:../target.txt`, which enables file overwrite outside `cwd` during normal `tar.x()` extraction.\n\n### Details\nThe extraction logic in `Unpack[STRIPABSOLUTEPATH]` checks for `..` segments *before* stripping absolute roots.\n\nWhat happens with `linkpath: \"C:../target.txt\"`:\n1. Split on `/` gives `['C:..', 'target.txt']`, so `parts.includes('..')` is false.\n2. `stripAbsolutePath()` r",
+        "vuln_symbols": [
+          "cwd",
+          "tar.x",
+          "stripAbsolutePath",
+          "poc.cjs",
+          "PWNED"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.10"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#80",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-37712",
+            "GHSA-qq89-hq3f-393p"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "Arbitrary File Creation/Overwrite via insufficient symlink protection due to directory cache poisoning using symbolic links \u2014 ### Impact\nArbitrary File Creation, Arbitrary File Overwrite, Arbitrary Code Execution\n\nnode-tar aims to guarantee that any file whose location would be modified by a symbolic link is not extracted. This is, in part, achieved by ensuring that extracted directories are not symlinks. Additionally, in order to prevent unnecessary stat calls to determine whether a given path is a directory, paths are cached when directories are created.\n\nThis logic was insufficient when ext",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.4.18",
+          "5.0.10",
+          "6.1.9"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#81",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-73566",
+            "GHSA-r292-9mhp-454m"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection \u2014 ## Summary\n`node-tar` (npm `tar`) contains an uncontrolled-recursion stack-exhaustion DoS in the internal `mapHas` helper used by `filesFilter`. When a consumer calls `tar.t(...)` or `tar.x(...)` with a non-empty member-selection list, node-tar installs a filter that closes over the recursive `mapHas` (`src/list.ts:33-44`). `mapHas` walks an entry path upward one `path.dirname()` call per recursion **with no segment cap**. A single crafted tar with a GN",
+        "vuln_symbols": [
+          "mapHas",
+          "filesFilter",
+          "path.dirname",
+          "L",
+          "x",
+          "maxMetaEntrySize"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.21"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#82",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-32803",
+            "GHSA-r628-mhmh-qjhw"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "Arbitrary File Creation/Overwrite via insufficient symlink protection due to directory cache poisoning \u2014 ### Impact\n\nArbitrary File Creation, Arbitrary File Overwrite, Arbitrary Code Execution\n\n`node-tar` aims to guarantee that any file whose location would be modified by a symbolic link is not extracted. This is, in part, achieved by ensuring that extracted directories are not symlinks.  Additionally, in order to prevent unnecessary `stat` calls to determine whether a given path is a directory, paths are cached when directories are created.\n\nThis logic was insufficient when extracting tar fil",
+        "vuln_symbols": [
+          "stat",
+          "filter"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.2.3",
+          "4.4.15",
+          "5.0.7",
+          "6.1.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#83",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-23950",
+            "GHSA-r6q2-hw4h-h46w"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS \u2014 **TITLE**: Race Condition in node-tar Path Reservations via Unicode Sharp-S (\u00df) Collisions on macOS APFS\n\n**AUTHOR**: Tom\u00e1s Illuminati\n\n### Details\n\nA race condition vulnerability exists in `node-tar` (v7.5.3) this is to an incomplete handling of Unicode path collisions in the `path-reservations` system. On case-insensitive or normalization-insensitive filesystems (such as macOS APFS, In which it has been tested), the library fails to lock colliding paths (e.g., `\u00df` and `ss`), allowing them to be proce",
+        "vuln_symbols": [
+          "ss",
+          "PathReservations",
+          "NFD",
+          "NFKD",
+          "SymbolicLink"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#84",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-53655",
+            "GHSA-vmf3-w455-68vh"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling) \u2014 ### Summary\n\n`tar` (node-tar) applies a PAX extended header's `size=` record (and other PAX\noverrides) to the **next header entry of any type**, including intermediary\nmetadata headers such as a GNU long-name (`L`) or long-link (`K`) entry. Per\nPOSIX pax, a PAX extended header (`x`) describes the *next file entry*, not the\nintermediary extension headers that may sit between the `x` header and the file\nit annotates. Because node-tar lets the PAX `",
+        "vuln_symbols": [
+          "L",
+          "K",
+          "x",
+          "size",
+          "tarfile",
+          "ex"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.16"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#85",
+      "facts": {
+        "package": "tar",
+        "version": "4.4.8",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59871",
+            "GHSA-w8wr-v893-vjvp"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "node-tar: Process crash via PAX numeric path type confusion \u2014 ### Summary\n\nA crafted 2.5KB tar archive crashes any Node.js process that extracts it. The PAX header parser coerces all-digit path values to JavaScript numbers, which causes an uncaught TypeError when downstream code calls `.split('/')` on the numeric value. Error handlers and `strict: false` cannot intercept the crash.\n\n### Details\n\nIn `pax.ts` line 180, `parseKV` converts PAX values matching `/^[0-9]+$/` to numbers via `+v`. This applies to all fields including `path` and `linkpath`. When a PAX header sets `path` to an all-digit ",
+        "vuln_symbols": [
+          "pax.ts",
+          "parseKV",
+          "path",
+          "linkpath"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.18"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#86",
+      "facts": {
+        "package": "uglify-js",
+        "version": "2.4.24",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2015-8858",
+            "GHSA-c9f4-xj24-8jqx"
+          ],
+          [
+            "uglify-js"
+          ]
+        ],
+        "advisory_summary": "Regular Expression Denial of Service in uglify-js \u2014 Versions of `uglify-js` prior to 2.6.0 are affected by a regular expression denial of service vulnerability when malicious inputs are passed into the `parse()` method.\n\n\n### Proof of Concept\n\n```\nvar u = require('uglify-js');\nvar genstr = function (len, chr) {\n    var result = \"\";\n    for (i=0; i<=len; i++) {\n        result = result + chr;\n    }\n\n    return result;\n}\n\nu.parse(\"var a = \" + genstr(process.argv[2], \"1\") + \".1ee7;\");\n```\n\n### Results\n```\n$ time node test.js 10000\nreal\t0m1.091s\nuser\t0m1.047s\nsys\t0m0.039s\n\n$ time node test.js 80000",
+        "vuln_symbols": [
+          "parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#87",
+      "facts": {
+        "package": "underscore",
+        "version": "1.9.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-23358",
+            "GHSA-cf4h-3jhx-xvhq"
+          ],
+          [
+            "underscore"
+          ]
+        ],
+        "advisory_summary": "Arbitrary Code Execution in underscore \u2014 The package `underscore` from 1.13.0-0 and before 1.13.0-2, from 1.3.2 and before 1.12.1 are vulnerable to Arbitrary Code Execution via the template function, particularly when a variable property is passed as an argument as it is not sanitized.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.12.1"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#88",
+      "facts": {
+        "package": "underscore",
+        "version": "1.9.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-27601",
+            "GHSA-qpx9-hpmf-5gmw"
+          ],
+          [
+            "underscore"
+          ]
+        ],
+        "advisory_summary": "Underscore has unlimited recursion in _.flatten and _.isEqual, potential for DoS attack \u2014 ### Impact\n\nIn simple words, some programs that use `_.flatten` or `_.isEqual` could be made to crash. Someone who wants to do harm may be able to do this on purpose. This can only be done if the program has special properties. It only works in Underscore versions up to 1.13.7. A more detailed explanation follows.\n\nIn affected versions of Underscore, the `_.flatten` and `_.isEqual` functions use recursion without a depth limit. Under very specific conditions, detailed below, an attacker could exploit this",
+        "vuln_symbols": [
+          "_.flatten",
+          "_.isEqual",
+          "JSON.parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.13.8"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-nodegoat#89",
+      "facts": {
+        "package": "y18n",
+        "version": "3.2.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2020-7774",
+            "GHSA-c4w7-xm78-47vh"
+          ],
+          [
+            "y18n"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in y18n \u2014 ### Overview\n\nThe npm package `y18n` before versions 3.2.2, 4.0.1, and 5.0.5 is vulnerable to Prototype Pollution. \n\n### POC\n\n```js\nconst y18n = require('y18n')();\n\ny18n.setLocale('__proto__');\ny18n.updateLocale({polluted: true});\n\nconsole.log(polluted); // true\n```\n\n### Recommendation\n\nUpgrade to version 3.2.2, 4.0.1, 5.0.5 or later.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.2.2",
+          "4.0.1",
+          "5.0.5"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false
+      },
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,1880 @@
+{
+ "id": "real-go-test-bench",
+ "description": "Contrast-Security-OSS/go-test-bench (net/http, gin, chi, ...) (OSV-generated; labelled blind 2026-10-18)",
+ "repo": "repo",
+ "exposure": "public-internet",
+ "_note": "enrichment empty: run the harness with --enrich live",
+ "enrichment": {},
+ "candidates": [
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#1",
+   "facts": {
+    "package": "github.com/gin-gonic/gin",
+    "version": "v1.7.4",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2023-26125",
+      "GHSA-3vp4-m3rf-835h"
+     ],
+     [
+      "github.com/gin-gonic/gin"
+     ]
+    ],
+    "advisory_summary": "Improper input validation in github.com/gin-gonic/gin \u2014 Versions of the package github.com/gin-gonic/gin before version 1.9.0 are vulnerable to Improper Input Validation by allowing an attacker to use a specially crafted request via the X-Forwarded-Prefix header, potentially leading to cache poisoning.\n\n**Note:** Although this issue does not pose a significant threat on its own it can serve as an input vector for other more impactful vulnerabilities. However, successful exploitation may depend on the server configuration and whether the header is used in the application logic.",
+    "vuln_symbols": [],
+    "vuln_symbols_source": "heuristic",
+    "fixed": [
+     "1.9.0"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "reachable",
+    "note": "cmd/gin/app.go:36 serves the gin engine from gin.Default() (pkg/servegin/servegin.go:154), which leaves RedirectTrailingSlash=true (gin@v1.7.4/gin.go:157). Any request to a registered route with/without a trailing slash goes through gin.go:494 -> redirectTrailingSlash (gin.go:540-543), which prepends the attacker-supplied X-Forwarded-Prefix header to the redirect Location.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#2",
+   "facts": {
+    "package": "github.com/gin-gonic/gin",
+    "version": "v1.7.4",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2020-28483",
+      "GHSA-h395-qcrw-5vmq",
+      "GO-2021-0052",
+      "SNYK-GOLANG-GITHUBCOMGINGONICGIN-1041736"
+     ],
+     [
+      "github.com/gin-gonic/gin"
+     ]
+    ],
+    "advisory_summary": "Inconsistent interpretation of HTTP Requests in github.com/gin-gonic/gin \u2014 Due to improper HTTP header sanitization, a malicious user can spoof their source IP address by setting the X-Forwarded-For header. This may allow a user to bypass IP based restrictions, or obfuscate their true source.",
+    "vuln_symbols": [
+     "github.com/gin-gonic/gin.Context.ClientIP",
+     "github.com/gin-gonic/gin.Context.Next",
+     "github.com/gin-gonic/gin.Context.RemoteIP",
+     "github.com/gin-gonic/gin.Engine.HandleContext",
+     "github.com/gin-gonic/gin.Engine.Run",
+     "github.com/gin-gonic/gin.Engine.RunFd",
+     "github.com/gin-gonic/gin.Engine.RunListener",
+     "github.com/gin-gonic/gin.Engine.RunTLS",
+     "github.com/gin-gonic/gin.Engine.RunUnix",
+     "github.com/gin-gonic/gin.Engine.ServeHTTP"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "1.7.7"
+    ],
+    "severity": "HIGH",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "reachable",
+    "note": "gin.Default() (pkg/servegin/servegin.go:154) installs the Logger middleware, which calls c.ClientIP() on every request (gin@v1.7.4/logger.go:255). With the v1.7.4 defaults ForwardedByClientIP=true and TrustedProxies=0.0.0.0/0 (gin.go:160-162), ClientIP (context.go:733-746) returns the attacker-controlled X-Forwarded-For/X-Real-IP value; the engine is served via router.Run (cmd/gin/app.go:36). Impact is limited to spoofed IPs in logs since the app has no IP-based access control.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#3",
+   "facts": {
+    "package": "github.com/gin-gonic/gin",
+    "version": "v1.7.4",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2023-29401",
+      "GHSA-2c4m-59x9-fr2g",
+      "GO-2023-1737"
+     ],
+     [
+      "github.com/gin-gonic/gin"
+     ]
+    ],
+    "advisory_summary": "Gin Web Framework does not properly sanitize filename parameter of Context.FileAttachment function \u2014 The filename parameter of the Context.FileAttachment function is not properly sanitized. A maliciously crafted filename can cause the Content-Disposition header to be sent with an unexpected filename value or otherwise modify the Content-Disposition header. For example, a filename of \"setup.bat&quot;;x=.txt\" will be sent as a file named \"setup.bat\".\n\nIf the FileAttachment function is called with names provided by an untrusted source, this may permit an attacker to cause a file to be served with",
+    "vuln_symbols": [
+     "github.com/gin-gonic/gin.Context.FileAttachment"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "1.9.1"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "Context.FileAttachment is never called anywhere in the repo (grep finds no use outside the gin module); the gin server uses c.HTML, StaticFS etc. (pkg/servegin/servegin.go:154-170). gin itself does not call FileAttachment internally.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#4",
+   "facts": {
+    "package": "github.com/go-chi/chi",
+    "version": "v1.5.4",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-69725",
+      "GHSA-mqqf-5wvp-8fh8",
+      "GO-2026-4316"
+     ],
+     [
+      "github.com/go-chi/chi"
+     ]
+    ],
+    "advisory_summary": "Open redirect vulnerability in the RedirectSlashes middleware in github.com/go-chi/chi \u2014 Open redirect vulnerability in the RedirectSlashes middleware in github.com/go-chi/chi",
+    "vuln_symbols": [],
+    "vuln_symbols_source": "heuristic",
+    "fixed": [],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The chi server builds a plain chi.NewRouter() (pkg/servechi/servechi.go:162) and never imports github.com/go-chi/chi/middleware or uses RedirectSlashes (no grep hits in the repo). Its only redirect is a fixed http.RedirectHandler(path+\"/\") for the constant \"/assets\" path (servechi.go FileServer).",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#5",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2023-44487",
+      "BIT-apisix-2023-44487",
+      "BIT-aspnet-core-2023-44487",
+      "BIT-contour-2023-44487",
+      "BIT-dotnet-2023-44487",
+      "BIT-dotnet-sdk-2023-44487",
+      "BIT-envoy-2023-44487",
+      "BIT-golang-2023-44487",
+      "BIT-jenkins-2023-44487",
+      "BIT-kong-2023-44487",
+      "BIT-nginx-2023-44487",
+      "BIT-nginx-gateway-2023-44487",
+      "BIT-node-2023-44487",
+      "BIT-node-min-2023-44487",
+      "BIT-solr-2023-44487",
+      "BIT-tomcat-2023-44487",
+      "BIT-varnish-2023-44487",
+      "GHSA-qppj-fm5r-hxr3"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "HTTP/2 Stream Cancellation Attack \u2014 ## HTTP/2 Rapid reset attack\nThe HTTP/2 protocol allows clients to indicate to the server that a previous stream should be canceled by sending a RST_STREAM frame. The protocol does not require the client and server to coordinate the cancellation in any way, the client may do it unilaterally. The client may also assume that the cancellation will take effect immediately when the server receives the RST_STREAM frame, before any other data from that TCP connection is processed.\n\nAbuse of this feature is called a Rapid Reset attack because it relies on the abilit",
+    "vuln_symbols": [
+     "Channel",
+     "EventLoop"
+    ],
+    "vuln_symbols_source": "heuristic",
+    "fixed": [
+     "0.17.0"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (Channel, EventLoop) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#6",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2022-27664",
+      "BIT-golang-2022-27664",
+      "GHSA-69cg-p879-7622",
+      "GO-2022-0969"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "golang.org/x/net/http2 Denial of Service vulnerability \u2014 In net/http in Go before 1.18.6 and 1.19.x before 1.19.1, attackers can cause a denial of service because an HTTP/2 connection can hang during closing if shutdown were preempted by a fatal error.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.serverConn.goAway"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.0.0-20220906165146-f3363e06e74c"
+    ],
+    "severity": "HIGH",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (http2) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#7",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2022-41717",
+      "BIT-golang-2022-41717",
+      "GHSA-xrjj-mj9h-534m",
+      "GO-2022-1144"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "golang.org/x/net/http2 vulnerable to possible excessive memory growth \u2014 An attacker can cause excessive memory growth in a Go server accepting HTTP/2 requests. HTTP/2 server connections contain a cache of HTTP header keys sent by the client. While the total number of entries in this cache is capped, an attacker sending very large keys can cause the server to allocate approximately 64 MiB per open connection.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.serverConn.canonicalHeader"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.4.0"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (http2) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#8",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2022-41723",
+      "BIT-golang-2022-41723",
+      "GHSA-vvpx-j8f3-3w6h",
+      "GO-2023-1571"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Denial of service via crafted HTTP/2 stream in net/http and golang.org/x/net \u2014 A maliciously crafted HTTP/2 stream could cause excessive CPU consumption in the HPACK decoder, sufficient to cause a denial of service from a small number of small requests.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.ClientConn.Close",
+     "golang.org/x/net/http2.ClientConn.Ping",
+     "golang.org/x/net/http2.ClientConn.RoundTrip",
+     "golang.org/x/net/http2.ClientConn.Shutdown",
+     "golang.org/x/net/http2.ConfigureServer",
+     "golang.org/x/net/http2.ConfigureTransport",
+     "golang.org/x/net/http2.ConfigureTransports",
+     "golang.org/x/net/http2.ConnectionError.Error",
+     "golang.org/x/net/http2.ErrCode.String",
+     "golang.org/x/net/http2.FrameHeader.String",
+     "golang.org/x/net/http2.FrameType.String",
+     "golang.org/x/net/http2.FrameWriteRequest.String",
+     "golang.org/x/net/http2.Framer.ReadFrame",
+     "golang.org/x/net/http2.Framer.WriteContinuation",
+     "golang.org/x/net/http2.Framer.WriteData",
+     "golang.org/x/net/http2.Framer.WriteDataPadded",
+     "golang.org/x/net/http2.Framer.WriteGoAway",
+     "golang.org/x/net/http2.Framer.WriteHeaders",
+     "golang.org/x/net/http2.Framer.WritePing",
+     "golang.org/x/net/http2.Framer.WritePriority",
+     "golang.org/x/net/http2.Framer.WritePushPromise",
+     "golang.org/x/net/http2.Framer.WriteRSTStream",
+     "golang.org/x/net/http2.Framer.WriteRawFrame",
+     "golang.org/x/net/http2.Framer.WriteSettings",
+     "golang.org/x/net/http2.Framer.WriteSettingsAck",
+     "golang.org/x/net/http2.Framer.WriteWindowUpdate",
+     "golang.org/x/net/http2.GoAwayError.Error",
+     "golang.org/x/net/http2.ReadFrameHeader",
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.Setting.String",
+     "golang.org/x/net/http2.SettingID.String",
+     "golang.org/x/net/http2.SettingsFrame.ForeachSetting",
+     "golang.org/x/net/http2.StreamError.Error",
+     "golang.org/x/net/http2.Transport.CloseIdleConnections",
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.bufferedWriter.Flush",
+     "golang.org/x/net/http2.bufferedWriter.Write",
+     "golang.org/x/net/http2.chunkWriter.Write",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.connError.Error",
+     "golang.org/x/net/http2.dataBuffer.Read",
+     "golang.org/x/net/http2.duplicatePseudoHeaderError.Error",
+     "golang.org/x/net/http2.gzipReader.Close",
+     "golang.org/x/net/http2.gzipReader.Read",
+     "golang.org/x/net/http2.headerFieldNameError.Error",
+     "golang.org/x/net/http2.headerFieldValueError.Error",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.pipe.Read",
+     "golang.org/x/net/http2.priorityWriteScheduler.CloseStream",
+     "golang.org/x/net/http2.priorityWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.pseudoHeaderError.Error",
+     "golang.org/x/net/http2.requestBody.Close",
+     "golang.org/x/net/http2.requestBody.Read",
+     "golang.org/x/net/http2.responseWriter.Flush",
+     "golang.org/x/net/http2.responseWriter.FlushError",
+     "golang.org/x/net/http2.responseWriter.Push",
+     "golang.org/x/net/http2.responseWriter.SetReadDeadline",
+     "golang.org/x/net/http2.responseWriter.SetWriteDeadline",
+     "golang.org/x/net/http2.responseWriter.Write",
+     "golang.org/x/net/http2.responseWriter.WriteHeader",
+     "golang.org/x/net/http2.responseWriter.WriteString",
+     "golang.org/x/net/http2.serverConn.CloseConn",
+     "golang.org/x/net/http2.serverConn.Flush",
+     "golang.org/x/net/http2.stickyErrWriter.Write",
+     "golang.org/x/net/http2.transportResponseBody.Close",
+     "golang.org/x/net/http2.transportResponseBody.Read",
+     "golang.org/x/net/http2.writeData.String",
+     "golang.org/x/net/http2/hpack.Decoder.DecodeFull",
+     "golang.org/x/net/http2/hpack.Decoder.Write",
+     "golang.org/x/net/http2/hpack.Decoder.parseFieldLiteral",
+     "golang.org/x/net/http2/hpack.Decoder.readString"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.7.0"
+    ],
+    "severity": "HIGH",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (hpack, http2) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#9",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2023-3978",
+      "GHSA-2wrh-6pvc-2jm9",
+      "GO-2023-1988"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Improper rendering of text nodes in golang.org/x/net/html \u2014 Text nodes not in the HTML namespace are incorrectly literally rendered, causing text which should be escaped to not be. This could lead to an XSS attack. ",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Render",
+     "golang.org/x/net/html.render1"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.13.0"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (html) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#10",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2023-39325",
+      "BIT-golang-2023-39325",
+      "GHSA-4374-p667-p6c8",
+      "GO-2023-2102"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "HTTP/2 rapid reset can cause excessive work in net/http \u2014 A malicious HTTP/2 client which rapidly creates requests and immediately resets them can cause excessive server resource consumption. While the total number of requests is bounded by the http2.Server.MaxConcurrentStreams setting, resetting an in-progress request allows the attacker to create a new request while the existing one is still executing. \n\nWith the fix applied, HTTP/2 servers now bound the number of simultaneously executing handler goroutines to the stream concurrency limit (MaxConcurrentStreams). New requests arriving when at",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.serverConn.processHeaders",
+     "golang.org/x/net/http2.serverConn.runHandler",
+     "golang.org/x/net/http2.serverConn.serve",
+     "golang.org/x/net/http2.serverConn.upgradeRequest"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.17.0"
+    ],
+    "severity": "HIGH",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (http2) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#11",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2023-45288",
+      "BIT-golang-2023-45288",
+      "GHSA-4v7x-pqxf-cx7m",
+      "GO-2024-2687"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "net/http, x/net/http2: close connections when receiving too many headers \u2014 An attacker may cause an HTTP/2 endpoint to read arbitrary amounts of header data by sending an excessive number of CONTINUATION frames. Maintaining HPACK state requires parsing and processing all HEADERS and CONTINUATION frames on a connection. When a request's headers exceed MaxHeaderBytes, no memory is allocated to store the excess headers, but they are still parsed. This permits an attacker to cause an HTTP/2 endpoint to read arbitrary amounts of header data, all associated with a request which is going to be reject",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.ClientConn.Close",
+     "golang.org/x/net/http2.ClientConn.Ping",
+     "golang.org/x/net/http2.ClientConn.RoundTrip",
+     "golang.org/x/net/http2.ClientConn.Shutdown",
+     "golang.org/x/net/http2.ConfigureServer",
+     "golang.org/x/net/http2.ConfigureTransport",
+     "golang.org/x/net/http2.ConfigureTransports",
+     "golang.org/x/net/http2.ConnectionError.Error",
+     "golang.org/x/net/http2.ErrCode.String",
+     "golang.org/x/net/http2.FrameHeader.String",
+     "golang.org/x/net/http2.FrameType.String",
+     "golang.org/x/net/http2.FrameWriteRequest.String",
+     "golang.org/x/net/http2.Framer.ReadFrame",
+     "golang.org/x/net/http2.Framer.WriteContinuation",
+     "golang.org/x/net/http2.Framer.WriteData",
+     "golang.org/x/net/http2.Framer.WriteDataPadded",
+     "golang.org/x/net/http2.Framer.WriteGoAway",
+     "golang.org/x/net/http2.Framer.WriteHeaders",
+     "golang.org/x/net/http2.Framer.WritePing",
+     "golang.org/x/net/http2.Framer.WritePriority",
+     "golang.org/x/net/http2.Framer.WritePushPromise",
+     "golang.org/x/net/http2.Framer.WriteRSTStream",
+     "golang.org/x/net/http2.Framer.WriteRawFrame",
+     "golang.org/x/net/http2.Framer.WriteSettings",
+     "golang.org/x/net/http2.Framer.WriteSettingsAck",
+     "golang.org/x/net/http2.Framer.WriteWindowUpdate",
+     "golang.org/x/net/http2.Framer.readMetaFrame",
+     "golang.org/x/net/http2.GoAwayError.Error",
+     "golang.org/x/net/http2.ReadFrameHeader",
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.Setting.String",
+     "golang.org/x/net/http2.SettingID.String",
+     "golang.org/x/net/http2.SettingsFrame.ForeachSetting",
+     "golang.org/x/net/http2.StreamError.Error",
+     "golang.org/x/net/http2.Transport.CloseIdleConnections",
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.bufferedWriter.Flush",
+     "golang.org/x/net/http2.bufferedWriter.Write",
+     "golang.org/x/net/http2.chunkWriter.Write",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.connError.Error",
+     "golang.org/x/net/http2.dataBuffer.Read",
+     "golang.org/x/net/http2.duplicatePseudoHeaderError.Error",
+     "golang.org/x/net/http2.gzipReader.Close",
+     "golang.org/x/net/http2.gzipReader.Read",
+     "golang.org/x/net/http2.headerFieldNameError.Error",
+     "golang.org/x/net/http2.headerFieldValueError.Error",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.pipe.Read",
+     "golang.org/x/net/http2.priorityWriteScheduler.CloseStream",
+     "golang.org/x/net/http2.priorityWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.pseudoHeaderError.Error",
+     "golang.org/x/net/http2.requestBody.Close",
+     "golang.org/x/net/http2.requestBody.Read",
+     "golang.org/x/net/http2.responseWriter.Flush",
+     "golang.org/x/net/http2.responseWriter.FlushError",
+     "golang.org/x/net/http2.responseWriter.Push",
+     "golang.org/x/net/http2.responseWriter.SetReadDeadline",
+     "golang.org/x/net/http2.responseWriter.SetWriteDeadline",
+     "golang.org/x/net/http2.responseWriter.Write",
+     "golang.org/x/net/http2.responseWriter.WriteHeader",
+     "golang.org/x/net/http2.responseWriter.WriteString",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.serverConn.CloseConn",
+     "golang.org/x/net/http2.serverConn.Flush",
+     "golang.org/x/net/http2.stickyErrWriter.Write",
+     "golang.org/x/net/http2.transportResponseBody.Close",
+     "golang.org/x/net/http2.transportResponseBody.Read",
+     "golang.org/x/net/http2.writeData.String"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.23.0"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (http2) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#12",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2024-45338",
+      "GHSA-w32m-9786-jp63",
+      "GO-2024-3333"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Non-linear parsing of case-insensitive content in golang.org/x/net/html \u2014 An attacker can craft an input to the Parse functions that would be processed non-linearly with respect to its length, resulting in extremely slow parsing. This could cause a denial of service.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.htmlIntegrationPoint",
+     "golang.org/x/net/html.inBodyIM",
+     "golang.org/x/net/html.inTableIM",
+     "golang.org/x/net/html.parseDoctype"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.33.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (html) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#13",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-22870",
+      "GHSA-qxp5-gwg8-xv66",
+      "GO-2025-3503"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "HTTP Proxy bypass using IPv6 Zone IDs in golang.org/x/net \u2014 Matching of hosts against proxy patterns can improperly treat an IPv6 zone ID as a hostname component. For example, when the NO_PROXY environment variable is set to \"*.example.com\", a request to \"[::1%25.example.com]:80` will incorrectly match and not be proxied.",
+    "vuln_symbols": [
+     "golang.org/x/net/http/httpproxy.config.useProxy",
+     "golang.org/x/net/http/httpproxy.domainMatch.match",
+     "golang.org/x/net/proxy.Dial",
+     "golang.org/x/net/proxy.FromEnvironment",
+     "golang.org/x/net/proxy.FromEnvironmentUsing",
+     "golang.org/x/net/proxy.PerHost.AddFromString",
+     "golang.org/x/net/proxy.PerHost.Dial",
+     "golang.org/x/net/proxy.PerHost.DialContext",
+     "golang.org/x/net/proxy.PerHost.dialerForRequest"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.36.0"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (httpproxy, proxy) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#14",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-22872",
+      "GHSA-vvgc-356p-c3xw",
+      "GO-2025-3595"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Incorrect Neutralization of Input During Web Page Generation in x/net in golang.org/x/net \u2014 The tokenizer incorrectly interprets tags with unquoted attribute values that end with a solidus character (/) as self-closing. When directly using Tokenizer, this can result in such tags incorrectly being marked as self-closing, and when using the Parse functions, this can result in content following such tags as being placed in the wrong scope during DOM construction, but only when tags are in foreign content (e.g. <math>, <svg>, etc contexts).",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.Tokenizer.Next",
+     "golang.org/x/net/html.Tokenizer.readStartTag"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.38.0"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (html) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#15",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-47911",
+      "GHSA-w4gw-w5jq-g9jh",
+      "GO-2026-4440"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Quadratic parsing complexity in golang.org/x/net/html \u2014 The html.Parse function in golang.org/x/net/html has quadratic parsing complexity when processing certain inputs, which can lead to denial of service (DoS) if an attacker provides specially crafted HTML content.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.45.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (html) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#16",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2025-58190",
+      "GO-2026-4441"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Infinite parsing loop in golang.org/x/net \u2014 The html.Parse function in golang.org/x/net/html has an infinite parsing loop when processing certain inputs, which can lead to denial of service (DoS) if an attacker provides specially crafted HTML content.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.inRowIM"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.45.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (html) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#17",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-33814",
+      "BIT-golang-2026-33814",
+      "GO-2026-4918"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Infinite loop in HTTP/2 transport when given bad SETTINGS_MAX_FRAME_SIZE in net/http/internal/http2 in golang.org/x/net \u2014 When processing HTTP/2 SETTINGS frames, transport will enter an infinite loop of writing CONTINUATION frames if it receives a SETTINGS_MAX_FRAME_SIZE with a value of 0.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.clientConnReadLoop.processSettingsNoWrite",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.53.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (http2) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#18",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-42506",
+      "GO-2026-5025"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Invoking incorrect handling of namespaced elements in foreign content in golang.org/x/net/html \u2014 Parsing arbitrary HTML which is then rendered using Render can result in an unexpected HTML tree. This can be leveraged to execute XSS attacks in applications that attempt to sanitize input HTML before rendering.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (html) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#19",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-39821",
+      "GO-2026-5026"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Invoking failure to reject ASCII-only Punycode-encoded labels in golang.org/x/net/idna \u2014 The ToASCII and ToUnicode functions incorrectly accept Punycode-encoded labels that decode to an ASCII-only label. For example, ToUnicode(\"xn--example-.com\") incorrectly returns the name \"example.com\" rather than an error.\n\nThis behavior can lead to privilege escalation in programs using the idna package. For example, a program which performs privilege checks on the ASCII hostname may reject \"example.com\" but permit \"xn--example-.com\". If that program subsequently converts the ASCII hostname to Unicode, it",
+    "vuln_symbols": [
+     "golang.org/x/net/idna.Profile.ToASCII",
+     "golang.org/x/net/idna.Profile.ToUnicode",
+     "golang.org/x/net/idna.Profile.process",
+     "golang.org/x/net/idna.ToASCII",
+     "golang.org/x/net/idna.ToUnicode"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (idna) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#20",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-42502",
+      "GO-2026-5027"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Invoking incorrect handling of HTML elements in foreign content in golang.org/x/net/html \u2014 Parsing arbitrary HTML which is then rendered using Render can result in an unexpected HTML tree. This can be leveraged to execute XSS attacks in applications that attempt to sanitize input HTML before rendering.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (html) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#21",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-25680",
+      "GHSA-5cv4-jp36-h3mw",
+      "GO-2026-5028"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Go Net HTML parser is vulnerable to denial of service \u2014 In Go Net (`golang.org/x/net`) before verion 0.55.0, parsing arbitrary HTML can consume excessive CPU time, possibly leading to denial of service.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "MODERATE",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (html) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#22",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-25681",
+      "GO-2026-5029"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Invoking incorrect handling of character references in DOCTYPE nodes in golang.org/x/net/html \u2014 Parsing arbitrary HTML which is then rendered using Render can result in an unexpected HTML tree. This can be leveraged to execute XSS attacks in applications that attempt to sanitize input HTML before rendering.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (html) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#23",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-27136",
+      "GO-2026-5030"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Invoking duplicate attributes can cause XSS in golang.org/x/net/html \u2014 Parsing arbitrary HTML which is then rendered using Render can result in an unexpected HTML tree. This can be leveraged to execute XSS attacks in applications that attempt to sanitize input HTML before rendering.",
+    "vuln_symbols": [
+     "golang.org/x/net/html.Parse",
+     "golang.org/x/net/html.ParseFragment",
+     "golang.org/x/net/html.ParseFragmentWithOptions",
+     "golang.org/x/net/html.ParseWithOptions",
+     "golang.org/x/net/html.parser.parse"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.55.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (html) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#24",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-46600",
+      "BIT-golang-2026-46600",
+      "GO-2026-5942"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Parsing an invalid SVCB or HTTPS RR can panic in golang.org/x/net/dns/dnsmessage \u2014 Parsing an invalid SVCB or HTTPS RR can panic when the size of a parameter value overflows the message buffer.",
+    "vuln_symbols": [
+     "golang.org/x/net/dns/dnsmessage.Message.Unpack",
+     "golang.org/x/net/dns/dnsmessage.Parser.Additional",
+     "golang.org/x/net/dns/dnsmessage.Parser.AllAdditionals",
+     "golang.org/x/net/dns/dnsmessage.Parser.AllAnswers",
+     "golang.org/x/net/dns/dnsmessage.Parser.AllAuthorities",
+     "golang.org/x/net/dns/dnsmessage.Parser.Answer",
+     "golang.org/x/net/dns/dnsmessage.Parser.Authority",
+     "golang.org/x/net/dns/dnsmessage.Parser.HTTPSResource",
+     "golang.org/x/net/dns/dnsmessage.Parser.SVCBResource",
+     "golang.org/x/net/dns/dnsmessage.unpackSVCBResource"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.56.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (dnsmessage) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#25",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-78659",
+      "BIT-golang-2026-78659",
+      "GO-2026-6603"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "HTTP/2 server memory exhaustion due to Trailer headers in net/http \u2014 When \"Trailer\" headers are sent by a client, the HTTP server internally uses the header values to populate the Request.Trailer map passed to the server handler. Because Request.Trailer is a map, each entry incurs memory overhead. For HTTP/2 servers, a malicious client can exploit this by sending a \"Trailer\" header that declares a large number of fields, causing the server to allocate a disproportionate amount of memory while bypassing Server.MaxHeaderValueCount and Server.MaxHeaderBytes limits. This exploit is not applicable ",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.ClientConn.Close",
+     "golang.org/x/net/http2.ClientConn.Ping",
+     "golang.org/x/net/http2.ClientConn.RoundTrip",
+     "golang.org/x/net/http2.ClientConn.Shutdown",
+     "golang.org/x/net/http2.ConfigureServer",
+     "golang.org/x/net/http2.ConfigureTransport",
+     "golang.org/x/net/http2.ConfigureTransports",
+     "golang.org/x/net/http2.ConnectionError.Error",
+     "golang.org/x/net/http2.ErrCode.String",
+     "golang.org/x/net/http2.FrameHeader.String",
+     "golang.org/x/net/http2.FrameType.String",
+     "golang.org/x/net/http2.FrameWriteRequest.String",
+     "golang.org/x/net/http2.Framer.ReadFrame",
+     "golang.org/x/net/http2.Framer.ReadFrameForHeader",
+     "golang.org/x/net/http2.Framer.ReadFrameHeader",
+     "golang.org/x/net/http2.Framer.WriteContinuation",
+     "golang.org/x/net/http2.Framer.WriteData",
+     "golang.org/x/net/http2.Framer.WriteDataPadded",
+     "golang.org/x/net/http2.Framer.WriteGoAway",
+     "golang.org/x/net/http2.Framer.WriteHeaders",
+     "golang.org/x/net/http2.Framer.WritePing",
+     "golang.org/x/net/http2.Framer.WritePriority",
+     "golang.org/x/net/http2.Framer.WritePriorityUpdate",
+     "golang.org/x/net/http2.Framer.WritePushPromise",
+     "golang.org/x/net/http2.Framer.WriteRSTStream",
+     "golang.org/x/net/http2.Framer.WriteRawFrame",
+     "golang.org/x/net/http2.Framer.WriteSettings",
+     "golang.org/x/net/http2.Framer.WriteSettingsAck",
+     "golang.org/x/net/http2.Framer.WriteWindowUpdate",
+     "golang.org/x/net/http2.Framer.readMetaFrame",
+     "golang.org/x/net/http2.GoAwayError.Error",
+     "golang.org/x/net/http2.ReadFrameHeader",
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.Setting.String",
+     "golang.org/x/net/http2.SettingID.String",
+     "golang.org/x/net/http2.SettingsFrame.ForeachSetting",
+     "golang.org/x/net/http2.StreamError.Error",
+     "golang.org/x/net/http2.Transport.CloseIdleConnections",
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.bufferedWriter.Flush",
+     "golang.org/x/net/http2.bufferedWriter.Write",
+     "golang.org/x/net/http2.bufferedWriterTimeoutWriter.Write",
+     "golang.org/x/net/http2.chunkWriter.Write",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.connError.Error",
+     "golang.org/x/net/http2.dataBuffer.Read",
+     "golang.org/x/net/http2.duplicatePseudoHeaderError.Error",
+     "golang.org/x/net/http2.gzipReader.Close",
+     "golang.org/x/net/http2.gzipReader.Read",
+     "golang.org/x/net/http2.headerFieldNameError.Error",
+     "golang.org/x/net/http2.headerFieldValueError.Error",
+     "golang.org/x/net/http2.netHTTPClientConn.Close",
+     "golang.org/x/net/http2.netHTTPClientConn.RoundTrip",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.pipe.Read",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.CloseStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.OpenStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC9218.OpenStream",
+     "golang.org/x/net/http2.pseudoHeaderError.Error",
+     "golang.org/x/net/http2.requestBody.Close",
+     "golang.org/x/net/http2.requestBody.Read",
+     "golang.org/x/net/http2.responseWriter.Flush",
+     "golang.org/x/net/http2.responseWriter.FlushError",
+     "golang.org/x/net/http2.responseWriter.Push",
+     "golang.org/x/net/http2.responseWriter.SetReadDeadline",
+     "golang.org/x/net/http2.responseWriter.SetWriteDeadline",
+     "golang.org/x/net/http2.responseWriter.Write",
+     "golang.org/x/net/http2.responseWriter.WriteHeader",
+     "golang.org/x/net/http2.responseWriter.WriteString",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.serverConn.CloseConn",
+     "golang.org/x/net/http2.serverConn.Flush",
+     "golang.org/x/net/http2.stickyErrWriter.Write",
+     "golang.org/x/net/http2.transportResponseBody.Close",
+     "golang.org/x/net/http2.transportResponseBody.Read",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip",
+     "golang.org/x/net/http2.writeData.String"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.60.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (http2) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#26",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-78660",
+      "BIT-golang-2026-78660",
+      "GO-2026-6610"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "HTTP/2 transport accepts malformed framing-related headers in net/http \u2014 Historically, we have been rather lax about malformed framing-related headers in our HTTP/2 implementation, as they cannot interfere with HTTP/2 framing. However, this makes it possible for our HTTP/2 implementation to forward responses containing such headers to an HTTP/1 client when acting as a reverse proxy. If the HTTP/1 client also does not behave strictly enough, this can result in response smuggling.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.clientConnReadLoop.handleResponse",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.60.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (http2) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#27",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-78669",
+      "BIT-golang-2026-78669",
+      "GO-2026-6611"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Excessive CPU consumption from repeated initial window changes in net/http \u2014 A malicious HTTP/2 peer can cause excessive CPU consumption in the client or server by opening a large number of streams and then sending many small SETTINGS frames containing SETTINGS_INITIAL_WINDOW_SIZE values.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.ClientConn.Close",
+     "golang.org/x/net/http2.ClientConn.Ping",
+     "golang.org/x/net/http2.ClientConn.RoundTrip",
+     "golang.org/x/net/http2.ClientConn.Shutdown",
+     "golang.org/x/net/http2.ClientConn.addStreamLocked",
+     "golang.org/x/net/http2.ConfigureServer",
+     "golang.org/x/net/http2.ConfigureTransport",
+     "golang.org/x/net/http2.ConfigureTransports",
+     "golang.org/x/net/http2.ConnectionError.Error",
+     "golang.org/x/net/http2.ErrCode.String",
+     "golang.org/x/net/http2.FrameHeader.String",
+     "golang.org/x/net/http2.FrameType.String",
+     "golang.org/x/net/http2.FrameWriteRequest.Consume",
+     "golang.org/x/net/http2.FrameWriteRequest.String",
+     "golang.org/x/net/http2.Framer.ReadFrame",
+     "golang.org/x/net/http2.Framer.ReadFrameForHeader",
+     "golang.org/x/net/http2.Framer.ReadFrameHeader",
+     "golang.org/x/net/http2.Framer.WriteContinuation",
+     "golang.org/x/net/http2.Framer.WriteData",
+     "golang.org/x/net/http2.Framer.WriteDataPadded",
+     "golang.org/x/net/http2.Framer.WriteGoAway",
+     "golang.org/x/net/http2.Framer.WriteHeaders",
+     "golang.org/x/net/http2.Framer.WritePing",
+     "golang.org/x/net/http2.Framer.WritePriority",
+     "golang.org/x/net/http2.Framer.WritePriorityUpdate",
+     "golang.org/x/net/http2.Framer.WritePushPromise",
+     "golang.org/x/net/http2.Framer.WriteRSTStream",
+     "golang.org/x/net/http2.Framer.WriteRawFrame",
+     "golang.org/x/net/http2.Framer.WriteSettings",
+     "golang.org/x/net/http2.Framer.WriteSettingsAck",
+     "golang.org/x/net/http2.Framer.WriteWindowUpdate",
+     "golang.org/x/net/http2.GoAwayError.Error",
+     "golang.org/x/net/http2.ReadFrameHeader",
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.Server.serveConn",
+     "golang.org/x/net/http2.Setting.String",
+     "golang.org/x/net/http2.SettingID.String",
+     "golang.org/x/net/http2.SettingsFrame.ForeachSetting",
+     "golang.org/x/net/http2.StreamError.Error",
+     "golang.org/x/net/http2.Transport.CloseIdleConnections",
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.Transport.newClientConn",
+     "golang.org/x/net/http2.bufferedWriter.Flush",
+     "golang.org/x/net/http2.bufferedWriter.Write",
+     "golang.org/x/net/http2.bufferedWriterTimeoutWriter.Write",
+     "golang.org/x/net/http2.chunkWriter.Write",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.clientConnReadLoop.processSettingsNoWrite",
+     "golang.org/x/net/http2.clientConnReadLoop.processWindowUpdate",
+     "golang.org/x/net/http2.clientConnReadLoop.streamByID",
+     "golang.org/x/net/http2.clientStream.awaitFlowControl",
+     "golang.org/x/net/http2.clientStream.cleanupWriteRequest",
+     "golang.org/x/net/http2.connError.Error",
+     "golang.org/x/net/http2.dataBuffer.Read",
+     "golang.org/x/net/http2.duplicatePseudoHeaderError.Error",
+     "golang.org/x/net/http2.gzipReader.Close",
+     "golang.org/x/net/http2.gzipReader.Read",
+     "golang.org/x/net/http2.headerFieldNameError.Error",
+     "golang.org/x/net/http2.headerFieldValueError.Error",
+     "golang.org/x/net/http2.netHTTPClientConn.Close",
+     "golang.org/x/net/http2.netHTTPClientConn.RoundTrip",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.outflow.add",
+     "golang.org/x/net/http2.outflow.available",
+     "golang.org/x/net/http2.outflow.setConnFlow",
+     "golang.org/x/net/http2.outflow.take",
+     "golang.org/x/net/http2.pipe.Read",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.CloseStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.OpenStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.Pop",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC9218.OpenStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC9218.Pop",
+     "golang.org/x/net/http2.pseudoHeaderError.Error",
+     "golang.org/x/net/http2.randomWriteScheduler.Pop",
+     "golang.org/x/net/http2.requestBody.Close",
+     "golang.org/x/net/http2.requestBody.Read",
+     "golang.org/x/net/http2.responseWriter.Flush",
+     "golang.org/x/net/http2.responseWriter.FlushError",
+     "golang.org/x/net/http2.responseWriter.Push",
+     "golang.org/x/net/http2.responseWriter.SetReadDeadline",
+     "golang.org/x/net/http2.responseWriter.SetWriteDeadline",
+     "golang.org/x/net/http2.responseWriter.Write",
+     "golang.org/x/net/http2.responseWriter.WriteHeader",
+     "golang.org/x/net/http2.responseWriter.WriteString",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.Pop",
+     "golang.org/x/net/http2.serverConn.CloseConn",
+     "golang.org/x/net/http2.serverConn.Flush",
+     "golang.org/x/net/http2.serverConn.newStream",
+     "golang.org/x/net/http2.serverConn.processSettingInitialWindowSize",
+     "golang.org/x/net/http2.serverConn.processWindowUpdate",
+     "golang.org/x/net/http2.serverConn.scheduleFrameWrite",
+     "golang.org/x/net/http2.stickyErrWriter.Write",
+     "golang.org/x/net/http2.transportResponseBody.Close",
+     "golang.org/x/net/http2.transportResponseBody.Read",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip",
+     "golang.org/x/net/http2.writeData.String"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.60.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (http2) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#28",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-78663",
+      "BIT-golang-2026-78663",
+      "GO-2026-6612"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "Double flow control refund on HTTP/2 server streams in net/http \u2014 The HTTP/2 server can refund connection-level flow control twice for the same data: Once when a client resets a stream (refunding data for any sent-but-unread portion of the stream), and again when a request handler reads the buffered data. A malicious client can exploit this to bypass the configured connection-level flow control limit (MaxReceiveBufferPerConnection). Total buffered data is still limited by the concurrent stream limit and stream-level flow control.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.ClientConn.Close",
+     "golang.org/x/net/http2.ClientConn.Ping",
+     "golang.org/x/net/http2.ClientConn.RoundTrip",
+     "golang.org/x/net/http2.ClientConn.Shutdown",
+     "golang.org/x/net/http2.ConfigureServer",
+     "golang.org/x/net/http2.ConfigureTransport",
+     "golang.org/x/net/http2.ConfigureTransports",
+     "golang.org/x/net/http2.ConnectionError.Error",
+     "golang.org/x/net/http2.ErrCode.String",
+     "golang.org/x/net/http2.FrameHeader.String",
+     "golang.org/x/net/http2.FrameType.String",
+     "golang.org/x/net/http2.FrameWriteRequest.String",
+     "golang.org/x/net/http2.Framer.ReadFrame",
+     "golang.org/x/net/http2.Framer.ReadFrameForHeader",
+     "golang.org/x/net/http2.Framer.ReadFrameHeader",
+     "golang.org/x/net/http2.Framer.WriteContinuation",
+     "golang.org/x/net/http2.Framer.WriteData",
+     "golang.org/x/net/http2.Framer.WriteDataPadded",
+     "golang.org/x/net/http2.Framer.WriteGoAway",
+     "golang.org/x/net/http2.Framer.WriteHeaders",
+     "golang.org/x/net/http2.Framer.WritePing",
+     "golang.org/x/net/http2.Framer.WritePriority",
+     "golang.org/x/net/http2.Framer.WritePriorityUpdate",
+     "golang.org/x/net/http2.Framer.WritePushPromise",
+     "golang.org/x/net/http2.Framer.WriteRSTStream",
+     "golang.org/x/net/http2.Framer.WriteRawFrame",
+     "golang.org/x/net/http2.Framer.WriteSettings",
+     "golang.org/x/net/http2.Framer.WriteSettingsAck",
+     "golang.org/x/net/http2.Framer.WriteWindowUpdate",
+     "golang.org/x/net/http2.GoAwayError.Error",
+     "golang.org/x/net/http2.ReadFrameHeader",
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.Setting.String",
+     "golang.org/x/net/http2.SettingID.String",
+     "golang.org/x/net/http2.SettingsFrame.ForeachSetting",
+     "golang.org/x/net/http2.StreamError.Error",
+     "golang.org/x/net/http2.Transport.CloseIdleConnections",
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.bufferedWriter.Flush",
+     "golang.org/x/net/http2.bufferedWriter.Write",
+     "golang.org/x/net/http2.bufferedWriterTimeoutWriter.Write",
+     "golang.org/x/net/http2.chunkWriter.Write",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.connError.Error",
+     "golang.org/x/net/http2.dataBuffer.Read",
+     "golang.org/x/net/http2.duplicatePseudoHeaderError.Error",
+     "golang.org/x/net/http2.gzipReader.Close",
+     "golang.org/x/net/http2.gzipReader.Read",
+     "golang.org/x/net/http2.headerFieldNameError.Error",
+     "golang.org/x/net/http2.headerFieldValueError.Error",
+     "golang.org/x/net/http2.netHTTPClientConn.Close",
+     "golang.org/x/net/http2.netHTTPClientConn.RoundTrip",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.pipe.Read",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.CloseStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.OpenStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC9218.OpenStream",
+     "golang.org/x/net/http2.pseudoHeaderError.Error",
+     "golang.org/x/net/http2.requestBody.Close",
+     "golang.org/x/net/http2.requestBody.Read",
+     "golang.org/x/net/http2.responseWriter.Flush",
+     "golang.org/x/net/http2.responseWriter.FlushError",
+     "golang.org/x/net/http2.responseWriter.Push",
+     "golang.org/x/net/http2.responseWriter.SetReadDeadline",
+     "golang.org/x/net/http2.responseWriter.SetWriteDeadline",
+     "golang.org/x/net/http2.responseWriter.Write",
+     "golang.org/x/net/http2.responseWriter.WriteHeader",
+     "golang.org/x/net/http2.responseWriter.WriteString",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.serverConn.CloseConn",
+     "golang.org/x/net/http2.serverConn.Flush",
+     "golang.org/x/net/http2.serverConn.closeStream",
+     "golang.org/x/net/http2.serverConn.handlerDone",
+     "golang.org/x/net/http2.serverConn.newWriterAndRequest",
+     "golang.org/x/net/http2.serverConn.newWriterAndRequestNoBody",
+     "golang.org/x/net/http2.serverConn.noteBodyRead",
+     "golang.org/x/net/http2.serverConn.processHeaders",
+     "golang.org/x/net/http2.serverConn.runHandler",
+     "golang.org/x/net/http2.serverConn.scheduleHandler",
+     "golang.org/x/net/http2.stickyErrWriter.Write",
+     "golang.org/x/net/http2.transportResponseBody.Close",
+     "golang.org/x/net/http2.transportResponseBody.Read",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip",
+     "golang.org/x/net/http2.writeData.String"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.60.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (http2) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  },
+  {
+   "kind": "keep",
+   "pr": "local/real-go-test-bench#29",
+   "facts": {
+    "package": "golang.org/x/net",
+    "version": "v0.0.0-20220127200216-cd36cc0744dd",
+    "ecosystem": "go",
+    "is_go": false,
+    "advisories": [
+     [
+      "CVE-2026-97032",
+      "BIT-golang-2026-97032",
+      "GO-2026-6617"
+     ],
+     [
+      "golang.org/x/net"
+     ]
+    ],
+    "advisory_summary": "HTTP/2 server crash due to HPACK encoder race in net/http \u2014 HTTP/2 servers could end up crashing due to inadvertently modifying its HPACK encoder concurrently. This happens because the server modifies the HPACK encoder from two goroutines without synchronization: one uses the encoder to encode a HEADERS frame as part of a response sent to a client and the other modifies the encoder's table size when handling a SETTINGS frame containing SETTINGS_HEADER_TABLE_SIZE that a client sends. A malicious client can repeatedly send a request while changing the header table size to crash the server.",
+    "vuln_symbols": [
+     "golang.org/x/net/http2.ClientConn.Close",
+     "golang.org/x/net/http2.ClientConn.Ping",
+     "golang.org/x/net/http2.ClientConn.RoundTrip",
+     "golang.org/x/net/http2.ClientConn.Shutdown",
+     "golang.org/x/net/http2.ConfigureServer",
+     "golang.org/x/net/http2.ConfigureTransport",
+     "golang.org/x/net/http2.ConfigureTransports",
+     "golang.org/x/net/http2.ConnectionError.Error",
+     "golang.org/x/net/http2.ErrCode.String",
+     "golang.org/x/net/http2.FrameHeader.String",
+     "golang.org/x/net/http2.FrameType.String",
+     "golang.org/x/net/http2.FrameWriteRequest.String",
+     "golang.org/x/net/http2.Framer.ReadFrame",
+     "golang.org/x/net/http2.Framer.ReadFrameForHeader",
+     "golang.org/x/net/http2.Framer.ReadFrameHeader",
+     "golang.org/x/net/http2.Framer.WriteContinuation",
+     "golang.org/x/net/http2.Framer.WriteData",
+     "golang.org/x/net/http2.Framer.WriteDataPadded",
+     "golang.org/x/net/http2.Framer.WriteGoAway",
+     "golang.org/x/net/http2.Framer.WriteHeaders",
+     "golang.org/x/net/http2.Framer.WritePing",
+     "golang.org/x/net/http2.Framer.WritePriority",
+     "golang.org/x/net/http2.Framer.WritePriorityUpdate",
+     "golang.org/x/net/http2.Framer.WritePushPromise",
+     "golang.org/x/net/http2.Framer.WriteRSTStream",
+     "golang.org/x/net/http2.Framer.WriteRawFrame",
+     "golang.org/x/net/http2.Framer.WriteSettings",
+     "golang.org/x/net/http2.Framer.WriteSettingsAck",
+     "golang.org/x/net/http2.Framer.WriteWindowUpdate",
+     "golang.org/x/net/http2.GoAwayError.Error",
+     "golang.org/x/net/http2.ReadFrameHeader",
+     "golang.org/x/net/http2.Server.ServeConn",
+     "golang.org/x/net/http2.Setting.String",
+     "golang.org/x/net/http2.SettingID.String",
+     "golang.org/x/net/http2.SettingsFrame.ForeachSetting",
+     "golang.org/x/net/http2.StreamError.Error",
+     "golang.org/x/net/http2.Transport.CloseIdleConnections",
+     "golang.org/x/net/http2.Transport.NewClientConn",
+     "golang.org/x/net/http2.Transport.RoundTrip",
+     "golang.org/x/net/http2.Transport.RoundTripOpt",
+     "golang.org/x/net/http2.bufferedWriter.Flush",
+     "golang.org/x/net/http2.bufferedWriter.Write",
+     "golang.org/x/net/http2.bufferedWriterTimeoutWriter.Write",
+     "golang.org/x/net/http2.chunkWriter.Write",
+     "golang.org/x/net/http2.clientConnPool.GetClientConn",
+     "golang.org/x/net/http2.connError.Error",
+     "golang.org/x/net/http2.dataBuffer.Read",
+     "golang.org/x/net/http2.duplicatePseudoHeaderError.Error",
+     "golang.org/x/net/http2.gzipReader.Close",
+     "golang.org/x/net/http2.gzipReader.Read",
+     "golang.org/x/net/http2.headerFieldNameError.Error",
+     "golang.org/x/net/http2.headerFieldValueError.Error",
+     "golang.org/x/net/http2.netHTTPClientConn.Close",
+     "golang.org/x/net/http2.netHTTPClientConn.RoundTrip",
+     "golang.org/x/net/http2.noDialClientConnPool.GetClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.NewClientConn",
+     "golang.org/x/net/http2.noDialH2RoundTripper.RoundTrip",
+     "golang.org/x/net/http2.pipe.Read",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.CloseStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC7540.OpenStream",
+     "golang.org/x/net/http2.priorityWriteSchedulerRFC9218.OpenStream",
+     "golang.org/x/net/http2.pseudoHeaderError.Error",
+     "golang.org/x/net/http2.requestBody.Close",
+     "golang.org/x/net/http2.requestBody.Read",
+     "golang.org/x/net/http2.responseWriter.Flush",
+     "golang.org/x/net/http2.responseWriter.FlushError",
+     "golang.org/x/net/http2.responseWriter.Push",
+     "golang.org/x/net/http2.responseWriter.SetReadDeadline",
+     "golang.org/x/net/http2.responseWriter.SetWriteDeadline",
+     "golang.org/x/net/http2.responseWriter.Write",
+     "golang.org/x/net/http2.responseWriter.WriteHeader",
+     "golang.org/x/net/http2.responseWriter.WriteString",
+     "golang.org/x/net/http2.roundRobinWriteScheduler.OpenStream",
+     "golang.org/x/net/http2.serverConn.CloseConn",
+     "golang.org/x/net/http2.serverConn.Flush",
+     "golang.org/x/net/http2.serverConn.processSetting",
+     "golang.org/x/net/http2.serverConn.startFrameWrite",
+     "golang.org/x/net/http2.stickyErrWriter.Write",
+     "golang.org/x/net/http2.transportResponseBody.Close",
+     "golang.org/x/net/http2.transportResponseBody.Read",
+     "golang.org/x/net/http2.unencryptedTransport.RoundTrip",
+     "golang.org/x/net/http2.writeData.String"
+    ],
+    "vuln_symbols_source": "go-vulndb-imports",
+    "fixed": [
+     "0.60.0"
+    ],
+    "severity": "",
+    "direct": true,
+    "dev": false,
+    "malicious": false,
+    "suspected_malicious": false,
+    "malware_hints": [],
+    "malware_check": {
+     "verdict": "vulnerability",
+     "confidence": 1.0
+    }
+   },
+   "expect": {
+    "reachability": "not_reachable",
+    "note": "The only golang.org/x/net package imported anywhere in the app is golang.org/x/net/netutil (cmd/go-swagger/restapi/server.go:25, LimitListener at :205/:235), which is not affected. No other module in the build graph (gin v1.7.4, chi v1.5.4, go-openapi/*, gin-contrib/multitemplate, httprouter) imports x/net in non-test code; the servers use stdlib net/http (cmd/std/app.go:22, cmd/chi/app.go:22, gin router.Run at cmd/gin/app.go:36, swagger httpServer.Serve at server.go:221/314), whose bundled HTTP/2 is not x/net. The vulnerable symbols (http2) are therefore never linked.",
+    "confidence": "high",
+    "labelled_by": "claude-opus code read 2026-10-18 (blind: before any judge run; agent-labelled)"
+   }
+  }
+ ]
+}
