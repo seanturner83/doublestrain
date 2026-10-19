@@ -784,6 +784,80 @@ def test_spec_connects_guard_v2(tmp_path):
     assert spec_connects(q, direct_only, srcs) == ""                               # tooling-only route
 
 
+def test_a_clearance_needs_evidence(tmp_path, monkeypatch):
+    """A spec's "doesn't reach" for a parent counts only when the parent's source never
+    imports the route, or a follow-up read cited every file where it does."""
+    from ssvc_triage.judges import split
+    split._app_imports.cache_clear()
+    split.route_uses.cache_clear()
+    monkeypatch.setenv("SSVC_SPEC_CACHE", str(tmp_path / "specs"))
+    repo = tmp_path / "app"
+    repo.mkdir()
+    (repo / "a.js").write_text("const mongoose = require('mongoose');\n")
+    (repo / "package-lock.json").write_text(json.dumps({"lockfileVersion": 3, "packages": {
+        "": {"dependencies": {"mongoose": "4"}},
+        "node_modules/mongoose": {"version": "4.2.4", "dependencies": {"mongodb": "2"}},
+        "node_modules/mongodb": {"version": "2.0.46", "dependencies": {"bson": "0.4"}},
+        "node_modules/bson": {"version": "0.4.23"}}}))
+    dirs = {n: tmp_path / "src" / n for n in ("bson", "mongoose", "mongodb")}
+    for d in dirs.values():
+        d.mkdir(parents=True)
+    (dirs["bson"] / "index.js").write_text("module.exports = function serialize(o) { return o; };\n")
+    (dirs["mongoose"] / "lib.js").write_text("const mongodb = require('mongodb');\nmodule.exports = mongodb.connect;\n")
+    (dirs["mongoose"] / "test/x.test.js").parent.mkdir()
+    (dirs["mongoose"] / "test/x.test.js").write_text("require('bson')\n")       # tests don't count
+    srcs = [("bson@0.4.23", dirs["bson"]), ("mongoose@4.2.4", dirs["mongoose"]), ("mongodb@2.0.46", dirs["mongodb"])]
+    q = ReachQuery(repo_path=str(repo), ecosystem="npm", dependency="bson", version="0.4.23", cve="CVE-X")
+    spec = {"triggers": [{"package": "bson@0.4.23", "entry": "serialize"}],
+            "parents": [{"package": "mongoose", "reaches": False, "how": "never serializes request data"}]}
+    assert split.clear_needs(q, spec, srcs) == {"mongoose": ("lib.js",)}
+    assert "clears mongoose without checked evidence (mongoose imports the route in lib.js)" in split.spec_connects(q, spec, srcs)
+    # backed by its own source: the parent never imports the route
+    (dirs["mongoose"] / "lib.js").write_text("module.exports = {};\n")
+    split.route_uses.cache_clear()
+    assert split.spec_connects(q, spec, srcs) == ""
+    (dirs["mongoose"] / "lib.js").write_text("const mongodb = require('mongodb');\nmodule.exports = mongodb.connect;\n")
+    split.route_uses.cache_clear()
+    # the follow-up read: cites lib.js (checked against the file) -> backed, saved in the spec
+    step = {"path": "mongoose@4.2.4/lib.js", "line": 1, "quote": "const mongodb = require('mongodb');"}
+    monkeypatch.setenv("SSVC_CLAUDE_BIN", _fake_claude(tmp_path, {
+        "type": "result", "total_cost_usd": 0.03, "structured_output": {"parents": [
+            {"package": "mongoose", "reaches": False, "how": "connect only", "trace": [step]}]}}))
+    why, cost = split.connects(q, spec, srcs, "sonnet", 30)
+    assert why == "" and cost == 0.03 and spec["clears"]["mongoose"]["backed"]
+    assert "every listed file" in json.loads((tmp_path / "argv.json").read_text())["stdin"]
+    saved = json.loads(split._spec_path(q, srcs, "sonnet").read_text())
+    assert saved["clears"]["mongoose"]["verified"] == ["mongoose@4.2.4/lib.js:1"]
+    # a citation that doesn't check out leaves it unbacked; asked once, not again
+    del spec["clears"]
+    monkeypatch.setenv("SSVC_CLAUDE_BIN", _fake_claude(tmp_path, {
+        "type": "result", "structured_output": {"parents": [
+            {"package": "mongoose", "reaches": False, "how": "x", "trace": [{**step, "line": 2, "quote": "made up"}]}]}}))
+    why, _ = split.connects(q, spec, srcs, "sonnet", 30)
+    assert "without checked evidence" in why and spec["clears"]["mongoose"]["missing"] == ["lib.js"]
+    (tmp_path / "argv.json").unlink()
+    assert "without checked evidence" in split.connects(q, spec, srcs, "sonnet", 30)[0]
+    assert not (tmp_path / "argv.json").exists()
+    # the follow-up says it does reach, with a checked step: it becomes a via-parent trigger
+    del spec["clears"]
+    monkeypatch.setenv("SSVC_CLAUDE_BIN", _fake_claude(tmp_path, {
+        "type": "result", "structured_output": {"parents": [
+            {"package": "mongoose", "reaches": True, "how": "Model.find serializes the query", "trace": [step]}]}}))
+    why, _ = split.connects(q, spec, srcs, "sonnet", 30)
+    assert why == "" and spec["parents"][0]["reaches"] and spec["parents"][0]["revised"] == "spec-clears"
+    assert any(t.get("from_parent_claim") for t in split.with_parent_triggers(spec)["triggers"])
+
+
+def test_cached_not_reachable_is_rechecked(tmp_path, monkeypatch):
+    inner = _Fixed("split", JudgeResult(Verdict.NOT_REACHABLE, 0.95, "split"))
+    inner.recheck = lambda q, r: JudgeResult(Verdict.UNSURE, r.confidence, r.source, rationale="rechecked", cached=r.cached)
+    cj = CachedJudge(inner, cache_dir=str(tmp_path))
+    q = ReachQuery(str(tmp_path), "npm", "x", "CVE-1")
+    assert cj.judge(q).verdict == Verdict.NOT_REACHABLE                   # fresh: the judge applied its guard
+    r = cj.judge(q)                                                         # cached: the guard as it is now
+    assert r.cached and r.verdict == Verdict.UNSURE and inner.calls == 1
+
+
 def test_local_module_use_sites_follow_app_wrappers(tmp_path):
     from ssvc_triage.judges.local import local_module_use_sites
     (tmp_path / "src" / "models").mkdir(parents=True)

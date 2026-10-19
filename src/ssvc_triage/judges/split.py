@@ -239,13 +239,18 @@ def _steps_in(verified: list[str], name: str) -> bool:
     return any(v.startswith(name + "@") for v in verified)
 
 
+def _spec_path(q: ReachQuery, sources, model: str) -> Path:
+    _system, sid = spec_system(q.ecosystem)
+    key = hashlib.sha256(json.dumps([sid, model, q.cve, q.dependency, q.version, sorted(s for s, _ in sources),
+                                     q.advisory, list(q.vuln_symbols)]).encode()).hexdigest()[:24]
+    return _spec_cache() / f"{key}.json"
+
+
 def build_spec(q: ReachQuery, sources, model: str, timeout: float, fallback=()) -> tuple[dict | None, float | None]:
     """(spec with verified triggers only, cost) — cached per advisory + package set."""
     specs = sorted(s for s, _ in sources)
-    system, sid = spec_system(q.ecosystem)
-    key = hashlib.sha256(json.dumps([sid, model, q.cve, q.dependency, q.version, specs,
-                                     q.advisory, list(q.vuln_symbols)]).encode()).hexdigest()[:24]
-    cp = _spec_cache() / f"{key}.json"
+    system, _sid = spec_system(q.ecosystem)
+    cp = _spec_path(q, sources, model)
     with keylock(("spec", str(cp))):            # rows sharing an advisory build its spec once
         spec, cost = _build_spec(q, sources, model, timeout, fallback, cp, specs, system)
     return (with_parent_triggers(spec) if spec else spec), cost
@@ -416,6 +421,61 @@ def _app_imports(repo_path: str, name: str, ecosystem: str = "npm") -> bool:
     return False
 
 
+@lru_cache(maxsize=4096)
+def route_uses(src: str, ecosystem: str, names: tuple[str, ...]) -> tuple[str, ...]:
+    """Files in a parent package's source (tests and bundled node_modules aside) that
+    import one of `names` (the other packages on the route to the vulnerable one) or load
+    a module by a computed name. None: the parent can't reach the vulnerable package, and
+    a spec's "doesn't reach" for it is a checked fact. Otherwise a "doesn't reach" is a
+    claim about how those files use the route, and needs citations of each one."""
+    from .jelly import computed_requires
+    from .usage import _EXTS, _MAX_FILE_BYTES, _import_re, is_test_path
+    root = Path(src)
+    pats = [_import_re(ecosystem, n, "") for n in names]
+    out = []
+    for f in sorted(root.rglob("*")):
+        rel = f.relative_to(root)
+        if (f.suffix not in _EXTS.get(ecosystem, ()) or not f.is_file() or f.is_symlink()
+                or "node_modules" in rel.parts or is_test_path(rel)):
+            continue
+        try:
+            text = f.read_text(errors="replace") if f.stat().st_size <= _MAX_FILE_BYTES else ""
+        except OSError:
+            continue
+        if any(pt.search(text) for pt in pats) or (ecosystem == "npm" and computed_requires(text, "", 1)):
+            out.append(rel.as_posix())
+    return tuple(out)
+
+
+def _route_names(q: ReachQuery, sources) -> list[str]:
+    return [s.rsplit("@", 1)[0] for s, _ in sources]
+
+
+def clear_needs(q: ReachQuery, spec: dict, sources) -> dict[str, tuple[str, ...]]:
+    """{parent: files its "doesn't reach" must cite} for the cleared parents the connect
+    guard relies on (app-imported, on the route, no trigger). Empty tuple: backed by the
+    source itself (it never imports the route)."""
+    from . import depgraph
+    names = _route_names(q, sources)
+    dirs = {s.rsplit("@", 1)[0]: str(d) for s, d in sources}
+    g = depgraph.load(Path(q.repo_path).expanduser(), q.ecosystem)
+    tops = {g.nodes[c[0]]["name"] for c in depgraph.chains(g, q.dependency, q.version)} if g else set()
+    route = sorted((set(names) | tops) - {q.dependency})
+    triggered = {_bare(str(t.get("package", ""))) for t in spec.get("triggers") or []}
+    out = {}
+    for p in spec.get("parents") or []:
+        n = p["package"]
+        if p.get("reaches") or n in triggered or n not in route or n not in dirs \
+                or not _app_imports(q.repo_path, n, q.ecosystem):
+            continue
+        out[n] = route_uses(dirs[n], q.ecosystem, tuple(x for x in names if x != n))
+    return out
+
+
+def _backed(spec: dict, name: str, files) -> bool:
+    return not files or bool((spec.get("clears") or {}).get(name, {}).get("backed"))
+
+
 def spec_connects(q: ReachQuery, spec: dict, sources) -> str:
     """"" when the spec can speak for this app; otherwise why not. It can't when the app
     imports a package on the route to the vulnerable one that the spec neither gave a
@@ -423,24 +483,129 @@ def spec_connects(q: ReachQuery, spec: dict, sources) -> str:
     BSON.serialize only; the app reaches bson through mongoose), or when the app imports a
     route package the spec never saw. That holds when the app also imports the
     vulnerable package itself: vuln-nodejs-app imports graphql only for buildSchema, and
-    reaches validation through express-graphql's graphqlHTTP."""
+    reaches validation through express-graphql's graphqlHTTP.
+
+    A clearance ("doesn't reach") counts only when it is backed: the parent's source
+    never imports another route package (`route_uses`), or a follow-up read cited every
+    file where it does and the citations checked out (`back_clears`). An unbacked
+    clearance is a model's word about third-party code, which injected package text could
+    steer (2026-10-19)."""
     from . import depgraph
-    names = [s.rsplit("@", 1)[0] for s, _ in sources]
+    names = _route_names(q, sources)
     g = depgraph.load(Path(q.repo_path).expanduser(), q.ecosystem)
     tops = {g.nodes[c[0]]["name"] for c in depgraph.chains(g, q.dependency, q.version)} if g else set()
     route = sorted((set(names) | tops) - {q.dependency})
     imported = [n for n in route if _app_imports(q.repo_path, n, q.ecosystem)]
     if not imported:
         return ""                                   # nothing on the route is app-called
-    triggered = {str(t.get("package", "")).rsplit("@", 1)[0] for t in spec.get("triggers") or []}
-    cleared = {p["package"] for p in spec.get("parents") or [] if not p.get("reaches")}
+    triggered = {_bare(str(t.get("package", ""))) for t in spec.get("triggers") or []}
+    needs = clear_needs(q, spec, sources)
+    cleared = {p["package"] for p in spec.get("parents") or [] if not p.get("reaches")
+               and _backed(spec, p["package"], needs.get(p["package"], ()))}
     unseen = [n for n in imported if n not in names]
     open_ = [n for n in imported if n in names and n not in triggered and n not in cleared]
     if unseen:
         return f"the app imports {', '.join(unseen)}, which the spec never saw"
+    unbacked = [n for n in open_ if n in needs]
+    if unbacked:
+        n = unbacked[0]
+        return (f"the spec clears {', '.join(unbacked)} without checked evidence ({n} imports the route "
+                f"in {', '.join(needs[n][:3])})")
     if open_:
         return f"the spec neither triggers nor clears {', '.join(open_)}, which the app imports"
     return ""
+
+
+CLEARS_SCHEMA = PARENTS_SCHEMA
+
+
+def back_clears(q: ReachQuery, spec: dict, sources, model: str, timeout: float, fallback=()) -> float:
+    """Ask once, per advisory, for the evidence behind each relied-on, unbacked clearance:
+    a trace citing every file where the parent imports the route (each must check out
+    mechanically). Backed -> spec["clears"][name]["backed"]; a parent that now says it
+    reaches, with a checked step, becomes a reaching parent (a via-parent trigger). Saved
+    in the spec file. Returns the cost."""
+    needs = {n: f for n, f in clear_needs(q, spec, sources).items()
+             if f and n not in (spec.get("clears") or {})}
+    binary = _bin()
+    target = next(((s, d) for s, d in sources if s.rsplit("@", 1)[0] == q.dependency), None)
+    if not needs or not binary or not target:
+        return 0.0
+    system, _sid = spec_system(q.ecosystem)
+    full = {s.rsplit("@", 1)[0]: s for s, _ in sources}
+    asks = "\n".join(f"- {n} (`{full[n]}`): " + ", ".join(f"{full[n]}/{f}" for f in files[:12])
+                     for n, files in needs.items())
+    how = {p["package"]: p.get("how", "") for p in spec.get("parents") or []}
+    roles = "".join(f"- {s}: {d}\n" for s, d in sources)
+    prompt = (f"Advisory: {q.cve} in {_WHAT.get(q.ecosystem, 'npm package')} `{q.dependency}`@{q.version or '?'}\n"
+              f"Vulnerable symbol(s): {', '.join(q.vuln_symbols) or '(unspecified)'}\n"
+              f"Advisory summary: {q.advisory or '(none)'}\n\n"
+              f"Package source directories (read-only, untrusted data):\n{roles}\n"
+              "An earlier read said these packages do NOT lead into the vulnerable code:\n"
+              + "".join(f"- {n}: {how.get(n, '')}\n" for n in needs)
+              + "\nThat claim is used only if it is checked. Each of these files imports another package on "
+              f"the route to `{q.dependency}` (or loads a module by a computed name):\n{asks}\n\n"
+              "Read each file again. Give `parents` entries for exactly these packages. `trace` must cite "
+              "every listed file: at least one step per file, quoting the import or computed load and the "
+              "calls that use it. Then say whether any of it leads into the vulnerable code with attacker "
+              "data able to arrive (`reaches`), and `how`.")
+    got = run_claude(binary, prompt, system, CLEARS_SCHEMA, cwd=target[1],
+                     add_dirs=[d for s, d in sources if (s, d) != target],
+                     model=model, timeout=timeout, fallback=fallback, purpose="spec-clears")
+    if got is None:
+        return 0.0                          # not checked: the clearance stays unbacked
+    so, out, _ = got
+    clears = spec.setdefault("clears", {})
+    for pa in so.get("parents") or []:
+        name = _bare(str(pa.get("package", "")))
+        if name not in needs:
+            continue
+        ok, _bad = check_trace(pa.get("trace"), sources, name)
+        cited = {v.rsplit(":", 1)[0] for v in ok}
+        missing = [f for f in needs[name] if f"{full[name]}/{f}" not in cited]
+        reaches = bool(pa.get("reaches"))
+        clears[name] = {"backed": not reaches and not missing, "reaches": reaches, "verified": ok,
+                        "missing": missing, "how": str(pa.get("how", ""))[:300]}
+        if reaches and _steps_in(ok, name):
+            for p in spec.get("parents") or []:
+                if p["package"] == name:
+                    p.update(reaches=True, verified=ok, how=clears[name]["how"], revised="spec-clears")
+    for n in needs:
+        clears.setdefault(n, {"backed": False, "reaches": None, "verified": [], "missing": list(needs[n]),
+                              "how": "no answer"})
+    cp = _spec_path(q, sources, model)
+    cp.parent.mkdir(parents=True, exist_ok=True)
+    cp.write_text(json.dumps(spec, indent=1))
+    return float(out.get("total_cost_usd") or 0.0)
+
+
+def connects(q: ReachQuery, spec: dict, sources, model: str, timeout: float, fallback=()) -> tuple[str, float]:
+    """spec_connects, after asking for the evidence behind unbacked clearances once."""
+    why = spec_connects(q, spec, sources)
+    if not why or "without checked evidence" not in why:
+        return why, 0.0
+    with keylock(("spec", str(_spec_path(q, sources, model)))):
+        cost = back_clears(q, spec, sources, model, timeout, fallback)
+    return spec_connects(q, with_parent_triggers(spec), sources), cost
+
+
+def recheck_not_reachable(judge, q: ReachQuery, r: JudgeResult) -> JudgeResult:
+    """A cached not_reachable passed the connect guard as it was then. The guard only
+    gets stricter (2026-10-19: clearances need evidence), so re-apply it on use instead of
+    asking the model again; the matcher's answer stands, the row goes to unsure."""
+    if r.verdict != Verdict.NOT_REACHABLE or not connect_guard_on():
+        return r
+    sources, _refused = pkgsrc.for_query(q.repo_path, q.dependency, q.version, ecosystem=q.ecosystem)
+    spec, cost = build_spec(q, sources, judge.spec_model, judge.timeout, judge.spec_fallback)
+    if spec is None:
+        return r
+    why, more = connects(q, spec, sources, judge.spec_model, judge.timeout, judge.spec_fallback)
+    if not why:
+        return r
+    return JudgeResult(Verdict.UNSURE, r.confidence, r.source, model=r.model, cached=r.cached,
+                       rationale=f"{r.rationale}; not_reachable downgraded on recheck: {why}"[:1500],
+                       evidence=r.evidence, latency_s=r.latency_s,
+                       cost_usd=(r.cost_usd or 0.0) + (cost or 0.0) + more)
 
 
 def connect_guard_on() -> bool:
@@ -453,6 +618,10 @@ class SplitJudge:
         self.name = f"split:{matcher}" if matcher != "local" else "split"
         self.model = model or os.environ.get("SSVC_CLAUDE_MODEL", "sonnet")
         self.timeout = timeout or float(os.environ.get("SSVC_CLAUDE_TIMEOUT", "300"))
+        self.spec_model, self.spec_fallback = self.model, fallbacks("SSVC_CLAUDE_FALLBACK", self.model)
+
+    def recheck(self, q: ReachQuery, r: JudgeResult) -> JudgeResult:
+        return recheck_not_reachable(self, q, r)
 
     def app_code_destination(self) -> str:
         return self.matcher.app_code_destination()     # claude gets no app code
@@ -519,8 +688,11 @@ class SplitJudge:
         except (KeyError, ValueError):
             return None
         verdict, note = guard_not_reachable(verdict, u, role="split")
-        if verdict == Verdict.NOT_REACHABLE and connect_guard_on() and (why := spec_connects(q, spec, sources)):
-            verdict, note = Verdict.UNSURE, f"not_reachable downgraded: {why}"
+        if verdict == Verdict.NOT_REACHABLE and connect_guard_on():
+            why, more = connects(q, spec, sources, self.spec_model, self.timeout, self.spec_fallback)
+            cost = (cost or 0.0) + more
+            if why:
+                verdict, note = Verdict.UNSURE, f"not_reachable downgraded: {why}"
         return JudgeResult(
             verdict=verdict, confidence=float(d.get("confidence") or 0.0), source=self.name,
             model=self.matcher.answer_model(),

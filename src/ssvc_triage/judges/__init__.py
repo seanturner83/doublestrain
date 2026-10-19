@@ -167,6 +167,8 @@ class CachedJudge:
                 r.cached = True
                 if not r.model and (am := getattr(self.inner, "answer_model", None)):
                     r.model = am()      # older entries: the model is in this cache key
+                if rc := getattr(self.inner, "recheck", None):
+                    r = rc(q, r)        # a guard that got stricter since this answer was cached
                 return r
             except (ValueError, TypeError, KeyError):
                 pass

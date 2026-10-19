@@ -441,6 +441,37 @@ correctly than Sonnet (with fewer `unsure`), but it reports lower confidence (mo
 six-app run, raised to 0.85 after all10-r5 (at 0.80: 20 right, 2 wrong; at >= 0.85: 135
 right, 0 wrong).
 
+### The connect guard, and evidence for "doesn't reach"
+
+A spec describes the vulnerable package's entry points; the app may reach it through a
+parent instead (mongoose -> mongodb -> bson). Before split or shape settles
+not_reachable, the connect guard checks every route package the app imports: the spec
+must give it a trigger or clear it in `parents` ("doesn't reach"), or the answer is
+`unsure` (`SSVC_SPLIT_CONNECT_GUARD=0` turns the guard off).
+
+Since 2026-10-19 a clearance counts only when it is backed. A clearance is a model's word
+about third-party code, and injected package text could steer it:
+
+- backed by the source: the parent never imports another route package, and has no
+  computed `require` (`split.route_uses`);
+- otherwise a follow-up read (purpose `spec-clears`, once per advisory, saved in the
+  spec) must cite every file where the parent imports the route. Each citation is
+  checked against the file. If the read now says the parent reaches, with a checked
+  step, the parent becomes a via-parent trigger.
+
+Cached split/shape not_reachables are rechecked under the current guard when read
+(`recheck`), so a stricter guard needs no new matcher calls. On r10's answers, 460 of the
+685 rows split/shape settled not_reachable stay settled; 225 rest on an unbacked
+clearance and wait for that follow-up read on the next run (186 calls).
+
+### Which installed copy
+
+When several versions of a package are installed, the usage pre-pass (and shape's
+prompt) lists each copy, the packages that require it, and which copy a bare import in
+the app loads. App import sites are evidence only for that copy. The 2026-10-18 label
+review found the models' commonest error was reasoning about the wrong copy. Only rows
+with a note (579 of 1,497 npm rows) get a new cache key.
+
 ## Backends
 
 | Judge | Needs |

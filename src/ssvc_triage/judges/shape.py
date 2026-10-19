@@ -45,7 +45,7 @@ from pathlib import Path
 from .. import pkgsrc
 from .base import JudgeResult, ReachQuery, Verdict
 from .claude_code import SCHEMA as VERDICT_SCHEMA, _bin, fallbacks, refusal_note, run_claude
-from .split import SPEC_ID, _entry_tokens, build_spec, connect_guard_on, spec_connects
+from .split import SPEC_ID, _entry_tokens, build_spec, connect_guard_on, connects, recheck_not_reachable
 from .usage import PREPASS_VERSION, _EXTS, _MAX_FILE_BYTES, _iter_files, guard_not_reachable, is_test_path, \
     usage_summary
 
@@ -1182,6 +1182,9 @@ class ShapeJudge:
         self.spec_fallback = fallbacks("SSVC_CLAUDE_FALLBACK", self.spec_model)
         self.timeout = timeout or float(os.environ.get("SSVC_CLAUDE_TIMEOUT", "300"))
 
+
+    def recheck(self, q: ReachQuery, r: JudgeResult) -> JudgeResult:
+        return recheck_not_reachable(self, q, r)
     def app_code_destination(self) -> str:
         return "shape"            # derived call shapes go offsite; app source does not
 
@@ -1240,8 +1243,11 @@ class ShapeJudge:
         except (KeyError, ValueError):
             return None
         verdict, note = guard_not_reachable(verdict, u)
-        if verdict == Verdict.NOT_REACHABLE and connect_guard_on() and (why := spec_connects(q, spec, sources)):
-            verdict, note = Verdict.UNSURE, f"not_reachable downgraded: {why}"
+        if verdict == Verdict.NOT_REACHABLE and connect_guard_on():
+            why, more = connects(q, spec, sources, self.spec_model, self.timeout, self.spec_fallback)
+            cost += more
+            if why:
+                verdict, note = Verdict.UNSURE, f"not_reachable downgraded: {why}"
         if verdict == Verdict.NOT_REACHABLE and sh.truncated:
             verdict, note = Verdict.UNSURE, "not_reachable downgraded: shape list truncated"
         by_id = {s["id"]: s for s in sh.shapes}
