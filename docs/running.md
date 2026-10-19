@@ -30,6 +30,40 @@ See the [README](../README.md) for the overview.
   `doublestrain usage --since 24h --by tool,purpose,model` summarises it, and `doublestrain run` prints
   its own totals and keeps them in `summary.json`.
 
+## Setting up the tiers
+
+Every tier is optional. With none (`--judge null`), `doublestrain scan` still grades from
+KEV, EPSS and exposure, and leaves reachability `unavailable` (graded like reachable).
+The base install is `uv sync` (Python >= 3.11); network use is OSV, KEV and EPSS.
+
+| Tier | Install | Ecosystems |
+|---|---|---|
+| `govulncheck` | A Go toolchain ([go.dev/dl](https://go.dev/dl/) or `brew install go`), then `GOBIN=~/.cache/ssvc-triage/gotools/bin go install golang.org/x/vuln/cmd/govulncheck@v1.9.0` | Go |
+| `jelly` | Node >= 22, then `mkdir -p ~/.cache/ssvc-triage/jstools && cd ~/.cache/ssvc-triage/jstools && npm install --ignore-scripts @cs-au-dk/jelly@0.13.0`; run with `SSVC_PKGSRC=1` | npm |
+| `local` / `<name>` | Any OpenAI-compatible `/v1/chat/completions` server that supports JSON-schema structured output (measured with LM Studio). The measured model is `qwen/qwen3.8-27b` at Q4; any other model gets its role's defaults, which means a second read before its `not_reachable` counts | all |
+| `split`, `shape`, `claude` | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and logged in (`claude` on PATH); `SSVC_PKGSRC=1` for dependency source. Spend is capped per run by `--claude-budget` (default $5) | npm, Go, Cargo (`shape`: npm) |
+| `jev` | Optional hosted classifier: a TypeSafe API key | all |
+
+Cascades that make sense, by what you have. `workstation` stands for any endpoint you
+name: `SSVC_WORKSTATION_BASE_URL=http://<host>:1234/v1` defines it (`local` is
+built in, at `http://localhost:1234/v1`).
+
+```sh
+# no models: static analysis only. Jelly's not_reachable needs a second read, so on its
+# own it settles nothing (it still reports what is never loaded); govulncheck settles Go
+--judge cascade:govulncheck,jelly
+# a local model, nothing leaves your network except package names
+--judge cascade:govulncheck,jelly,workstation --egress network
+# Claude Code only
+--judge cascade:govulncheck,jelly,claude
+# the measured setup (README "Results"): local model first, claude on what it can't settle,
+# app source leaving only as abstracted call shapes
+--judge cascade:govulncheck,jelly,workstation,split:workstation,shape --egress shape
+```
+
+A tier that is down or missing is reported before the run and its questions go to the
+next tier (`--require-tiers` refuses to run instead).
+
 ## Backends
 
 | Judge | Needs |
@@ -37,6 +71,7 @@ See the [README](../README.md) for the overview.
 | `jev` | `TYPESAFE_API_KEY`, or a key file at `TYPESAFE_API_KEY_FILE` (default `~/.keys/jev.key`). Note: with the key file present and `TYPESAFE_BASE_URL` unset, calls go to the **hosted** Jev API. Its answers differ from the local student's, and the cache keeps the two apart. [Jevstiller](https://github.com/tomerglick57/Jevstiller) (Apache-2.0; distils the repeated Jev task into a local model) is optional: `TYPESAFE_BASE_URL=http://localhost:8080` routes calls through the local proxy and student; without it, calls go to the hosted API. |
 | `local` / `<name>` | `SSVC_LOCAL_BASE_URL` (default `http://localhost:1234/v1`), `SSVC_LOCAL_MODEL` (default: the server's first listed model), optional `SSVC_LOCAL_API_KEY`, `SSVC_LOCAL_TIMEOUT` (default 180), `SSVC_LOCAL_CONTEXT_CHARS` (default 24000). |
 | `shape` | `claude`, pkgsrc (specs shared with `split`). `SSVC_SHAPE_STRINGS=none` redacts all string literals. |
+| `govulncheck` | `go` on PATH and the govulncheck binary at `SSVC_GOVULNCHECK_BIN` (default `~/.cache/ssvc-triage/gotools/bin/govulncheck`). `SSVC_GOVULNCHECK_PLATFORMS` (default `linux/amd64`), `SSVC_GO_MODCACHE` (default `~/.cache/ssvc-triage/gomod`), `SSVC_GOVULNCHECK_TIMEOUT` (default 900). Sandboxed: `GOTOOLCHAIN=local`, `CGO_ENABLED=0`, `-mod=readonly`, a throwaway HOME. |
 | `jelly` | npm only. Node >= 22 and Jelly 0.13 under `SSVC_JELLY_HOME` (default `~/.cache/ssvc-triage/jstools`: `npm install --ignore-scripts @cs-au-dk/jelly` there), `SSVC_PKGSRC=1`. `SSVC_JELLY_HEAP_MB` (default 8192), `SSVC_JELLY_TIMEOUT` (default 1200), `SSVC_JELLY_WORK` (analysis copies, removed after each run). |
 | `split` / `split:<endpoint>` | `claude` (for specs, with pkgsrc) plus the matcher endpoint (default `local`). `SSVC_SPEC_CACHE` moves the spec cache. |
 | `claude` | `claude` on PATH, logged in. `SSVC_CLAUDE_MODEL` (default `sonnet`), `SSVC_CLAUDE_TIMEOUT` (default 300), `SSVC_PKGSRC=1` to add dependency source. |

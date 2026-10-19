@@ -93,6 +93,31 @@ Five Go apps (145 labels): govulncheck alone 0 false not_reachable at 0.959 cove
   registry / Go proxy / crates.io get names and versions. What each judge tier sends is in
   `docs/data-handling.md`.
 
+## Limitations
+
+- **Small, mostly deliberately vulnerable benchmarks.** Floors and results come from ten
+  npm apps (most built to be vulnerable), three held-out npm apps labelled only where the
+  Jelly check needed it, and five Go apps. Real codebases will hit cases these don't.
+- **AI-made labels** (see "Labels and data"): measured error rates are agreement with
+  them.
+- **Ecosystems differ in how far they are measured.** npm: every tier. Go: govulncheck
+  and `split` measured; other model tiers' `not_reachable` is held. Cargo: no labelled
+  apps, so no model tier's `not_reachable` settles (`SSVC_NR_UNMEASURED`). pip: model
+  tiers only, on floors measured with npm, and only three small fixture cases.
+- **Jelly's held-out sample is small:** 7 `not_reachable` rows on three apps (all right),
+  so it settles nothing without a second read. It does not see non-JavaScript code
+  (`.vue`/`.svelte` files are only searched for package names) or packages named by data
+  outside the checkout. Its sandbox is macOS `sandbox-exec`; elsewhere it runs unsandboxed
+  (static analysis, but still parsing untrusted code).
+- **Models vary run to run:** the measured local model changed about 9% of its answers
+  between two runs at temperature 0. That is one reason a weak model's `not_reachable`
+  needs a second read.
+- **Prompt injection** in package source can try to steer a model's verdict. Tools are
+  read-only and confined, clearances need checked evidence, and weak models need a second
+  read, but a forced wrong `not_reachable` remains the residual risk.
+- **Exposure is an input.** Without `--exposure`, an app is `unknown`, which grades
+  conservatively; the tool doesn't discover how an app is deployed.
+
 ## Security
 
 Dependency packages are treated as hostile bytes: integrity-verified before parsing,
