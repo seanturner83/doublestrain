@@ -465,6 +465,26 @@ def test_chain_missing_version_and_direct_only(locked_app):
     assert usage_summary(str(locked_app), "npm", "express", version="4.16.4").chains == []
 
 
+def test_copies_note_says_which_copy_the_row_is_about(locked_app, tmp_path, monkeypatch):
+    # minimist: 1.2.0 at the top (under forever), 0.0.8 nested under grunt (dev)
+    (locked_app / "cli.js").write_text("const minimist = require('minimist');\n")
+    u = usage_summary(str(locked_app), "npm", "minimist", version="0.0.8")
+    assert "INSTALLED COPIES of minimist (2); this advisory row is about 0.0.8" in u.text
+    assert "0.0.8 at node_modules/grunt/node_modules/minimist (dev only)  <- THIS ROW; required by: grunt@1.0.3" in u.text
+    assert "loads 1.2.0, NOT 0.0.8: app import sites are evidence only for that other copy" in u.text
+    u = usage_summary(str(locked_app), "npm", "minimist", version="1.2.0")
+    assert "The app's own imports load this copy (1.2.0)" in u.copies
+    assert usage_summary(str(locked_app), "npm", "qs", version="6.5.2").copies == ""   # one version: no note
+    # only rows with a note get a new cache key: the others keep their answers
+    inner = _Fixed("local", JudgeResult(Verdict.UNSURE, 0.0, "local"))
+    inner.fingerprint = lambda: "local@x@prepass8"
+    cj = CachedJudge(inner, cache_dir=str(tmp_path / "cache"))
+    q = lambda dep, v: ReachQuery(str(locked_app), "npm", dep, "CVE-1", version=v)   # noqa: E731
+    assert cj._path(q("qs", "6.5.2")).name == f"{q('qs', '6.5.2').key()}.json"
+    assert cj._path(q("minimist", "0.0.8")).name.startswith(q("minimist", "0.0.8").key() + "-c")
+    assert cj._path(q("minimist", "0.0.8")) != cj._path(q("minimist", "1.2.0"))
+
+
 def test_installed_peer_dependency_is_a_chain_edge(tmp_path):
     from ssvc_triage.judges import depgraph
     lock = {"lockfileVersion": 2, "packages": {

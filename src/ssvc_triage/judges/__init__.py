@@ -11,6 +11,7 @@ Any other name is an OpenAI-compatible endpoint configured by SSVC_<NAME>_BASE_U
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import threading
@@ -25,6 +26,7 @@ from .jev import JevJudge
 from .local import LocalJudge, OpenAIJudge, configured
 from .shape import ShapeJudge
 from .split import SplitJudge
+from .usage import copies_note
 
 __all__ = ["Judge", "JudgeResult", "ReachQuery", "Verdict", "accept", "get_judge",
            "NullJudge", "JevJudge", "GovulncheckJudge", "JellyJudge", "LocalJudge", "OpenAIJudge", "SplitJudge", "ShapeJudge", "ClaudeCodeJudge", "CascadeJudge", "CachedJudge"]
@@ -145,6 +147,12 @@ class CachedJudge:
         fp = self.fingerprint().replace("/", "_").replace(":", "_")
         # a judge whose prompt differs by ecosystem keys those answers on it too
         salt = getattr(self.inner, "query_salt", lambda q: "")(q)
+        if "@prepass" in fp:
+            # tiers that read the usage pre-pass: a row whose package has several installed
+            # versions now gets a copies note (usage.copies_note), so only those rows are asked
+            # again; the others' prompts are unchanged and keep their answers
+            note = copies_note(q.repo_path, q.ecosystem, q.dependency, q.version)
+            salt += "-c" + hashlib.sha256(note.encode()).hexdigest()[:8] if note else ""
         return self.dir / fp / f"{q.key()}{salt}.json"
 
     def judge(self, q: ReachQuery) -> JudgeResult | None:

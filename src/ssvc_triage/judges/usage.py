@@ -43,6 +43,7 @@ class Usage:
     symbol_sites: list[str] = field(default_factory=list)
     dynamic_sites: list[str] = field(default_factory=list)  # non-empty => not closed-world
     chains: list[str] = field(default_factory=list)          # lockfile: app -> a@1 -> dep@2
+    copies: str = ""                                          # which installed copy this row is about
     entry_sites: list[str] = field(default_factory=list)     # where the app imports chain tops
     files_scanned: int = 0
     text: str = ""
@@ -225,6 +226,54 @@ def _chain_section(u: Usage, root: Path, ecosystem: str, dependency: str, versio
     return lines
 
 
+def copies_note(repo_path: str, ecosystem: str, dependency: str, version: str) -> str:
+    """When several versions of the package are installed: which copy this advisory row
+    is about, and which copy the app's own imports load. The models' most common error in
+    the 2026-10-18 label review was reasoning about the wrong copy (body-parser nested
+    under express, lodash under nyc): import sites in the app are evidence only for the
+    copy those imports resolve to. "" when only one version is installed. No app source:
+    lockfile paths, names and versions only (it goes to the shape tier too)."""
+    from . import depgraph
+    if not version or ecosystem not in ("npm", "cargo", "go"):
+        return ""
+    g = depgraph.load(Path(repo_path).expanduser(), ecosystem)
+    if g is None:
+        return ""
+    copies = {p: n for p, n in g.nodes.items() if n["name"] == dependency}
+    if len({n["version"] for n in copies.values()}) < 2 or version not in {n["version"] for n in copies.values()}:
+        return ""
+    parents: dict[str, list[str]] = {}
+    for par, cs in g.edges.items():
+        for c in cs:
+            if c in copies:
+                parents.setdefault(c, []).append(par)
+    # the copy a bare import in the app's own code loads: npm's top-level node_modules/<name>;
+    # elsewhere the one the root depends on
+    app_copy = (f"node_modules/{dependency}" if ecosystem == "npm"
+                else next((c for c in g.edges.get(depgraph.ROOT, ()) if c in copies), ""))
+
+    def who(path: str) -> str:
+        ps = parents.get(path, [])
+        names = ["the app (direct dependency)" if p == depgraph.ROOT else
+                 f"{g.nodes[p]['name']}@{g.nodes[p]['version']}" for p in ps]
+        more = f" and {len(names) - 4} more" if len(names) > 4 else ""
+        return ", ".join(names[:4]) + more if names else "nothing (unused)"
+    lines = [f"INSTALLED COPIES of {dependency} ({len(copies)}); this advisory row is about {version}:"]
+    for path, n in sorted(copies.items(), key=lambda kv: (kv[1]["version"] != version, kv[0])):
+        tag = "  <- THIS ROW" if n["version"] == version else ""
+        dev = " (dev only)" if n["dev"] else ""
+        app = " [an import in the app's own code would load this one]" if path == app_copy else ""
+        lines.append(f"  {n['version']} at {path}{dev}{app}{tag}; required by: {who(path)}")
+    if app_copy in copies and copies[app_copy]["version"] != version:
+        lines.append(f"An import of `{dependency}` in the app's own code loads {copies[app_copy]['version']}, NOT "
+                     f"{version}: app import sites are evidence only for that other copy. {version} runs only if "
+                     "one of the packages that require it (listed above) calls into it.")
+    elif app_copy in copies:
+        lines.append(f"The app's own imports load this copy ({version}); the other versions are separate code "
+                     "that only their own parents use.")
+    return "\n".join(lines)
+
+
 def usage_summary(repo_path: str, ecosystem: str, dependency: str, vuln_symbols=(),
                   import_name: str = "", max_sites: int = 25, *, version: str = "") -> Usage:
     root = Path(repo_path).expanduser()
@@ -281,6 +330,9 @@ def usage_summary(repo_path: str, ecosystem: str, dependency: str, vuln_symbols=
         parts.append(f"vulnerable symbol(s) {', '.join(toks)}: "
                      f"{len(importing)} mention(s) in importing files, {len(other_sym)} elsewhere")
         parts += [f"  {s}" for s in u.symbol_sites[:max_sites]]
+    u.copies = copies_note(repo_path, ecosystem, dependency, version)
+    if u.copies:
+        parts.append(u.copies)
     parts += _chain_section(u, root, ecosystem, dependency, version, exts, max_sites)
     if u.dynamic_sites:
         parts.append(f"DYNAMIC ACCESS ({len(u.dynamic_sites)} site(s)) — computed member access or "

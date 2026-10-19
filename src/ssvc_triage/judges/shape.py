@@ -1224,7 +1224,8 @@ class ShapeJudge:
                   f"TRIGGER SPEC:\n{spec_text}\n\n"
                   f"CALL SHAPES (packages: {', '.join(packages)}; entry-point names searched: "
                   f"{', '.join(tokens) or '(none)'}):\n{sh.payload()}\n\n"
-                  f"Coverage: dynamic module loading / computed member access in the app: "
+                  + (f"{u.copies}\n\n" if u.copies else "")
+                  + f"Coverage: dynamic module loading / computed member access in the app: "
                   f"{'YES (the shapes may miss uses)' if not u.closed_world else 'none found'}.\n\n"
                   "Does the application reach the vulnerable code?")
         got = run_claude(_bin(), prompt, SHAPE_SYSTEM, VERDICT_SCHEMA, cwd=target,
