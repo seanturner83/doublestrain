@@ -16,6 +16,7 @@ COMMANDS = {
     "watch": ("doublestrain.watch", "watch upstream fixes for open advisories"),
     "mitigate": ("doublestrain.mitigate", "mitigation notes for unfixable advisories"),
     "usage": ("doublestrain.accounting", "summarise the model-call ledger"),
+    "advisories": ("doublestrain.advisory_notes", "list or check the register of known gaps in advisory text"),
 }
 
 

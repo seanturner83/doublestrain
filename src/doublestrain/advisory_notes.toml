@@ -1,0 +1,55 @@
+# Known gaps in advisory text: where an advisory's own description understates which
+# code paths reach the vulnerable code, so a reader (human or model) following the text
+# would wrongly rule an app out. `advisory_notes.py` loads this file and adds each
+# matching note to the advisory summary every tier sees.
+#
+# Rules (enforced by the loader; `doublestrain advisories check` verifies the evidence):
+# - kind = "widens" only. A note may say the vulnerable code is reached in MORE ways than
+#   the text says. It must never say an app is not affected, or narrow the conditions:
+#   a wrong widening note costs triage time, a wrong narrowing note would hide a risk,
+#   and a shipped register that narrows is exactly what an attacker would want to edit.
+# - evidence: steps in the named version's published source, each {path =
+#   "<name>@<version>/<file>", line, quote}; the quote must be on that line.
+# - upstream: the correction filed with the advisory database, when there is one. Once
+#   the advisory text itself is fixed, the entry can go.
+#
+# Entries come from label reviews on the benchmark apps, so a run on those same apps
+# doesn't measure their effect: measure on held-out apps.
+
+[[advisory]]
+id = "CVE-2025-69223"
+package = "aiohttp"
+ecosystem = "pypi"
+versions = "<3.13.3"
+kind = "widens"
+note = """The advisory describes a zip bomb in aiohttp's server request parsing, but the
+unbounded decompression is in HttpPayloadParser, which the client's response parser also
+uses: an app that fetches attacker-chosen URLs with ClientSession (auto_decompress is on
+by default) runs the same code on the attacker's response body."""
+evidence = [
+  { path = "aiohttp@3.9.5/aiohttp/client_proto.py", line = 190, quote = "self._parser = HttpResponseParser(" },
+  { path = "aiohttp@3.9.5/aiohttp/client_proto.py", line = 198, quote = "auto_decompress=auto_decompress," },
+  { path = "aiohttp@3.9.5/aiohttp/http_parser.py", line = 770, quote = "real_payload: Union[StreamReader, DeflateBuffer] = DeflateBuffer(" },
+  { path = "aiohttp@3.9.5/aiohttp/http_parser.py", line = 994, quote = "chunk = self.decompressor.decompress_sync(chunk)" },
+]
+verified = "2026-10-19, read in the aiohttp 3.9.5 wheel"
+upstream = ""
+
+[[advisory]]
+id = "CVE-2024-43800"
+package = "serve-static"
+ecosystem = "npm"
+versions = "<1.16.0 || >=2.0.0-0,<2.1.0"
+kind = "widens"
+note = """The advisory says the issue needs untrusted input passed to redirect(), but
+serve-static redirects by itself: a request for a directory without a trailing slash is
+answered by its own directory listener, which builds the Location header and the HTML body
+from the request's original URL. Any app serving a static directory (express.static is
+serve-static) runs it on attacker-chosen paths, with no redirect() call in the app."""
+evidence = [
+  { path = "serve-static@1.15.0/index.js", line = 190, quote = "var originalUrl = parseUrl.original(this.req)" },
+  { path = "serve-static@1.15.0/index.js", line = 197, quote = "var loc = encodeUrl(url.format(originalUrl))" },
+  { path = "serve-static@1.15.0/index.js", line = 207, quote = "res.setHeader('Location', loc)" },
+]
+verified = "2026-10-19, read in the serve-static 1.15.0 tarball"
+upstream = ""

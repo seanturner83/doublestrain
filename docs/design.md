@@ -185,6 +185,24 @@ Cached split/shape not_reachables are rechecked under the current guard when rea
 685 rows split/shape settled not_reachable stay settled; 225 rest on an unbacked
 clearance and wait for that follow-up read on the next run (186 calls).
 
+### Known gaps in advisory text (`advisory_notes.toml`)
+
+Some advisories describe their own scope too narrowly, and a reader following the text
+rules apps out wrongly: CVE-2024-43800 says it needs untrusted input passed to
+`redirect()`, but serve-static redirects by itself on directory requests; CVE-2025-69223
+describes aiohttp's server, but the same decompression runs in its client. The register
+`src/doublestrain/advisory_notes.toml` records such gaps, and every tier sees a matching
+note after the advisory summary (only those rows get a new cache key).
+
+- Notes only widen: the loader refuses `kind` other than `widens` and note text that
+  reads as a narrowing ("not affected", "only when", ...). A wrong widening note costs
+  triage time; a narrowing one would hide a risk.
+- Each note cites the named version's source (`path`, `line`, `quote`);
+  `doublestrain advisories check` fetches it (registry-verified) and checks every step.
+- File the correction upstream too (`upstream`); once the advisory is fixed, the entry goes.
+- Entries come from label reviews on the benchmark apps, so their effect is measured on
+  held-out apps. `SSVC_ADVISORY_NOTES=none` turns the register off.
+
 ### Which installed copy
 
 When several versions of a package are installed, the usage pre-pass (and shape's

@@ -6,7 +6,7 @@ verdict that clears its asymmetric acceptance floor (`judges.accept`).
 """
 from __future__ import annotations
 
-from . import accounting
+from . import accounting, advisory_notes
 from .judges import JudgeResult, ReachQuery, Verdict, accept
 from .judges.base import role
 from .judges.usage import nr_held
@@ -16,9 +16,16 @@ _FILLABLE = (Reachability.UNAVAILABLE, Reachability.UNSCANNED)
 
 
 def query_for(c: Candidate, repo_path: str, cve: str) -> ReachQuery:
-    return ReachQuery(repo_path=repo_path, ecosystem=c.ecosystem or ("go" if c.is_go else ""),
+    """The judges' question for a candidate. Known gaps in the advisory's own text
+    (`advisory_notes`, widening only) are added to its summary, so every tier reads
+    them; only rows with a note get a new cache key."""
+    eco = c.ecosystem or ("go" if c.is_go else "")
+    ids = [i for aliases, _affected in c.advisories for i in aliases] + [cve]
+    notes = advisory_notes.notes_for(ids, c.bumped_package, eco, c.version)
+    return ReachQuery(repo_path=repo_path, ecosystem=eco,
                       dependency=c.bumped_package, cve=cve,
-                      vuln_symbols=tuple(c.vuln_symbols), advisory=c.advisory_summary,
+                      vuln_symbols=tuple(c.vuln_symbols),
+                      advisory=advisory_notes.annotate(c.advisory_summary, notes),
                       import_name=c.import_name, version=c.version)
 
 
