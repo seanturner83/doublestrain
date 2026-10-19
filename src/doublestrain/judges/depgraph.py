@@ -134,7 +134,27 @@ def _from_go(repo: Path) -> Graph | None:
     return Graph(nodes, edges, frozenset(direct), frozenset())
 
 
+def _from_pypi(repo: Path) -> Graph | None:
+    """The Graph over a Python lock (`pylock`): ROOT's edges are the direct dependencies
+    (every package when the lock has no roots, e.g. a plain pin list)."""
+    from .. import pylock
+    lock = pylock.load(repo)
+    if lock is None:
+        return None
+    runtime = lock.runtime()
+    nodes = {i: {"name": p.name, "version": p.version, "dev": i not in runtime,
+                 "integrity": ",".join(p.hashes[:1])} for i, p in lock.pkgs.items()}
+    edges = {i: tuple(c for c in lock.edges.get(i, ()) if c in nodes) for i in nodes}
+    roots = (lock.prod_roots | lock.dev_roots) or set(nodes)
+    edges[ROOT] = tuple(sorted(r for r in roots if r in nodes))
+    prod = {lock.pkgs[i].name for i in lock.prod_roots if i in lock.pkgs} or {p.name for p in lock.pkgs.values()}
+    dev = {lock.pkgs[i].name for i in lock.dev_roots if i in lock.pkgs}
+    return Graph(nodes, edges, frozenset(prod), frozenset(dev - prod))
+
+
 def load(repo: Path, ecosystem: str = "npm") -> Graph | None:
+    if ecosystem == "pypi":
+        return _from_pypi(Path(repo))
     if ecosystem == "cargo":
         return _from_cargo(Path(repo))
     if ecosystem == "go":

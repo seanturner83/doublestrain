@@ -152,10 +152,21 @@ def find_deps(repo: Path) -> tuple[list[Dep], list[str]]:
     if lock.is_file():
         deps += parse_npm_lock(lock)
         used.append(lock.name)
-    for req in sorted(repo.glob("requirements*.txt")):
-        deps += parse_requirements(req)
-        used.append(req.name)
+    from . import pylock
+    lock = pylock.load(repo)
+    if lock is not None:
+        deps += parse_pylock(lock)
+        used += ([lock.kind] if lock.kind != "requirements"
+                 else [f.relative_to(repo).as_posix() for f in pylock.requirement_files(repo)])
     return deps, used
+
+
+def parse_pylock(lock) -> list[Dep]:
+    """A Python lock's packages (`pylock`); `dev` = reached only from dev groups/extras."""
+    runtime = lock.runtime()
+    roots = lock.prod_roots | lock.dev_roots
+    return sorted((Dep(p.name, p.version, "PyPI", direct=i in roots or not roots, dev=i not in runtime)
+                   for i, p in lock.pkgs.items()), key=lambda d: (d.name, d.version))
 
 
 # --- OSV -------------------------------------------------------------------------

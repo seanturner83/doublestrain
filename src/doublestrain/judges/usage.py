@@ -63,9 +63,11 @@ def _bindings(ecosystem: str, line: str, import_name: str, dep: str) -> list[str
     if ecosystem in ("cargo", "go"):
         return []       # no runtime name lookup to bind: Rust and Go have no dynamic import
     if ecosystem == "pypi":
-        mod = import_name or dep.replace("-", "_")
-        m = re.match(rf"\s*import\s+{re.escape(mod)}(?:\s+as\s+(\w+))?", line)
-        return [m.group(1) or mod] if m else []
+        for mod in _py_modules(dep, import_name):
+            m = re.match(rf"\s*import\s+{re.escape(mod)}(?:\s+as\s+(\w+))?", line)
+            if m:
+                return [m.group(1) or mod]
+        return []
     out = []
     for pat in (r"(?:const|let|var)\s+(\w+)\s*=\s*require\(", r"import\s+(\w+)\s*(?:,|from)",
                 r"import\s+\*\s+as\s+(\w+)"):
@@ -141,10 +143,20 @@ def _dynamic_res(ecosystem: str, names: list[str]) -> list[re.Pattern[str]]:
     return pats
 
 
+def _py_modules(dep: str, import_name: str = "") -> list[str]:
+    if import_name:
+        return [import_name]
+    from ..pylock import import_names
+    return import_names(dep)
+
+
 def _import_re(ecosystem: str, dep: str, import_name: str) -> re.Pattern[str]:
     if ecosystem == "pypi":
-        mod = re.escape(import_name or dep.replace("-", "_"))
-        return re.compile(rf"^\s*(?:import\s+{mod}\b|from\s+{mod}(?:\.\w+)*\s+import\b)")
+        # `import yaml`, `import os, yaml as y`, `import yaml.constructor`, `from yaml import x`,
+        # `from yaml.loader import x`; a distribution may provide several modules
+        mod = "(?:" + "|".join(re.escape(m) for m in _py_modules(dep, import_name)) + ")"
+        return re.compile(rf"^\s*(?:import\s+(?:[\w.]+(?:\s+as\s+\w+)?\s*,\s*)*{mod}\b"
+                          rf"|from\s+{mod}(?:\.\w+)*\s+import\b)", re.M)
     d = re.escape(import_name or dep)
     if ecosystem == "go":
         return re.compile(rf'"{d}(?:/[^"]*)?"')
@@ -179,9 +191,9 @@ def _chain_section(u: Usage, root: Path, ecosystem: str, dependency: str, versio
                    exts, max_sites: int) -> list[str]:
     """Lockfile dependency chains + where the app imports each chain's top-level package."""
     from . import depgraph
-    if ecosystem not in ("npm", "cargo", "go"):
+    if ecosystem not in ("npm", "cargo", "go", "pypi"):
         return []
-    lockname = {"cargo": "Cargo.lock", "go": "go.mod"}.get(ecosystem, "package-lock.json")
+    lockname = {"cargo": "Cargo.lock", "go": "go.mod", "pypi": "the Python lock"}.get(ecosystem, "package-lock.json")
     g = depgraph.load(root, ecosystem)
     if g is None:
         return []
@@ -234,7 +246,7 @@ def copies_note(repo_path: str, ecosystem: str, dependency: str, version: str) -
     copy those imports resolve to. "" when only one version is installed. No app source:
     lockfile paths, names and versions only (it goes to the shape tier too)."""
     from . import depgraph
-    if not version or ecosystem not in ("npm", "cargo", "go"):
+    if not version or ecosystem not in ("npm", "cargo", "go", "pypi"):
         return ""
     g = depgraph.load(Path(repo_path).expanduser(), ecosystem)
     if g is None:
