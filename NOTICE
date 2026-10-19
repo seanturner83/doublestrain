@@ -1,0 +1,8 @@
+ssvc-triage
+Copyright 2026 the ssvc-triage authors
+
+This product is licensed under the Apache License, Version 2.0 (LICENSE).
+
+The labelled cases under cases/ are data, licensed separately: see cases/LICENSE.md.
+They include advisory text from OSV (https://osv.dev), including the GitHub Advisory
+Database, licensed CC-BY 4.0.

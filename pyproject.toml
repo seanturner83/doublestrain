@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "SSVC Act/Attend/Track grading for dependency advisories, with measured reachability judges (static analysis, local and hosted models) and a run harness"
 readme = "README.md"
 requires-python = ">=3.11"
-# license = TBD
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 keywords = ["ssvc", "vulnerability", "triage", "reachability", "sca", "osv"]
 classifiers = [
     "Programming Language :: Python :: 3",

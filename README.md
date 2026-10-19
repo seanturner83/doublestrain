@@ -76,7 +76,8 @@ Five Go apps (145 labels): govulncheck alone 0 false not_reachable at 0.959 cove
   them blind to the judges' verdicts. Some were reviewed and corrected; none is a human
   ground truth. Treat the measured error rates as agreement with those labels.
 - **Third-party apps** are not vendored: `cases/<id>/fetch.sh` clones each at the pinned
-  commit it was labelled against. Nothing in them is built or run.
+  commit it was labelled against (`for f in cases/*/fetch.sh; do sh "$f"; done`).
+  Nothing in them is built or run.
 - **Advisory text** in the case files and in reports comes from [OSV](https://osv.dev)
   (including the GitHub Advisory Database), licensed
   [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/); KEV is CISA's catalogue,
@@ -102,4 +103,5 @@ read. Details: `docs/data-handling.md`, `docs/design.md`. Reporting: `SECURITY.m
 
 ## Licence
 
-LICENCE_PLACEHOLDER
+Code: [Apache License 2.0](LICENSE) (see also [NOTICE](NOTICE)). Case data under `cases/`:
+[CC-BY 4.0](cases/LICENSE.md), including OSV advisory text (CC-BY 4.0).
