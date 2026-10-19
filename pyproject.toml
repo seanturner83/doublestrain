@@ -1,8 +1,17 @@
 [project]
 name = "ssvc-triage"
 version = "0.1.0"
-description = "SSVC Act/Attend/Track grading for dependency advisories, with Jev / claude-code reachability judges and a run harness"
+description = "SSVC Act/Attend/Track grading for dependency advisories, with measured reachability judges (static analysis, local and hosted models) and a run harness"
+readme = "README.md"
 requires-python = ">=3.11"
+# license = TBD
+keywords = ["ssvc", "vulnerability", "triage", "reachability", "sca", "osv"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+]
 dependencies = []
 
 [project.scripts]

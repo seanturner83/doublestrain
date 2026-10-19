@@ -96,7 +96,7 @@ measured = "all10-r4 (2026-10-17)"
 [[model]]
 role = "shape"
 model = "claude-opus-5-5"
-# Opus 5.5 reports lower confidence than Sonnet for the same separation (README,
+# Opus 5.5 reports lower confidence than Sonnet for the same separation (docs/data-handling.md,
 # "Call shapes"). all10-r5: not_reachable at 0.80 20 right / 2 wrong (sirappsec
 # sequelize, sqlite3: rows the disagreement toggle had sent on from split), >= 0.85
 # 135 right / 0 wrong. Was 0.8.
