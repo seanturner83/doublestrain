@@ -133,13 +133,36 @@ _GO_SPEC_SYSTEM = SPEC_SYSTEM.replace("third-party npm package's", "third-party 
 _GO_SPEC_ID = hashlib.sha256((SPEC_ID + _GO_SPEC_SYSTEM).encode()).hexdigest()[:8]
 
 
+# Python distributions: the same prompt. Most Python advisories are about one function,
+# option or role of a library every app imports (the 2026-10-19 Python labels: 538 of
+# 661 rows not_reachable, nearly all with the distribution imported), so conditions
+# carry the answer.
+_PY_SPEC_NOTE = """
+Python distributions: each listed directory is a distribution's Python source
+(`<name>@<version>`); code imports it by module path, which can differ from the
+distribution name (PyYAML -> yaml, Pillow -> PIL). Entry points are public functions,
+classes and methods an application calls, an ASGI/WSGI app or middleware it mounts, a
+Django app, middleware or backend it enables by dotted name in settings, or a CLI. Be
+precise about conditions, they usually decide: a keyword argument or its default
+(`yaml.load(..., Loader=...)`, `torch.load(weights_only=...)`), a backend or engine
+chosen by configuration (Django DATABASES / CACHES / STORAGES), the role used (aiohttp's
+web server vs ClientSession), a file format or protocol actually handled, a pure-Python
+fallback vs a C extension, a platform. Compiled extensions (.so) are not in the source
+you have: if the vulnerable code lives in one, say so in the condition and name the
+Python API that calls into it.
+"""
+_PY_SPEC_SYSTEM = SPEC_SYSTEM.replace("third-party npm package's", "third-party Python distribution's") + _PY_SPEC_NOTE
+_PY_SPEC_ID = hashlib.sha256((SPEC_ID + _PY_SPEC_SYSTEM).encode()).hexdigest()[:8]
+
+
 def spec_system(ecosystem: str) -> tuple[str, str]:
     """(system prompt, id) for the trigger spec in this ecosystem."""
     return {"cargo": (_CARGO_SPEC_SYSTEM, _CARGO_SPEC_ID),
-            "go": (_GO_SPEC_SYSTEM, _GO_SPEC_ID)}.get(ecosystem, (SPEC_SYSTEM, SPEC_ID))
+            "go": (_GO_SPEC_SYSTEM, _GO_SPEC_ID),
+            "pypi": (_PY_SPEC_SYSTEM, _PY_SPEC_ID)}.get(ecosystem, (SPEC_SYSTEM, SPEC_ID))
 
 
-_WHAT = {"cargo": "Rust crate", "go": "Go module"}
+_WHAT = {"cargo": "Rust crate", "go": "Go module", "pypi": "Python distribution"}
 
 
 MATCH_SYSTEM = """\
@@ -187,11 +210,23 @@ and the middleware it installs. Build constraints decide which files are compile
 the target (assume linux/amd64 unless the app says otherwise).
 """
 _GO_MATCH_SYSTEM = MATCH_SYSTEM + _GO_MATCH_NOTE
+_PY_MATCH_NOTE = """
+Python: the app reaches a distribution through its imports (module names can differ from
+distribution names), through code loaded by dotted name from configuration (Django
+INSTALLED_APPS, MIDDLEWARE, DATABASES/CACHES/STORAGES backends, ROOT_URLCONF; a server's
+"module:app"), and through the libraries it uses (a web framework parsing every request
+body, a document loader parsing every uploaded file). Check each call's actual keyword
+arguments against the defaults the spec names. Uploaded files, request bodies, query
+and form fields, headers, URLs the app fetches because a user supplied them, and
+documents or model files a user can provide are attacker-influenced.
+"""
+_PY_MATCH_SYSTEM = MATCH_SYSTEM + _PY_MATCH_NOTE
 # Per-ecosystem prompt ids for the answer cache (`query_salt`): npm's answers stay keyed
 # as before; Rust and Go answers change key when their spec or match prompt changes.
 _SALT = {eco: "-" + hashlib.sha256((sid + mat).encode()).hexdigest()[:8]
          for eco, sid, mat in (("cargo", _CARGO_SPEC_ID, _CARGO_MATCH_SYSTEM),
-                               ("go", _GO_SPEC_ID, _GO_MATCH_SYSTEM))}
+                               ("go", _GO_SPEC_ID, _GO_MATCH_SYSTEM),
+                               ("pypi", _PY_SPEC_ID, _PY_MATCH_SYSTEM))}
 
 
 def _spec_cache() -> Path:
@@ -647,7 +682,7 @@ class SplitJudge:
 
     # --- 2. app match ------------------------------------------------------------
     def judge(self, q: ReachQuery) -> JudgeResult | None:
-        if q.ecosystem not in ("npm", "cargo", "go"):
+        if q.ecosystem not in ("npm", "cargo", "go", "pypi"):
             return None
         t0 = time.monotonic()
         sources, refused = pkgsrc.for_query(q.repo_path, q.dependency, q.version, ecosystem=q.ecosystem)
@@ -678,7 +713,8 @@ class SplitJudge:
                 f"Source excerpts:\n"
                 f"{app_excerpts(q.repo_path, u, self.matcher.budget)}\n\n"
                 "Does the application reach the vulnerable code as the spec describes?")
-        d, err = self.matcher.complete({"cargo": _CARGO_MATCH_SYSTEM, "go": _GO_MATCH_SYSTEM}.get(q.ecosystem, MATCH_SYSTEM),
+        d, err = self.matcher.complete({"cargo": _CARGO_MATCH_SYSTEM, "go": _GO_MATCH_SYSTEM,
+                                        "pypi": _PY_MATCH_SYSTEM}.get(q.ecosystem, MATCH_SYSTEM),
                                        user, VERDICT_SCHEMA, purpose="match")
         if d is None:
             logger.warning("split: matcher %s failed (%s)", self.matcher.name, err)

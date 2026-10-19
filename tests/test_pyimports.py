@@ -141,3 +141,13 @@ def test_held_on_pip_and_paired_with_an_endpoint(tmp_path):
     r = CascadeJudge([py, ws]).judge(q)
     assert accept(r) and r.rationale.startswith("corroborates")
     assert nr_held("pypi", "endpoint") and nr_held("pypi", "pyimports")      # still held until measured
+
+
+def test_split_speaks_python():
+    from doublestrain.judges import CachedJudge
+    from doublestrain.judges.split import SplitJudge, spec_system
+    system, sid = spec_system("pypi")
+    assert "third-party Python distribution's" in system and "weights_only" in system and sid != spec_system("npm")[1]
+    j = CachedJudge(SplitJudge("local"), cache_dir="/nonexistent")
+    q = ReachQuery("/a", "pypi", "pyyaml", "CVE-1")
+    assert j._path(q).name.startswith(q.key() + "-")               # Python answers keyed on their prompts
