@@ -1,4 +1,4 @@
-"""ssvc-score — metrics for a harness run (results.jsonl).
+"""doublestrain score — metrics for a harness run (results.jsonl).
 
 Headline metric is FALSE NOT-REACHABLE (label reachable, judge said not_reachable and it
 was accepted): that is the error that silently demotes a live risk. Everything else
@@ -98,7 +98,7 @@ def render(s: dict) -> str:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="ssvc-score", description=__doc__)
+    ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("run_dir")
     args = ap.parse_args(argv)
     rows = [json.loads(ln) for ln in (Path(args.run_dir) / "results.jsonl").read_text().splitlines() if ln]

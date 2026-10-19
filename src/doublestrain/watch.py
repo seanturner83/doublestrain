@@ -536,9 +536,9 @@ def _installed_source(c: Candidate, pks) -> Path | None:
 
 
 def main(argv=None) -> int:
-    """ssvc-watch: security-shaped upstream changes not yet covered by an advisory."""
+    """doublestrain watch: security-shaped upstream changes not yet covered by an advisory."""
     accounting.start("ssvc-watch")
-    ap = argparse.ArgumentParser(prog="ssvc-watch", description=main.__doc__)
+    ap = argparse.ArgumentParser(description=main.__doc__)
     ap.add_argument("target", help="CycloneDX/SPDX JSON SBOM, or an app directory with package-lock.json")
     ap.add_argument("--direct", action="store_true", help="direct dependencies only")
     ap.add_argument("--max-commits", type=int, default=300, help="per installed version (default 300)")

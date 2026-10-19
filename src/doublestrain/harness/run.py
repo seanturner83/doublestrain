@@ -1,4 +1,4 @@
-"""ssvc-run — run labelled SSVC cases through a reachability judge and grade them.
+"""doublestrain run — run labelled SSVC cases through a reachability judge and grade them.
 
 A case is a directory `cases/<id>/` holding `case.json` and the app checkout:
 
@@ -114,7 +114,7 @@ def judge_row(case_dir: Path, case: dict, rec: dict, judge, enrich: dict | None 
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="ssvc-run", description=__doc__,
+    ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--cases", default="cases", help="cases root dir (default: cases)")
     ap.add_argument("--case", action="append", help="only this case id (repeatable)")

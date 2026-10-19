@@ -1,4 +1,4 @@
-"""ssvc-scan — grade a repo's dependency advisories end to end.
+"""doublestrain scan — grade a repo's dependency advisories end to end.
 
   lockfile -> OSV advisories -> candidates -> reachability judge -> KEV/EPSS -> SSVC tree
 
@@ -67,7 +67,7 @@ def digest(rows: list[dict], name: str, prov: dict) -> str:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="ssvc-scan", description=__doc__,
+    ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("repo", help="checkout with package-lock.json and/or requirements*.txt")
     ap.add_argument("--name", help="repo name for the report (default: directory name)")

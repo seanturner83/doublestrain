@@ -455,8 +455,8 @@ def _groups(recs: list[dict]) -> list[list[dict]]:
 
 
 def main(argv=None) -> int:
-    """ssvc-nofix: classify why each advisory on an app/SBOM has (or lacks) a usable fix."""
-    ap = argparse.ArgumentParser(prog="ssvc-nofix", description=main.__doc__)
+    """doublestrain nofix: classify why each advisory on an app/SBOM has (or lacks) a usable fix."""
+    ap = argparse.ArgumentParser(description=main.__doc__)
     ap.add_argument("target", help="CycloneDX/SPDX JSON SBOM, or an app directory with package-lock.json")
     ap.add_argument("--offline", action="store_true", help="OSV and registry from cache only")
     ap.add_argument("--dev", action="store_true", help="include dev-only components")

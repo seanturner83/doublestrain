@@ -1,4 +1,4 @@
-"""ssvc-compare — diff two harness runs: headline metric deltas + per-candidate changes."""
+"""doublestrain compare — diff two harness runs: headline metric deltas + per-candidate changes."""
 from __future__ import annotations
 
 import argparse
@@ -23,7 +23,7 @@ def _jv(r):
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="ssvc-compare", description=__doc__)
+    ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("a")
     ap.add_argument("b")
     args = ap.parse_args(argv)

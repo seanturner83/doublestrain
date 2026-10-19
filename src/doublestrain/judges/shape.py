@@ -1264,8 +1264,8 @@ class ShapeJudge:
 
 
 def main(argv=None) -> int:
-    """ssvc-shapes: print exactly what the shape tier would send for an app."""
-    ap = argparse.ArgumentParser(prog="ssvc-shapes", description=main.__doc__)
+    """doublestrain shapes: print exactly what the shape tier would send for an app."""
+    ap = argparse.ArgumentParser(description=main.__doc__)
     ap.add_argument("repo")
     ap.add_argument("packages", nargs="+", help="the vulnerable package first, then its dependents")
     ap.add_argument("--entry", action="append", default=[], help="entry-point method name to search too")

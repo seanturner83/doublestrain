@@ -123,7 +123,7 @@ def _since(s: str) -> datetime:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="ssvc-usage", description="Summarise the model-call ledger.")
+    ap = argparse.ArgumentParser(description="Summarise the model-call ledger.")
     ap.add_argument("--since", default="24h", help="window: 90m, 24h, 7d (default 24h)")
     ap.add_argument("--run", help="only this run id")
     ap.add_argument("--by", default="tool,run,kind,purpose,model",

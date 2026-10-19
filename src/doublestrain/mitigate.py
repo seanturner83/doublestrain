@@ -309,9 +309,9 @@ def _write_private(path: Path, data) -> None:
 
 
 def main(argv=None) -> int:
-    """ssvc-mitigate: plans for exploited advisories with no usable fix."""
+    """doublestrain mitigate: plans for exploited advisories with no usable fix."""
     accounting.start("ssvc-mitigate")
-    ap = argparse.ArgumentParser(prog="ssvc-mitigate", description=main.__doc__)
+    ap = argparse.ArgumentParser(description=main.__doc__)
     ap.add_argument("target", help="app directory with package-lock.json (an SBOM gets the playbook only)")
     ap.add_argument("--any-exploit", action="store_true", help="include advisories with no exploit signal")
     ap.add_argument("--all-states", action="store_true", help="include advisories that have a usable fix")
