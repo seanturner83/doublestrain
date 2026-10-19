@@ -253,3 +253,74 @@ def test_crate_fetch_checks_cargo_lock_sha256_and_keeps_rust_source(registry):
     n = len(seen)
     pkgsrc.fetch_crate("ruzstd", "0.8.3", good)                           # cached
     assert len(seen) == n
+
+
+def _whl(members) -> bytes:
+    import zipfile
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        for name, body in members:
+            zf.writestr(name, body)
+    return buf.getvalue()
+
+
+PY = "https://files.pythonhosted.org/packages/xx/"
+
+
+def _pypi_doc(files):
+    return json.dumps({"urls": [{"filename": fn, "url": PY + fn, "size": len(b),
+                                 "digests": {"sha256": hashlib.sha256(b).hexdigest()}} for fn, b in files]}).encode()
+
+
+def test_pypi_fetch_checks_the_lock_hash_and_keeps_python_source(registry, monkeypatch):
+    served, seen = registry
+    whl = _whl([("yaml/__init__.py", b"def load(s): pass"), ("yaml/_yaml.so", b"\x7fELF"),
+                ("PyYAML-6.0.1.dist-info/top_level.txt", b"_yaml\nyaml\n"),
+                ("PyYAML-6.0.1.dist-info/METADATA", b"Name: PyYAML")])
+    sdist = _tgz([("PyYAML-6.0.1/setup.py", b"import os; os.system('x')"), ("PyYAML-6.0.1/lib/yaml/__init__.py", b"")])
+    served["https://pypi.org/pypi/pyyaml/6.0.1/json"] = _pypi_doc([("PyYAML-6.0.1.tar.gz", sdist),
+                                                                   ("PyYAML-6.0.1-py3-none-any.whl", whl)])
+    served[PY + "PyYAML-6.0.1-py3-none-any.whl"] = whl
+    served[PY + "PyYAML-6.0.1.tar.gz"] = sdist
+    h_whl, h_sdist = hashlib.sha256(whl).hexdigest(), hashlib.sha256(sdist).hexdigest()
+    with pytest.raises(Rejected, match="matches the lock"):
+        pkgsrc.fetch_pypi("PyYAML", "6.0.1", "0" * 64)
+    d = pkgsrc.fetch_pypi("PyYAML", "6.0.1", f"{h_sdist},{h_whl}")       # the pure wheel is preferred
+    assert sorted(str(p.relative_to(d)) for p in d.rglob("*") if p.is_file()) == [
+        "PyYAML-6.0.1.dist-info/top_level.txt", "yaml/__init__.py"]       # no .so, no METADATA
+    m = json.loads((d.parent / (d.name + ".json")).read_text())
+    assert m["modules"] == ["_yaml", "yaml"] and m["verified"] == {"lockfile": ["sha256"]}
+    assert not (d / "yaml/__init__.py").stat().st_mode & (stat.S_IWUSR | stat.S_IXUSR)
+    # only the sdist hashed in the lock: it is the one fetched; setup.py kept as a file, never run
+    d2 = pkgsrc.fetch_pypi("PyYAML", "6.0.1", h_sdist)
+    assert (d2 / "setup.py").is_file() and (d2 / "lib/yaml/__init__.py").is_file()
+    # no hashes in the lock (plain pins): PyPI's own digest, recorded; off -> refused
+    d3 = pkgsrc.fetch_pypi("PyYAML", "6.0.1", "")
+    assert json.loads((d3.parent / (d3.name + ".json")).read_text())["verified"]["registry_only"]
+    monkeypatch.setenv("SSVC_PKGSRC_REGISTRY_INTEGRITY", "0")
+    with pytest.raises(Rejected, match="no sha256 in the lock"):
+        pkgsrc.fetch_pypi("other", "1.0", "")
+    assert all(u.startswith(("https://pypi.org/pypi/", PY)) for u in seen)
+
+
+def test_pypi_fetch_refuses_hostile_and_oversized(registry, monkeypatch):
+    served, _ = registry
+    evil = _whl([("../../etc/x.py", b"")])
+    served["https://pypi.org/pypi/evil/1.0/json"] = _pypi_doc([("evil-1.0-py3-none-any.whl", evil)])
+    served[PY + "evil-1.0-py3-none-any.whl"] = evil
+    with pytest.raises(Rejected, match="hostile"):
+        pkgsrc.fetch_pypi("evil", "1.0", hashlib.sha256(evil).hexdigest())
+    big = _whl([("big/__init__.py", b"x" * 100)])
+    served["https://pypi.org/pypi/big/1.0/json"] = _pypi_doc([("big-1.0-py3-none-any.whl", big)])
+    monkeypatch.setenv("SSVC_PKGSRC_PY_MAX_MB", "0.00001")
+    with pytest.raises(Rejected, match="over 0 MB"):
+        pkgsrc.fetch_pypi("big", "1.0", hashlib.sha256(big).hexdigest())
+    with pytest.raises(Rejected, match="invalid"):
+        pkgsrc.fetch_pypi("x/../y", "1.0", "")
+    # a file whose bytes don't match PyPI's digest
+    monkeypatch.setenv("SSVC_PKGSRC_PY_MAX_MB", "100")
+    good = _whl([("ok/__init__.py", b"")])
+    served["https://pypi.org/pypi/swap/1.0/json"] = _pypi_doc([("swap-1.0-py3-none-any.whl", good)])
+    served[PY + "swap-1.0-py3-none-any.whl"] = _whl([("ok/__init__.py", b"evil")])
+    with pytest.raises(Rejected, match="does not match"):
+        pkgsrc.fetch_pypi("swap", "1.0", hashlib.sha256(good).hexdigest())

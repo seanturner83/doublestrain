@@ -339,7 +339,7 @@ def for_query(repo: str | Path, dependency: str, version: str = "", limit: int =
     if not cs:
         return [], []
     target = cs[0][-1]
-    get = {"cargo": fetch_crate, "go": fetch_gomodule}.get(ecosystem, fetch)
+    get = {"cargo": fetch_crate, "go": fetch_gomodule, "pypi": fetch_pypi}.get(ecosystem, fetch)
     dependents = sorted((p for p, kids in g.edges.items() if p and target in kids),
                         key=lambda p: (p.count("node_modules/"), g.nodes[p]["name"]))
     got, notes, seen = [], [], set()
@@ -457,6 +457,186 @@ def _fetch_gomodule(path: str, version: str, h1: str) -> Path:
                                     "fetched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                                     **stats}, indent=1))
     logger.info("pkgsrc: go module %s@%s -> %s (%d files)", path, version, final, stats["written"])
+    return final
+
+
+# --- PyPI ------------------------------------------------------------------------------
+# A release's files come from PyPI's JSON API for exactly name@version; only
+# files.pythonhosted.org is downloaded from. The file's sha256 must be one the lock lists
+# (uv/poetry/Pipfile/--hash), or, when the lock lists none (plain pins), PyPI's own digest
+# for that file (the registry fallback, recorded as `registry_only`). Preference: a
+# pure-Python wheel, then the sdist, then a Linux x86_64 binary wheel, then any wheel,
+# each under SSVC_PKGSRC_PY_MAX_MB (default 100: torch's GB-sized wheels are refused, so
+# its source is simply not available). Only .py/.pyi files are kept, plus top_level.txt
+# and entry_points.txt; setup.py is a file like any other and never runs.
+PY_EXT = (".py", ".pyi")
+_PY_META = ("top_level.txt", "entry_points.txt")
+_PYNAME = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,98}[A-Za-z0-9])?$")
+_PYVER = re.compile(r"^[0-9A-Za-z.!+_-]{1,64}$")
+_PYHOST = "https://files.pythonhosted.org/"
+
+
+def pypi_json() -> str:
+    r = os.environ.get("SSVC_PYPI_URL", "https://pypi.org/pypi").rstrip("/")
+    if not r.startswith("https://"):
+        raise Rejected(f"PyPI JSON API must be https: {r}")
+    return r
+
+
+def _py_max() -> int:
+    return int(float(os.environ.get("SSVC_PKGSRC_PY_MAX_MB", "100")) * 2**20)
+
+
+def _py_rank(f: dict) -> int:
+    fn = f.get("filename", "")
+    if fn.endswith(".whl"):
+        tags = fn[:-4].split("-")[-3:]
+        if tags[1:] == ["none", "any"]:
+            return 0
+        return 2 if ("manylinux" in tags[2] and "x86_64" in tags[2]) else 3
+    return 1 if fn.endswith((".tar.gz", ".zip", ".tgz")) else 9
+
+
+def fetch_pypi(name: str, version: str, hashes: str = "") -> Path:
+    with keylock(("pkgsrc", "pypi", name, version, hashes)):
+        return _fetch_pypi(name, version, hashes)
+
+
+def _fetch_pypi(name: str, version: str, hashes: str = "") -> Path:
+    """Directory holding a PyPI release's Python source, verified before parsing, then
+    cached. `hashes`: the lock's sha256 digests for the release, comma-separated ("" when
+    the lock has none). Raises Rejected."""
+    import zipfile
+    if not _PYNAME.fullmatch(name) or not _PYVER.fullmatch(version):
+        raise Rejected(f"invalid PyPI name/version {name!r}@{version!r}")
+    norm = re.sub(r"[-_.]+", "-", name).lower()
+    lock = {h.strip().lower() for h in (hashes or "").split(",") if _SHA256.fullmatch(h.strip().lower())}
+    if not lock and not registry_integrity_on():
+        raise Rejected(f"{name}@{version}: no sha256 in the lock")
+    root = cache_root()
+    tag = hashlib.sha256((",".join(sorted(lock)) or "registry").encode()).hexdigest()[:12]
+    final = root / f"pypi+{norm}@{version}-{tag}"
+    manifest = final.with_name(final.name + ".json")
+    if final.is_dir() and manifest.is_file():
+        return final
+    try:
+        doc = json.loads(_get(f"{pypi_json()}/{norm}/{version}/json", MAX_META))
+    except ValueError as exc:
+        raise Rejected(f"{name}@{version}: unreadable PyPI metadata") from exc
+    files = [f for f in (doc or {}).get("urls") or []
+             if isinstance(f, dict) and str(f.get("url", "")).startswith(_PYHOST)
+             and _SHA256.fullmatch(str((f.get("digests") or {}).get("sha256", "")).lower())]
+    if lock:
+        files = [f for f in files if f["digests"]["sha256"].lower() in lock]
+    if not files:
+        raise Rejected(f"{name}@{version}: no release file on PyPI matches the lock's hashes" if lock
+                       else f"{name}@{version}: no release files on PyPI")
+    fits = sorted((f for f in files if int(f.get("size") or 0) <= _py_max()), key=_py_rank)
+    if not fits:
+        raise Rejected(f"{name}@{version}: every release file is over {_py_max() // 2**20} MB "
+                       f"(smallest {min(int(f.get('size') or 0) for f in files) // 2**20} MB)")
+    f = fits[0]
+    want = f["digests"]["sha256"].lower()
+    data = _get(f["url"], _py_max())
+    if hashlib.sha256(data).hexdigest() != want:
+        raise Rejected(f"{name}@{version}: {f['filename']} does not match its sha256")
+    members: list[tuple[list[str], bytes, int]] = []      # (path parts, body, size)
+    fn = f["filename"]
+    if fn.endswith((".whl", ".zip")):
+        try:
+            zf = zipfile.ZipFile(io.BytesIO(data))
+        except zipfile.BadZipFile as exc:
+            raise Rejected(f"{name}@{version}: bad zip: {exc}") from exc
+        with zf:
+            infos = [i for i in zf.infolist() if not i.is_dir()]
+            if len(infos) > MAX_MEMBERS:
+                raise Rejected(f"{name}@{version}: too many zip members")
+            inflated = 0
+            for i in infos:
+                parts = _safe_parts("x/" + i.filename)    # no top dir in a wheel
+                if fn.endswith(".zip"):
+                    parts = parts[1:]                     # an sdist zip has one
+                keep = bool(parts) and (parts[-1].endswith(PY_EXT) or parts[-1] in _PY_META) \
+                    and i.file_size <= MAX_FILE
+                if keep:                                  # only kept members are ever inflated
+                    inflated += i.file_size
+                    if inflated > MAX_RAW:
+                        raise Rejected(f"{name}@{version}: Python source inflates too large")
+                    body = zf.open(i).read(MAX_FILE + 1)
+                    if len(body) > MAX_FILE:              # a lying header
+                        raise Rejected(f"{name}@{version}: {i.filename!r:.80} larger than its header says")
+                else:
+                    body = b""
+                if parts:
+                    members.append((parts, body, i.file_size))
+    else:
+        raw = _inflate(data)
+        tf = tarfile.open(fileobj=io.BytesIO(raw), mode="r:")
+        with tf:
+            for n, m in enumerate(tf):
+                if n >= MAX_MEMBERS:
+                    raise Rejected("too many tar members")
+                parts = _safe_parts(m.name)
+                if not m.isreg() or not parts:
+                    continue
+                keep = parts[-1].endswith(PY_EXT) or parts[-1] in _PY_META
+                fh = tf.extractfile(m) if keep and m.size <= MAX_FILE else None
+                members.append((parts, fh.read(MAX_FILE + 1) if fh else b"", m.size))
+    root.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=".staging-", dir=root))
+    stats = {"written": 0, "bytes": 0, "skipped_ext": 0, "skipped_size": 0, "skipped_dup": 0}
+    modules: set[str] = set()
+    try:
+        dest = staging / "src"
+        dest.mkdir(mode=0o755)
+        seen: set[str] = set()
+        for parts, body, size in members:
+            if not (parts[-1].endswith(PY_EXT) or parts[-1] in _PY_META):
+                stats["skipped_ext"] += 1
+                continue
+            if size > MAX_FILE or stats["bytes"] + len(body) > MAX_WRITTEN:
+                stats["skipped_size"] += 1
+                continue
+            key = "/".join(parts).casefold()
+            if key in seen:
+                stats["skipped_dup"] += 1
+                continue
+            seen.add(key)
+            target = dest.joinpath(*parts)
+            try:
+                target.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
+                fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+            except (FileExistsError, NotADirectoryError):
+                stats["skipped_dup"] += 1
+                continue
+            with os.fdopen(fd, "wb") as out:
+                out.write(body)
+            os.chmod(target, 0o444)
+            stats["written"] += 1
+            stats["bytes"] += len(body)
+            if parts[-1] == "top_level.txt":
+                modules |= {ln.strip() for ln in body.decode(errors="replace").splitlines()
+                            if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", ln.strip())}
+        if not modules:      # no top_level.txt (newer wheels, sdists): the top-level packages
+            base = dest
+            if not fn.endswith(".whl"):           # sdist: src/ layout or the root
+                base = dest / "src" if (dest / "src").is_dir() else dest
+            modules = {c.name if c.is_dir() else c.stem for c in base.iterdir()
+                       if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", c.stem if c.is_file() else c.name)
+                       and (c.is_dir() and any(c.rglob("*.py")) or c.suffix == ".py")
+                       and c.stem not in ("setup", "conftest", "tests", "test", "docs", "examples")}
+        if final.exists():
+            return final
+        os.rename(dest, final)
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    checked = {"lockfile": ["sha256"]} if lock else {"lockfile": [], "registry": ["sha256"], "registry_only": True}
+    manifest.write_text(json.dumps({"name": norm, "version": version, "url": f["url"], "file": fn,
+                                    "ecosystem": "pypi", "verified": checked, "sha256": want,
+                                    "modules": sorted(modules),
+                                    "fetched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                                    **stats}, indent=1))
+    logger.info("pkgsrc: pypi %s@%s (%s) -> %s (%d files)", norm, version, fn, final, stats["written"])
     return final
 
 

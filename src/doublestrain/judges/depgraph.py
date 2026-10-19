@@ -143,7 +143,7 @@ def _from_pypi(repo: Path) -> Graph | None:
         return None
     runtime = lock.runtime()
     nodes = {i: {"name": p.name, "version": p.version, "dev": i not in runtime,
-                 "integrity": ",".join(p.hashes[:1])} for i, p in lock.pkgs.items()}
+                 "integrity": ",".join(p.hashes)} for i, p in lock.pkgs.items()}
     edges = {i: tuple(c for c in lock.edges.get(i, ()) if c in nodes) for i in nodes}
     roots = (lock.prod_roots | lock.dev_roots) or set(nodes)
     edges[ROOT] = tuple(sorted(r for r in roots if r in nodes))
