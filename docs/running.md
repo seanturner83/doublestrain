@@ -34,7 +34,7 @@ See the [README](../README.md) for the overview.
 
 | Judge | Needs |
 |---|---|
-| `jev` | `TYPESAFE_API_KEY`, or a key file at `TYPESAFE_API_KEY_FILE` (default `~/.keys/jev.key`). Note: with the key file present and `TYPESAFE_BASE_URL` unset, calls go to the **hosted** Jev API. Its answers differ from the local student's, and the cache keeps the two apart. Jevstiller is optional: `TYPESAFE_BASE_URL=http://localhost:8080` routes calls through the local proxy and student; without it, calls go to the hosted API. |
+| `jev` | `TYPESAFE_API_KEY`, or a key file at `TYPESAFE_API_KEY_FILE` (default `~/.keys/jev.key`). Note: with the key file present and `TYPESAFE_BASE_URL` unset, calls go to the **hosted** Jev API. Its answers differ from the local student's, and the cache keeps the two apart. [Jevstiller](https://github.com/tomerglick57/Jevstiller) (Apache-2.0; distils the repeated Jev task into a local model) is optional: `TYPESAFE_BASE_URL=http://localhost:8080` routes calls through the local proxy and student; without it, calls go to the hosted API. |
 | `local` / `<name>` | `SSVC_LOCAL_BASE_URL` (default `http://localhost:1234/v1`), `SSVC_LOCAL_MODEL` (default: the server's first listed model), optional `SSVC_LOCAL_API_KEY`, `SSVC_LOCAL_TIMEOUT` (default 180), `SSVC_LOCAL_CONTEXT_CHARS` (default 24000). |
 | `shape` | `claude`, pkgsrc (specs shared with `split`). `SSVC_SHAPE_STRINGS=none` redacts all string literals. |
 | `jelly` | npm only. Node >= 22 and Jelly 0.13 under `SSVC_JELLY_HOME` (default `~/.cache/ssvc-triage/jstools`: `npm install --ignore-scripts @cs-au-dk/jelly` there), `SSVC_PKGSRC=1`. `SSVC_JELLY_HEAP_MB` (default 8192), `SSVC_JELLY_TIMEOUT` (default 1200), `SSVC_JELLY_WORK` (analysis copies, removed after each run). |

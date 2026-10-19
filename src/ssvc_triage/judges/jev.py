@@ -4,8 +4,9 @@ Jev sees only the static usage summary (never the repo) and answers one bounded
 `choice`; its `confidence` is the top-vs-runner-up MARGIN, which is exactly the
 System-1 <-> System-2 boundary: obvious cases come back ~1.0, dynamic dispatch low.
 
-Jevstiller is optional: point TYPESAFE_BASE_URL at the local proxy
-(e.g. http://localhost:8080) and repeated classifications are answered by the
+Jevstiller (https://github.com/tomerglick57/Jevstiller, Apache-2.0) is optional: point
+TYPESAFE_BASE_URL at the local proxy (e.g. http://localhost:8080) and repeated
+classifications are answered by the
 distilled local student, deferring out-of-distribution queries upstream. Unset, calls
 go straight to the hosted Jev API. Key: TYPESAFE_API_KEY, or read from
 TYPESAFE_API_KEY_FILE (default ~/.keys/jev.key).
