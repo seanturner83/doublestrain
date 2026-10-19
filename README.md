@@ -110,6 +110,7 @@ all10 (1,045 rows, 941 labelled), `cascade:workstation,split:workstation,shape`:
 | r6, + corroboration, Opus shape floor 0.85 | 0 | 0.650 | $22.89 | $20.23 of it one-off split specs |
 | r7, + registry integrity fallback | 0 | 0.696 | $4.82 | the 96 no-integrity rows get a split answer |
 | r9, + reaching parents become triggers | 0 | 0.747 | $1.97 | the connect guard's blanket holds lifted where a parent's route is checked |
+| r10, `cascade:jelly,workstation,...` | 0 | 0.748 | $0 (all cached) | 170 rows settle at jelly + workstation; split/shape needed on 169 fewer rows |
 
 r5's four misses: two workstation not_reachables on serve-static (corroboration holds
 these), and two shape not_reachables at exactly 0.80 (the Opus shape floor is now 0.85:
