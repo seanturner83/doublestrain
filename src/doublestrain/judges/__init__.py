@@ -4,6 +4,7 @@
 (System-2) only when Jev's verdict is below its acceptance floor. Spec syntax:
 "null", "jev", "local", "claude", "govulncheck" (Go call graph; no claim for other ecosystems),
 "jelly" (npm packages the app can load; needs SSVC_PKGSRC),
+"pyimports" (Python distributions the app can import; needs SSVC_PKGSRC),
 "cascade" (== "cascade:jev,claude"), or "cascade:a,b,..."
 (e.g. "cascade:jev,local,claude" puts local inference between Jev and claude-code).
 Any other name is an OpenAI-compatible endpoint configured by SSVC_<NAME>_BASE_URL etc.
@@ -22,6 +23,7 @@ from .base import Judge, JudgeResult, ReachQuery, Verdict, accept, needs_corrobo
 from .claude_code import ClaudeCodeJudge
 from .govulncheck import GovulncheckJudge
 from .jelly import JellyJudge
+from .pyimports import PyImportsJudge
 from .jev import JevJudge
 from .local import LocalJudge, OpenAIJudge, configured
 from .shape import ShapeJudge
@@ -29,7 +31,7 @@ from .split import SplitJudge
 from .usage import copies_note
 
 __all__ = ["Judge", "JudgeResult", "ReachQuery", "Verdict", "accept", "get_judge",
-           "NullJudge", "JevJudge", "GovulncheckJudge", "JellyJudge", "LocalJudge", "OpenAIJudge", "SplitJudge", "ShapeJudge", "ClaudeCodeJudge", "CascadeJudge", "CachedJudge"]
+           "NullJudge", "JevJudge", "GovulncheckJudge", "JellyJudge", "PyImportsJudge", "LocalJudge", "OpenAIJudge", "SplitJudge", "ShapeJudge", "ClaudeCodeJudge", "CascadeJudge", "CachedJudge"]
 
 
 class NullJudge:
@@ -226,6 +228,8 @@ def _build(spec: str, *, cache: bool = True):
         j = GovulncheckJudge()
     elif spec == "jelly":
         j = JellyJudge()
+    elif spec == "pyimports":
+        j = PyImportsJudge()
     elif spec == "local":
         j = LocalJudge()
     elif spec == "claude":
@@ -237,7 +241,7 @@ def _build(spec: str, *, cache: bool = True):
     elif configured(spec):
         j = OpenAIJudge(spec)
     else:
-        raise ValueError(f"unknown judge spec {spec!r} (null|jev|local|claude|govulncheck|jelly|split[:endpoint]|shape|<endpoint>|cascade[:a,b]; "
+        raise ValueError(f"unknown judge spec {spec!r} (null|jev|local|claude|govulncheck|jelly|pyimports|split[:endpoint]|shape|<endpoint>|cascade[:a,b]; "
                          "an endpoint tier needs SSVC_<NAME>_BASE_URL)")
     return CachedJudge(j) if cache else j
 

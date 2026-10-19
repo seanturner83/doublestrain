@@ -40,7 +40,7 @@ not_reachable = 0.7
 reachable = inf
 not_reachable = 0.9
 corroborate = true
-corroborate_by = ["jelly", "split", "shape", "claude"]
+corroborate_by = ["jelly", "pyimports", "split", "shape", "claude"]
 
 [role.govulncheck]
 # a call graph, not a model: called -> reachable 1.0, only imported / required ->
@@ -56,6 +56,16 @@ not_reachable = 0.9
 # the same apps): 336 of 844 not_reachable labels, 0 of 97 reachable labels. Until a
 # held-out measurement, a second read must agree; an endpoint model counts (mutual:
 # endpoint lists jelly), since the two fail in different ways.
+reachable = inf
+not_reachable = 0.9
+corroborate = true
+corroborate_by = ["endpoint", "split", "shape", "claude"]
+
+[role.pyimports]
+# the Python import graph (judges/pyimports.py), distribution level: not_reachable 1.0
+# when the advisory's distribution is never imported and no guard fires; imported ->
+# `unsure`. Unmeasured (pip is held by SSVC_NR_UNMEASURED), so a second read must agree,
+# mutually with an endpoint model, as for jelly.
 reachable = inf
 not_reachable = 0.9
 corroborate = true

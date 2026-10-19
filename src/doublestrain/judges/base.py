@@ -82,7 +82,7 @@ class Judge(Protocol):
 # one was measured on, and which models need a second read before their not_reachable
 # settles anything (`corroborate`).
 _FLOORS_FILE = Path(__file__).with_name("floors.toml")
-_ROLES = ("jev", "claude", "split", "shape", "govulncheck", "jelly")
+_ROLES = ("jev", "claude", "split", "shape", "govulncheck", "jelly", "pyimports")
 
 
 @lru_cache(maxsize=4)
@@ -93,7 +93,7 @@ def _table(path: str) -> tuple[dict, dict]:
 
 
 def role(source: str) -> str:
-    """jev | claude | split | shape | govulncheck | jelly | endpoint (any OpenAI-compatible tier)."""
+    """jev | claude | split | shape | govulncheck | jelly | pyimports | endpoint (any OpenAI-compatible tier)."""
     base = source.partition(":")[0]
     return base if base in _ROLES else "endpoint"
 

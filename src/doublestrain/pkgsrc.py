@@ -471,6 +471,8 @@ def _fetch_gomodule(path: str, version: str, h1: str) -> Path:
 # and entry_points.txt; setup.py is a file like any other and never runs.
 PY_EXT = (".py", ".pyi")
 _PY_META = ("top_level.txt", "entry_points.txt")
+_NATIVE = (".so", ".pyd", ".dylib")
+PYSRC_V = "2"         # bump when what a PyPI source dir holds changes (v2: .pth files, native count)
 _PYNAME = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,98}[A-Za-z0-9])?$")
 _PYVER = re.compile(r"^[0-9A-Za-z.!+_-]{1,64}$")
 _PYHOST = "https://files.pythonhosted.org/"
@@ -514,7 +516,7 @@ def _fetch_pypi(name: str, version: str, hashes: str = "") -> Path:
     if not lock and not registry_integrity_on():
         raise Rejected(f"{name}@{version}: no sha256 in the lock")
     root = cache_root()
-    tag = hashlib.sha256((",".join(sorted(lock)) or "registry").encode()).hexdigest()[:12]
+    tag = hashlib.sha256((PYSRC_V + (",".join(sorted(lock)) or "registry")).encode()).hexdigest()[:12]
     final = root / f"pypi+{norm}@{version}-{tag}"
     manifest = final.with_name(final.name + ".json")
     if final.is_dir() and manifest.is_file():
@@ -556,7 +558,8 @@ def _fetch_pypi(name: str, version: str, hashes: str = "") -> Path:
                 parts = _safe_parts("x/" + i.filename)    # no top dir in a wheel
                 if fn.endswith(".zip"):
                     parts = parts[1:]                     # an sdist zip has one
-                keep = bool(parts) and (parts[-1].endswith(PY_EXT) or parts[-1] in _PY_META) \
+                keep = bool(parts) and (parts[-1].endswith(PY_EXT) or parts[-1] in _PY_META
+                                        or (len(parts) == 1 and parts[0].endswith(".pth"))) \
                     and i.file_size <= MAX_FILE
                 if keep:                                  # only kept members are ever inflated
                     inflated += i.file_size
@@ -579,19 +582,23 @@ def _fetch_pypi(name: str, version: str, hashes: str = "") -> Path:
                 parts = _safe_parts(m.name)
                 if not m.isreg() or not parts:
                     continue
-                keep = parts[-1].endswith(PY_EXT) or parts[-1] in _PY_META
+                keep = parts[-1].endswith(PY_EXT) or parts[-1] in _PY_META or parts[-1].endswith((".pyx", ".pxd"))
                 fh = tf.extractfile(m) if keep and m.size <= MAX_FILE else None
                 members.append((parts, fh.read(MAX_FILE + 1) if fh else b"", m.size))
     root.mkdir(parents=True, exist_ok=True)
     staging = Path(tempfile.mkdtemp(prefix=".staging-", dir=root))
-    stats = {"written": 0, "bytes": 0, "skipped_ext": 0, "skipped_size": 0, "skipped_dup": 0}
+    stats = {"written": 0, "bytes": 0, "skipped_ext": 0, "skipped_size": 0, "skipped_dup": 0,
+             "native": sum(1 for parts, _b, _s in members if parts[-1].endswith(_NATIVE)),
+             "cython": sum(1 for parts, _b, _s in members if parts[-1].endswith((".pyx", ".pxd")))}
+    pth: list[str] = []
     modules: set[str] = set()
     try:
         dest = staging / "src"
         dest.mkdir(mode=0o755)
         seen: set[str] = set()
         for parts, body, size in members:
-            if not (parts[-1].endswith(PY_EXT) or parts[-1] in _PY_META):
+            if not (parts[-1].endswith(PY_EXT) or parts[-1] in _PY_META or parts[-1].endswith((".pyx", ".pxd"))
+                    or (len(parts) == 1 and parts[0].endswith(".pth"))):
                 stats["skipped_ext"] += 1
                 continue
             if size > MAX_FILE or stats["bytes"] + len(body) > MAX_WRITTEN:
@@ -614,6 +621,8 @@ def _fetch_pypi(name: str, version: str, hashes: str = "") -> Path:
             os.chmod(target, 0o444)
             stats["written"] += 1
             stats["bytes"] += len(body)
+            if len(parts) == 1 and parts[0].endswith(".pth"):
+                pth.append(parts[0])
             if parts[-1] == "top_level.txt":
                 modules |= {ln.strip() for ln in body.decode(errors="replace").splitlines()
                             if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", ln.strip())}
@@ -633,7 +642,7 @@ def _fetch_pypi(name: str, version: str, hashes: str = "") -> Path:
     checked = {"lockfile": ["sha256"]} if lock else {"lockfile": [], "registry": ["sha256"], "registry_only": True}
     manifest.write_text(json.dumps({"name": norm, "version": version, "url": f["url"], "file": fn,
                                     "ecosystem": "pypi", "verified": checked, "sha256": want,
-                                    "modules": sorted(modules),
+                                    "modules": sorted(modules), "pth": sorted(pth),
                                     "fetched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                                     **stats}, indent=1))
     logger.info("pkgsrc: pypi %s@%s (%s) -> %s (%d files)", norm, version, fn, final, stats["written"])
