@@ -6,12 +6,12 @@ import sys
 
 import pytest
 
-from ssvc_triage import gomod, osv
-from ssvc_triage.judges import depgraph, get_judge
-from ssvc_triage.judges.base import ReachQuery, Verdict, accept
-from ssvc_triage.judges.usage import guard_not_reachable, usage_summary
-from ssvc_triage.reach import resolve_reachability
-from ssvc_triage.ssvc import Candidate, Reachability
+from doublestrain import gomod, osv
+from doublestrain.judges import depgraph, get_judge
+from doublestrain.judges.base import ReachQuery, Verdict, accept
+from doublestrain.judges.usage import guard_not_reachable, usage_summary
+from doublestrain.reach import resolve_reachability
+from doublestrain.ssvc import Candidate, Reachability
 
 GOMOD = """module example.com/app
 
@@ -168,7 +168,7 @@ def _zip(files):
 
 
 def test_fetch_gomodule_verifies_the_go_sum_dirhash(tmp_path, monkeypatch):
-    from ssvc_triage import pkgsrc
+    from doublestrain import pkgsrc
     files = [("example.com/m@v1.0.0/go.mod", b"module example.com/m\n"),
              ("example.com/m@v1.0.0/a.go", b"package m\nfunc A() {}\n"),
              ("example.com/m@v1.0.0/a_test.go", b"package m\n"),
@@ -192,7 +192,7 @@ def test_fetch_gomodule_verifies_the_go_sum_dirhash(tmp_path, monkeypatch):
 
 
 def test_go_hold_is_lifted_for_split_only():
-    from ssvc_triage.judges.usage import Usage, nr_held
+    from doublestrain.judges.usage import Usage, nr_held
     assert nr_held("go") and nr_held("go", "endpoint") and not nr_held("go", "split")
     assert nr_held("cargo", "split")                      # Rust: still unmeasured everywhere
     u = Usage(ecosystem="go")
@@ -201,8 +201,8 @@ def test_go_hold_is_lifted_for_split_only():
 
 
 def test_go_and_rust_split_answers_are_keyed_on_their_prompts(tmp_path):
-    from ssvc_triage.judges import CachedJudge
-    from ssvc_triage.judges.split import SplitJudge
+    from doublestrain.judges import CachedJudge
+    from doublestrain.judges.split import SplitJudge
     j = CachedJudge(SplitJudge("local"), cache_dir=str(tmp_path))
     npm, go = ReachQuery("/a", "npm", "qs", "CVE-1"), ReachQuery("/a", "go", "golang.org/x/net", "CVE-1")
     assert j._path(npm).name == f"{npm.key()}.json"                 # npm keys unchanged

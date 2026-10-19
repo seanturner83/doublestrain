@@ -9,11 +9,11 @@ from pathlib import Path
 
 import pytest
 
-from ssvc_triage.judges import (CachedJudge, CascadeJudge, ClaudeCodeJudge, JevJudge,
+from doublestrain.judges import (CachedJudge, CascadeJudge, ClaudeCodeJudge, JevJudge,
                                 JudgeResult, ReachQuery, Verdict, accept, get_judge)
-from ssvc_triage.judges.usage import usage_summary
-from ssvc_triage.reach import resolve_reachability
-from ssvc_triage.ssvc import Candidate, Decision, Reachability, grade
+from doublestrain.judges.usage import usage_summary
+from doublestrain.reach import resolve_reachability
+from doublestrain.ssvc import Candidate, Decision, Reachability, grade
 
 
 @pytest.fixture
@@ -248,8 +248,8 @@ def test_claude_judge_read_only_and_structured(app, tmp_path, monkeypatch):
 
 
 def test_claude_judge_pkgsrc_adds_read_only_dirs(app, tmp_path, monkeypatch):
-    from ssvc_triage import pkgsrc
-    from ssvc_triage.judges import claude_code
+    from doublestrain import pkgsrc
+    from doublestrain.judges import claude_code
     src = tmp_path / "lodash@4.17.20-abc"
     src.mkdir()
     monkeypatch.setattr(pkgsrc, "for_query", lambda repo, dep, ver, **kw: ([("lodash@4.17.20", src)], ["x@1.0.0: refused"]))
@@ -316,7 +316,7 @@ def fake_local(monkeypatch):
 
 
 def test_local_judge_autodetects_model_and_sends_context(app, fake_local):
-    from ssvc_triage.judges import LocalJudge
+    from doublestrain.judges import LocalJudge
     seen, _ = fake_local
     r = LocalJudge().judge(_q(app))
     assert r.verdict == Verdict.NOT_REACHABLE and r.confidence == 0.92 and r.source == "local"
@@ -332,7 +332,7 @@ def test_local_judge_autodetects_model_and_sends_context(app, fake_local):
 
 
 def test_local_judge_strips_think_and_finds_json(app, fake_local):
-    from ssvc_triage.judges import LocalJudge
+    from doublestrain.judges import LocalJudge
     _, reply = fake_local
     reply["content"] = ('<think>hmm {"verdict": "reachable"}</think>Answer: '
                         '{"verdict": "unsure", "confidence": 0.3, "rationale": "", "evidence": []}')
@@ -340,7 +340,7 @@ def test_local_judge_strips_think_and_finds_json(app, fake_local):
 
 
 def test_local_judge_no_server_is_no_claim(app, monkeypatch):
-    from ssvc_triage.judges import LocalJudge
+    from doublestrain.judges import LocalJudge
     monkeypatch.setenv("SSVC_LOCAL_BASE_URL", "http://127.0.0.1:9/v1")
     assert LocalJudge(timeout=2).judge(_q(app)) is None
 
@@ -397,7 +397,7 @@ def test_jev_reachable_on_test_only_evidence_is_downgraded(tmp_path, monkeypatch
     (tmp_path / "test").mkdir()
     (tmp_path / "src/s.js").write_text("const _ = require('lodash');\n_.merge({}, x);\n")
     (tmp_path / "test/f.js").write_text("const _ = require('lodash');\n_.template('t');\n")
-    from ssvc_triage.judges.usage import guard_not_reachable, usage_summary as us
+    from doublestrain.judges.usage import guard_not_reachable, usage_summary as us
     u = us(str(tmp_path), "npm", "lodash", ["_.template"])
     v, note = guard_not_reachable(Verdict.REACHABLE, u)
     assert v == Verdict.UNSURE and "test code" in note
@@ -486,7 +486,7 @@ def test_copies_note_says_which_copy_the_row_is_about(locked_app, tmp_path, monk
 
 
 def test_installed_peer_dependency_is_a_chain_edge(tmp_path):
-    from ssvc_triage.judges import depgraph
+    from doublestrain.judges import depgraph
     lock = {"lockfileVersion": 2, "packages": {
         "": {"dependencies": {"sequelize": "^6", "sqlite3": "^5"}},
         "node_modules/sequelize": {"version": "6.21.3",
@@ -526,7 +526,7 @@ def src_dir(tmp_path):
 
 
 def test_check_trace_accepts_only_real_quotes(src_dir):
-    from ssvc_triage.judges.claude_code import check_trace
+    from doublestrain.judges.claude_code import check_trace
     sources = [("lodash@4.17.20", src_dir)]
     ok, bad = check_trace([
         {"path": "lodash@4.17.20/lib/template.js", "line": 4, "quote": "return   Function(src);"},  # ok (ws)
@@ -571,7 +571,7 @@ FAKE = {"path": "lodash@4.17.20/lib/template.js", "line": 4, "quote": "eval(user
 
 @pytest.fixture
 def with_src(monkeypatch, src_dir):
-    from ssvc_triage import pkgsrc
+    from doublestrain import pkgsrc
     monkeypatch.setattr(pkgsrc, "for_query", lambda repo, dep, ver, **kw: ([("lodash@4.17.20", src_dir)], []))
 
 
@@ -610,7 +610,7 @@ def test_uncited_twice_becomes_unsure(app, tmp_path, monkeypatch, with_src):
 
 
 def test_not_reachable_and_no_target_source_are_not_trace_checked(app, tmp_path, monkeypatch, src_dir):
-    from ssvc_triage import pkgsrc
+    from doublestrain import pkgsrc
     monkeypatch.setenv("SSVC_CLAUDE_BIN", _seq_claude(tmp_path, [_ans("not_reachable"), _ans("reachable")]))
     assert ClaudeCodeJudge(pkgsrc=True).judge(_q(app)).verdict == Verdict.NOT_REACHABLE   # (no sources)
     # only a dependent's source was available: can't demand a trace into the target
@@ -622,8 +622,8 @@ def test_not_reachable_and_no_target_source_are_not_trace_checked(app, tmp_path,
 # --- endpoint tiers, egress guard, budget, preflight ------------------------------
 
 def test_endpoint_tiers_by_name_and_egress_guard(monkeypatch):
-    from ssvc_triage.judges import OpenAIJudge
-    from ssvc_triage.judges.local import check_egress
+    from doublestrain.judges import OpenAIJudge
+    from doublestrain.judges.local import check_egress
     with pytest.raises(ValueError, match="unknown judge spec"):
         get_judge("workstation")                                   # not configured
     monkeypatch.setenv("SSVC_WORKSTATION_BASE_URL", "http://10.0.0.2:1234/v1")
@@ -647,7 +647,7 @@ def test_unknown_endpoint_tier_never_settles_reachable(monkeypatch):
 
 
 def test_claude_budget_stops_calls(app, tmp_path, monkeypatch):
-    from ssvc_triage.judges import claude_code
+    from doublestrain.judges import claude_code
     monkeypatch.setattr(claude_code, "SPEND", {"usd": 0.0, "calls": 0, "over_budget": 0})
     monkeypatch.setenv("SSVC_CLAUDE_BIN", _seq_claude(tmp_path, [_ans("not_reachable")] * 3))
     monkeypatch.setenv("SSVC_CLAUDE_BUDGET_USD", "0.015")
@@ -658,7 +658,7 @@ def test_claude_budget_stops_calls(app, tmp_path, monkeypatch):
 
 
 def test_preflight_reports_down_tiers(monkeypatch):
-    from ssvc_triage.judges import preflight
+    from doublestrain.judges import preflight
     monkeypatch.setenv("SSVC_LOCAL_BASE_URL", "http://127.0.0.1:9/v1")        # nothing listens
     monkeypatch.setenv("SSVC_CLAUDE_BIN", "/bin/echo")
     lines, down = preflight(get_judge("cascade:local,claude"))
@@ -676,8 +676,8 @@ SPEC_OK = {"triggers": [{"package": "lodash@4.17.20", "entry": "_.template(str, 
 
 
 def test_split_claude_sees_dependency_source_only(app, tmp_path, monkeypatch, src_dir, fake_local):
-    from ssvc_triage import pkgsrc
-    from ssvc_triage.judges import SplitJudge
+    from doublestrain import pkgsrc
+    from doublestrain.judges import SplitJudge
     seen, _ = fake_local
     monkeypatch.setattr(pkgsrc, "for_query", lambda repo, dep, ver, **kw: ([("lodash@4.17.20", src_dir)], []))
     monkeypatch.setenv("SSVC_SPEC_CACHE", str(tmp_path / "spec-cache"))
@@ -698,8 +698,8 @@ def test_split_claude_sees_dependency_source_only(app, tmp_path, monkeypatch, sr
 
 
 def test_split_spec_without_verified_trigger_retries_then_no_claim(app, tmp_path, monkeypatch, src_dir, fake_local):
-    from ssvc_triage import pkgsrc
-    from ssvc_triage.judges import SplitJudge
+    from doublestrain import pkgsrc
+    from doublestrain.judges import SplitJudge
     bad = {**SPEC_OK, "triggers": [SPEC_OK["triggers"][1]]}
     monkeypatch.setattr(pkgsrc, "for_query", lambda repo, dep, ver, **kw: ([("lodash@4.17.20", src_dir)], []))
     monkeypatch.setenv("SSVC_SPEC_CACHE", str(tmp_path / "spec-cache"))
@@ -731,7 +731,7 @@ def test_egress_policy_refuses_tiers_that_send_app_code(monkeypatch):
 
 
 def test_context_pack_shows_how_the_app_uses_a_parent(tmp_path):
-    from ssvc_triage.judges.local import parent_use_sites
+    from doublestrain.judges.local import parent_use_sites
     (tmp_path / "main.js").write_text("import express from 'express';\n" + "\n" * 30 +
                                       "const app = express();\napp.use(express.static('public'));\n")
     sites = parent_use_sites(str(tmp_path), ["main.js:1: import express from 'express';"])
@@ -747,14 +747,14 @@ def test_context_pack_shows_how_the_app_uses_a_parent(tmp_path):
      ["Model", "updateOne", "updateMany", "findOneAndUpdate", "Query", "update"]),
     ("express.json and/or urlencoded parsing", ["json"])])
 def test_entry_tokens_are_called_names_never_keywords_or_prose(entry, want):
-    from ssvc_triage.judges.split import _entry_tokens
+    from doublestrain.judges.split import _entry_tokens
     assert _entry_tokens([{"entry": entry}]) == want
 
 
 def test_spec_connects_guard_v2(tmp_path):
     """Downgrade only when the app imports a route package the spec neither triggered
     nor cleared (or never saw)."""
-    from ssvc_triage.judges.split import _app_imports, spec_connects
+    from doublestrain.judges.split import _app_imports, spec_connects
     _app_imports.cache_clear()
     repo = tmp_path / "app"
     repo.mkdir()
@@ -787,7 +787,7 @@ def test_spec_connects_guard_v2(tmp_path):
 def test_a_clearance_needs_evidence(tmp_path, monkeypatch):
     """A spec's "doesn't reach" for a parent counts only when the parent's source never
     imports the route, or a follow-up read cited every file where it does."""
-    from ssvc_triage.judges import split
+    from doublestrain.judges import split
     split._app_imports.cache_clear()
     split.route_uses.cache_clear()
     monkeypatch.setenv("SSVC_SPEC_CACHE", str(tmp_path / "specs"))
@@ -859,7 +859,7 @@ def test_cached_not_reachable_is_rechecked(tmp_path, monkeypatch):
 
 
 def test_local_module_use_sites_follow_app_wrappers(tmp_path):
-    from ssvc_triage.judges.local import local_module_use_sites
+    from doublestrain.judges.local import local_module_use_sites
     (tmp_path / "src" / "models").mkdir(parents=True)
     (tmp_path / "src" / "controllers").mkdir()
     (tmp_path / "scripts").mkdir()
@@ -877,7 +877,7 @@ def test_local_module_use_sites_follow_app_wrappers(tmp_path):
 
 
 def test_context_pack_keeps_site_lines_when_over_budget(tmp_path):
-    from ssvc_triage.judges.local import context_pack
+    from doublestrain.judges.local import context_pack
     (tmp_path / "a.js").write_text("\n".join(f"// filler {i} " + "x" * 80 for i in range(60)))
     (tmp_path / "b.js").write_text("\n".join(["// pad"] * 20 + ["Note.findOneAndUpdate(q, req.body);"] + ["// pad"] * 20))
     pk = context_pack(str(tmp_path), ["a.js:30: x", "b.js:21: Note"], budget=2700)
@@ -885,7 +885,7 @@ def test_context_pack_keeps_site_lines_when_over_budget(tmp_path):
 
 
 def test_build_spec_keeps_parent_triggers_through_a_verified_parent(tmp_path, monkeypatch):
-    from ssvc_triage.judges.split import build_spec
+    from doublestrain.judges.split import build_spec
     be, mm = tmp_path / "brace-expansion@1.1.11", tmp_path / "minimatch@3.0.4"
     be.mkdir(); mm.mkdir()
     (be / "index.js").write_text("module.exports = expandTop;\nfunction expandTop(str) { return expand(str); }\n")
@@ -913,8 +913,8 @@ def test_build_spec_keeps_parent_triggers_through_a_verified_parent(tmp_path, mo
 
 
 def test_split_matcher_sees_calls_through_app_wrappers(app, tmp_path, monkeypatch, src_dir, fake_local):
-    from ssvc_triage import pkgsrc
-    from ssvc_triage.judges import SplitJudge
+    from doublestrain import pkgsrc
+    from doublestrain.judges import SplitJudge
     (app / "src/routes.js").write_text("const merge = require('./a');\napp.post('/x', (req) => merge(req.body));\n")
     seen, _ = fake_local
     monkeypatch.setattr(pkgsrc, "for_query", lambda repo, dep, ver, **kw: ([("lodash@4.17.20", src_dir)], []))
@@ -926,7 +926,7 @@ def test_split_matcher_sees_calls_through_app_wrappers(app, tmp_path, monkeypatc
 
 
 def test_split_not_reachable_floor_is_095():
-    from ssvc_triage.judges.base import accept, floors
+    from doublestrain.judges.base import accept, floors
     assert floors("split:workstation")[1] == 0.95 and floors("split")[1] == 0.95
     assert not accept(JudgeResult(Verdict.NOT_REACHABLE, 0.9, "split:workstation"))
     assert accept(JudgeResult(Verdict.NOT_REACHABLE, 0.95, "split:workstation"))
@@ -936,8 +936,8 @@ def test_split_not_reachable_floor_is_095():
 def test_endpoint_schema_puts_rationale_before_verdict(monkeypatch):
     # constrained decoding emits keys in schema order; verdict-first meant no reasoning
     # before the verdict (morgan CVE-2026-5078, all10-r2)
-    from ssvc_triage.judges.claude_code import SCHEMA
-    from ssvc_triage.judges.local import OpenAIJudge
+    from doublestrain.judges.claude_code import SCHEMA
+    from doublestrain.judges.local import OpenAIJudge
     monkeypatch.setenv("SSVC_LOCAL_MODEL", "m")
     j, sent = OpenAIJudge("local"), []
 
@@ -972,7 +972,7 @@ def test_disagreement_escalation_is_a_toggle(app, monkeypatch):
 def test_usage_limit_reset_time_and_wait(monkeypatch, tmp_path):
     import datetime as dt
 
-    from ssvc_triage.judges import claude_code as cc
+    from doublestrain.judges import claude_code as cc
     now = dt.datetime(2026, 10, 17, 7, 40)
     msg = "You've hit your session limit · resets 8:50am (Europe/London)"
     assert cc.limit_reset(msg, now) == dt.datetime(2026, 10, 17, 8, 50)
@@ -997,7 +997,7 @@ QWEN = "qwen/qwen3.8-27b"
 
 
 def test_floors_follow_the_model_that_answered(monkeypatch):
-    from ssvc_triage.judges.base import floors, needs_corroboration, policy
+    from doublestrain.judges.base import floors, needs_corroboration, policy
     ws = lambda c, m=QWEN: JudgeResult(Verdict.NOT_REACHABLE, c, "workstation", model=m)   # noqa: E731
     assert floors("workstation", QWEN) == (math.inf, 0.9) and needs_corroboration(ws(0.95))
     assert policy(ws(0.95))["measured"].startswith("all10-r4")
@@ -1015,7 +1015,7 @@ def test_floors_file_override(tmp_path, monkeypatch):
     f.write_text('[role.endpoint]\nreachable = inf\nnot_reachable = 0.8\n'
                  '[[model]]\nrole = "endpoint"\nmodel = "Big/Model"\nnot_reachable = 0.6\n')
     monkeypatch.setenv("SSVC_FLOORS_FILE", str(f))
-    from ssvc_triage.judges.base import floors, needs_corroboration
+    from doublestrain.judges.base import floors, needs_corroboration
     assert floors("workstation", "big/model") == (math.inf, 0.6)          # ids compare lowercased
     assert floors("workstation", "x") == (math.inf, 0.8)
     assert not needs_corroboration(JudgeResult(Verdict.NOT_REACHABLE, 0.9, "workstation", model="x"))
@@ -1063,7 +1063,7 @@ def test_cache_fills_in_the_answering_model(app, tmp_path, monkeypatch):
 def test_spec_parents_left_out_are_asked_once(tmp_path, monkeypatch):
     # tar reached only via bcrypt (dvws-node, all10-r7): the spec never said whether bcrypt
     # reaches tar, so the connect guard kept every not_reachable at unsure
-    from ssvc_triage.judges.split import build_spec
+    from doublestrain.judges.split import build_spec
     tar, bc = tmp_path / "tar@4.4.1", tmp_path / "bcrypt@3.0.0"
     tar.mkdir(); bc.mkdir()
     (tar / "index.js").write_text("module.exports = function extract (opt) { return unpack(opt) }\n")
@@ -1089,7 +1089,7 @@ def test_spec_parents_left_out_are_asked_once(tmp_path, monkeypatch):
 
 
 def test_a_reaching_parent_without_an_entry_point_becomes_a_trigger():
-    from ssvc_triage.judges.split import with_parent_triggers
+    from doublestrain.judges.split import with_parent_triggers
     step = "yargs@15.4.1/lib/usage.js:10"
     spec = {"triggers": [{"package": "ansi-regex@5.0.0", "entry": "ansiRegex()", "condition": "none", "input": "x"}],
             "not_triggerable": False,

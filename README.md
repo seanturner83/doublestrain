@@ -1,4 +1,8 @@
-# ssvc-triage
+# doublestrain
+
+*Double straining: pouring a cocktail through the Hawthorne strainer and a fine strainer at
+once, so nothing gets into the glass that shouldn't. Here, an advisory is set aside as
+"not reachable" only after it has been through two independent reads.*
 
 Grades dependency advisories (from a lockfile scan, or Dependabot bumps) into SSVC's
 **Act / Attend / Track**, using whether the vulnerable code is actually reachable in your
@@ -11,11 +15,11 @@ held to the stricter standard throughout.
 
 What's in the box:
 
-- `src/ssvc_triage/ssvc.py`: the decision tree (`grade`, `grade_all`).
-- `src/ssvc_triage/osv.py`, `cargo.py`, `gomod.py`: lockfiles (npm, pip, Cargo, Go) to
+- `src/doublestrain/ssvc.py`: the decision tree (`grade`, `grade_all`).
+- `src/doublestrain/osv.py`, `cargo.py`, `gomod.py`: lockfiles (npm, pip, Cargo, Go) to
   OSV advisories to candidates. `sweep.py`: sweep JSONL records to candidates; the
   exposure map.
-- `src/ssvc_triage/judges/`: the reachability tiers, run as a cascade
+- `src/doublestrain/judges/`: the reachability tiers, run as a cascade
   (`cascade:a,b,...`), each answer cached on disk (`SSVC_JUDGE_CACHE`):
   - `govulncheck`: Go call-graph reachability, sandboxed (type-checks, never builds or runs).
   - `jelly`: which npm packages the app can load at all ([Jelly](https://github.com/cs-au-dk/jelly)
@@ -29,10 +33,13 @@ What's in the box:
   - `shape`: claude sees the dependency source plus abstracted call shapes from the app.
   - `claude`: `claude -p` in the checkout, read-only tools, `--restricted`.
   - `jev`: an optional hosted classifier (TypeSafe's Jev API; needs its own key).
-- `src/ssvc_triage/feeds/`: CISA KEV and FIRST EPSS, cached (`docs/running.md`, "Exploit signals").
-- `src/ssvc_triage/reach.py`: applies an accepted verdict to a candidate.
-- `src/ssvc_triage/harness/`: `ssvc-run`, `ssvc-score`, `ssvc-compare`; `ssvc-scan`
-  grades one repo; `ssvc-usage` summarises the model-call ledger.
+- `src/doublestrain/feeds/`: CISA KEV and FIRST EPSS, cached (`docs/running.md`, "Exploit signals").
+- `src/doublestrain/reach.py`: applies an accepted verdict to a candidate.
+- `src/doublestrain/harness/`: `doublestrain run`, `doublestrain score`, `doublestrain compare`;
+  `doublestrain scan` grades one repo; `doublestrain usage` summarises the model-call
+  ledger. `doublestrain --help` lists every command; each is also installed as
+  `ssvc-<command>`. Configuration is `SSVC_*` environment variables, caches live under
+  `~/.cache/ssvc-triage`.
 - `cases/`: labelled apps. Each has `case.json`, plus `fetch.sh` for third-party checkouts.
 
 ## Quickstart
@@ -40,15 +47,15 @@ What's in the box:
 ```sh
 uv sync
 # grade one app's dependency advisories (OSV + KEV/EPSS); no reachability judge:
-uv run ssvc-scan path/to/app --judge null --exposure public-internet
+uv run doublestrain scan path/to/app --judge null --exposure public-internet
 # with judges: local/LAN models first, claude only on what they can't settle,
 # app source never leaving your network except as abstracted call shapes
 export SSVC_PKGSRC=1 SSVC_WORKSTATION_BASE_URL=http://<your-llm-host>:1234/v1
-uv run ssvc-scan path/to/app --egress shape \
+uv run doublestrain scan path/to/app --egress shape \
     --judge cascade:jelly,workstation,split:workstation,shape
 ```
 
-`ssvc-scan` writes `runs/scan-<ts>-<name>/` with a digest (Act first), every grade with
+`doublestrain scan` writes `runs/scan-<ts>-<name>/` with a digest (Act first), every grade with
 its reason and reachability source, and a summary. Unresolved reachability grades like
 `reachable`: no signal is never treated as safety. `docs/running.md` covers the backends
 each tier needs and the run harness.

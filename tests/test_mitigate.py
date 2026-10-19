@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from ssvc_triage import mitigate
-from ssvc_triage.judges.base import ReachQuery
+from doublestrain import mitigate
+from doublestrain.judges.base import ReachQuery
 
 
 def test_playbook_by_cwe_and_wording_never_empty():

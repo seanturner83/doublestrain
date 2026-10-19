@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 
-from ssvc_triage.harness import run
+from doublestrain.harness import run
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -36,7 +36,7 @@ def test_workers_write_the_same_rows_in_the_same_order(tmp_path):
 def test_concurrent_rows_ask_a_cached_question_once(tmp_path):
     import threading
     import time as _t
-    from ssvc_triage.judges import CachedJudge, JudgeResult, ReachQuery, Verdict
+    from doublestrain.judges import CachedJudge, JudgeResult, ReachQuery, Verdict
 
     class Slow:
         name, calls = "slow", 0
@@ -61,7 +61,7 @@ def test_concurrent_rows_ask_a_cached_question_once(tmp_path):
 def test_claude_concurrency_cap(monkeypatch):
     import threading
     import time as _t
-    from ssvc_triage.judges import claude_code
+    from doublestrain.judges import claude_code
     monkeypatch.setenv("SSVC_CLAUDE_CONCURRENCY", "2")
     monkeypatch.setattr(claude_code, "_SEM", [])
     live, peak, lock = [0], [0], threading.Lock()

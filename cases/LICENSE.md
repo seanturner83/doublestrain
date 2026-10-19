@@ -3,7 +3,7 @@
 The case files in this directory (`case.json`: the labels, notes and other annotations,
 and `fetch.sh`) are licensed under
 [Creative Commons Attribution 4.0 International (CC-BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
-Attribute as "ssvc-triage cases".
+Attribute as "doublestrain cases".
 
 Parts of each `case.json` are third-party data under their own terms:
 

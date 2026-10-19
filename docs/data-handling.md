@@ -146,7 +146,7 @@ let a published version's tarball change, which narrows that gap. Each fetched p
 cache manifest records what verified it (`"verified": {"lockfile": [], "registry":
 ["sha512"], "registry_only": true}`). Only the package name and version leave the machine.
 
-`--no-registry-integrity` (on `ssvc-run` and `ssvc-scan`) or
+`--no-registry-integrity` (on `doublestrain run` and `doublestrain scan`) or
 `SSVC_PKGSRC_REGISTRY_INTEGRITY=0` turns the fallback off: entries with no integrity are
 refused again, even if a copy is already cached.
 
@@ -171,7 +171,7 @@ app before egress. A deterministic tokenizer and parser (`judges/shape.py`) emit
 - pseudonymous file ids (f1, f2, …).
 
 Function bodies, comments, other identifiers, paths and line numbers never leave.
-`ssvc-shapes REPO PACKAGE...` prints exactly what would be sent. For DVWS:
+`doublestrain shapes REPO PACKAGE...` prints exactly what would be sent. For DVWS:
 
 ```
 s7  [f3]  express().use(body-parser.urlencoded({extended: true}))

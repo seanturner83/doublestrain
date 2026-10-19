@@ -7,8 +7,8 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
-from ssvc_triage.feeds import build_enrichment, epss, kev
-from ssvc_triage.ssvc import Candidate, Decision, grade
+from doublestrain.feeds import build_enrichment, epss, kev
+from doublestrain.ssvc import Candidate, Decision, grade
 
 KEV_DOC = {"catalogVersion": "2026.10.04", "dateReleased": "2026-10-04T00:00:00Z",
            "vulnerabilities": [{"cveID": "CVE-2024-0001", "dateAdded": "2026-01-02",

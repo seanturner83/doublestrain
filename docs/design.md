@@ -33,7 +33,7 @@ Measured 2026-10-10:
 
 A wrong `not_reachable` hides a live risk, whereas a wrong `reachable` only costs triage
 time. So each judge has two floors, `(reachable, not_reachable)`. They live in
-`src/ssvc_triage/judges/floors.toml`: defaults per role, then an entry per model, keyed on
+`src/doublestrain/judges/floors.toml`: defaults per role, then an entry per model, keyed on
 the model that actually answered (an endpoint's model id, split's matcher model, shape's
 resolved claude model). Each entry records what it was measured on. A model with no entry
 gets its role's defaults. Swapping the model behind an endpoint therefore doesn't

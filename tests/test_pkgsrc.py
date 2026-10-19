@@ -12,8 +12,8 @@ import tarfile
 
 import pytest
 
-from ssvc_triage import pkgsrc
-from ssvc_triage.pkgsrc import Rejected
+from doublestrain import pkgsrc
+from doublestrain.pkgsrc import Rejected
 
 
 def _tgz(members) -> bytes:

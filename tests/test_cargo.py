@@ -2,10 +2,10 @@
 not_reachable hold for ecosystems without a measured floor. Offline."""
 import pytest
 
-from ssvc_triage import cargo, osv
-from ssvc_triage.judges import depgraph
-from ssvc_triage.judges.base import Verdict
-from ssvc_triage.judges.usage import guard_not_reachable, usage_summary
+from doublestrain import cargo, osv
+from doublestrain.judges import depgraph
+from doublestrain.judges.base import Verdict
+from doublestrain.judges.usage import guard_not_reachable, usage_summary
 
 REG = '"registry+https://github.com/rust-lang/crates.io-index"'
 

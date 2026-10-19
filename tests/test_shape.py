@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from ssvc_triage.judges import ReachQuery, Verdict, get_judge
-from ssvc_triage.judges.shape import ShapeJudge, extract_shapes, tokenize
+from doublestrain.judges import ReachQuery, Verdict, get_judge
+from doublestrain.judges.shape import ShapeJudge, extract_shapes, tokenize
 
 SECRET = "sk_live_9f8e7d6c5b4a3210"
 
@@ -99,7 +99,7 @@ def test_tokenizer_survives_regex_templates_and_comments():
 
 
 def test_truncation_is_reported(app, monkeypatch):
-    from ssvc_triage.judges import shape
+    from doublestrain.judges import shape
     monkeypatch.setattr(shape, "SHAPE_MAX", 2)
     sh, text = _payload(app)
     assert sh.truncated and len(sh.shapes) == 2 and "NOT complete" in text
@@ -124,7 +124,7 @@ def _seq_claude(tmp_path, payloads) -> str:
 
 @pytest.fixture
 def dep_src(tmp_path, monkeypatch):
-    from ssvc_triage import pkgsrc
+    from doublestrain import pkgsrc
     d = tmp_path / "pkgsrc" / "body-parser@1.18.2-abc"
     (d / "lib").mkdir(parents=True)
     (d / "lib" / "urlencoded.js").write_text("function urlencoded(opts) {\n  var extended = opts.extended;\n"
@@ -162,7 +162,7 @@ def test_shape_judge_sends_shapes_not_source(app, tmp_path, monkeypatch, dep_src
 
 
 def test_shape_not_reachable_needs_complete_list(app, tmp_path, monkeypatch, dep_src):
-    from ssvc_triage.judges import shape
+    from doublestrain.judges import shape
     monkeypatch.setattr(shape, "SHAPE_MAX", 1)
     nr = {"verdict": "not_reachable", "confidence": 0.95, "rationale": "r", "evidence": []}
     monkeypatch.setenv("SSVC_CLAUDE_BIN", _seq_claude(tmp_path, [SPEC, nr]))
@@ -312,7 +312,7 @@ REFUSALS = [
 
 @pytest.mark.parametrize("refuse", REFUSALS)
 def test_opus_refusal_falls_back_to_the_4_6_generation_and_says_so(app, tmp_path, monkeypatch, dep_src, refuse):
-    from ssvc_triage.judges import claude_code
+    from doublestrain.judges import claude_code
     monkeypatch.setattr(claude_code, "SPEND", {"usd": 0.0, "calls": 0, "over_budget": 0, "refusals": 0})
     monkeypatch.setenv("SSVC_CLAUDE_BIN", _model_claude(
         tmp_path, {"sonnet": [SPEC], "opus": refuse, "claude-opus-4-6": NR}))
@@ -349,7 +349,7 @@ def test_spec_refusal_falls_back_too(app, tmp_path, monkeypatch, dep_src):
 
 
 def test_a_refusal_is_never_cached_as_an_answer(app, tmp_path, monkeypatch, dep_src):
-    from ssvc_triage.judges import CachedJudge
+    from doublestrain.judges import CachedJudge
     monkeypatch.setenv("SSVC_JUDGE_CACHE", str(tmp_path / "jc"))
     monkeypatch.setenv("SSVC_SHAPE_FALLBACK", "")
     monkeypatch.setenv("SSVC_CLAUDE_BIN", _model_claude(tmp_path, {"sonnet": [SPEC], "opus": [REFUSALS[0], NR]}))
@@ -376,7 +376,7 @@ def test_shape_model_is_separate_from_spec_model(monkeypatch):
 
 
 def test_shape_floor_follows_the_model_that_answered(app, tmp_path, monkeypatch, dep_src):
-    from ssvc_triage.judges import JudgeResult, accept
+    from doublestrain.judges import JudgeResult, accept
     nr = lambda src, c: JudgeResult(Verdict.NOT_REACHABLE, c, src)      # noqa: E731
     assert accept(nr("shape:claude-opus-5-5", 0.85)) and not accept(nr("shape:claude-opus-5-5", 0.8))
     assert not accept(nr("shape:claude-sonnet-5-5", 0.85)) and accept(nr("shape:claude-sonnet-5-5", 0.9))

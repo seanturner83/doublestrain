@@ -4,13 +4,13 @@ See the [README](../README.md) for the overview.
 
 ## Before and during a run
 
-- **Tier check:** `ssvc-scan` and `ssvc-run` probe every tier first and print which are
+- **Tier check:** `doublestrain scan` and `doublestrain run` probe every tier first and print which are
   down and where their questions will escalate. `--require-tiers` refuses to run if any
   tier is down.
 - **Claude budget:** `--claude-budget USD` (scan default 5) stops claude calls once that
   much is spent. Anything left over stays unresolved, which grades like `reachable`. So a
   dead local tier can no longer quietly turn a free re-run into a claude bill.
-- **Parallel rows:** `--workers N` (on `ssvc-run` and `ssvc-scan`) judges N rows at
+- **Parallel rows:** `--workers N` (on `doublestrain run` and `doublestrain scan`) judges N rows at
   once; each row's cascade still runs in order, and results are written in input order.
   It pays off when an endpoint serves parallel requests (LM Studio: parallel slots with
   the unified KV cache off, and a context big enough for every slot: about 12-16k tokens
@@ -18,7 +18,7 @@ See the [README](../README.md) for the overview.
   (the session limit is shared across the account). Rows that need the same spec,
   govulncheck scan, package or cached answer wait for the first one instead of repeating it.
 - **Usage limit:** the claude.ai session limit is shared across the account. On a limit,
-  `ssvc-run` sleeps until the reset time in the message (plus 2 minutes, at most 6 hours)
+  `doublestrain run` sleeps until the reset time in the message (plus 2 minutes, at most 6 hours)
   and retries. `--no-wait-on-limit` (or `SSVC_CLAUDE_WAIT_ON_LIMIT=0`) leaves the row
   unresolved instead.
 - **Usage ledger:** every model call (claude and endpoint) appends one line to
@@ -27,7 +27,7 @@ See the [README](../README.md) for the overview.
   (spec, shape, judge, match, defeat, triage), and records the model, outcome, cost,
   tokens (including cache reads), latency and claude's session id. No prompt or answer
   text is written. Cached answers make no call and aren't recorded.
-  `ssvc-usage --since 24h --by tool,purpose,model` summarises it, and `ssvc-run` prints
+  `doublestrain usage --since 24h --by tool,purpose,model` summarises it, and `doublestrain run` prints
   its own totals and keeps them in `summary.json`.
 
 ## Backends
@@ -43,7 +43,7 @@ See the [README](../README.md) for the overview.
 
 ## Exploit signals
 
-`--enrich` on `ssvc-run` and `ssvc-scan` picks the source:
+`--enrich` on `doublestrain run` and `doublestrain scan` picks the source:
 
 | Mode | Source |
 |---|---|
@@ -59,16 +59,16 @@ See the [README](../README.md) for the overview.
 ## Harness
 
 ```sh
-uv run ssvc-run --judge null                 # baseline: no reachability for non-Go
-uv run ssvc-run --judge jev
-uv run ssvc-run --judge claude
-uv run ssvc-run --judge local
-uv run ssvc-run --judge cascade              # == cascade:jev,claude
-uv run ssvc-run --judge cascade:jev,local,claude
-uv run ssvc-run --judge cascade --enrich live  # real KEV/EPSS instead of fixture values
-uv run ssvc-run --judge cascade --case npm-js-yaml-config-driven --no-cache
-uv run ssvc-compare runs/<A> runs/<B>
-uv run ssvc-score runs/<A>
+uv run doublestrain run --judge null                 # baseline: no reachability for non-Go
+uv run doublestrain run --judge jev
+uv run doublestrain run --judge claude
+uv run doublestrain run --judge local
+uv run doublestrain run --judge cascade              # == cascade:jev,claude
+uv run doublestrain run --judge cascade:jev,local,claude
+uv run doublestrain run --judge cascade --enrich live  # real KEV/EPSS instead of fixture values
+uv run doublestrain run --judge cascade --case npm-js-yaml-config-driven --no-cache
+uv run doublestrain compare runs/<A> runs/<B>
+uv run doublestrain score runs/<A>
 ```
 
 Each run writes `runs/<ts>-<judge>/results.jsonl`, `summary.json` and `digest.txt`.

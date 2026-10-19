@@ -2,7 +2,7 @@
 digest order. Offline: exploitation signals are passed in as a map."""
 import pytest
 
-from ssvc_triage.ssvc import Candidate, Decision, Reachability, _coherent_cves, grade, grade_all
+from doublestrain.ssvc import Candidate, Decision, Reachability, _coherent_cves, grade, grade_all
 
 PKG = "left-pad"
 CVE = "CVE-2030-0001"

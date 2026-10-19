@@ -5,8 +5,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytest
 
-from ssvc_triage import osv
-from ssvc_triage.ssvc import Candidate, Decision, _coherent_cves, grade
+from doublestrain import osv
+from doublestrain.ssvc import Candidate, Decision, _coherent_cves, grade
 
 LOCK_V2 = {
     "lockfileVersion": 2,
@@ -152,7 +152,7 @@ def test_is_malicious(rec, expected):
 
 
 def test_malicious_candidate_grades_act_regardless_of_other_axes():
-    from ssvc_triage.ssvc import Reachability
+    from doublestrain.ssvc import Reachability
     for reach, exposure in [(Reachability.UNREACHABLE, "mesh-only"), (Reachability.UNAVAILABLE, "unknown")]:
         c = Candidate(repo="o/app", pr_number=1, bumped_package="fsevents",
                       advisories=[(["GHSA-xv2f-5jw4-v95m", "MAL-2023-462"], ["fsevents"])],
@@ -162,7 +162,7 @@ def test_malicious_candidate_grades_act_regardless_of_other_axes():
 
 
 def test_malicious_candidate_skips_the_judges(tmp_path):
-    from ssvc_triage.reach import resolve_reachability
+    from doublestrain.reach import resolve_reachability
 
     class Boom:
         name = "boom"
@@ -187,7 +187,7 @@ def test_candidates_flag_malware(fake_osv, monkeypatch):
 
 # --- suspected malware (no structured marker) ------------------------------------
 
-from ssvc_triage.judges import malware as _mw
+from doublestrain.judges import malware as _mw
 
 
 @pytest.mark.parametrize("text,hit", [
@@ -233,7 +233,7 @@ def test_assess_without_hints_still_asks_jev(monkeypatch, check, suspected):
 
 
 def _sus(**kw):
-    from ssvc_triage.ssvc import Reachability
+    from doublestrain.ssvc import Reachability
     base = dict(repo="o/app", pr_number=1, bumped_package="evil", advisories=[(["GHSA-evil-0000-0000"], ["evil"])],
                 exposure_class="mesh-only", reachability=Reachability.UNREACHABLE, reach_source="claude",
                 suspected_malicious=True, malware_hints=["malicious version"])
@@ -253,8 +253,8 @@ def test_suspected_malware_keeps_act_from_other_axes():
 
 
 def test_suspected_malware_skips_the_judges(tmp_path):
-    from ssvc_triage.reach import resolve_reachability
-    from ssvc_triage.ssvc import Reachability
+    from doublestrain.reach import resolve_reachability
+    from doublestrain.ssvc import Reachability
 
     class Boom:
         name = "boom"

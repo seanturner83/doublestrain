@@ -1,8 +1,8 @@
 """Usage ledger: every model call is tagged and counted; no prompt or answer text."""
 import json
 
-from ssvc_triage import accounting
-from ssvc_triage.judges import claude_code as cc
+from doublestrain import accounting
+from doublestrain.judges import claude_code as cc
 
 
 def test_claude_call_is_recorded_with_tags_and_no_content(tmp_path, monkeypatch):
@@ -36,7 +36,7 @@ def test_limit_and_endpoint_calls_and_usage_report(tmp_path, monkeypatch, capsys
     monkeypatch.setenv("SSVC_CLAUDE_WAIT_ON_LIMIT", "0")
     assert cc.run_claude("claude", "p", "s", {}, cwd=tmp_path, model="sonnet", timeout=5, purpose="spec") is None
 
-    from ssvc_triage.judges.local import OpenAIJudge
+    from doublestrain.judges.local import OpenAIJudge
     monkeypatch.setenv("SSVC_LOCAL_MODEL", "m")
     j = OpenAIJudge("local")
     monkeypatch.setattr(j, "_req", lambda *a: {"usage": {"prompt_tokens": 7, "completion_tokens": 3},

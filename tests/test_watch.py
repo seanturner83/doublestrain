@@ -6,8 +6,8 @@ import sys
 
 import pytest
 
-from ssvc_triage import github, registry, watch
-from ssvc_triage.github import GitHubError, safe_text
+from doublestrain import github, registry, watch
+from doublestrain.github import GitHubError, safe_text
 
 
 @pytest.fixture
@@ -107,7 +107,7 @@ def test_ranking_orders_but_keeps_everything():
 
 # --- known advisories ------------------------------------------------------------------------
 def test_known_by_commit_sha_and_pr(monkeypatch, tmp_path):
-    from ssvc_triage import osv
+    from doublestrain import osv
     monkeypatch.setattr(registry, "cache_root", lambda: tmp_path / "registry")
     monkeypatch.setattr(osv, "_post", lambda path, body: {"vulns": [
         {"id": "GHSA-1", "aliases": ["CVE-1"], "references": [{"url": "https://github.com/o/r/commit/abcdef1234"}]},

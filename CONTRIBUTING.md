@@ -6,7 +6,7 @@
   harness over the labelled cases (`docs/running.md`) and report false `not_reachable`
   and coverage before and after. False `not_reachable` is the headline metric; a change
   that raises it needs a strong reason.
-- Floors live in `src/ssvc_triage/judges/floors.toml`, each with what it was measured on.
+- Floors live in `src/doublestrain/judges/floors.toml`, each with what it was measured on.
   A new model gets its role's defaults until it has been measured.
 - Never build, install or execute code from a case checkout or a dependency package, in
   code or in tests. Read it only.

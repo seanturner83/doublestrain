@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from ssvc_triage import pkgsrc
-from ssvc_triage.judges import CascadeJudge, JellyJudge, JudgeResult, ReachQuery, Verdict, accept
-from ssvc_triage.judges import jelly
-from ssvc_triage.judges.base import needs_corroboration
+from doublestrain import pkgsrc
+from doublestrain.judges import CascadeJudge, JellyJudge, JudgeResult, ReachQuery, Verdict, accept
+from doublestrain.judges import jelly
+from doublestrain.judges.base import needs_corroboration
 
 QWEN = "qwen/qwen3.8-27b"
 
