@@ -74,6 +74,7 @@ inherit another model's numbers.
 |---|---|---|
 | `jev` | (never, 0.9) | |
 | `endpoint` (`local`, `workstation`, ...) | (never, 0.9), needs corroboration | qwen/qwen3.8-27b: (never, 0.9), needs corroboration |
+| `jelly` | (never, 0.9), needs corroboration (an endpoint model counts) | |
 | `split` | (never, 0.95) | qwen/qwen3.8-27b matcher: (never, 0.95) |
 | `shape` | (never, 0.9) | claude-opus-5-5: (never, 0.85); claude-sonnet-5-5: (never, 0.9) |
 | `claude` | (0.5, 0.7) | |
@@ -113,6 +114,51 @@ all10 (1,045 rows, 941 labelled), `cascade:workstation,split:workstation,shape`:
 r5's four misses: two workstation not_reachables on serve-static (corroboration holds
 these), and two shape not_reachables at exactly 0.80 (the Opus shape floor is now 0.85:
 on r5 that holds both and costs 20 correct rows).
+
+### Which packages load at all: the `jelly` tier (npm)
+
+`jelly` runs [Jelly](https://github.com/cs-au-dk/jelly) (static analysis, BSD-3-Clause)
+once per checkout in `--modules-only` mode. It follows `require`/`import` from every
+non-test app source file through a node_modules assembled from pkgsrc (verified tarballs,
+source only, nothing installed), and answers at package level:
+
+- the advisory's package (that installed copy) is loaded: `unsure`, with that in the
+  rationale. Being loaded says nothing about the vulnerable function;
+- it is never loaded and no guard fires: not_reachable 1.0, which needs a second read
+  (floors.toml). The workstation model counts as one, and vice versa: a static
+  analysis and a model fail in different ways. So `cascade:jelly,workstation,...` settles
+  a row both agree on without a claude tier.
+
+A static analysis misses loads it can't see. Each of these makes the answer `unsure`, for
+the package and every package on its route from the app:
+
+| Guard | Catches |
+|---|---|
+| a loaded package with a computed `require` declares a package on the route | sequelize loading its dialect driver (sqlite3 on sirappsec, the prototype's one miss) |
+| the app names an unloaded route package in a string, config file, view-file extension, `node_modules/<name>` path or package.json field | `'view engine', 'pug'`, `client: 'pg'`, babel presets, jquery copied to `public/` |
+| package.json scripts run it or preload it (`-r`) | `pm2 start` (pm2 really runs in production) |
+| a computed `require` in the app, or an app file Jelly can't parse (it drops those silently, exit 0), and the route starts at a direct dependency | parse-server's `AdapterLoader` |
+| a package on the route couldn't be fetched and verified, or lost files to size caps | |
+
+Not covered: non-JS code (`.vue`/`.svelte` files are only searched for names), and
+packages named by data outside the checkout (environment variables, a database).
+
+Sandboxing: under macOS `sandbox-exec` Node has no network and writes only to the run's
+directory. The analysis copy is deleted after each run. Jelly's dynamic (`-d`) and
+`--approx` modes execute code and are never used.
+
+Measured (2026-10-19, 0 false not_reachable in both):
+
+| Set | Jelly not_reachable | Right / wrong | Guard-held, labelled | Loaded |
+|---|---|---|---|---|
+| all10 (guards designed here) | 230 rows (179 labelled) | 179 / 0; 0 of 97 reachable labels | 616 | 476 not_reachable labels, 97 reachable |
+| held out: uptime-kuma, parse-server, jsbin | 7 | 7 / 0 | 44, all not_reachable | 408 of 452 rows |
+
+The held-out apps load most of what they install, so Jelly settles little there; its
+guards held 44 rows that turned out not_reachable (the cost of safety). On all10, against
+r9's recorded answers, Qwen agrees with 170 of Jelly's 230: those rows would settle at the
+workstation, without split or shape. Coverage barely moves (+1 row); the gain is claude
+calls and time (seconds per app, $0).
 
 ### Why the summary tiers never settle `reachable`
 
@@ -251,6 +297,7 @@ cached separately (`@src<id>` in the fingerprint).
 | KEV / EPSS | CVE ids | no |
 | Jev malware check | advisory text, package name | no |
 | Jev reachability tier (hosted, **or via Jevstiller**, which forwards to hosted Jev upstream) | grep summary quoting app source lines (up to 1500 chars) | **yes** |
+| `jelly` | nothing (it uses pkgsrc: package names and versions) | no |
 | `local` / LAN endpoints | source excerpts | stays on your network |
 | off-network endpoints (opt-in) | source excerpts | **yes** |
 | `claude -p` (Anthropic API) | whatever it reads in the checkout | **yes** |
@@ -400,6 +447,7 @@ right, 0 wrong).
 | `jev` | `TYPESAFE_API_KEY`, or a key file at `TYPESAFE_API_KEY_FILE` (default `~/.keys/jev.key`). Note: with the key file present and `TYPESAFE_BASE_URL` unset, calls go to the **hosted** Jev API. Its answers differ from the local student's, and the cache keeps the two apart. Jevstiller is optional: `TYPESAFE_BASE_URL=http://localhost:8080` routes calls through the local proxy and student; without it, calls go to the hosted API. |
 | `local` / `<name>` | `SSVC_LOCAL_BASE_URL` (default `http://localhost:1234/v1`), `SSVC_LOCAL_MODEL` (default: the server's first listed model), optional `SSVC_LOCAL_API_KEY`, `SSVC_LOCAL_TIMEOUT` (default 180), `SSVC_LOCAL_CONTEXT_CHARS` (default 24000). |
 | `shape` | `claude`, pkgsrc (specs shared with `split`). `SSVC_SHAPE_STRINGS=none` redacts all string literals. |
+| `jelly` | npm only. Node >= 22 and Jelly 0.13 under `SSVC_JELLY_HOME` (default `~/.cache/ssvc-triage/jstools`: `npm install --ignore-scripts @cs-au-dk/jelly` there), `SSVC_PKGSRC=1`. `SSVC_JELLY_HEAP_MB` (default 8192), `SSVC_JELLY_TIMEOUT` (default 1200), `SSVC_JELLY_WORK` (analysis copies, removed after each run). |
 | `split` / `split:<endpoint>` | `claude` (for specs, with pkgsrc) plus the matcher endpoint (default `local`). `SSVC_SPEC_CACHE` moves the spec cache. |
 | `claude` | `claude` on PATH, logged in. `SSVC_CLAUDE_MODEL` (default `sonnet`), `SSVC_CLAUDE_TIMEOUT` (default 300), `SSVC_PKGSRC=1` to add dependency source. |
 

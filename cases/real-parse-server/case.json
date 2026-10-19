@@ -1,0 +1,4671 @@
+{
+  "id": "real-parse-server",
+  "description": "real-parse-server @ pinned commit (fetch.sh; held out from the Jelly guard design), prod dependencies (OSV-generated; label each `expect`)",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "Only rows Jelly did not find loaded are labelled (2026-10-19 held-out check); the rest have an empty expect.",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#1",
+      "facts": {
+        "package": "@babel/runtime",
+        "version": "7.11.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-27789",
+            "GHSA-968p-4wvh-cqc8"
+          ],
+          [
+            "@babel/runtime"
+          ]
+        ],
+        "advisory_summary": "Babel has inefficient RegExp complexity in generated code with .replace when transpiling named capturing groups \u2014 ### Impact\n\nWhen using Babel to compile [regular expression named capturing groups](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Named_capturing_group), Babel will generate a polyfill for the `.replace` method that has quadratic complexity on some specific replacement pattern strings (i.e. the second argument passed to `.replace`).\n\nYour generated code is vulnerable if _all_ the following conditions are true:\n- You use Babel to compile [regu",
+        "vuln_symbols": [
+          "targets",
+          "debug"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.26.10",
+          "8.0.0-alpha.17"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#2",
+      "facts": {
+        "package": "@babel/runtime",
+        "version": "7.14.6",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-27789",
+            "GHSA-968p-4wvh-cqc8"
+          ],
+          [
+            "@babel/runtime"
+          ]
+        ],
+        "advisory_summary": "Babel has inefficient RegExp complexity in generated code with .replace when transpiling named capturing groups \u2014 ### Impact\n\nWhen using Babel to compile [regular expression named capturing groups](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Named_capturing_group), Babel will generate a polyfill for the `.replace` method that has quadratic complexity on some specific replacement pattern strings (i.e. the second argument passed to `.replace`).\n\nYour generated code is vulnerable if _all_ the following conditions are true:\n- You use Babel to compile [regu",
+        "vuln_symbols": [
+          "targets",
+          "debug"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.26.10",
+          "8.0.0-alpha.17"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Prod copy @babel/runtime@7.14.6 is nested under parse@3.3.0 (package-lock; top-level 7.11.2). The CVE is in the wrapRegExp helper (named-capture-group .replace polyfill). parse@3.3.0 only imports helpers assertThisInitialized/classCallCheck/createClass/defineProperty/extends/get/getPrototypeOf/inherits/interopRequire*/possibleConstructorReturn/slicedToArray/toConsumableArray/wrapNativeSuper. No wrapRegExp anywhere in the parse pkg or parse-server src, so the vulnerable helper never runs.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled; rows Jelly did not find loaded)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#3",
+      "facts": {
+        "package": "@babel/runtime-corejs3",
+        "version": "7.14.6",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-27789",
+            "GHSA-968p-4wvh-cqc8"
+          ],
+          [
+            "@babel/runtime-corejs3"
+          ]
+        ],
+        "advisory_summary": "Babel has inefficient RegExp complexity in generated code with .replace when transpiling named capturing groups \u2014 ### Impact\n\nWhen using Babel to compile [regular expression named capturing groups](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Named_capturing_group), Babel will generate a polyfill for the `.replace` method that has quadratic complexity on some specific replacement pattern strings (i.e. the second argument passed to `.replace`).\n\nYour generated code is vulnerable if _all_ the following conditions are true:\n- You use Babel to compile [regu",
+        "vuln_symbols": [
+          "targets",
+          "debug"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.26.10",
+          "8.0.0-alpha.17"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#4",
+      "facts": {
+        "package": "@graphql-tools/utils",
+        "version": "6.2.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-104852",
+            "GHSA-7mx3-vvmw-hjmv"
+          ],
+          [
+            "@graphql-tools/utils"
+          ]
+        ],
+        "advisory_summary": "GraphQL Tools has prototype pollution in well-established utility function `mergeDeep` \u2014 Closed by https://github.com/ardatan/graphql-tools/pull/8423\nMitigated in Hive Gateway by https://github.com/graphql-hive/gateway/pull/2600\n\nA client can alias fields to `constructor`, `__proto__` or `prototype` so that the response keys from two subgraphs collide on those names during result merging. Because `mergeDeep` recursed through inherited properties, the merge walked `{}.constructor` to `Object`, then `Object.__proto__` to `Function.prototype`, and wrote a subgraph-supplied value over `Function.pr",
+        "vuln_symbols": [
+          "mergeDeep",
+          "Object.__proto__",
+          "Function.prototype",
+          "Function.prototype.call"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#5",
+      "facts": {
+        "package": "@graphql-tools/utils",
+        "version": "7.0.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-104852",
+            "GHSA-7mx3-vvmw-hjmv"
+          ],
+          [
+            "@graphql-tools/utils"
+          ]
+        ],
+        "advisory_summary": "GraphQL Tools has prototype pollution in well-established utility function `mergeDeep` \u2014 Closed by https://github.com/ardatan/graphql-tools/pull/8423\nMitigated in Hive Gateway by https://github.com/graphql-hive/gateway/pull/2600\n\nA client can alias fields to `constructor`, `__proto__` or `prototype` so that the response keys from two subgraphs collide on those names during result merging. Because `mergeDeep` recursed through inherited properties, the merge walked `{}.constructor` to `Object`, then `Object.__proto__` to `Function.prototype`, and wrote a subgraph-supplied value over `Function.pr",
+        "vuln_symbols": [
+          "mergeDeep",
+          "Object.__proto__",
+          "Function.prototype",
+          "Function.prototype.call"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#6",
+      "facts": {
+        "package": "@protobufjs/utf8",
+        "version": "1.1.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44288",
+            "GHSA-q6x5-8v7m-xcrf"
+          ],
+          [
+            "@protobufjs/utf8"
+          ]
+        ],
+        "advisory_summary": "protobufjs has overlong UTF-8 decoding \u2014 ## Summary\n\nprotobufjs includes a minimal UTF-8 decoder used in non-Node and fallback decoding paths. The affected decoder accepted overlong UTF-8 byte sequences and decoded them to their canonical characters instead of replacing them.\n\nThe issue concerns overlong encodings and code points outside the Unicode range. protobufjs may still accept some non-strict UTF-8 input for compatibility, so applications should not rely on protobufjs as a general-purpose strict UTF-8 validator.\n\n## Impact\n\nAn attacker who can provide protobuf binary data decoded throug",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#7",
+      "facts": {
+        "package": "@tootallnate/once",
+        "version": "1.1.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-3449",
+            "GHSA-vpq2-c234-7xj6"
+          ],
+          [
+            "@tootallnate/once"
+          ]
+        ],
+        "advisory_summary": "@tootallnate/once vulnerable to Incorrect Control Flow Scoping \u2014 Versions of the package @tootallnate/once before 3.0.1 are vulnerable to Incorrect Control Flow Scoping in promise resolving when AbortSignal option is used. The Promise remains in a permanently pending state after the signal is aborted, causing any await or .then() usage to hang indefinitely. This can cause a control-flow leak that can lead to stalled requests, blocked workers, or degraded application availability.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.1",
+          "3.0.1"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#8",
+      "facts": {
+        "package": "ajv",
+        "version": "6.12.6",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-69873",
+            "GHSA-2g4f-4pwh-qvx6"
+          ],
+          [
+            "ajv"
+          ]
+        ],
+        "advisory_summary": "ajv has ReDoS when using `$data` option \u2014 ajv (Another JSON Schema Validator) through version 8.17.1 is vulnerable to Regular Expression Denial of Service (ReDoS) when the `$data` option is enabled. The pattern keyword accepts runtime data via JSON Pointer syntax (`$data` reference), which is passed directly to the JavaScript `RegExp()` constructor without validation. An attacker can inject a malicious regex pattern (e.g., `\\\"^(a|a)*$\\\"`) combined with crafted input to cause catastrophic backtracking. A 31-character payload causes approximately 44 seconds of CPU blocking, with each additional ",
+        "vuln_symbols": [
+          "$data",
+          "RegExp"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.14.0",
+          "8.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#9",
+      "facts": {
+        "package": "apollo-server-core",
+        "version": "2.25.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-9q82-xgwf-vj6h"
+          ],
+          [
+            "apollo-server-core"
+          ]
+        ],
+        "advisory_summary": "Apollo Server: Browser bug allows for bypass of XS-Search (read-only Cross-Site Request Forgery) prevention \u2014 # Impact\n\nIn a Cross-Site Request Forgery attack, untrusted web content causes browsers to send authenticated requests to web servers which use cookies for authentication. While the web content is prevented from reading the request's response due to the Cross-Origin Request Sharing (CORS) protocol, an attacker may be able to cause side effects in the server (\"CSRF\" attack), or learn something about the response via timing analysis (\"XS-Search\" attack).\n\nApollo Server has a built-in fea",
+        "vuln_symbols": [
+          "GET",
+          "expressMiddleware",
+          "app"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#10",
+      "facts": {
+        "package": "apollo-server-core",
+        "version": "2.25.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-j5g3-5c8r-7qfx"
+          ],
+          [
+            "apollo-server-core"
+          ]
+        ],
+        "advisory_summary": "Prevent logging invalid header values \u2014 ## Impact\n### What kind of vulnerability is it?\nApollo Server can log sensitive information (Studio API keys) if they are passed incorrectly (with leading/trailing whitespace) or if they have any characters that are invalid as part of a header value.\n\n### Who is impacted?\nUsers who (all of the below):\n* use either the schema reporting or usage reporting feature\n* use an Apollo Studio API key which has invalid header values\n* use the default fetcher (`node-fetch`) or configured their own `node-fetch` fetcher\n\nThe following node snippet can test whether yo",
+        "vuln_symbols": [
+          "fetcher"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.26.1",
+          "3.12.1"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#11",
+      "facts": {
+        "package": "async",
+        "version": "2.6.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-43138",
+            "GHSA-fwr7-v2mv-hh25"
+          ],
+          [
+            "async"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in async \u2014 A vulnerability exists in Async through 3.2.1 for 3.x and through 2.6.3 for 2.x (fixed in 3.2.2 and 2.6.4), which could let a malicious user obtain privileges via the `mapValues()` method.",
+        "vuln_symbols": [
+          "mapValues"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.4",
+          "3.2.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "async@2.6.3 (top level) is required at runtime only by mailgun-js@0.18.0 (via @parse/simple-mailgun-adapter), and mongodb-dbpath/mongodb-runner are dev-only. winston uses its own nested async@3.2.0. mailgun-js uses only async.retry (mailgun-js/lib/request.js:9). The vulnerable mapValues() is never called on any runtime path.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled; rows Jelly did not find loaded)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#12",
+      "facts": {
+        "package": "async",
+        "version": "3.2.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-43138",
+            "GHSA-fwr7-v2mv-hh25"
+          ],
+          [
+            "async"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in async \u2014 A vulnerability exists in Async through 3.2.1 for 3.x and through 2.6.3 for 2.x (fixed in 3.2.2 and 2.6.4), which could let a malicious user obtain privileges via the `mapValues()` method.",
+        "vuln_symbols": [
+          "mapValues"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.4",
+          "3.2.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#13",
+      "facts": {
+        "package": "aws-sdk",
+        "version": "2.906.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-j965-2qgj-vjmq"
+          ],
+          [
+            "aws-sdk"
+          ]
+        ],
+        "advisory_summary": "JavaScript SDK v2 users should add validation to the region parameter value in or migrate to v3 \u2014 CVSSv3.1 Rating: 3.7 (LOW)\n\nSummary\nThis notification is related to the use of specific values for the region input field when calling AWS services. An actor with access to the environment in which the SDK is used could set the region input field to an invalid value. Per the AWS shared responsibility model, customer applications should protect instances appropriately, or implement proper input sanitization checks. The AWS SDK for JavaScript v2 reached end-of-support on September 8, 2025, but a def",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#14",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44495",
+            "GHSA-3g43-6gmg-66jw"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "axios Vulnerable to Credential Theft and Response Hijacking via Prototype Pollution Gadget in Config Merge \u2014 ## Summary\n\nAxios versions before the fixed releases contain prototype-pollution gadgets in request config processing. If another vulnerability in the same JavaScript process has already polluted `Object.prototype.transformResponse`, affected Axios versions may treat that inherited value as request configuration or as an option validator.\n\nAxios does not itself create the prototype pollution. Exploitability requires a separate prototype-pollution vulnerability or equivalent attacker con",
+        "vuln_symbols": [
+          "Object.prototype.transformResponse",
+          "Object.prototype",
+          "auth",
+          "transformResponse",
+          "mergeConfig",
+          "transformData"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "hijacked"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#15",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-62718",
+            "GHSA-3p68-rc4w-qgx5"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios has a NO_PROXY Hostname Normalization Bypass that Leads to SSRF \u2014 Axios does not correctly handle hostname normalization when checking `NO_PROXY` rules.\nRequests to loopback addresses like `localhost.` (with a trailing dot) or `[::1]` (IPv6 literal) skip `NO_PROXY` matching and go through the configured proxy.\n\nThis goes against what developers expect and lets attackers force requests through a proxy, even if `NO_PROXY` is set up to protect loopback or internal services.\n\nAccording to [RFC 1034 \u00a73.1](https://datatracker.ietf.org/doc/html/rfc1034#section-3.1) and [RFC 3986 \u00a73.2.2](https:/",
+        "vuln_symbols": [
+          "NO_PROXY",
+          "localhost"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.0",
+          "1.15.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#16",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25639",
+            "GHSA-43fc-jf86-j433"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios is Vulnerable to Denial of Service via __proto__ Key in mergeConfig \u2014 # Denial of Service via **proto** Key in mergeConfig\n\n### Summary\n\nThe `mergeConfig` function in axios crashes with a TypeError when processing configuration objects containing `__proto__` as an own property. An attacker can trigger this by providing a malicious configuration object created via `JSON.parse()`, causing complete denial of service.\n\n### Details\n\nThe vulnerability exists in `lib/core/mergeConfig.js` at lines 98-101:\n\n```javascript\nutils.forEach(Object.keys({ ...config1, ...config2 }), function computeConfi",
+        "vuln_symbols": [
+          "mergeConfig",
+          "JSON.parse",
+          "prop",
+          "Object.keys",
+          "Object.prototype",
+          "Axios._request"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.30.3",
+          "1.13.5"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#17",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42034",
+            "GHSA-5c9x-8gcm-mpgx"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios' HTTP adapter-streamed uploads bypass maxBodyLength when maxRedirects: 0 \u2014 ### Summary\n\nFor stream request bodies, maxBodyLength is bypassed when maxRedirects is set to 0 (native http/https transport path). Oversized streamed uploads are sent fully even when the caller sets strict body limits.\n\n### Details\n\nRelevant flow in lib/adapters/http.js:\n  - 556-564: maxBodyLength check applies only to buffered/non-stream data.\n  - 681-682: maxRedirects === 0 selects native http/https transport.\n  - 694-699: options.maxBodyLength is set, but native transport does not enforce it.\n  - 925-945: stre",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#18",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42039",
+            "GHSA-62hf-57xw-28j9"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: unbounded recursion in toFormData causes DoS via deeply nested request data \u2014 ### Summary\ntoFormData recursively walks nested objects with no depth limit, so a deeply nested value passed as request data crashes the Node.js process with a RangeError.\n\n### Details\nlib/helpers/toFormData.js:210 defines an inner `build(value, path)` that recurses into every object/array child (line 225: `build(el, path ? path.concat(key) : [key])`). The only safeguard is a `stack` array used to detect circular references; there is no maximum depth and no try/catch around the recursion. Because `build` calls",
+        "vuln_symbols": [
+          "stack",
+          "build",
+          "toFormData",
+          "FormData",
+          "AxiosURLSearchParams",
+          "buildURL"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#19",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42035",
+            "GHSA-6chq-wfr3-2hj9"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Header Injection via Prototype Pollution \u2014 ### Summary\n\nA prototype pollution gadget exists in the Axios HTTP adapter (lib/adapters/http.js) that allows an attacker to inject arbitrary HTTP headers into outgoing requests. The vulnerability exploits duck-type checking of the data payload, where if Object.prototype is polluted with getHeaders, append, pipe, on, once, and Symbol.toStringTag, Axios misidentifies any plain object payload as a FormData instance and calls the attacker-controlled getHeaders() function, merging the returned headers into the outgoing request.\n\nThe vulnerable code",
+        "vuln_symbols": [
+          "Authorization"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#20",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67319",
+            "GHSA-7q8q-rj6j-mhjq"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Nested axios option objects can consume polluted prototype values \u2014 ## Summary\n\nAxios can consume inherited properties from nested request option objects when the JavaScript process already has a polluted `Object.prototype`.\n\nThe top-level merged config is protected with a null prototype, but nested plain objects such as `auth` and `paramsSerializer` are cloned into ordinary objects. If application code passes placeholders such as `auth: {}` or `paramsSerializer: {}`, inherited `username`, `password`, `encode`, or `serialize` properties can influence outbound requests.\n\n## Impact\n\nThis ",
+        "vuln_symbols": [
+          "Object.prototype",
+          "auth",
+          "paramsSerializer",
+          "username",
+          "password",
+          "encode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.33.0",
+          "1.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#21",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44490",
+            "GHSA-898c-q2cr-xwhg"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "axios has DoS & Header Injection via Prototype Pollution Read-Side Gadgets in axios merge functions \u2014 ## Summary\n\naxios `1.15.2` exposes two read-side prototype-pollution gadgets. When `Object.prototype` is polluted by an upstream dependency in the same process (e.g. lodash `_.merge` / [CVE-2018-16487](https://nvd.nist.gov/vuln/detail/CVE-2018-16487)), axios silently picks up the polluted values:\n\n1. **Header injection** - `lib/utils.js` line 406 builds `merge()`'s accumulator as `result = {}`, so `result[targetKey]` (line 414) walks `Object.prototype` and the polluted bucket's own keys are co",
+        "vuln_symbols": [
+          "Object.prototype",
+          "_.merge",
+          "merge",
+          "hasOwnProperty",
+          "Object.defineProperty",
+          "descriptor.get"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.0",
+          "1.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#22",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-3749",
+            "GHSA-cph5-m8f7-6c5x"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "axios Inefficient Regular Expression Complexity vulnerability \u2014 axios before v0.21.2 is vulnerable to Inefficient Regular Expression Complexity.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.21.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#23",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40175",
+            "GHSA-fvcv-3m26-pcqx"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios has Unrestricted Cloud Metadata Exfiltration via Header Injection Chain \u2014 # Vulnerability Disclosure: Unrestricted Cloud Metadata Exfiltration via Header Injection Chain\n\n## Summary\nThe Axios library is vulnerable to a specific gadget-style attack chain in which **prototype pollution** in a third-party dependency may be leveraged to inject unsanitized header values into outbound requests.\n\nAxios can be used as a gadget after pollution occurs elsewhere because header values merged from attacker-controlled prototype properties are not sanitized for CRLF (`\\r\\n`) characters before being wri",
+        "vuln_symbols": [
+          "qs",
+          "minimist",
+          "ini",
+          "Object.prototype",
+          "xhr.js"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.0",
+          "1.15.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#24",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44496",
+            "GHSA-hfxv-24rg-xrqf"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Regular Expression Denial of Service (ReDoS) via Cookie Name Injection \u2014 ## Summary\n\nAxios versions before `0.32.0` on the `0.x` line and before `1.16.0` on the `1.x` line build a regular expression from the configured XSRF cookie name without escaping regex metacharacters. In standard browser environments, an attacker who can influence the cookie name passed to axios can cause expensive regex backtracking while axios reads `document.cookie`.\n\nThe practical impact is client-side availability degradation, such as freezing the affected browser tab while axios prepares a request. The issue",
+        "vuln_symbols": [
+          "document.cookie",
+          "name",
+          "xsrfCookieName",
+          "cookies.read"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.0",
+          "1.16.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#25",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44486",
+            "GHSA-j5f8-grm9-p9fc"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Proxy-Authorization header leaks to redirect target when proxy is re-evaluated to direct connection \u2014 ### Summary\n\nAxios\u2019 Node.js HTTP adapter can leak proxy credentials to a redirect target in affected versions. When a request is sent through an authenticated proxy, Axios may add a `Proxy-Authorization` header. If Axios then follows a redirect and the redirected request is no longer sent through that proxy, the stale `Proxy-Authorization` header can remain on the redirected request and be sent to the redirect target.\n\nThis affects Node.js's use of Axios with automatic redirects enabled",
+        "vuln_symbols": [
+          "HTTP_PROXY",
+          "HTTPS_PROXY",
+          "NO_PROXY",
+          "setProxy",
+          "beforeRedirects.proxy",
+          "afca61a"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.0",
+          "1.16.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#26",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-27152",
+            "GHSA-jr5f-v2jv-69x6"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "axios Requests Vulnerable To Possible SSRF and Credential Leakage via Absolute URL \u2014 ### Summary\n\nA previously reported issue in axios demonstrated that using protocol-relative URLs could lead to SSRF (Server-Side Request Forgery). Reference: axios/axios#6463\n\nA similar problem that occurs when passing absolute URLs rather than protocol-relative URLs to axios has been identified. Even if \u2060`baseURL` is set, axios sends the request to the specified absolute URL, potentially causing SSRF and credential leakage. This issue impacts both server-side and client-side usage of axios.\n\n### Details\n\nCons",
+        "vuln_symbols": [
+          "baseURL",
+          "attacker.test",
+          "get"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.30.0",
+          "1.8.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#27",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42038",
+            "GHSA-m7pr-hjqh-92cm"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: no_proxy bypass via IP alias allows SSRF \u2014 The fix for no_proxy hostname normalization bypass (#10661) is incomplete.When no_proxy=localhost is set, requests to 127.0.0.1 and [::1] still route through the proxy instead of bypassing it.\n\nThe shouldBypassProxy() function does pure string matching \u2014 it does not \nresolve IP aliases or loopback equivalents. As a result:\n- no_proxy=localhost does NOT block 127.0.0.1 or [::1]\n- no_proxy=127.0.0.1 does NOT block localhost or [::1]\n\n\nPOC :\nprocess.env.no_proxy = 'localhost';\nprocess.env.http_proxy = 'http://attacker-proxy:8888';\n\n```(base) sriso",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#28",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67316",
+            "GHSA-mmx7-hfxf-jppx"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Prototype pollution gadgets can alter axios request construction \u2014 ## Summary\n\naxios is vulnerable to read-side prototype-pollution gadgets when `Object.prototype` has already been polluted by another vulnerability or dependency. The most broadly reachable issue is in the bodyless method aliases: `axios.get()`, `axios.delete()`, `axios.head()`, and `axios.options()` read inherited `data` before config normalization, causing attacker-controlled body data to be sent on requests that did not explicitly set a body.\n\nAdditional low-level paths affect consumers that call exported adapters/hel",
+        "vuln_symbols": [
+          "Object.prototype",
+          "axios.get",
+          "axios.delete",
+          "axios.head",
+          "axios.options",
+          "data"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.33.0",
+          "1.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#29",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44487",
+            "GHSA-p92q-9vqr-4j8v"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Proxy-Authorization Credential Leak to Origin Server Across HTTP-to-HTTPS Redirect in Axios Node.js HTTP Adapter \u2014 ## Summary\n\nAxios\u2019s Node.js HTTP adapter may forward a `Proxy-Authorization` header to a redirected origin during specific proxy-to-direct redirect flows.\n\nThis affects Node.js usage, where an initial HTTP request is sent through an authenticated HTTP proxy, redirects are followed, and the redirected URL is no longer proxied. Under affected redirect shapes, the final origin can receive the proxy credential that was intended only for the outbound proxy.\n\n## Impact\n\nA malicio",
+        "vuln_symbols": [
+          "config.proxy",
+          "HTTPS_PROXY",
+          "NO_PROXY",
+          "setProxy",
+          "afca61a",
+          "removeProxyAuthorization"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.0",
+          "1.16.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#30",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42033",
+            "GHSA-pf86-5x62-jrwf"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Prototype Pollution Gadgets - Response Tampering, Data Exfiltration, and Request Hijacking \u2014 ## Summary\n\nWhen `Object.prototype` has been polluted by any co-dependency with keys that axios reads without a `hasOwnProperty` guard, an attacker can (a) silently intercept and modify every JSON response before the application sees it, or (b) fully hijack the underlying HTTP transport, gaining access to request credentials, headers, and body. The precondition is prototype pollution from a separate source in the same process -- lodash < 4.17.21, or any of several other common npm packages with ",
+        "vuln_symbols": [
+          "Object.prototype",
+          "hasOwnProperty",
+          "Axios._request",
+          "mergeConfig",
+          "this.defaults",
+          "transformResponse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#31",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44492",
+            "GHSA-pjwm-pj3p-43mv"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "axios's shouldBypassProxy does not recognize IPv4-mapped IPv6 addresses, allowing NO_PROXY bypass (incomplete fix for CVE-2025-62718) \u2014 ### Summary\nshouldBypassProxy, introduced in v1.15.0 to fix CVE-2025-62718, does not normalise IPv4-mapped IPv6 addresses. When NO_PROXY lists an IPv4 address such as `127.0.0.1` or `169.254.169.254`, a request URL using the IPv4-mapped IPv6 form (`::ffff:7f00:1`, `::ffff:a9fe:a9fe`) still routes through the configured proxy. Node.js resolves these addresses to the underlying IPv4 host, so the request reaches the internal service via the proxy rather than bein",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.0",
+          "1.16.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#32",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42043",
+            "GHSA-pmwg-cvhr-8vh7"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Incomplete Fix for CVE-2025-62718 \u2014 NO_PROXY Protection Bypassed via RFC 1122 Loopback Subnet (127.0.0.0/8) in Axios 1.15.0 \u2014 **1. Executive Summary**\nThis report documents an **incomplete security patch** for the previously disclosed vulnerability **GHSA-3p68-rc4w-qgx5 (CVE-2025-62718)**, which affects the `NO_PROXY` hostname resolution logic in the Axios HTTP library.\n\n**Background \u2014 The Original Vulnerability**\nThe original vulnerability (GHSA-3p68-rc4w-qgx5) disclosed that Axios did not normalize hostnames before comparing them against `NO_PROXY` rules. Specifically, a request to `h",
+        "vuln_symbols": [
+          "NO_PROXY",
+          "normalizeNoProxyHost",
+          "localhost",
+          "setProxy",
+          "shouldBypassProxy",
+          "lo"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "compromised credentials"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#33",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42036",
+            "GHSA-vf2m-468p-8v99"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: HTTP adapter streamed responses bypass maxContentLength \u2014 ### Summary\n\nWhen responseType: 'stream' is used, Axios returns the response stream without enforcing maxContentLength. This bypasses configured response-size limits and allows unbounded downstream consumption.\n\n### Details\nIn lib/adapters/http.js:\n  - 786-789: for responseType === 'stream', Axios immediately settles with the stream.\n  - 797-810: maxContentLength enforcement exists only in the non-stream buffering branch.\n\nSo callers may set maxContentLength and still receive/read arbitrarily large streamed responses.\n\n### PoC\n\nE",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#34",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42041",
+            "GHSA-w9j2-pvgh-6h63"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy \u2014 # Vulnerability Disclosure: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy\n\n## Summary\n\nThe Axios library is vulnerable to a Prototype Pollution \"Gadget\" attack that allows any `Object.prototype` pollution to **silently suppress all HTTP error responses** (401, 403, 500, etc.), causing them to be treated as successful responses. This completely bypasses application-level authentication and error handling.\n\nThe root cause is that `validateStatus` is the **onl",
+        "vuln_symbols": [
+          "validateStatus",
+          "Object.prototype",
+          "mergeDirectKeys",
+          "in",
+          "Object.prototype.validateStatus",
+          "defaultToConfig2"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#35",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-45857",
+            "GHSA-wf5p-g6vw-rhxx"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios Cross-Site Request Forgery Vulnerability \u2014 An issue discovered in Axios 0.8.1 through 1.5.1 inadvertently reveals the confidential XSRF-TOKEN stored in cookies by including it in the HTTP header X-XSRF-TOKEN for every request made to any host allowing attackers to view sensitive information.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.28.0",
+          "1.6.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#36",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42040",
+            "GHSA-xhjh-pmcv-23jw"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams \u2014 # Vulnerability Disclosure: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams\n\n## Summary\n\nThe `encode()` function in `lib/helpers/AxiosURLSearchParams.js` contains a character mapping (`charMap`) at line 21 that **reverses** the safe percent-encoding of null bytes. After `encodeURIComponent('\\x00')` correctly produces the safe sequence `%00`, the charMap entry `'%00': '\\x00'` converts it back to a raw null byte.\n\nThis is a clear encoding defect: every other charMap entry encodes in the safe direction (lit",
+        "vuln_symbols": [
+          "encode",
+          "charMap",
+          "buildURL",
+          "AxiosURLSearchParams.toString",
+          "paramsSerializer",
+          "AxiosURLSearchParams"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#37",
+      "facts": {
+        "package": "axios",
+        "version": "0.21.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42042",
+            "GHSA-xx6v-rp6x-q39c"
+          ],
+          [
+            "axios"
+          ]
+        ],
+        "advisory_summary": "Axios: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion \u2014 # Vulnerability Disclosure: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion\n\n## Summary\n\nThe Axios library's XSRF token protection logic uses JavaScript truthy/falsy semantics instead of strict boolean comparison for the `withXSRFToken` config property. When this property is set to any truthy non-boolean value (via prototype pollution or misconfiguration), the same-origin check (`isURLSameOrigin`) is **short-circuited**, causing XSRF tok",
+        "vuln_symbols": [
+          "withXSRFToken",
+          "isURLSameOrigin",
+          "hasStandardBrowserEnv",
+          "Object.prototype.withXSRFToken"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.31.1",
+          "1.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#38",
+      "facts": {
+        "package": "body-parser",
+        "version": "1.19.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-45590",
+            "GHSA-qwcr-r2fm-qrc7"
+          ],
+          [
+            "body-parser"
+          ]
+        ],
+        "advisory_summary": "body-parser vulnerable to denial of service when url encoding is enabled \u2014 ### Impact\n\nbody-parser <1.20.3 is vulnerable to denial of service when url encoding is enabled. A malicious actor using a specially crafted payload could flood the server with a large number of requests, resulting in denial of service.\n\n### Patches\n\nthis issue is patched in 1.20.3\n\n### References\n",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.20.3"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#39",
+      "facts": {
+        "package": "body-parser",
+        "version": "1.19.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-12590",
+            "GHSA-v422-hmwv-36x6"
+          ],
+          [
+            "body-parser"
+          ]
+        ],
+        "advisory_summary": "body-parser vulnerable to denial of service when invalid limit value silently disables size enforcement \u2014 ### Impact\n\nWhen body-parser is configured with an invalid `limit` option value, such as an unparseable string or `NaN`, `bytes.parse()` returns `null` and the request body size check is silently skipped. Applications that rely on `limit` as their primary safeguard against oversized request bodies will accept arbitrarily large payloads, leading to excessive memory and CPU usage and denial of service.\n\nThis issue affects applications that pass a programmatically computed or user-configurabl",
+        "vuln_symbols": [
+          "limit",
+          "NaN",
+          "bytes.parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.20.6",
+          "2.3.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#40",
+      "facts": {
+        "package": "color-string",
+        "version": "1.5.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-29060",
+            "GHSA-257v-vj4p-3w2h"
+          ],
+          [
+            "color-string"
+          ]
+        ],
+        "advisory_summary": "Regular Expression Denial of Service (ReDOS) \u2014 In the npm package `color-string`, there is a  ReDos (Regular Expression Denial of Service) vulnerability regarding an exponential time complexity for\nlinearly increasing input lengths for `hwb()` color strings.\n\nStrings reaching more than 5000 characters would see several\nmilliseconds of processing time; strings reaching more than\n50,000 characters began seeing 1500ms (1.5s) of processing time.\n\nThe cause was due to a the regular expression that parses\nhwb() strings - specifically, the hue value - where\nthe integer portion of the hue value used a",
+        "vuln_symbols": [
+          "hwb"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.5.5"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#41",
+      "facts": {
+        "package": "cookie",
+        "version": "0.4.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-47764",
+            "GHSA-pxg6-pf52-xh8x"
+          ],
+          [
+            "cookie"
+          ]
+        ],
+        "advisory_summary": "cookie accepts cookie name, path, and domain with out of bounds characters \u2014 ### Impact\n\nThe cookie name could be used to set other fields of the cookie, resulting in an unexpected cookie value. For example, `serialize(\"userName=<script>alert('XSS3')</script>; Max-Age=2592000; a\", value)` would result in `\"userName=<script>alert('XSS3')</script>; Max-Age=2592000; a=test\"`, setting `userName` cookie to `<script>` and ignoring `value`.\n\nA similar escape can be used for `path` and `domain`, which could be abused to alter other fields of the cookie.\n\n### Patches\n\nUpgrade to 0.7.0, which updates th",
+        "vuln_symbols": [
+          "userName",
+          "value",
+          "path",
+          "domain",
+          "name"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#42",
+      "facts": {
+        "package": "crypto-js",
+        "version": "4.0.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-46233",
+            "GHSA-xwcq-pm8m-c4vf"
+          ],
+          [
+            "crypto-js"
+          ]
+        ],
+        "advisory_summary": "crypto-js PBKDF2 1,000 times weaker than specified in 1993 and 1.3M times weaker than current standard \u2014 ### Impact\n#### Summary\nCrypto-js PBKDF2 is 1,000 times weaker than originally specified in 1993, and [at least 1,300,000 times weaker than current industry standard][OWASP PBKDF2 Cheatsheet]. This is because it both (1) defaults to [SHA1][SHA1 wiki], a cryptographic hash algorithm considered insecure [since at least 2005][Cryptanalysis of SHA-1] and (2) defaults to [one single iteration][one iteration src], a 'strength' or 'difficulty' value specified at 1,000 when specified in 1993. PBKDF",
+        "vuln_symbols": [
+          "encryption_key",
+          "salt_or_pepper"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#43",
+      "facts": {
+        "package": "debug",
+        "version": "3.2.6",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2017-16137",
+            "GHSA-gxpj-cx7g-858c"
+          ],
+          [
+            "debug"
+          ]
+        ],
+        "advisory_summary": "Regular Expression Denial of Service in debug \u2014 Affected versions of `debug` are vulnerable to regular expression denial of service when untrusted user input is passed into the `o` formatter. \n\nAs it takes 50,000 characters to block the event loop for 2 seconds, this issue is a low severity issue.\n\nThis was later re-introduced in version v3.2.0, and then repatched in versions 3.2.7 and 4.3.1.\n\n## Recommendation\n\nVersion 2.x.x: Update to version 2.6.9 or later.\nVersion 3.1.x: Update to version 3.1.0 or later.\nVersion 3.2.x: Update to version 3.2.7 or later.\nVersion 4.x.x: Update to version 4.3.",
+        "vuln_symbols": [
+          "o"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.9",
+          "3.1.0",
+          "3.2.7",
+          "4.3.1"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#44",
+      "facts": {
+        "package": "debug",
+        "version": "4.1.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2017-16137",
+            "GHSA-gxpj-cx7g-858c"
+          ],
+          [
+            "debug"
+          ]
+        ],
+        "advisory_summary": "Regular Expression Denial of Service in debug \u2014 Affected versions of `debug` are vulnerable to regular expression denial of service when untrusted user input is passed into the `o` formatter. \n\nAs it takes 50,000 characters to block the event loop for 2 seconds, this issue is a low severity issue.\n\nThis was later re-introduced in version v3.2.0, and then repatched in versions 3.2.7 and 4.3.1.\n\n## Recommendation\n\nVersion 2.x.x: Update to version 2.6.9 or later.\nVersion 3.1.x: Update to version 3.1.0 or later.\nVersion 3.2.x: Update to version 3.2.7 or later.\nVersion 4.x.x: Update to version 4.3.",
+        "vuln_symbols": [
+          "o"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.9",
+          "3.1.0",
+          "3.2.7",
+          "4.3.1"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Most debug@4.1.1 copies are dev (babel/eslint). The prod copy is nested under pac-proxy-agent@3.0.1 (mailgun-js > proxy-agent > pac-proxy-agent). Its %o calls (pac-proxy-agent/index.js:74,147,216,231) run only when (a) mailgun-js was given a pac+ proxy option (mailgun-js/lib/request.js:128-129; simple-mailgun-adapter passes options through) and (b) DEBUG enables the pac-proxy-agent namespace. When disabled, debug never formats its arguments. The formatted values are the operator's PAC URI and the mailgun API URL, not attacker data. Labelled not_reachable for default config plus mailgun adapter.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled; rows Jelly did not find loaded)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#45",
+      "facts": {
+        "package": "degenerator",
+        "version": "1.0.4",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-23406",
+            "GHSA-9j49-mfvp-vmhm"
+          ],
+          [
+            "degenerator"
+          ]
+        ],
+        "advisory_summary": "Code Injection in pac-resolver \u2014 This affects the package pac-resolver before 5.0.0. This can occur when used with untrusted input, due to unsafe PAC file handling. **NOTE:** The fix for this vulnerability is applied in the node-degenerator library, a dependency written by the same maintainer.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Chain: @parse/simple-mailgun-adapter > mailgun-js > proxy-agent@3.0.3 > pac-proxy-agent@3.0.1 > pac-resolver@3.0.0 > degenerator@1.0.4. These modules are loaded at require time (proxy-agent/index.js:16, pac-resolver/index.js:11). But degenerator only compiles a PAC script when mailgun-js gets a pac+ proxy option (mailgun-js/lib/request.js:128). That is operator configuration, and the PAC file comes from an operator-chosen URL, not from request data. Not reachable with default config plus the mailgun adapter. It would be reachable only if the operator configured a PAC proxy at a hostile or MITM-able URL.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled; rows Jelly did not find loaded)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#46",
+      "facts": {
+        "package": "dicer",
+        "version": "0.3.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-24434",
+            "GHSA-wm7h-9275-46v2"
+          ],
+          [
+            "dicer"
+          ]
+        ],
+        "advisory_summary": "Crash in HeaderParser in dicer \u2014 This affects all versions of the package `dicer`. A malicious attacker can send a modified form to the server and crash the Node.js service. A complete denial of service can be achieved by sending the malicious form in a loop.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#47",
+      "facts": {
+        "package": "express",
+        "version": "4.17.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-43796",
+            "GHSA-qw6h-vgh9-j6wx"
+          ],
+          [
+            "express"
+          ]
+        ],
+        "advisory_summary": "express vulnerable to XSS via response.redirect() \u2014 ### Impact\n\nIn express <4.20.0, passing untrusted user input - even after sanitizing it - to `response.redirect()` may execute untrusted code\n\n### Patches\n\nthis issue is patched in express 4.20.0\n\n### Workarounds\n\nusers are encouraged to upgrade to the patched version of express, but otherwise can workaround this issue by making sure any untrusted inputs are safe, ideally by validating them against an explicit allowlist\n\n### Details\n\nsuccessful exploitation of this vector requires the following:\n\n1. The attacker MUST control the input to resp",
+        "vuln_symbols": [
+          "response.redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.20.0",
+          "5.0.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#48",
+      "facts": {
+        "package": "express",
+        "version": "4.17.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-29041",
+            "GHSA-rv95-896h-c2vc"
+          ],
+          [
+            "express"
+          ]
+        ],
+        "advisory_summary": "Express.js Open Redirect in malformed URLs \u2014 ### Impact\n\nVersions of Express.js prior to 4.19.2 and pre-release alpha and beta versions before 5.0.0-beta.3 are affected by an open redirect vulnerability using malformed URLs.\n\nWhen a user of Express performs a redirect using a user-provided URL Express performs an encode [using `encodeurl`](https://github.com/pillarjs/encodeurl) on the contents before passing it to the `location` header. This can cause malformed URLs to be evaluated in unexpected ways by common redirect allow list implementations in Express applications, leading to an Open Redi",
+        "vuln_symbols": [
+          "encodeurl",
+          "location",
+          "res.location",
+          "res.redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.19.2",
+          "5.0.0-beta.3"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#49",
+      "facts": {
+        "package": "follow-redirects",
+        "version": "1.13.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-0155",
+            "GHSA-74fj-2j2h-c42q"
+          ],
+          [
+            "follow-redirects"
+          ]
+        ],
+        "advisory_summary": "Exposure of sensitive information in follow-redirects \u2014 follow-redirects is vulnerable to Exposure of Private Personal Information to an Unauthorized Actor",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.14.7"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#50",
+      "facts": {
+        "package": "follow-redirects",
+        "version": "1.13.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-28849",
+            "GHSA-cxjh-pqwp-8mfp"
+          ],
+          [
+            "follow-redirects"
+          ]
+        ],
+        "advisory_summary": "follow-redirects' Proxy-Authorization header kept across hosts \u2014 When using [axios](https://github.com/axios/axios), its dependency follow-redirects only clears authorization header during cross-domain redirect, but allows the proxy-authentication header which contains credentials too.\n\n## Steps To Reproduce & PoC\n\nTest code:\n\n```js\nconst axios = require('axios');\n\naxios.get('http://127.0.0.1:10081/', {\n headers: {\n 'AuThorization': 'Rear Test',\n 'ProXy-AuthoriZation': 'Rear Test',\n 'coOkie': 't=1'\n }\n})\n .then((response) => {\n console.log(response);\n })\n```\n\nWhen I meet the cross-domain redir",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.15.6"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#51",
+      "facts": {
+        "package": "follow-redirects",
+        "version": "1.13.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-26159",
+            "GHSA-jchw-25xp-jwwc"
+          ],
+          [
+            "follow-redirects"
+          ]
+        ],
+        "advisory_summary": "Follow Redirects improperly handles URLs in the url.parse() function \u2014 Versions of the package follow-redirects before 1.15.4 are vulnerable to Improper Input Validation due to the improper handling of URLs by the url.parse() function. When new URL() throws an error, it can be manipulated to misinterpret the hostname. An attacker could exploit this weakness to redirect traffic to a malicious site, potentially leading to information disclosure, phishing attacks, or other security breaches.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.15.4"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#52",
+      "facts": {
+        "package": "follow-redirects",
+        "version": "1.13.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-0536",
+            "GHSA-pw2r-vq6v-hr8c"
+          ],
+          [
+            "follow-redirects"
+          ]
+        ],
+        "advisory_summary": "Exposure of Sensitive Information to an Unauthorized Actor in follow-redirects \u2014 Exposure of Sensitive Information to an Unauthorized Actor in NPM follow-redirects prior to 1.14.8.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.14.8"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#53",
+      "facts": {
+        "package": "follow-redirects",
+        "version": "1.13.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40895",
+            "GHSA-r4q5-vmmm-2653"
+          ],
+          [
+            "follow-redirects"
+          ]
+        ],
+        "advisory_summary": "follow-redirects leaks Custom Authentication Headers to Cross-Domain Redirect Targets \u2014 ## Summary\n\nWhen an HTTP request follows a cross-domain redirect (301/302/307/308), `follow-redirects` only strips `authorization`, `proxy-authorization`, and `cookie` headers (matched by regex at index.js:469-476). Any custom authentication header (e.g., `X-API-Key`, `X-Auth-Token`, `Api-Key`, `Token`) is forwarded verbatim to the redirect target.\n\nSince `follow-redirects` is the redirect-handling dependency for **axios** (105K+ stars), this vulnerability affects the entire axios ecosystem.\n\n## Affected Co",
+        "vuln_symbols": [
+          "authorization",
+          "cookie",
+          "Token",
+          "index.js",
+          "evil.com",
+          "sensitiveHeaders"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#54",
+      "facts": {
+        "package": "form-data",
+        "version": "2.3.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-7783",
+            "GHSA-fjxv-7rqg-78g4"
+          ],
+          [
+            "form-data"
+          ]
+        ],
+        "advisory_summary": "form-data uses unsafe random function in form-data for choosing boundary \u2014 ### Summary\n\nform-data uses `Math.random()` to select a boundary value for multipart form-encoded data. This can lead to a security issue if an attacker:\n1. can observe other values produced by Math.random in the target application, and\n2. can control one field of a request made using form-data\n\nBecause the values of Math.random() are pseudo-random and predictable (see: https://blog.securityevaluators.com/hacking-the-javascript-lottery-80cc437e3b7f), an attacker who can observe a few sequential values can determine the ",
+        "vuln_symbols": [
+          "Math.random",
+          "undici",
+          "parrot409"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.5.4",
+          "3.0.4",
+          "4.0.4"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#55",
+      "facts": {
+        "package": "form-data",
+        "version": "2.3.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-12143",
+            "GHSA-hmw2-7cc7-3qxx"
+          ],
+          [
+            "form-data"
+          ]
+        ],
+        "advisory_summary": "form-data: CRLF injection in form-data via unescaped multipart field names and filenames \u2014 ## Summary\n\n`form-data` builds `multipart/form-data` request bodies. Through v4.0.5, the `field` name passed to `FormData#append` and the `filename` option are concatenated directly into the `Content-Disposition` header with no escaping of CR (`\\r`), LF (`\\n`), or `\"`. An application that uses **untrusted input as a field name or filename** therefore lets an attacker terminate the header line and either inject additional headers or smuggle whole additional multipart parts into the request the application",
+        "vuln_symbols": [
+          "field",
+          "filename",
+          "_multiPartHeader",
+          "_getContentDisposition",
+          "is_admin",
+          "role"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.5.6",
+          "3.0.5",
+          "4.0.6"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#56",
+      "facts": {
+        "package": "form-data",
+        "version": "3.0.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-7783",
+            "GHSA-fjxv-7rqg-78g4"
+          ],
+          [
+            "form-data"
+          ]
+        ],
+        "advisory_summary": "form-data uses unsafe random function in form-data for choosing boundary \u2014 ### Summary\n\nform-data uses `Math.random()` to select a boundary value for multipart form-encoded data. This can lead to a security issue if an attacker:\n1. can observe other values produced by Math.random in the target application, and\n2. can control one field of a request made using form-data\n\nBecause the values of Math.random() are pseudo-random and predictable (see: https://blog.securityevaluators.com/hacking-the-javascript-lottery-80cc437e3b7f), an attacker who can observe a few sequential values can determine the ",
+        "vuln_symbols": [
+          "Math.random",
+          "undici",
+          "parrot409"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.5.4",
+          "3.0.4",
+          "4.0.4"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#57",
+      "facts": {
+        "package": "form-data",
+        "version": "3.0.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-12143",
+            "GHSA-hmw2-7cc7-3qxx"
+          ],
+          [
+            "form-data"
+          ]
+        ],
+        "advisory_summary": "form-data: CRLF injection in form-data via unescaped multipart field names and filenames \u2014 ## Summary\n\n`form-data` builds `multipart/form-data` request bodies. Through v4.0.5, the `field` name passed to `FormData#append` and the `filename` option are concatenated directly into the `Content-Disposition` header with no escaping of CR (`\\r`), LF (`\\n`), or `\"`. An application that uses **untrusted input as a field name or filename** therefore lets an attacker terminate the header line and either inject additional headers or smuggle whole additional multipart parts into the request the application",
+        "vuln_symbols": [
+          "field",
+          "filename",
+          "_multiPartHeader",
+          "_getContentDisposition",
+          "is_admin",
+          "role"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.5.6",
+          "3.0.5",
+          "4.0.6"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#58",
+      "facts": {
+        "package": "ip",
+        "version": "1.1.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-29415",
+            "GHSA-2p57-rm9w-gvfp"
+          ],
+          [
+            "ip"
+          ]
+        ],
+        "advisory_summary": "ip SSRF improper categorization in isPublic \u2014 The ip package through 2.0.1 for Node.js might allow SSRF because some IP addresses (such as 127.1, 01200034567, 012.1.2.3, 000:0:0000::01, and ::fFFf:127.0.0.1) are improperly categorized as globally routable via isPublic. NOTE: this issue exists because of an incomplete fix for CVE-2023-42282.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ip@1.1.5 is used only by pac-resolver/myIpAddress.js:39 (ip.address()) and by socks@2.3.3 build/client/socksclient.js (toLong/toBuffer/fromLong/toString). Nothing in the runtime tree or parse-server src calls isPublic/isPrivate, so the miscategorization is never used for an SSRF decision.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled; rows Jelly did not find loaded)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#59",
+      "facts": {
+        "package": "ip",
+        "version": "1.1.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-42282",
+            "GHSA-78xj-cgh5-2h22"
+          ],
+          [
+            "ip"
+          ]
+        ],
+        "advisory_summary": "NPM IP package incorrectly identifies some private IP addresses as public \u2014 The `isPublic()` function in the NPM package `ip` doesn't correctly identify certain private IP addresses in uncommon formats such as `0x7F.1` as private. Instead, it reports them as public by returning `true`. This can lead to security issues such as Server-Side Request Forgery (SSRF) if `isPublic()` is used to protect sensitive code paths when passed user input. Versions 1.1.9 and 2.0.1 fix the issue.",
+        "vuln_symbols": [
+          "isPublic"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.9",
+          "2.0.1"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 57: isPublic() is never called. ip is used only for ip.address() (pac-resolver/myIpAddress.js:39) and for address encoding in socks socksclient.js:136-586.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled; rows Jelly did not find loaded)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#60",
+      "facts": {
+        "package": "json-schema",
+        "version": "0.2.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-3918",
+            "GHSA-896r-f27r-55mw"
+          ],
+          [
+            "json-schema"
+          ]
+        ],
+        "advisory_summary": "json-schema is vulnerable to Prototype Pollution \u2014 json-schema before version 0.4.0 is vulnerable to Improperly Controlled Modification of Object Prototype Attributes ('Prototype Pollution').",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#61",
+      "facts": {
+        "package": "jsonwebtoken",
+        "version": "8.5.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-23539",
+            "GHSA-8cf7-32gw-wr33"
+          ],
+          [
+            "jsonwebtoken"
+          ]
+        ],
+        "advisory_summary": "jsonwebtoken unrestricted key type could lead to legacy keys usage  \u2014 # Overview\n\nVersions `<=8.5.1` of `jsonwebtoken` library could be misconfigured so that legacy, insecure key types are used for signature verification. For example, DSA keys could be used with the RS256 algorithm. \n\n# Am I affected?\n\nYou are affected if you are using an algorithm and a key type other than the combinations mentioned below\n\n| Key type |  algorithm                                    |\n|----------|------------------------------------------|\n| ec           | ES256, ES384, ES512                      |\n| rsa       ",
+        "vuln_symbols": [
+          "alg",
+          "allowInvalidAsymmetricKeyTypes",
+          "sign",
+          "verify"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#62",
+      "facts": {
+        "package": "jsonwebtoken",
+        "version": "8.5.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-23541",
+            "GHSA-hjrf-2m68-5959"
+          ],
+          [
+            "jsonwebtoken"
+          ]
+        ],
+        "advisory_summary": "jsonwebtoken's insecure implementation of key retrieval function could lead to Forgeable Public/Private Tokens from RSA to HMAC \u2014 # Overview\n\nVersions `<=8.5.1` of `jsonwebtoken` library can be misconfigured so that passing a poorly implemented key retrieval function (referring to the `secretOrPublicKey` argument from the [readme link](https://github.com/auth0/node-jsonwebtoken#jwtverifytoken-secretorpublickey-options-callback)) will result in incorrect verification of tokens. There is a possibility of using a different algorithm and key combination in verification  than the one that was used ",
+        "vuln_symbols": [
+          "secretOrPublicKey"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#63",
+      "facts": {
+        "package": "jsonwebtoken",
+        "version": "8.5.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-23540",
+            "GHSA-qwph-4952-7xr6"
+          ],
+          [
+            "jsonwebtoken"
+          ]
+        ],
+        "advisory_summary": "jsonwebtoken vulnerable to signature validation bypass due to insecure default algorithm in jwt.verify() \u2014 # Overview\n\nIn versions <=8.5.1 of jsonwebtoken library, lack of algorithm definition and a falsy secret or key in the `jwt.verify()` function can lead to signature validation bypass due to defaulting to the `none` algorithm for signature verification.\n\n# Am I affected?\nYou will be affected if all the following are true in the `jwt.verify()` function:\n- a token with no signature is received\n- no algorithms are specified \n- a falsy (e.g. null, false, undefined) secret or key is passed \n\n# ",
+        "vuln_symbols": [
+          "jwt.verify",
+          "none"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#64",
+      "facts": {
+        "package": "jws",
+        "version": "3.2.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-65945",
+            "GHSA-869p-cjfg-cm3x"
+          ],
+          [
+            "jws"
+          ]
+        ],
+        "advisory_summary": "auth0/node-jws Improperly Verifies HMAC Signature \u2014 ### Overview\nAn improper signature verification vulnerability exists when using auth0/node-jws with the HS256 algorithm under specific conditions.\n\n### Am I Affected?\nYou are affected by this vulnerability if you meet all of the following preconditions:\n\n1. Application uses the auth0/node-jws implementation of JSON Web Signatures, versions <=3.2.2 || 4.0.0\n2. Application uses the jws.createVerify() function for HMAC algorithms\n3. Application uses user-provided data from the JSON Web Signature Protected Header or Payload in the HMAC secret loo",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.2.3",
+          "4.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#65",
+      "facts": {
+        "package": "lodash",
+        "version": "4.17.21",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-2950",
+            "GHSA-f23m-r3pf-42rh"
+          ],
+          [
+            "lodash"
+          ]
+        ],
+        "advisory_summary": "lodash vulnerable to Prototype Pollution via array path bypass in `_.unset` and `_.omit` \u2014 ### Impact\n\nLodash versions 4.17.23 and earlier are vulnerable to prototype pollution in the `_.unset` and `_.omit` functions. The fix for [CVE-2025-13465](https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg) only guards against string key members, so an attacker can bypass the check by passing array-wrapped path segments. This allows deletion of properties from built-in prototypes such as `Object.prototype`, `Number.prototype`, and `String.prototype`.\n\nThe issue permits deletion of ",
+        "vuln_symbols": [
+          "_.unset",
+          "_.omit",
+          "Object.prototype",
+          "Number.prototype",
+          "String.prototype"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#66",
+      "facts": {
+        "package": "lodash",
+        "version": "4.17.21",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-4800",
+            "GHSA-r5fr-rjxr-66jc"
+          ],
+          [
+            "lodash"
+          ]
+        ],
+        "advisory_summary": "lodash vulnerable to Code Injection via `_.template` imports key names \u2014 ### Impact\n\nThe fix for [CVE-2021-23337](https://github.com/advisories/GHSA-35jh-r3h4-6jhm) added validation for the `variable` option in `_.template` but did not apply the same validation to `options.imports` key names. Both paths flow into the same `Function()` constructor sink.\n\nWhen an application passes untrusted input as `options.imports` key names, an attacker can inject default-parameter expressions that execute arbitrary code at template compilation time.\n\nAdditionally, `_.template` uses `assignInWith` to merge i",
+        "vuln_symbols": [
+          "_.template",
+          "variable",
+          "options.imports",
+          "assignInWith",
+          "Object.prototype",
+          "importsKeys"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.18.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#67",
+      "facts": {
+        "package": "lodash",
+        "version": "4.17.21",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-13465",
+            "GHSA-xxjr-mmjv-4gpg"
+          ],
+          [
+            "lodash"
+          ]
+        ],
+        "advisory_summary": "Lodash has Prototype Pollution Vulnerability in `_.unset` and `_.omit` functions \u2014 ### Impact\n\nLodash versions 4.0.0 through 4.17.22 are vulnerable to prototype pollution in the `_.unset` and `_.omit` functions. An attacker can pass crafted paths which cause Lodash to delete methods from global prototypes. \n\nThe issue permits deletion of properties but does not allow overwriting their original behavior.  \n\n### Patches\n\nThis issue is patched on 4.17.23.",
+        "vuln_symbols": [
+          "_.unset",
+          "_.omit"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.17.23"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#68",
+      "facts": {
+        "package": "moment",
+        "version": "2.27.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-24785",
+            "GHSA-8hfj-j24r-96c4"
+          ],
+          [
+            "moment"
+          ]
+        ],
+        "advisory_summary": "Path Traversal: 'dir/../../filename' in moment.locale \u2014 ### Impact\nThis vulnerability impacts npm (server) users of moment.js, especially if user provided locale string, eg `fr` is directly used to switch moment locale.\n\n### Patches\nThis problem is patched in 2.29.2, and the patch can be applied to all affected versions (from 1.0.1 up until 2.29.1, inclusive).\n\n### Workarounds\nSanitize user-provided locale name before passing it to moment.js.\n\n### References\n_Are there any links users can visit to find out more?_\n\n### For more information\nIf you have any questions or comments about this adviso",
+        "vuln_symbols": [
+          "fr"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.29.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#69",
+      "facts": {
+        "package": "moment",
+        "version": "2.27.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-31129",
+            "GHSA-wc69-rhjr-hc9g"
+          ],
+          [
+            "moment"
+          ]
+        ],
+        "advisory_summary": "Moment.js vulnerable to Inefficient Regular Expression Complexity \u2014 ### Impact\n\n* using string-to-date parsing in moment (more specifically rfc2822 parsing, which is tried by default) has quadratic (N^2) complexity on specific inputs\n* noticeable slowdown is observed with inputs above 10k characters\n* users who pass user-provided strings without sanity length checks to moment constructor are vulnerable to (Re)DoS attacks\n\n### Patches\nThe problem is patched in 2.29.4, the patch can be applied to all affected versions with minimal tweaking.\n\n### Workarounds\nIn general, given the proliferation of",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.29.4"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#70",
+      "facts": {
+        "package": "netmask",
+        "version": "1.0.6",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-28918",
+            "CVE-2021-29418",
+            "GHSA-4c7m-wxvm-r7gc",
+            "GHSA-pch5-whg9-qr2r"
+          ],
+          [
+            "netmask"
+          ]
+        ],
+        "advisory_summary": "Improper parsing of octal bytes in netmask \u2014 Improper input validation of octal strings in netmask npm package v1.0.6 and below allows unauthenticated remote attackers to perform indeterminate SSRF, RFI, and LFI attacks on many of the dependent packages. A remote unauthenticated attacker can bypass packages relying on netmask to filter IPs and reach critical VPN or LAN hosts.\n\n:exclamation: NOTE: The fix for this issue was incomplete. A subsequent fix was made in version `2.0.1` which was assigned [CVE-2021-29418 / GHSA-pch5-whg9-qr2r](https://github.com/advisories/GHSA-pch5-whg9-qr2r). For co",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.0",
+          "2.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "netmask@1.0.6 is used only in pac-resolver/isInNet.js:7,45, a PAC-script builtin. It runs only when mailgun-js is configured with a pac+ proxy (mailgun-js/lib/request.js:128), and the pattern/mask come from the operator's PAC file, not attacker input. parse-server itself has no IP filtering that uses netmask.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled; rows Jelly did not find loaded)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#71",
+      "facts": {
+        "package": "node-fetch",
+        "version": "2.6.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-0235",
+            "GHSA-r683-j2x4-v87g"
+          ],
+          [
+            "node-fetch"
+          ]
+        ],
+        "advisory_summary": "node-fetch forwards secure headers to untrusted sites \u2014 node-fetch forwards secure headers such as `authorization`, `www-authenticate`, `cookie`, & `cookie2` when redirecting to a untrusted site.",
+        "vuln_symbols": [
+          "authorization",
+          "cookie",
+          "cookie2"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.7",
+          "3.1.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#72",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33896",
+            "GHSA-2328-f5f3-gj25"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "Forge has a basicConstraints bypass in its certificate chain verification (RFC 5280 violation) \u2014 ## Summary\n\n`pki.verifyCertificateChain()` does not enforce RFC 5280 basicConstraints requirements when an intermediate certificate lacks both the `basicConstraints` and `keyUsage` extensions. This allows any leaf certificate (without these extensions) to act as a CA and sign other certificates, which node-forge will accept as valid.\n\n## Technical Details\n\nIn `lib/x509.js`, the `verifyCertificateChain()` function (around lines 3147-3199) has two conditional checks for CA authorization:\n\n1. The `key",
+        "vuln_symbols": [
+          "pki.verifyCertificateChain",
+          "basicConstraints",
+          "keyUsage",
+          "verifyCertificateChain",
+          "basicConstraints.cA",
+          "keyCertSign"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.4.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#73",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-24773",
+            "GHSA-2r2c-g63r-vccr"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "Improper Verification of Cryptographic Signature in `node-forge` \u2014 ### Impact\n\nRSA PKCS#1 v1.5 signature verification code is not properly checking `DigestInfo` for a proper ASN.1 structure. This can lead to successful verification with signatures that contain invalid structures but a valid digest.\n\n### Patches\n\nThe issue has been addressed in `node-forge` `1.3.0`.\n\n### For more information\n\nIf you have any questions or comments about this advisory:\n* Open an issue in [forge](https://github.com/digitalbazaar/forge)\n* Email us at [example email address](mailto:security@digitalbazaar.com)",
+        "vuln_symbols": [
+          "DigestInfo"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#74",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66031",
+            "GHSA-554w-wpv2-vw27"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "node-forge has ASN.1 Unbounded Recursion \u2014 ### Summary\n\nAn Uncontrolled Recursion (CWE-674) vulnerability in node-forge versions 1.3.1 and below enables remote, unauthenticated attackers to craft deep ASN.1 structures that trigger unbounded recursive parsing. This leads to a Denial-of-Service (DoS) via stack exhaustion when parsing untrusted DER inputs.\n\n### Details\n\nAn ASN.1 Denial of Service (Dos) vulnerability exists in the node-forge `asn1.fromDer` function within `forge/lib/asn1.js`. The ASN.1 DER parser implementation (`_fromDer`) recurses for every constructed ASN.1 value (SEQUENCE, SET",
+        "vuln_symbols": [
+          "asn1.fromDer",
+          "_fromDer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#75",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-12816",
+            "GHSA-5gfm-wpxj-wjgq"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "node-forge has an Interpretation Conflict vulnerability via its ASN.1 Validator Desynchronization \u2014 ### Summary\n\nCVE-2025-12816 has been reserved by CERT/CC\n\n**Description**\nAn Interpretation Conflict (CWE-436) vulnerability in node-forge versions 1.3.1 and below enables remote, unauthenticated attackers to craft ASN.1 structures to desynchronize schema validations, yielding a semantic divergence that may bypass downstream cryptographic verifications and security decisions.\n\n\n### Details\n\nA critical ASN.1 validation bypass vulnerability exists in the node-forge asn1.validate function within `f",
+        "vuln_symbols": [
+          "ans1.validate"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#76",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33891",
+            "GHSA-5m6q-g25r-mvwx"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "Forge has Denial of Service via Infinite Loop in BigInteger.modInverse() with Zero Input \u2014 ## Summary\n\nA Denial of Service (DoS) vulnerability exists in the node-forge library due to an infinite loop in the BigInteger.modInverse() function (inherited from the bundled jsbn library). When modInverse() is called with a zero value as input, the internal Extended Euclidean Algorithm enters an unreachable exit condition, causing the process to hang indefinitely and consume 100% CPU.\nAffected Package\n\nPackage name: node-forge (npm: node-forge)\nRepository: https://github.com/digitalbazaar/forge\nAffect",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.4.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#77",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-5rrq-pxf6-6jx5"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in node-forge debug API. \u2014 ### Impact\nThe `forge.debug` API had a potential prototype pollution issue if called with untrusted input. The API was only used for internal debug purposes in a safe way and never documented or advertised.  It is suspected that uses of this API, if any exist, would likely not have used untrusted inputs in a vulnerable way.\n\n### Patches\nThe `forge.debug` API and related functions were removed in 1.0.0.\n\n### Workarounds\nDon't use the `forge.debug` API directly or indirectly with untrusted input.\n\n### References\n- https://www.huntr.dev/bounties/1-np",
+        "vuln_symbols": [
+          "forge.debug"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#78",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66030",
+            "GHSA-65ch-62r8-g69g"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "node-forge is vulnerable to ASN.1 OID Integer Truncation \u2014 ### Summary\n\n**MITRE-Formatted CVE Description**\nAn Integer Overflow (CWE-190) vulnerability in node-forge versions 1.3.1 and below enables remote, unauthenticated attackers to craft ASN.1 structures containing OIDs with oversized arcs. These arcs may be decoded as smaller, trusted OIDs due to 32-bit bitwise truncation, enabling the bypass of downstream OID-based security decisions.\n\n### Description\n\nAn ASN.1 OID Integer Truncation vulnerability exists in the node-forge `asn1.derToOid` function within\u00a0`forge/lib/asn1.js`. OID component",
+        "vuln_symbols": [
+          "asn1.derToOid"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#79",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-0122",
+            "GHSA-8fr3-hfg3-gpgp"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "Open Redirect in node-forge \u2014 parseUrl functionality in node-forge mishandles certain uses of backslash such as `https:/\\/\\/\\` and interprets the URI as a relative path. ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#80",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-24771",
+            "GHSA-cfm4-qjh2-4765"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "Improper Verification of Cryptographic Signature in node-forge \u2014 ### Impact\n\nRSA PKCS#1 v1.5 signature verification code is lenient in checking the digest algorithm structure. This can allow a crafted structure that steals padding bytes and uses unchecked portion of the PKCS#1 encoded message to forge a signature when a low public exponent is being used.\n\n### Patches\n\nThe issue has been addressed in `node-forge` `1.3.0`.\n\n### References\n\nFor more information, please see\n[\"Bleichenbacher's RSA signature forgery based on implementation error\"](https://mailarchive.ietf.org/arch/msg/openpgp/5rnE9Z",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#81",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-gf8q-jrpm-jvxq"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "URL parsing in node-forge could lead to undesired behavior. \u2014 ### Impact\nThe regex used for the `forge.util.parseUrl` API would not properly parse certain inputs resulting in a parsed data structure that could lead to undesired behavior.\n\n### Patches\n`forge.util.parseUrl` and other very old related URL APIs were removed in 1.0.0 in favor of letting applications use the more modern WHATWG URL Standard API.\n\n### Workarounds\nEnsure code does not directly or indirectly call `forge.util.parseUrl` with untrusted input.\n\n### References\n- https://www.huntr.dev/bounties/41852c50-3c6d-4703-8c55-4db27164",
+        "vuln_symbols": [
+          "forge.util.parseUrl"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#82",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33894",
+            "CVE-2026-85393",
+            "GHSA-86w9-cpqp-85rv",
+            "GHSA-ppp5-5v6c-4jwp"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "Forge has signature forgery in RSA-PKCS due to ASN.1 extra field   \u2014 ## Summary\nRSASSA PKCS#1 v1.5 signature verification accepts forged signatures for low public exponent keys (e=3). Attackers can forge signatures by stuffing \u201cgarbage\u201d bytes within the ASN structure in order to construct a signature that passes verification, enabling [Bleichenbacher style forgery](https://mailarchive.ietf.org/arch/msg/openpgp/5rnE9ZRN1AokBVj3VqblGlP63QE/). This issue is similar to [CVE-2022-24771](https://github.com/digitalbazaar/forge/security/advisories/GHSA-cfm4-qjh2-4765), but adds bytes in an addition fi",
+        "vuln_symbols": [
+          "scheme",
+          "_decodePkcs1_v1_5",
+          "capture.digest",
+          "_parseAllDigestBytes",
+          "repro_min.js",
+          "forge"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.4.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#83",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33895",
+            "GHSA-q67f-28xg-22rw"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "Forge has signature forgery in Ed25519 due to missing S > L check \u2014 ## Summary\nEd25519 signature verification accepts forged non-canonical signatures where the scalar S is not reduced modulo the group order (`S >= L`). A valid signature and its `S + L` variant both verify in forge, while Node.js `crypto.verify` (OpenSSL-backed) rejects the `S + L` variant, [as defined by the specification](https://datatracker.ietf.org/doc/html/rfc8032#section-8.4). This class of signature malleability has been exploited in practice to bypass authentication and authorization logic (see [CVE-2026-25793](https://",
+        "vuln_symbols": [
+          "crypto.verify",
+          "S",
+          "poc.js",
+          "forge"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.4.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#84",
+      "facts": {
+        "package": "node-forge",
+        "version": "0.10.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-24772",
+            "GHSA-x4jg-mjrx-434g"
+          ],
+          [
+            "node-forge"
+          ]
+        ],
+        "advisory_summary": "Improper Verification of Cryptographic Signature in node-forge \u2014 ### Impact\n\nRSA PKCS#1 v1.5 signature verification code does not check for tailing garbage bytes after decoding a `DigestInfo` ASN.1 structure. This can allow padding bytes to be removed and garbage data added to forge a signature when a low public exponent is being used.\n\n### Patches\n\nThe issue has been addressed in `node-forge` `1.3.0`.\n\n### References\n\nFor more information, please see\n[\"Bleichenbacher's RSA signature forgery based on implementation error\"](https://mailarchive.ietf.org/arch/msg/openpgp/5rnE9ZRN1AokBVj3VqblGlP63",
+        "vuln_symbols": [
+          "DigestInfo"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#85",
+      "facts": {
+        "package": "object-path",
+        "version": "0.11.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-3805",
+            "GHSA-8v63-cqqc-6r2c"
+          ],
+          [
+            "object-path"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in object-path \u2014 object-path is vulnerable to Improperly Controlled Modification of Object Prototype Attributes ('Prototype Pollution'). The `del()` function fails to validate which Object properties it deletes. This allows attackers to modify the prototype of Object, causing the modification of default properties like `toString` on all objects.",
+        "vuln_symbols": [
+          "del",
+          "toString"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.8"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#86",
+      "facts": {
+        "package": "object-path",
+        "version": "0.11.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-23434",
+            "GHSA-v39p-96qg-c8rf"
+          ],
+          [
+            "object-path"
+          ]
+        ],
+        "advisory_summary": "Prototype Pollution in object-path \u2014 This affects the package object-path before 0.11.6. A type confusion vulnerability can lead to a bypass of CVE-2020-15256 when the path components used in the path parameter are arrays. In particular, the condition `currentPath === '__proto__'` returns false if `currentPath` is `['__proto__']`. This is because the `===` operator returns always false when the type of the operands is different.",
+        "vuln_symbols": [
+          "currentPath"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.6"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#87",
+      "facts": {
+        "package": "pac-resolver",
+        "version": "3.0.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2021-23406",
+            "GHSA-9j49-mfvp-vmhm"
+          ],
+          [
+            "pac-resolver"
+          ]
+        ],
+        "advisory_summary": "Code Injection in pac-resolver \u2014 This affects the package pac-resolver before 5.0.0. This can occur when used with untrusted input, due to unsafe PAC file handling. **NOTE:** The fix for this vulnerability is applied in the node-degenerator library, a dependency written by the same maintainer.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.0.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "pac-resolver@3.0.0 is loaded via mailgun-js > proxy-agent (index.js:16) > pac-proxy-agent when the mailgun email adapter is configured. A PAC resolver is only created when mailgun-js is passed a pac+ proxy option (request.js:128-129, new ProxyAgent(this.proxy)). That is not default or typical, and the PAC source is operator-chosen, not request data. Becomes reachable only with a PAC proxy configured and an untrusted PAC source.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled; rows Jelly did not find loaded)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#88",
+      "facts": {
+        "package": "parse",
+        "version": "3.3.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-62374",
+            "GHSA-9f2h-7v79-mxw3"
+          ],
+          [
+            "parse"
+          ]
+        ],
+        "advisory_summary": "Parse Javascript SDK vulnerable to prototype pollution in `Parse.Object` and internal APIs \u2014 ### Summary\n\nPrototype pollution capabilities on various APIs.\n\n### Details\n\nInjection of malicious payload allows attacker to remotely execute arbitrary code. `Parse.Object` and internal APIs are affected, specifically:\n- `ParseObject.fromJSON`\n- `ParseObject.pin`\n- `ParseObject.registerSubclass`\n- `ObjectStateMutations` (internal)\n- `encode`/`decode` (internal)\n\n### PoC\n\nDemonstrative tests added as part of the fix.\n\n### References\n\n- https://github.com/parse-community/Parse-SDK-JS/security/advisorie",
+        "vuln_symbols": [
+          "Parse.Object",
+          "ParseObject.fromJSON",
+          "ParseObject.pin",
+          "ParseObject.registerSubclass",
+          "ObjectStateMutations",
+          "encode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#89",
+      "facts": {
+        "package": "parse",
+        "version": "3.3.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-57324",
+            "GHSA-9g8m-v378-pcg3"
+          ],
+          [
+            "parse"
+          ]
+        ],
+        "advisory_summary": "parse is vulnerable to prototype pollution \u2014 parse is a package designed to parse JavaScript SDK. A Prototype Pollution vulnerability in the SingleInstanceStateController.initializeState function of parse allows attackers to inject properties on Object.prototype via supplying a crafted payload, causing denial of service (DoS) as the minimum consequence.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.0.0-alpha.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#90",
+      "facts": {
+        "package": "path-to-regexp",
+        "version": "0.1.7",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-45296",
+            "CVE-2026-4867",
+            "GHSA-37ch-88jc-xwx2",
+            "GHSA-9wv6-86v2-598j"
+          ],
+          [
+            "path-to-regexp"
+          ]
+        ],
+        "advisory_summary": "path-to-regexp outputs backtracking regular expressions \u2014 ### Impact\n\nA bad regular expression is generated any time you have two parameters within a single segment, separated by something that is not a period (`.`). For example, `/:a-:b`.\n\n### Patches\n\nFor users of 0.1, upgrade to `0.1.10`. All other users should upgrade to `8.0.0`.\n\nThese versions add backtrack protection when a custom regex pattern is not provided:\n\n- [0.1.10](https://github.com/pillarjs/path-to-regexp/releases/tag/v0.1.10)\n- [1.9.0](https://github.com/pillarjs/path-to-regexp/releases/tag/v1.9.0)\n- [3.3.0](https://github.co",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.1.10",
+          "0.1.13",
+          "1.9.0",
+          "3.3.0",
+          "6.3.0",
+          "8.0.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#91",
+      "facts": {
+        "package": "path-to-regexp",
+        "version": "0.1.7",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-52798",
+            "GHSA-rhx6-c78j-4q9w"
+          ],
+          [
+            "path-to-regexp"
+          ]
+        ],
+        "advisory_summary": "path-to-regexp contains a ReDoS \u2014 ### Impact\n\nThe regular expression that is vulnerable to backtracking can be generated in versions before 0.1.12 of `path-to-regexp`, originally reported in CVE-2024-45296\n\n### Patches\n\nUpgrade to 0.1.12.\n\n### Workarounds\n\nAvoid using two parameters within a single path segment, when the separator is not `.` (e.g. no `/:a-:b`). Alternatively, you can define the regex used for both parameters and ensure they do not overlap to allow backtracking.\n\n### References\n\n- https://github.com/advisories/GHSA-9wv6-86v2-598j\n- https://blakeembrey.com/posts/2024-09-web-redo",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.1.12"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#92",
+      "facts": {
+        "package": "pg-promise",
+        "version": "10.8.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-29744",
+            "GHSA-ff9h-848c-4xfj"
+          ],
+          [
+            "pg-promise"
+          ]
+        ],
+        "advisory_summary": "pg-promise SQL Injection vulnerability \u2014 pg-promise before 11.5.5 is vulnerable to SQL Injection due to improper handling of negative numbers.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "11.5.5"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#93",
+      "facts": {
+        "package": "proxy-addr",
+        "version": "2.0.5",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-90711",
+            "GHSA-jqcg-44mw-7w3h"
+          ],
+          [
+            "proxy-addr"
+          ]
+        ],
+        "advisory_summary": "proxy-addr vulnerable to IP spoofing via IPv4-mapped IPv6 trust subnet \u2014 ### Impact\n\n`proxy-addr` determines which network hops are trusted proxies so that `X-Forwarded-For` can be believed. When an application configures a trust subnet as an IPv4-mapped IPv6 address with a short prefix, such as `::ffff:10.0.0.0/8` (the correct spelling is `::ffff:10.0.0.0/104`), the subnet compiles with all-zero leading bits and matches every IPv4 address instead of the block it names. The same happens for any IPv6 trust subnet with zero leading bits, such as `::/1`.\n\nEvery unauthenticated client is then trus",
+        "vuln_symbols": [
+          "req.ip",
+          "req.ips"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.8"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#94",
+      "facts": {
+        "package": "qs",
+        "version": "6.5.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82417",
+            "GHSA-4mjr-xmp4-gh2g"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs: Denial of Service via Attacker Controlled isBuffer \u2014 ### Summary\n\n`qs.stringify()` calls `utils.isBuffer()` on every value it serializes, and `utils.isBuffer()` invokes `obj.constructor.isBuffer(obj)` without checking that it is callable. A value whose own `constructor.isBuffer` is a non-function makes `qs` call a non-callable and throw `TypeError`. Such a value is produced **by `qs.parse` itself** from an untrusted query string when `plainObjects: true` or `allowPrototypes: true` is set, so a pure-`qs` `parse` \u2192 `stringify` round-trip \u2014 no `JSON.parse` \u2014 turns an unauthenticated query str",
+        "vuln_symbols": [
+          "qs.stringify",
+          "utils.isBuffer",
+          "constructor.isBuffer",
+          "TypeError",
+          "qs.parse",
+          "parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#95",
+      "facts": {
+        "package": "qs",
+        "version": "6.5.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-15284",
+            "GHSA-6rw7-vpxm-498p"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs's arrayLimit bypass in its bracket notation allows DoS via memory exhaustion \u2014 ### Summary\n\nThe `arrayLimit` option in qs did not enforce limits for bracket notation (`a[]=1&a[]=2`), only for indexed notation (`a[0]=1`). This is a consistency bug; `arrayLimit` should apply uniformly across all array notations.\n\n**Note:** The default `parameterLimit` of 1000 effectively mitigates the DoS scenario originally described. With default options, bracket notation cannot produce arrays larger than `parameterLimit` regardless of `arrayLimit`, because each `a[]=value` consumes one parameter slot. The ",
+        "vuln_symbols": [
+          "arrayLimit",
+          "parameterLimit",
+          "options.arrayLimit"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.14.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#96",
+      "facts": {
+        "package": "qs",
+        "version": "6.5.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-24999",
+            "GHSA-hrpp-h998-j3pp"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs vulnerable to Prototype Pollution \u2014 qs before 6.10.3 allows attackers to cause a Node process hang because an `__ proto__` key can be used. In many typical web framework use cases, an unauthenticated remote attacker can place the attack payload in the query string of the URL that is used to visit the application, such as `a[__proto__]=b&a[__proto__]&a[length]=100000000`. The fix was backported to qs 6.9.7, 6.8.3, 6.7.3, 6.6.1, 6.5.3, 6.4.1, 6.3.3, and 6.2.4.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.10.3",
+          "6.2.4",
+          "6.3.3",
+          "6.4.1",
+          "6.5.3",
+          "6.6.1",
+          "6.7.3",
+          "6.8.3",
+          "6.9.7"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#97",
+      "facts": {
+        "package": "qs",
+        "version": "6.7.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82417",
+            "GHSA-4mjr-xmp4-gh2g"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs: Denial of Service via Attacker Controlled isBuffer \u2014 ### Summary\n\n`qs.stringify()` calls `utils.isBuffer()` on every value it serializes, and `utils.isBuffer()` invokes `obj.constructor.isBuffer(obj)` without checking that it is callable. A value whose own `constructor.isBuffer` is a non-function makes `qs` call a non-callable and throw `TypeError`. Such a value is produced **by `qs.parse` itself** from an untrusted query string when `plainObjects: true` or `allowPrototypes: true` is set, so a pure-`qs` `parse` \u2192 `stringify` round-trip \u2014 no `JSON.parse` \u2014 turns an unauthenticated query str",
+        "vuln_symbols": [
+          "qs.stringify",
+          "utils.isBuffer",
+          "constructor.isBuffer",
+          "TypeError",
+          "qs.parse",
+          "parse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.16.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#98",
+      "facts": {
+        "package": "qs",
+        "version": "6.7.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-15284",
+            "GHSA-6rw7-vpxm-498p"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs's arrayLimit bypass in its bracket notation allows DoS via memory exhaustion \u2014 ### Summary\n\nThe `arrayLimit` option in qs did not enforce limits for bracket notation (`a[]=1&a[]=2`), only for indexed notation (`a[0]=1`). This is a consistency bug; `arrayLimit` should apply uniformly across all array notations.\n\n**Note:** The default `parameterLimit` of 1000 effectively mitigates the DoS scenario originally described. With default options, bracket notation cannot produce arrays larger than `parameterLimit` regardless of `arrayLimit`, because each `a[]=value` consumes one parameter slot. The ",
+        "vuln_symbols": [
+          "arrayLimit",
+          "parameterLimit",
+          "options.arrayLimit"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.14.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#99",
+      "facts": {
+        "package": "qs",
+        "version": "6.7.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-24999",
+            "GHSA-hrpp-h998-j3pp"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs vulnerable to Prototype Pollution \u2014 qs before 6.10.3 allows attackers to cause a Node process hang because an `__ proto__` key can be used. In many typical web framework use cases, an unauthenticated remote attacker can place the attack payload in the query string of the URL that is used to visit the application, such as `a[__proto__]=b&a[__proto__]&a[length]=100000000`. The fix was backported to qs 6.9.7, 6.8.3, 6.7.3, 6.6.1, 6.5.3, 6.4.1, 6.3.3, and 6.2.4.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.10.3",
+          "6.2.4",
+          "6.3.3",
+          "6.4.1",
+          "6.5.3",
+          "6.6.1",
+          "6.7.3",
+          "6.8.3",
+          "6.9.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#100",
+      "facts": {
+        "package": "qs",
+        "version": "6.7.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-2391",
+            "GHSA-w7fw-mjwx-w883"
+          ],
+          [
+            "qs"
+          ]
+        ],
+        "advisory_summary": "qs's arrayLimit bypass in comma parsing allows denial of service \u2014 ### Summary\nThe `arrayLimit` option in qs does not enforce limits for comma-separated values when `comma: true` is enabled, allowing attackers to cause denial-of-service via memory exhaustion. This is a bypass of the array limit enforcement, similar to the bracket notation bypass addressed in GHSA-6rw7-vpxm-498p (CVE-2025-15284).\n\n### Details\nWhen the `comma` option is set to `true` (not the default, but configurable in applications), qs allows parsing comma-separated strings as arrays (e.g., `?param=a,b,c` becomes `['a', 'b', ",
+        "vuln_symbols": [
+          "arrayLimit",
+          "comma",
+          "parseArrayValue",
+          "utils.combine",
+          "currentArrayLength",
+          "throwOnLimitExceeded"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.14.2"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#101",
+      "facts": {
+        "package": "request",
+        "version": "2.88.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-28155",
+            "GHSA-p8p7-x288-28g6"
+          ],
+          [
+            "request"
+          ]
+        ],
+        "advisory_summary": "Server-Side Request Forgery in Request \u2014 The `request` package through 2.88.2 for Node.js and the `@cypress/request` package prior to 3.0.0 allow a bypass of SSRF mitigations via an attacker-controller server that does a cross-protocol redirect (HTTP to HTTPS, or HTTPS to HTTP).\n\nNOTE: The `request` package is no longer supported by the maintainer.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#102",
+      "facts": {
+        "package": "semver",
+        "version": "5.7.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-25883",
+            "GHSA-c2qf-rxjj-qqgw"
+          ],
+          [
+            "semver"
+          ]
+        ],
+        "advisory_summary": "semver vulnerable to Regular Expression Denial of Service \u2014 Versions of the package semver before 7.5.2 on the 7.x branch, before 6.3.1 on the 6.x branch, and all other versions before 5.7.2 are vulnerable to Regular Expression Denial of Service (ReDoS) via the function new Range, when untrusted user data is provided as a range.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.7.2",
+          "6.3.1",
+          "7.5.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#103",
+      "facts": {
+        "package": "semver",
+        "version": "7.3.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-25883",
+            "GHSA-c2qf-rxjj-qqgw"
+          ],
+          [
+            "semver"
+          ]
+        ],
+        "advisory_summary": "semver vulnerable to Regular Expression Denial of Service \u2014 Versions of the package semver before 7.5.2 on the 7.x branch, before 6.3.1 on the 6.x branch, and all other versions before 5.7.2 are vulnerable to Regular Expression Denial of Service (ReDoS) via the function new Range, when untrusted user data is provided as a range.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.7.2",
+          "6.3.1",
+          "7.5.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#104",
+      "facts": {
+        "package": "send",
+        "version": "0.17.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-43799",
+            "GHSA-m6fv-jmcg-4jfg"
+          ],
+          [
+            "send"
+          ]
+        ],
+        "advisory_summary": "send vulnerable to template injection that can lead to XSS \u2014 ### Impact\n\npassing untrusted user input - even after sanitizing it - to `SendStream.redirect()` may execute untrusted code\n\n### Patches\n\nthis issue is patched in send 0.19.0\n\n### Workarounds\n\nusers are encouraged to upgrade to the patched version of express, but otherwise can workaround this issue by making sure any untrusted inputs are safe, ideally by validating them against an explicit allowlist\n\n### Details\n\nsuccessful exploitation of this vector requires the following:\n\n1. The attacker MUST control the input to response.redirec",
+        "vuln_symbols": [
+          "SendStream.redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.19.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#105",
+      "facts": {
+        "package": "serve-static",
+        "version": "1.14.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-43800",
+            "GHSA-cm22-4g7w-348p"
+          ],
+          [
+            "serve-static"
+          ]
+        ],
+        "advisory_summary": "serve-static vulnerable to template injection that can lead to XSS \u2014 ### Impact\n\npassing untrusted user input - even after sanitizing it - to `redirect()` may execute untrusted code\n\n### Patches\n\nthis issue is patched in serve-static 1.16.0\n\n### Workarounds\n\nusers are encouraged to upgrade to the patched version of express, but otherwise can workaround this issue by making sure any untrusted inputs are safe, ideally by validating them against an explicit allowlist\n\n### Details\n\nsuccessful exploitation of this vector requires the following:\n\n1. The attacker MUST control the input to response.re",
+        "vuln_symbols": [
+          "redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.16.0",
+          "2.1.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#106",
+      "facts": {
+        "package": "sha.js",
+        "version": "2.4.11",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-9288",
+            "GHSA-95m3-7q98-8xr5"
+          ],
+          [
+            "sha.js"
+          ]
+        ],
+        "advisory_summary": "sha.js is missing type checks leading to hash rewind and passing on crafted data \u2014 ### Summary\n\nThis is the same as [GHSA-cpq7-6gpm-g9rc](https://github.com/browserify/cipher-base/security/advisories/GHSA-cpq7-6gpm-g9rc) but just for `sha.js`, as it has its own implementation.\n\nMissing input type checks can allow types other than a well-formed `Buffer` or `string`, resulting in invalid values, hanging and rewinding the hash state (including turning a tagged hash into an untagged hash), or other generally undefined behaviour.\n\n### Details\n\nSee PoC\n\n### PoC\n```js\nconst forgeHash = (data, payload",
+        "vuln_symbols": [
+          "Buffer",
+          "buf"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.4.12"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#107",
+      "facts": {
+        "package": "tough-cookie",
+        "version": "2.4.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-26136",
+            "GHSA-72xf-g2v4-qvf3"
+          ],
+          [
+            "tough-cookie"
+          ]
+        ],
+        "advisory_summary": "tough-cookie Prototype Pollution vulnerability \u2014 Versions of the package tough-cookie before 4.1.3 are vulnerable to Prototype Pollution due to improper handling of Cookies when using CookieJar in `rejectPublicSuffixes=false` mode. This issue arises from the manner in which the objects are initialized.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.3"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#108",
+      "facts": {
+        "package": "uuid",
+        "version": "3.3.2",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41907",
+            "CVE-2026-41988",
+            "GHSA-w5hq-g745-h8pq"
+          ],
+          [
+            "uuid"
+          ]
+        ],
+        "advisory_summary": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided \u2014 ### Summary\n\nThe `v3()`, `v5()`, and `v6()` [API methods](https://github.com/uuidjs/uuid#api-summary) (not `uuid` release versions) accept external output buffers but do not reject out-of-range writes (small `buf` or large `offset`).  \nBy contrast, `v4()`, `v1()`, and `v7()` API methods explicitly throw `RangeError` on invalid bounds.\n\nThis inconsistency allows **silent partial writes** into caller-provided buffers.\n\n\n### Affected code\n\n- `src/v35.ts` (`v3()`/`v5()` path) writes `buf[offset + i]` without bounds validation.\n- ",
+        "vuln_symbols": [
+          "v3",
+          "v5",
+          "v6",
+          "buf",
+          "offset",
+          "v4"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "11.1.1",
+          "12.0.1",
+          "13.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#109",
+      "facts": {
+        "package": "uuid",
+        "version": "3.4.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41907",
+            "CVE-2026-41988",
+            "GHSA-w5hq-g745-h8pq"
+          ],
+          [
+            "uuid"
+          ]
+        ],
+        "advisory_summary": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided \u2014 ### Summary\n\nThe `v3()`, `v5()`, and `v6()` [API methods](https://github.com/uuidjs/uuid#api-summary) (not `uuid` release versions) accept external output buffers but do not reject out-of-range writes (small `buf` or large `offset`).  \nBy contrast, `v4()`, `v1()`, and `v7()` API methods explicitly throw `RangeError` on invalid bounds.\n\nThis inconsistency allows **silent partial writes** into caller-provided buffers.\n\n\n### Affected code\n\n- `src/v35.ts` (`v3()`/`v5()` path) writes `buf[offset + i]` without bounds validation.\n- ",
+        "vuln_symbols": [
+          "v3",
+          "v5",
+          "v6",
+          "buf",
+          "offset",
+          "v4"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "11.1.1",
+          "12.0.1",
+          "13.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#110",
+      "facts": {
+        "package": "uuid",
+        "version": "8.3.1",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41907",
+            "CVE-2026-41988",
+            "GHSA-w5hq-g745-h8pq"
+          ],
+          [
+            "uuid"
+          ]
+        ],
+        "advisory_summary": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided \u2014 ### Summary\n\nThe `v3()`, `v5()`, and `v6()` [API methods](https://github.com/uuidjs/uuid#api-summary) (not `uuid` release versions) accept external output buffers but do not reject out-of-range writes (small `buf` or large `offset`).  \nBy contrast, `v4()`, `v1()`, and `v7()` API methods explicitly throw `RangeError` on invalid bounds.\n\nThis inconsistency allows **silent partial writes** into caller-provided buffers.\n\n\n### Affected code\n\n- `src/v35.ts` (`v3()`/`v5()` path) writes `buf[offset + i]` without bounds validation.\n- ",
+        "vuln_symbols": [
+          "v3",
+          "v5",
+          "v6",
+          "buf",
+          "offset",
+          "v4"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "11.1.1",
+          "12.0.1",
+          "13.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#111",
+      "facts": {
+        "package": "word-wrap",
+        "version": "1.2.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-26115",
+            "GHSA-j8xg-fqg3-53r7"
+          ],
+          [
+            "word-wrap"
+          ]
+        ],
+        "advisory_summary": "word-wrap vulnerable to Regular Expression Denial of Service \u2014 All versions of the package word-wrap are vulnerable to Regular Expression Denial of Service (ReDoS) due to the usage of an insecure regular expression within the result variable.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.2.4"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "word-wrap@1.2.3 is required only by optionator/lib/help.js:6. optionator is required by eslint (dev) and by escodegen, but only in escodegen's CLI bins (bin/escodegen.js:33, bin/esgenerate.js:32), never by the escodegen library that degenerator loads. Never loaded in the server.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled; rows Jelly did not find loaded)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#112",
+      "facts": {
+        "package": "ws",
+        "version": "7.5.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-37890",
+            "GHSA-3h5v-q93c-6h6q"
+          ],
+          [
+            "ws"
+          ]
+        ],
+        "advisory_summary": "ws affected by a DoS when handling a request with many HTTP headers \u2014 ### Impact\n\nA request with a number of headers exceeding the [`server.maxHeadersCount`][] threshold could be used to crash a ws server.\n\n### Proof of concept\n\n```js\nconst http = require('http');\nconst WebSocket = require('ws');\n\nconst wss = new WebSocket.Server({ port: 0 }, function () {\n  const chars = \"!#$%&'*+-.0123456789abcdefghijklmnopqrstuvwxyz^_`|~\".split('');\n  const headers = {};\n  let count = 0;\n\n  for (let i = 0; i < chars.length; i++) {\n    if (count === 2000) break;\n\n    for (let j = 0; j < chars.length; j++) {\n",
+        "vuln_symbols": [
+          "server.maxHeadersCount",
+          "maxHeaderSize"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.4",
+          "6.2.3",
+          "7.5.10",
+          "8.17.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#113",
+      "facts": {
+        "package": "ws",
+        "version": "7.5.0",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48779",
+            "GHSA-96hv-2xvq-fx4p"
+          ],
+          [
+            "ws"
+          ]
+        ],
+        "advisory_summary": "ws: Memory exhaustion DoS from tiny fragments and data chunks \u2014 ### Impact\n\nA high volume of exceptionally small fragments and data chunks can be sent by a peer, with modest network traffic, to force the remote peer into allocating and holding structural wrappers that consume far more memory than the default documented message-size limit, leading to process termination due to OOM.\n\n### Proof of concept\n\n```js\nimport { WebSocket, WebSocketServer } from 'ws';\n\nconst wss = new WebSocketServer({ port: 0 }, function () {\n  const data = Buffer.alloc(1);\n  const options = { fin: false };\n  const { po",
+        "vuln_symbols": [
+          "maxPayload"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.5",
+          "6.2.4",
+          "7.5.11",
+          "8.21.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#114",
+      "facts": {
+        "package": "ws",
+        "version": "7.5.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-37890",
+            "GHSA-3h5v-q93c-6h6q"
+          ],
+          [
+            "ws"
+          ]
+        ],
+        "advisory_summary": "ws affected by a DoS when handling a request with many HTTP headers \u2014 ### Impact\n\nA request with a number of headers exceeding the [`server.maxHeadersCount`][] threshold could be used to crash a ws server.\n\n### Proof of concept\n\n```js\nconst http = require('http');\nconst WebSocket = require('ws');\n\nconst wss = new WebSocket.Server({ port: 0 }, function () {\n  const chars = \"!#$%&'*+-.0123456789abcdefghijklmnopqrstuvwxyz^_`|~\".split('');\n  const headers = {};\n  let count = 0;\n\n  for (let i = 0; i < chars.length; i++) {\n    if (count === 2000) break;\n\n    for (let j = 0; j < chars.length; j++) {\n",
+        "vuln_symbols": [
+          "server.maxHeadersCount",
+          "maxHeaderSize"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.4",
+          "6.2.3",
+          "7.5.10",
+          "8.17.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#115",
+      "facts": {
+        "package": "ws",
+        "version": "7.5.3",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48779",
+            "GHSA-96hv-2xvq-fx4p"
+          ],
+          [
+            "ws"
+          ]
+        ],
+        "advisory_summary": "ws: Memory exhaustion DoS from tiny fragments and data chunks \u2014 ### Impact\n\nA high volume of exceptionally small fragments and data chunks can be sent by a peer, with modest network traffic, to force the remote peer into allocating and holding structural wrappers that consume far more memory than the default documented message-size limit, leading to process termination due to OOM.\n\n### Proof of concept\n\n```js\nimport { WebSocket, WebSocketServer } from 'ws';\n\nconst wss = new WebSocketServer({ port: 0 }, function () {\n  const data = Buffer.alloc(1);\n  const options = { fin: false };\n  const { po",
+        "vuln_symbols": [
+          "maxPayload"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.5",
+          "6.2.4",
+          "7.5.11",
+          "8.21.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-parse-server#116",
+      "facts": {
+        "package": "xml2js",
+        "version": "0.4.19",
+        "ecosystem": "npm",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-0842",
+            "GHSA-776f-qx25-q3cc"
+          ],
+          [
+            "xml2js"
+          ]
+        ],
+        "advisory_summary": "xml2js is vulnerable to prototype pollution \u2014 xml2js versions before 0.5.0 allows an external attacker to edit or add new properties to an object. This is possible because the application does not properly validate incoming JSON keys, thus allowing the `__proto__` property to be edited.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.5.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {}
+    }
+  ]
+}

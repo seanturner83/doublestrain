@@ -40,13 +40,26 @@ not_reachable = 0.7
 reachable = inf
 not_reachable = 0.9
 corroborate = true
-corroborate_by = ["split", "shape", "claude"]
+corroborate_by = ["jelly", "split", "shape", "claude"]
 
 [role.govulncheck]
 # a call graph, not a model: called -> reachable 1.0, only imported / required ->
 # not_reachable 1.0, and `unsure` where cgo files were left out of the analysis
 reachable = 0.5
 not_reachable = 0.9
+
+[role.jelly]
+# a static analysis of which npm packages the app's code can load (judges/jelly.py):
+# not_reachable 1.0 when the advisory's package is never loaded and no guard fires;
+# a loaded package is `unsure` (package level says nothing about the function), so
+# reachable never comes from here. all10 prototype (2026-10-19, the guard designed on
+# the same apps): 336 of 844 not_reachable labels, 0 of 97 reachable labels. Until a
+# held-out measurement, a second read must agree; an endpoint model counts (mutual:
+# endpoint lists jelly), since the two fail in different ways.
+reachable = inf
+not_reachable = 0.9
+corroborate = true
+corroborate_by = ["endpoint", "split", "shape", "claude"]
 
 [role.split]
 # six-app run: matcher 0.90s 6 right / 1 wrong (goof dustjs) against 77 / 0 at >= 0.95

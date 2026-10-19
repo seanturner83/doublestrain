@@ -3,6 +3,7 @@
 `get_judge("cascade")` = Jev first (System-1, cheap), escalating to claude-code
 (System-2) only when Jev's verdict is below its acceptance floor. Spec syntax:
 "null", "jev", "local", "claude", "govulncheck" (Go call graph; no claim for other ecosystems),
+"jelly" (npm packages the app can load; needs SSVC_PKGSRC),
 "cascade" (== "cascade:jev,claude"), or "cascade:a,b,..."
 (e.g. "cascade:jev,local,claude" puts local inference between Jev and claude-code).
 Any other name is an OpenAI-compatible endpoint configured by SSVC_<NAME>_BASE_URL etc.
@@ -19,13 +20,14 @@ from .._locks import keylock
 from .base import Judge, JudgeResult, ReachQuery, Verdict, accept, needs_corroboration, policy, role
 from .claude_code import ClaudeCodeJudge
 from .govulncheck import GovulncheckJudge
+from .jelly import JellyJudge
 from .jev import JevJudge
 from .local import LocalJudge, OpenAIJudge, configured
 from .shape import ShapeJudge
 from .split import SplitJudge
 
 __all__ = ["Judge", "JudgeResult", "ReachQuery", "Verdict", "accept", "get_judge",
-           "NullJudge", "JevJudge", "GovulncheckJudge", "LocalJudge", "OpenAIJudge", "SplitJudge", "ShapeJudge", "ClaudeCodeJudge", "CascadeJudge", "CachedJudge"]
+           "NullJudge", "JevJudge", "GovulncheckJudge", "JellyJudge", "LocalJudge", "OpenAIJudge", "SplitJudge", "ShapeJudge", "ClaudeCodeJudge", "CascadeJudge", "CachedJudge"]
 
 
 class NullJudge:
@@ -97,7 +99,10 @@ class CascadeJudge:
                 trail.append(_strip(r, "not_reachable escalated: an earlier tier said reachable"))
                 continue        # never `last`: a returned last must not pass accept()
             if nr and held is not None:
-                if role(r.source) in policy(held)["corroborate_by"] and not needs_corroboration(r):
+                # a second read that itself needs one counts only if each lists the other
+                # (jelly and an endpoint model: a static analysis and a model fail differently)
+                if role(r.source) in policy(held)["corroborate_by"] and (
+                        not needs_corroboration(r) or role(held.source) in policy(r)["corroborate_by"]):
                     r.trail = trail + r.trail
                     r.rationale = (f"corroborates {held.source}"
                                    f"{' (' + held.model + ')' if held.model else ''}; " + r.rationale)[:1200]
@@ -209,6 +214,8 @@ def _build(spec: str, *, cache: bool = True):
         j = JevJudge()
     elif spec == "govulncheck":
         j = GovulncheckJudge()
+    elif spec == "jelly":
+        j = JellyJudge()
     elif spec == "local":
         j = LocalJudge()
     elif spec == "claude":
@@ -220,7 +227,7 @@ def _build(spec: str, *, cache: bool = True):
     elif configured(spec):
         j = OpenAIJudge(spec)
     else:
-        raise ValueError(f"unknown judge spec {spec!r} (null|jev|local|claude|govulncheck|split[:endpoint]|shape|<endpoint>|cascade[:a,b]; "
+        raise ValueError(f"unknown judge spec {spec!r} (null|jev|local|claude|govulncheck|jelly|split[:endpoint]|shape|<endpoint>|cascade[:a,b]; "
                          "an endpoint tier needs SSVC_<NAME>_BASE_URL)")
     return CachedJudge(j) if cache else j
 
