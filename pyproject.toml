@@ -3,6 +3,7 @@ name = "ssvc-triage"
 version = "0.1.0"
 description = "SSVC Act/Attend/Track grading for dependency advisories, with measured reachability judges (static analysis, local and hosted models) and a run harness"
 readme = "README.md"
+authors = [{ name = "Sean Turner" }]
 requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
