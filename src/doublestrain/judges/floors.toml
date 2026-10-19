@@ -65,7 +65,7 @@ corroborate_by = ["endpoint", "split", "shape", "claude"]
 # six-app run: matcher 0.90s 6 right / 1 wrong (goof dustjs) against 77 / 0 at >= 0.95
 reachable = inf
 not_reachable = 0.95
-# Ecosystems held for every model tier (SSVC_NR_UNMEASURED, default cargo,go) where this
+# Ecosystems held for every model tier (SSVC_NR_UNMEASURED, default cargo,go,pypi) where this
 # role's not_reachable may still settle: go5-split-raw (2026-10-18, five Go apps, 145
 # blind labels): not_reachable 128 right / 0 wrong, reachable 6/6 on reachable labels.
 measured_ecosystems = ["go"]

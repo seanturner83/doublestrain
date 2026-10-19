@@ -345,10 +345,11 @@ def usage_summary(repo_path: str, ecosystem: str, dependency: str, vuln_symbols=
 
 def unmeasured_ecosystems() -> set[str]:
     """Ecosystems whose not_reachable verdicts have no labelled run behind them yet: no
-    tier may settle not_reachable there (the floors were measured on npm apps). Override
+    tier may settle not_reachable there (the floors were measured on npm apps; pypi was
+    held from 2026-10-19: three small fixtures were its only labels). Override
     with SSVC_NR_UNMEASURED (comma-separated; empty = none). govulncheck isn't held: it is
     a call graph, not a model judging from excerpts (`reach.resolve_reachability`)."""
-    return {e.strip() for e in os.environ.get("SSVC_NR_UNMEASURED", "cargo,go").split(",") if e.strip()}
+    return {e.strip() for e in os.environ.get("SSVC_NR_UNMEASURED", "cargo,go,pypi").split(",") if e.strip()}
 
 
 def measured_for(role: str) -> set[str]:

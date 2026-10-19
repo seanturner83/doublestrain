@@ -195,6 +195,7 @@ def test_go_hold_is_lifted_for_split_only():
     from doublestrain.judges.usage import Usage, nr_held
     assert nr_held("go") and nr_held("go", "endpoint") and not nr_held("go", "split")
     assert nr_held("cargo", "split")                      # Rust: still unmeasured everywhere
+    assert nr_held("pypi") and nr_held("pypi", "split") and not nr_held("npm", "endpoint")
     u = Usage(ecosystem="go")
     assert guard_not_reachable(Verdict.NOT_REACHABLE, u, role="split")[0] == Verdict.NOT_REACHABLE
     assert guard_not_reachable(Verdict.NOT_REACHABLE, u)[0] == Verdict.UNSURE
