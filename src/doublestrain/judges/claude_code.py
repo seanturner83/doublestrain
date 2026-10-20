@@ -214,6 +214,13 @@ def _claude_slot():
     return _SEM[0]
 
 
+def _sleep_until(deadline: float) -> None:
+    """Wait for a wall-clock time. time.sleep alone doesn't count time the machine spends
+    asleep (macOS), so a laptop that slept would wait hours past the limit's reset."""
+    while (left := deadline - time.time()) > 0:
+        time.sleep(min(left, 60.0))
+
+
 def _budget() -> float | None:
     v = os.environ.get("SSVC_CLAUDE_BUDGET_USD", "").strip()
     return float(v) if v else None
@@ -378,7 +385,7 @@ def run_claude(binary: str, prompt: str, system: str, schema: dict, *, cwd: Path
             logger.warning("claude usage limit; waiting until %s (%.0f min)",
                            got[1].strftime("%H:%M"), secs / 60)
             _spend("limit_waits", 1)
-            time.sleep(min(secs, 6 * 3600))
+            _sleep_until(time.time() + min(secs, 6 * 3600))
             got = _invoke(binary, prompt, system, schema, cwd=cwd, add_dirs=add_dirs, model=m, timeout=timeout, purpose=purpose)
         if got[0] == "limit":
             return None
