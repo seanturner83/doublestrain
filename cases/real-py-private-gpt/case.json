@@ -4171,10 +4171,10 @@
         }
       },
       "expect": {
-        "reachability": "reachable",
-        "note": "JSONReader is registered for '.json' uploads (private_gpt/components/ingest/ingest_helper.py:55-59) and called on the uploaded temp file (ingest_helper.py:95, from POST /v1/ingest/file ingest_router.py:39-58 and the UI upload). llama_index/core/readers/json.py:103 json.load, then unbounded recursive _depth_first_yield (json.py:11-44,131): deeply nested JSON -> RecursionError DoS.",
-        "confidence": "high",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "reachability": "not_reachable",
+        "note": "ingest_helper.py:56-59 maps .json to JSONReader, and transform_file_into_documents calls it with default arguments (ingest_helper.py:95), so an uploaded .json reaches load_data. With the defaults (levels_back=None, clean_json=True), llama_index/core/readers/json.py:103-120 only calls stdlib json.load/json.dumps. The recursive traversal the advisory names as root cause, _depth_first_yield (json.py:11-44, called at :131), runs only when levels_back is set, and the app never sets it. Deep nesting would still raise RecursionError from stdlib json, but that is caught per request (500), not a process crash. If the advisory's fix also covers the json.load path, this would flip to reachable.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-10-20, blind re-review of a contested label (was reachable: JSONReader is registered for '.json' uploads (private_gpt/components/ingest/ingest_helper.py:55-59) and called on the uploaded temp file (ingest_helper.py:95, from POST /v1/ingest/file ingest_router.p)"
       }
     },
     {
@@ -6719,7 +6719,8 @@
         "reachability": "reachable",
         "note": "Uploaded .jpg/.jpeg/.png (API POST /v1/ingest/file or UI upload) -> llama-index-readers-file ImageReader.load_data (ingest_helper.py:38-40,95) -> PIL Image.open(path) with full format sniffing (image/base.py:87), and image.convert('RGB') for any non-RGB mode (base.py:89-90) forces load()/decode. 10.4.0 FitsImagePlugin has the GZIP_1 path (FitsImagePlugin.py:93-100) with unbounded gzip.decompress(self.fd.read()) (:131) and is registered (:149-150). FITS modes (L/I/F) are non-RGB, so convert forces decode.",
         "confidence": "high",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)",
+        "review": "2026-10-20 blind re-review: reachable (high): Upload paths: POST /v1/ingest/file (private_gpt/server/ingest/ingest_router.py:32-41, auth disabled by default per settings.yaml:13) and the Gradio UploadButton (private_gpt/ui/ui.py:405-421). Both reach IngestionHelper._load_file_to_documents (ingest_helper.py:83-95), which maps .png/.jpg/.jpeg to "
       }
     },
     {
@@ -6762,7 +6763,8 @@
         "reachability": "reachable",
         "note": "Uploaded .jpg/.jpeg/.png (API POST /v1/ingest/file or UI upload) -> llama-index-readers-file ImageReader.load_data (ingest_helper.py:38-40,95) -> PIL Image.open(path) with full format sniffing (image/base.py:87), and image.convert('RGB') for any non-RGB mode (base.py:89-90) forces load()/decode. Same PSD tile decode as row 149 (PsdImagePlugin.py:322 registered). 10.4.0 has no tile-extent checks at all, so the overflow-bypass condition is satisfied.",
         "confidence": "high",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)",
+        "review": "2026-10-20 blind re-review: not_reachable (medium): An uploaded PSD (renamed .png) does reach Image.open plus convert('RGB') through ImageReader (readers-file image/base.py:87-91; ingest_helper.py:40-42). However, in Pillow 10.4.0 the default load uses the composite tile with extents (0,0)+self.size (PsdImagePlugin.py:137). Attacker-chosen layer bbox"
       }
     },
     {
@@ -11564,10 +11566,10 @@
         }
       },
       "expect": {
-        "reachability": "reachable",
-        "note": "request.url rebuilt by concatenation from raw path for any request; Gradio reads str(request.url) (route_utils.py:338) to build root/file URLs. No app hostname-based security, impact limited, but code runs on attacker requests.",
+        "reachability": "not_reachable",
+        "note": "The bug is present in starlette 0.37.2: datastructures.py URL(scope=) builds f'{scheme}://{host_header}{path}'. Exploiting it needs app code that trusts request.url.hostname/netloc. private_gpt never reads request.url (grep finds nothing). Gradio 4.39 uses str(request.url) only in route_utils.get_root_url (:338) to build URLs in that same request's response; it already trusts X-Forwarded-Host, so a client can already set it, and there is no security boundary. Starlette's own users are not hit: the Router redirect_slashes branch (routing.py:801) only fires when the slash-toggled path matches a route, and every route/mount regex requires a leading '/'. TrustedHost and HTTPSRedirect middleware are not used (launcher.py adds only CORSMiddleware). The server is uvicorn with httptools (private_gpt/__main__.py, poetry.lock httptools 0.6.1), which likely rejects a request target without a leading '/'.",
         "confidence": "medium",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "labelled_by": "claude-opus code read 2026-10-20, blind re-review of a contested label (was reachable: request.url rebuilt by concatenation from raw path for any request; Gradio reads str(request.url) (route_utils.py:338) to build root/file URLs. No app hostname-based security, impact limited, but code)"
       }
     },
     {

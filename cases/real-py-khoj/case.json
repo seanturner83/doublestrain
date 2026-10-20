@@ -175,7 +175,8 @@
         "reachability": "reachable",
         "note": "Advisory framed as server zip bomb, but the unbounded DeflateBuffer decompression (aiohttp/http_parser.py:945-990, no max_length in 3.9.5) is also used by the client (client_proto.py:177 auto_decompress=True). aiohttp client fetches attacker-chosen URLs: read_webpage_at_url (online_search.py:554-565) via scrape_webpage_with_fallback (online_search.py:501); DIRECT scraper enabled in anonymous mode (database/adapters/__init__.py:1536-1545), which the shipped docker-compose.yml:125 uses (--anonymous-mode), or when admin adds a Direct WebScraper. response.text() then inflates an attacker gzip bomb fully. Unsure whether fix covers client path; chose reachable.",
         "confidence": "low",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)",
+        "review": "2026-10-20 blind re-review: not_reachable (medium): The advisory requires a compressed request body sent to an aiohttp server with auto_decompress. khoj runs no aiohttp server: it is served by gunicorn+UvicornWorker (gunicorn-config.py:7, prod.Dockerfile:64), and aiohttp appears only as ClientSession (online_search.py, run_code.py). Caveat: the same "
       }
     },
     {
@@ -822,7 +823,8 @@
         "reachability": "reachable",
         "note": "C parser (llhttp) accepting control chars/NUL in header values; parser is shared by the client response parser. aiohttp client fetches attacker-chosen URLs: read_webpage_at_url (online_search.py:554-565) via scrape_webpage_with_fallback (online_search.py:501); DIRECT scraper enabled in anonymous mode (database/adapters/__init__.py:1536-1545), which the shipped docker-compose.yml:125 uses (--anonymous-mode), or when admin adds a Direct WebScraper. Attacker server controls response headers; practical impact on khoj is low (no security decisions on fetched headers) but the vulnerable parsing runs on attacker data.",
         "confidence": "low",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)",
+        "review": "2026-10-20 blind re-review: not_reachable (medium): The advisory's impact is on an aiohttp server: control characters in request headers make request.url.origin()/Host differ from what a proxy saw. khoj serves HTTP through gunicorn with uvicorn.workers.UvicornWorker (gunicorn-config.py:7, prod.Dockerfile:64), or through uvicorn from main.py. It never"
       }
     },
     {
@@ -8097,10 +8099,10 @@
         }
       },
       "expect": {
-        "reachability": "reachable",
-        "note": "torch 2.6 torch.load with weights_only=True is the path transformers uses for pytorch_model.bin checkpoints (transformers/modeling_utils.py:483,519-575), and sentence-transformers uses it for Dense and similar modules (sentence_transformers/models/Dense.py:90). khoj downloads admin-configurable HF models (bi_encoder/cross_encoder, database/models/__init__.py:545,553; embeddings.py:51,130). Defaults likely ship safetensors, so this is reached only for models without safetensors or a tampered model repo. Labelled reachable because I am unsure, given model files are in the attacker model. The dead text_search.py:53,92 torch.load is uncalled.",
-        "confidence": "low",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "reachability": "not_reachable",
+        "note": "Precondition is torch.load(weights_only=True) on an attacker-crafted checkpoint. The only direct torch.load calls in khoj are src/khoj/search_type/text_search.py:53 and :92 (compute_embeddings/load_embeddings). Nothing in src calls either function (grep finds only the definitions), and they would only load the app's own torch.save output (:81). Model weights are loaded through SentenceTransformer/CrossEncoder (src/khoj/processor/embeddings.py:51, :130) using model names from admin-configured SearchModelConfig. No HTTP route lets a user upload or choose a .pth file, so an attacker cannot supply a checkpoint.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-20, blind re-review of a contested label (was reachable: torch 2.6 torch.load with weights_only=True is the path transformers uses for pytorch_model.bin checkpoints (transformers/modeling_utils.py:483,519-575), and sentence-transformers uses it for Dense an)"
       }
     },
     {

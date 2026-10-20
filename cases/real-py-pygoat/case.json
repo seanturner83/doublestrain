@@ -1792,7 +1792,8 @@
         "reachability": "reachable",
         "note": "EmailValidator.validate_domain_part -> validate_ipv46_address -> is_valid_ipv6_address (django/core/validators.py:229-235,290-302; utils/ipv6.py:39) on unbounded domain literal '[...]' from public /register EmailField (introduction/forms.py:8, views.py:48-49); 4.2 has no length cap",
         "confidence": "medium",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)",
+        "review": "2026-10-20 blind re-review: reachable (medium): is_valid_ipv6_address (django/utils/ipv6.py:39-47, no length cap in 4.2) receives unbounded attacker strings. Path: EmailValidator.validate_domain_part matches a domain literal '[...]' (core/validators.py:190-192, :231-235) and calls validate_ipv46_address, then validate_ipv6_address, then is_valid_"
       }
     },
     {
@@ -2304,7 +2305,8 @@
         "reachability": "reachable",
         "note": "django.contrib.auth.urls included (pygoat/urls.py:24) exposes PasswordResetView (contrib/auth/urls.py:20) -> PasswordResetForm; default SMTP backend in container fails only when a matching user exists, enabling enumeration (fixed 4.2.16)",
         "confidence": "high",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)",
+        "review": "2026-10-20 blind re-review: reachable (medium): pygoat/urls.py:25 includes django.contrib.auth.urls, so /password_reset/ uses PasswordResetView/PasswordResetForm. In 4.2, PasswordResetForm.send_mail calls email_message.send() with no try/except (contrib/auth/forms.py). pygoat/settings.py sets no EMAIL_BACKEND/EMAIL_HOST, so Django defaults to SMT"
       }
     },
     {
@@ -3198,7 +3200,8 @@
         "reachability": "reachable",
         "note": "ssrf_lab2 passes attacker URL to requests.get (introduction/views.py:961-963; open registration); non-ASCII host -> urllib3 _idna_encode -> idna.encode (urllib3/util/url.py:302-312) and requests/models.py:401-405,451-453; idna 3.4 core.py:340 has no early length check",
         "confidence": "high",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)",
+        "review": "2026-10-20 blind re-review: reachable (high): introduction/views.py:963 (ssrf_lab2) runs requests.get on an attacker-supplied URL. For a non-ASCII host, requests 2.28.2 models.py:451-453 calls _get_idna_encoded_host, which runs idna.encode(host, uts46=True) (models.py:401-405). urllib3 1.26.9 parse_url also IDNA-encodes non-ASCII hosts. idna 3."
       }
     },
     {
@@ -4240,10 +4243,10 @@
         }
       },
       "expect": {
-        "reachability": "reachable",
-        "note": "ImageMath.eval called with attacker-controlled expression: views.py:588 (function_str from POST). 9.4.0 eval has the '__builtins' typo (src/PIL/ImageMath.py:259). Environment keys are fixed (img,b,r,g) so the env-key precondition is not attacker-controlled, but the vulnerable eval runs on attacker input; chose reachable per conservative rule",
-        "confidence": "medium",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "reachability": "not_reachable",
+        "note": "ImageMath.eval does run with an attacker-controlled expression (introduction/views.py:572-588, a9_lab2). CVE-2023-50447 requires attacker control of the environment parameter (its keys), which defeat the co_names allowlist in Pillow 9.4.0 ImageMath.py eval scan(). Here the environment is fixed to img=, b=, r=, g= at views.py:588. Every name in the expression must be an ops function or one of those four keys, so attribute access and builtins (co_names) are rejected. The expression-parameter attack is the separate, already-fixed CVE-2022-22817.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-10-20, blind re-review of a contested label (was reachable: ImageMath.eval called with attacker-controlled expression: views.py:588 (function_str from POST). 9.4.0 eval has the '__builtins' typo (src/PIL/ImageMath.py:259). Environment keys are fixed (img,b,r,g)"
       }
     },
     {
@@ -5705,7 +5708,8 @@
         "reachability": "reachable",
         "note": "attacker-chosen server response decompressed via urllib3 streaming read: requests Response.content -> iter_content -> raw.stream(decode_content=True) (requests/models.py:816) from introduction/views.py:963 requests.get(attacker url) in ssrf_lab2 (urls.py:64; login required but /register is open)",
         "confidence": "medium",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)",
+        "review": "2026-10-20 blind re-review: reachable (high): introduction/views.py:955-963 (ssrf_lab2, any logged-in user; registration is open at /register) runs requests.get(request.POST['url']) and then response.content. In requests 2.28.2, content uses iter_content, which calls raw.stream(decode_content=True). In urllib3 1.26.9, stream (response.py:558-58"
       }
     },
     {
@@ -5977,7 +5981,8 @@
         "reachability": "reachable",
         "note": "read_chunked/_update_chunk_length uses unbounded readline (urllib3/response.py:697,787); requests reads body via raw.stream (requests/models.py:816) from attacker server: introduction/views.py:963 requests.get(attacker url) in ssrf_lab2 (urls.py:64; login required but /register is open)",
         "confidence": "high",
-        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)"
+        "labelled_by": "claude-opus code read 2026-10-19 (blind to judge verdicts; agent-labelled)",
+        "review": "2026-10-20 blind re-review: reachable (high): Same SSRF entry point: introduction/views.py:963 runs requests.get on an attacker URL, then .content, then urllib3 HTTPResponse.stream. For a chunked response, stream (response.py:574-576) calls read_chunked, and _update_chunk_length (response.py:692-697) does self._fp.fp.readline() with no length l"
       }
     },
     {
