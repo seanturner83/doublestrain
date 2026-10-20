@@ -53,3 +53,25 @@ evidence = [
 ]
 verified = "2026-10-19, read in the serve-static 1.15.0 tarball"
 upstream = ""
+
+[[advisory]]
+id = "CVE-2026-34520"
+package = "aiohttp"
+ecosystem = "pypi"
+versions = "<3.13.4"
+kind = "widens"
+note = """The advisory's body describes request headers on an aiohttp server, but its title
+says response header values, and both are true: the client parses responses with the same
+C (llhttp) parser, set to lenient headers outside debug mode. An app that fetches
+attacker-chosen URLs with ClientSession gets the attacker's control characters and null
+bytes in the response headers it reads; whether that matters depends on what the app does
+with those headers."""
+evidence = [
+  { path = "aiohttp@3.9.5/aiohttp/http_parser.py", line = 1029, quote = "from ._http_parser import (  # type: ignore[import-not-found,no-redef]" },
+  { path = "aiohttp@3.9.5/aiohttp/http_parser.py", line = 1031, quote = "HttpResponseParser," },
+  { path = "aiohttp@3.9.5/aiohttp/client_proto.py", line = 190, quote = "self._parser = HttpResponseParser(" },
+  { path = "aiohttp@3.9.5/aiohttp/_http_parser.pyx", line = 647, quote = "self._init(cparser.HTTP_RESPONSE, protocol, loop, limit, timer," },
+  { path = "aiohttp@3.9.5/aiohttp/_http_parser.pyx", line = 653, quote = "cparser.llhttp_set_lenient_headers(self._cparser, 1)" },
+]
+verified = "2026-10-20, read in the aiohttp 3.9.5 source"
+upstream = ""
