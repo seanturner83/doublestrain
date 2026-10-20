@@ -117,6 +117,15 @@ SCHEMA_SRC = {
 }
 PKGSRC_ID = hashlib.sha256((PKGSRC_PROMPT + json.dumps(SCHEMA_SRC, sort_keys=True)).encode()).hexdigest()[:8]
 
+# Python dependency source is wheels/sdists (pkgsrc.fetch_pypi), not npm tarballs; its
+# prompt is keyed per query (`query_salt`) so npm's cached answers keep their keys
+PKGSRC_PROMPT_PY = PKGSRC_PROMPT.replace(
+    "(registry tarballs, integrity-verified; JS/TS/JSON only)",
+    "(PyPI wheels or sdists, sha256-verified against the lockfile or the registry; Python\n"
+    "source and packaging metadata only, no compiled extensions)")
+assert PKGSRC_PROMPT_PY != PKGSRC_PROMPT
+_SALT_PY = "-py" + hashlib.sha256(PKGSRC_PROMPT_PY.encode()).hexdigest()[:8]
+
 _QUOTE_MIN = 6       # normalised chars: shorter quotes ("}", "});") prove nothing
 _QUOTE_SLACK = 2     # lines either side of the cited line
 
@@ -161,8 +170,19 @@ def check_trace(trace, sources, dependency: str) -> tuple[list[str], list[str]]:
     return ok, bad
 
 
-def _in_target(steps: list[str], dependency: str) -> bool:
-    return any(s.startswith(dependency + "@") for s in steps)
+def _in_target(steps: list[str], dependency: str, ecosystem: str = "npm") -> bool:
+    if ecosystem != "pypi":
+        return any(s.startswith(dependency + "@") for s in steps)
+    name = _dep_name(dependency, ecosystem)
+    return any(_dep_name(s.split("/", 1)[0].rsplit("@", 1)[0], ecosystem) == name for s in steps)
+
+
+def _dep_name(name: str, ecosystem: str) -> str:
+    """PyPI names compare normalised (PyYAML == pyyaml, zope.interface == zope-interface)."""
+    if ecosystem != "pypi":
+        return name
+    from ..pylock import normalize
+    return normalize(name)
 
 
 def _bin() -> str | None:
@@ -415,9 +435,12 @@ class ClaudeCodeJudge:
         return (True, f"{b} model {self.model}") if b else (False, "claude CLI not found")
 
     def _sources(self, q: ReachQuery) -> tuple[list[tuple[str, Path]], list[str]]:
-        if not self.pkgsrc or q.ecosystem != "npm":
+        if not self.pkgsrc or q.ecosystem not in ("npm", "pypi"):
             return [], []
-        return pkgsrc_mod.for_query(q.repo_path, q.dependency, q.version)
+        return pkgsrc_mod.for_query(q.repo_path, q.dependency, q.version, ecosystem=q.ecosystem)
+
+    def query_salt(self, q: ReachQuery) -> str:
+        return _SALT_PY if self.pkgsrc and q.ecosystem == "pypi" else ""
 
     def _prompt(self, q: ReachQuery, sources=(), refused=()) -> str:
         u = usage_summary(q.repo_path, q.ecosystem, q.dependency, q.vuln_symbols, q.import_name,
@@ -435,7 +458,8 @@ class ClaudeCodeJudge:
         )
 
     def _run(self, binary: str, q: ReachQuery, prompt: str, sources, schema) -> tuple[dict, dict, float] | None:
-        return run_claude(binary, prompt, SYSTEM_PROMPT + (PKGSRC_PROMPT if self.pkgsrc else ""), schema,
+        src = (PKGSRC_PROMPT_PY if q.ecosystem == "pypi" else PKGSRC_PROMPT) if self.pkgsrc else ""
+        return run_claude(binary, prompt, SYSTEM_PROMPT + src, schema,
                           cwd=Path(q.repo_path).expanduser(), add_dirs=[d for _, d in sources],
                           model=self.model, timeout=self.timeout, fallback=self.fallback, purpose="judge")
 
@@ -446,7 +470,8 @@ class ClaudeCodeJudge:
             return None
         sources, refused = self._sources(q)
         # the trace rule applies only when the vulnerable package's own source was provided
-        checked = any(spec.rsplit("@", 1)[0] == q.dependency for spec, _ in sources)
+        checked = any(_dep_name(spec.rsplit("@", 1)[0], q.ecosystem) == _dep_name(q.dependency, q.ecosystem)
+                      for spec, _ in sources)
         schema = SCHEMA_SRC if self.pkgsrc else SCHEMA
         prompt = self._prompt(q, sources, refused)
         got = self._run(binary, q, prompt, sources, schema)
@@ -462,7 +487,7 @@ class ClaudeCodeJudge:
         steps = []
         if checked and verdict == Verdict.REACHABLE:
             steps, bad = check_trace(so.get("dependency_trace"), sources, q.dependency)
-            if not _in_target(steps, q.dependency):
+            if not _in_target(steps, q.dependency, q.ecosystem):
                 why = "; ".join(bad[:5]) or f"no step inside {q.dependency}'s source"
                 retry = (prompt + "\n\nYour previous answer (reachable) was REJECTED: its "
                          f"dependency_trace did not check out ({why}). Open the source of "
@@ -484,7 +509,7 @@ class ClaudeCodeJudge:
                 refused_note = " ".join(filter(None, [refused_note, refusal_note(out2)]))
                 if verdict == Verdict.REACHABLE:
                     steps, bad = check_trace(so.get("dependency_trace"), sources, q.dependency)
-                    if not _in_target(steps, q.dependency):
+                    if not _in_target(steps, q.dependency, q.ecosystem):
                         # reachable and unresolved grade identically; only the claim is withdrawn
                         verdict = Verdict.UNSURE
                         note = f"[uncited reachable -> unsure: {'; '.join(bad[:3]) or 'no step in target'}] "

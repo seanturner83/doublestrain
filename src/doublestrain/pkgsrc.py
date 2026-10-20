@@ -335,6 +335,9 @@ def for_query(repo: str | Path, dependency: str, version: str = "", limit: int =
     g = depgraph.load(Path(repo).expanduser(), ecosystem)
     if not g:
         return [], []
+    if ecosystem == "pypi":
+        from .pylock import normalize
+        dependency = normalize(dependency)
     cs = depgraph.chains(g, dependency, version)
     if not cs:
         return [], []

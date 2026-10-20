@@ -151,3 +151,17 @@ def test_split_speaks_python():
     j = CachedJudge(SplitJudge("local"), cache_dir="/nonexistent")
     q = ReachQuery("/a", "pypi", "pyyaml", "CVE-1")
     assert j._path(q).name.startswith(q.key() + "-")               # Python answers keyed on their prompts
+
+
+def test_claude_reads_python_source(app, monkeypatch):
+    from doublestrain.judges import CachedJudge
+    from doublestrain.judges import claude_code as cc
+    j = cc.ClaudeCodeJudge(pkgsrc=True)
+    q = ReachQuery(str(app), "pypi", "PyYAML", "CVE-1", version="5.1")
+    specs = [s for s, _ in j._sources(q)[0]]
+    assert specs and specs[0] == "pyyaml@5.1"
+    assert j.query_salt(q).startswith("-py") and j.query_salt(ReachQuery("/a", "npm", "x", "CVE-1")) == ""
+    assert "sha256-verified" in cc.PKGSRC_PROMPT_PY and "JS/TS/JSON only" in cc.PKGSRC_PROMPT
+    assert cc._in_target(["pyyaml@5.1/lib3/yaml/loader.py:3"], "PyYAML", "pypi")
+    assert cc._in_target(["@scope/pkg@1.0/index.js:1"], "@scope/pkg")
+    assert CachedJudge(j, cache_dir="/nonexistent")._path(q).name.endswith(j.query_salt(q) + ".json")
