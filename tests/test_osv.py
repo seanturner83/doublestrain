@@ -274,3 +274,15 @@ def test_candidates_carry_suspicion(fake_osv, monkeypatch):
     recs, _ = osv.candidates(repo, "org/app", include_dev=False)
     f = {r["facts"]["advisories"][0][0]: r["facts"] for r in recs}["GHSA-evil"]
     assert f["suspected_malicious"] and not f["malicious"] and "malicious version" in f["malware_hints"]
+
+
+def test_malware_cache_is_per_endpoint(monkeypatch, tmp_path):
+    import hashlib
+    monkeypatch.setenv("SSVC_FEED_CACHE", str(tmp_path))
+    monkeypatch.delenv("TYPESAFE_BASE_URL", raising=False)
+    hosted = _mw._cache_path("pkg\nadvisory text")
+    legacy = hashlib.sha256(f"{_mw._PROMPT_ID}\npkg\nadvisory text".encode()).hexdigest()[:24]
+    assert hosted.name == f"{legacy}.json"                # hosted Jev keeps its existing cache
+    monkeypatch.setenv("TYPESAFE_BASE_URL", "http://127.0.0.1:8091")
+    other = _mw._cache_path("pkg\nadvisory text")
+    assert other != hosted and other.parent == hosted.parent
