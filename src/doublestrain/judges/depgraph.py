@@ -13,7 +13,6 @@ nested tree.
 """
 from __future__ import annotations
 
-import json
 from collections import deque
 from dataclasses import dataclass
 from functools import lru_cache
@@ -66,14 +65,20 @@ def _v1_flatten(lock: dict) -> dict:
 
 @lru_cache(maxsize=8)
 def _load(lock_path: str, mtime: float) -> Graph | None:
+    from .. import npmlock
     try:
-        lock = json.loads(Path(lock_path).read_text())
+        lock = npmlock.load(Path(lock_path).parent)
     except (OSError, ValueError):
+        return None
+    if lock is None:
         return None
     pkgs = lock.get("packages") or _v1_flatten(lock)
     root = pkgs.get(ROOT, {})
-    direct_prod = set(root.get("dependencies", {})) | set(root.get("optionalDependencies", {}))
-    direct_dev = set(root.get("devDependencies", {})) - direct_prod
+    # Workspaces are the app's own packages: their dependencies are entry points too.
+    workspaces = [w for w in npmlock.workspace_dirs(pkgs) if w] if lock.get("packages") else []
+    own = [root, *(pkgs[w] for w in workspaces)]
+    direct_prod = {d for m in own for f in ("dependencies", "optionalDependencies") for d in m.get(f) or {}}
+    direct_dev = {d for m in own for d in m.get("devDependencies") or {}} - direct_prod
     nodes = {p: {"name": m.get("name") or _name_of(p), "version": m.get("version"), "dev": bool(m.get("dev")),
                  "integrity": m.get("integrity") or ""}
              for p, m in pkgs.items() if p and not m.get("link")}
@@ -86,9 +91,11 @@ def _load(lock_path: str, mtime: float) -> Graph | None:
         # peerDependencies / peerDependenciesMeta. _resolve drops peers that aren't installed.
         deps = {**m.get("dependencies", {}), **m.get("optionalDependencies", {}),
                 **m.get("peerDependencies", {}), **m.get("peerDependenciesMeta", {})}
-        if p == ROOT:
-            deps.update(root.get("devDependencies", {}))
+        if p == ROOT or p in workspaces:
+            deps.update(m.get("devDependencies", {}))
         edges[p] = tuple(c for d in deps if (c := _resolve(pkgs, p, d)) and c in nodes)
+    if workspaces:
+        edges[ROOT] = (*edges.get(ROOT, ()), *(w for w in workspaces if w in nodes))
     return Graph(nodes, edges, frozenset(direct_prod), frozenset(direct_dev))
 
 
@@ -159,8 +166,9 @@ def load(repo: Path, ecosystem: str = "npm") -> Graph | None:
         return _from_cargo(Path(repo))
     if ecosystem == "go":
         return _from_go(Path(repo))
-    lock = Path(repo) / "package-lock.json"
-    return _load(str(lock), lock.stat().st_mtime) if lock.is_file() else None
+    from .. import npmlock
+    lock = npmlock.find(Path(repo))
+    return _load(str(lock), lock.stat().st_mtime) if lock is not None else None
 
 
 def chains(g: Graph, name: str, version: str = "", limit: int = 3) -> list[list[str]]:

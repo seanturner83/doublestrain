@@ -69,7 +69,7 @@ def digest(rows: list[dict], name: str, prov: dict) -> str:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("repo", help="checkout with package-lock.json and/or requirements*.txt")
+    ap.add_argument("repo", help="checkout with a lockfile: package-lock.json, bun.lock, Cargo.lock, go.mod, or a Python lock")
     ap.add_argument("--name", help="repo name for the report (default: directory name)")
     ap.add_argument("--judge", default="cascade", help="null|jev|local|claude|cascade[:a,b] (default cascade)")
     ap.add_argument("--enrich", default="live", choices=("live", "cache-only"))

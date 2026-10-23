@@ -1,7 +1,7 @@
 """Inventory: what's installed, and who requires it with which declared range.
 
 Inputs (`load`): a CycloneDX or SPDX JSON SBOM, or an app directory with
-package-lock.json (v1/v2/v3). npm components only for now; others are counted and
+package-lock.json (v1/v2/v3) or bun.lock (via `npmlock`). npm components only for now; others are counted and
 skipped. Each Component lists its parents and the range each parent declares for it.
 Ranges come from the lockfile when there is one; an SBOM doesn't carry them, so they
 are filled from the parent's own registry entry (`fill_ranges`), which is where npm got
@@ -68,7 +68,10 @@ class Inventory:
 # --- lockfile ---------------------------------------------------------------------
 def from_lockfile(repo: Path) -> Inventory:
     repo = Path(repo)
-    lock = json.loads((repo / "package-lock.json").read_text())
+    from . import npmlock
+    lock = npmlock.load(repo)
+    if lock is None:
+        raise ValueError(f"{repo}: no package-lock.json or bun.lock")
     pkgs = lock.get("packages") or _v1_flatten(lock)
     root_ranges = dict(pkgs.get(ROOT, {}).get("dependencies") or {})
     if not lock.get("packages"):                          # v1 root carries versions, not ranges
@@ -79,10 +82,12 @@ def from_lockfile(repo: Path) -> Inventory:
         except (OSError, ValueError):
             root_ranges = {}
     else:
-        r = pkgs.get(ROOT, {})
-        root_ranges = {**(r.get("dependencies") or {}), **(r.get("optionalDependencies") or {}),
-                       **(r.get("devDependencies") or {})}
-    inv = Inventory(source=str(repo / "package-lock.json"))
+        root_ranges = {}
+        for w in npmlock.workspace_dirs(pkgs):          # the root and every workspace
+            r = pkgs[w]
+            root_ranges.update({**(r.get("dependencies") or {}), **(r.get("optionalDependencies") or {}),
+                                **(r.get("devDependencies") or {})})
+    inv = Inventory(source=str(npmlock.find(repo)))
     meta_of = {p: m for p, m in pkgs.items() if p and not m.get("link")}
     local = {p for p in meta_of if "node_modules/" not in p}     # workspace packages: the app's own
     for p, m in meta_of.items():
@@ -230,14 +235,14 @@ def load(path: str | Path) -> Inventory:
     path = Path(path).expanduser()
     if path.is_dir():
         return from_lockfile(path)
-    if path.name == "package-lock.json":
+    if path.name in ("package-lock.json", "bun.lock"):
         return from_lockfile(path.parent)
     d = _read(path)
     if d.get("bomFormat") == "CycloneDX":
         return from_cyclonedx(d, str(path))
     if str(d.get("spdxVersion", "")).startswith("SPDX-"):
         return from_spdx(d, str(path))
-    raise ValueError(f"{path}: not a CycloneDX or SPDX JSON SBOM, or an app with package-lock.json")
+    raise ValueError(f"{path}: not a CycloneDX or SPDX JSON SBOM, or an app with package-lock.json or bun.lock")
 
 
 def fill_ranges(inv: Inventory, packuments: dict[str, dict | None]) -> int:

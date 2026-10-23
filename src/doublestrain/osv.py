@@ -1,6 +1,7 @@
 """Lockfile -> OSV advisories -> SSVC candidates (sweep-record shape).
 
-Supported manifests: npm `package-lock.json` (lockfileVersion 1-3), pinned pip
+Supported manifests: npm `package-lock.json` (lockfileVersion 1-3) or Bun `bun.lock`
+(converted by `npmlock`), pinned pip
 `requirements*.txt` (`name==version`), Cargo `Cargo.lock` (crates.io packages; see
 `cargo.py`) and Go `go.mod` (the build list; see `gomod.py`). Go reachability comes from
 govulncheck (`judges/govulncheck.py`) where it can run.
@@ -77,20 +78,24 @@ def _npm_name(path: str) -> str:
     return path.rsplit("node_modules/", 1)[-1]
 
 
-def parse_npm_lock(path: Path) -> list[Dep]:
-    lock = json.loads(path.read_text())
+def parse_npm_lock(path: Path | dict) -> list[Dep]:
+    """npm packages in a package-lock.json (a path, or its data from `npmlock.load`).
+    `direct` = declared by the root or a workspace and installed where that one resolves it."""
+    from . import npmlock
+    lock = json.loads(path.read_text()) if isinstance(path, Path) else path
     deps: dict[tuple[str, str], Dep] = {}
     pkgs = lock.get("packages")
     if pkgs:   # lockfile v2 / v3
-        root = pkgs.get("", {})
-        direct = set(root.get("dependencies", {})) | set(root.get("devDependencies", {})) \
-            | set(root.get("optionalDependencies", {}))
+        direct = {npmlock.resolve(pkgs, w, dep)
+                  for w in npmlock.workspace_dirs(pkgs)
+                  for f in ("dependencies", "devDependencies", "optionalDependencies")
+                  for dep in pkgs[w].get(f) or {}}
         for p, meta in pkgs.items():
             if not p or "node_modules/" not in p or meta.get("link") or not meta.get("version"):
                 continue
             name = meta.get("name") or _npm_name(p)
             d = deps.setdefault((name, meta["version"]), Dep(name, meta["version"], "npm", dev=True))
-            d.direct |= name in direct and p == f"node_modules/{name}"
+            d.direct |= p in direct
             d.dev &= bool(meta.get("dev") or meta.get("devOptional"))
     else:      # lockfile v1: nested "dependencies"
         def walk(tree: dict, top: bool):
@@ -148,10 +153,11 @@ def find_deps(repo: Path) -> tuple[list[Dep], list[str]]:
     if (repo / "Cargo.lock").is_file():
         deps += parse_cargo_lock(repo)
         used.append("Cargo.lock")
-    lock = repo / "package-lock.json"
-    if lock.is_file():
-        deps += parse_npm_lock(lock)
-        used.append(lock.name)
+    from . import npmlock
+    npm = npmlock.find(repo)
+    if npm is not None:
+        deps += parse_npm_lock(npmlock.load(repo))
+        used.append(npm.name)
     from . import pylock
     lock = pylock.load(repo)
     if lock is not None:
