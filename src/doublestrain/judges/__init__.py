@@ -155,6 +155,12 @@ class CachedJudge:
             # again; the others' prompts are unchanged and keep their answers
             note = copies_note(q.repo_path, q.ecosystem, q.dependency, q.version)
             salt += "-c" + hashlib.sha256(note.encode()).hexdigest()[:8] if note else ""
+        if getattr(self.inner, "devserver_notes", False):
+            # a dev-server tool's server-mode advisory gets the entry-point note
+            # (devserver.devserver_note): only those rows are asked again
+            from .devserver import devserver_note
+            dev = devserver_note(q.repo_path, q.ecosystem, q.dependency, q.advisory)
+            salt += "-d" + hashlib.sha256(dev.encode()).hexdigest()[:8] if dev else ""
         return self.dir / fp / f"{q.key()}{salt}.json"
 
     def judge(self, q: ReachQuery) -> JudgeResult | None:

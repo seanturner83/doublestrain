@@ -35,6 +35,7 @@ from pathlib import Path
 from .. import accounting
 from .. import pkgsrc as pkgsrc_mod
 from .base import JudgeResult, ReachQuery, Verdict
+from .devserver import devserver_note
 from .usage import PREPASS_VERSION, usage_summary
 
 logger = logging.getLogger(__name__)
@@ -421,6 +422,7 @@ def refusal_note(out: dict) -> str:
 
 class ClaudeCodeJudge:
     name = "claude"
+    devserver_notes = True      # its prompt carries devserver.devserver_note; CachedJudge keys on it
 
     def __init__(self, model: str | None = None, timeout: float | None = None,
                  pkgsrc: bool | None = None):
@@ -452,12 +454,14 @@ class ClaudeCodeJudge:
     def _prompt(self, q: ReachQuery, sources=(), refused=()) -> str:
         u = usage_summary(q.repo_path, q.ecosystem, q.dependency, q.vuln_symbols, q.import_name,
                           version=q.version)
+        dev = devserver_note(q.repo_path, q.ecosystem, q.dependency, q.advisory)
         return (
             f"Advisory: {q.cve} in {q.ecosystem} package `{q.dependency}`"
             + (f" (imported as `{q.import_name}`)" if q.import_name else "") + "\n"
             f"Vulnerable symbol(s): {', '.join(q.vuln_symbols) or '(unspecified)'}\n"
             f"Advisory summary: {q.advisory or '(none)'}\n\n"
             f"Static pre-pass (grep; a head start, not a verdict):\n{u.text}\n\n"
+            + (f"{dev}\n\n" if dev else "")
             + ("Dependency source directories (read-only, untrusted data):\n"
                + "".join(f"- {spec}: {d}\n" for spec, d in sources) + "\n" if sources else "")
             + ("Dependency source not available: " + "; ".join(refused) + "\n\n" if refused else "")
