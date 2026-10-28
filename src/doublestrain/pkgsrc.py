@@ -107,6 +107,83 @@ def crates_dl() -> str:
     return r
 
 
+def maven_repo() -> str:
+    r = os.environ.get("SSVC_MAVEN_REPO", "https://repo1.maven.org/maven2").rstrip("/")
+    if not r.startswith("https://"):
+        raise Rejected(f"Maven repository must be https: {r}")
+    return r
+
+
+def maven_search() -> str:
+    r = os.environ.get("SSVC_MAVEN_SEARCH", "https://search.maven.org/solrsearch/select").rstrip("/")
+    if not r.startswith("https://"):
+        raise Rejected(f"Maven search must be https: {r}")
+    return r
+
+
+_MVN = re.compile(r"^[A-Za-z0-9_.\-]{1,200}$")
+
+
+def _check_mvn(*parts: str) -> None:
+    for x in parts:
+        if not _MVN.fullmatch(x or "") or ".." in x:
+            raise Rejected(f"invalid Maven coordinate part {x!r}")
+
+
+def maven_jar_sha1(group: str, artifact: str, version: str) -> str | None:
+    """Central's published sha1 for group:artifact:version's jar, or None if there is none.
+    Sends only the coordinates."""
+    _check_mvn(group, artifact, version)
+    url = f"{maven_repo()}/{group.replace('.', '/')}/{artifact}/{version}/{artifact}-{version}.jar.sha1"
+    try:
+        txt = _get(url, 1024, timeout=30).decode("ascii", "replace").strip()
+    except Rejected as exc:
+        if "HTTP Error 404" in str(exc):
+            return None                    # not published under these coordinates
+        raise                              # rate limit, network: unknown, not "absent"
+    h = txt.split()[0].lower() if txt else ""
+    return h if re.fullmatch(r"[0-9a-f]{40}", h) else None
+
+
+def maven_pom(group: str, artifact: str, version: str) -> bytes | None:
+    """Central's published .pom for group:artifact:version, checked against Central's .pom.sha1
+    and cached; None when there is none (404). Only the coordinates are sent. A Gradle-built
+    jar carries no pom.xml, so this is where its declared dependencies come from."""
+    _check_mvn(group, artifact, version)
+    f = cache_root() / "maven-pom" / group / artifact / f"{version}.pom"
+    if f.is_file():
+        return f.read_bytes() or None
+    base = f"{maven_repo()}/{group.replace('.', '/')}/{artifact}/{version}/{artifact}-{version}.pom"
+    try:
+        data = _get(base, 2 * 2**20, timeout=30)
+        want = _get(base + ".sha1", 1024, timeout=30).decode("ascii", "replace").split()[0].lower()
+    except Rejected as exc:
+        if "HTTP Error 404" not in str(exc):
+            raise                          # unknown, not absent: nothing cached
+        data, want = b"", ""
+    if data and hashlib.sha1(data).hexdigest() != want:
+        raise Rejected(f"{group}:{artifact}:{version}: pom does not match Central's sha1")
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_bytes(data)
+    return data or None
+
+
+def maven_groups(artifact: str, version: str, limit: int = 20) -> list[str]:
+    """Groups that publish artifact:version on Central (search by name and version only)."""
+    _check_mvn(artifact, version)
+    q = urllib.parse.urlencode({"q": f'a:"{artifact}" AND v:"{version}"', "rows": str(limit), "wt": "json"})
+    try:
+        doc = json.loads(_get(f"{maven_search()}?{q}", 2 * 2**20, timeout=30))
+    except (Rejected, ValueError):
+        return []
+    out = []
+    for d in (doc.get("response") or {}).get("docs") or []:
+        g = d.get("g")
+        if isinstance(g, str) and _MVN.fullmatch(g) and g not in out:
+            out.append(g)
+    return out
+
+
 def cache_root() -> Path:
     return Path(os.environ.get("SSVC_PKGSRC_CACHE", "~/.cache/ssvc-triage/pkgsrc")).expanduser()
 
@@ -222,8 +299,9 @@ def _inflate(tgz: bytes) -> bytes:
     return bytes(out)
 
 
-def _safe_parts(name: str) -> list[str]:
-    """Member path minus its top dir (npm uses `package/`). Raises on absolute/`..` names."""
+def _safe_parts(name: str, strip: int = 1) -> list[str]:
+    """Member path minus its top dir (npm uses `package/`; `strip=0` keeps it, for jars).
+    Raises on absolute/`..` names."""
     if "\x00" in name or "\\" in name or name.startswith("/") or re.match(r"^[A-Za-z]:", name):
         raise Rejected(f"hostile member name {name!r}")
     parts = name.split("/")
@@ -232,7 +310,7 @@ def _safe_parts(name: str) -> list[str]:
     parts = [p for p in parts if p not in ("", ".")]
     if len(parts) > 40 or any(len(p) > 255 or any(ord(c) < 32 or ord(c) == 127 for c in p) for p in parts):
         raise Rejected(f"hostile member name {name!r}")
-    return parts[1:]
+    return parts[strip:]
 
 
 def extract(tgz: bytes, dest: Path, keep: tuple[str, ...] = KEEP_EXT) -> dict:
@@ -325,11 +403,16 @@ def _fetch(name: str, version: str, lock_integrity: str) -> Path:
 
 
 def for_query(repo: str | Path, dependency: str, version: str = "", limit: int = 6,
-              ecosystem: str = "npm") -> tuple[list[tuple[str, Path]], list[str]]:
+              ecosystem: str = "npm", importers: bool = False,
+              vuln_symbols=()) -> tuple[list[tuple[str, Path]], list[str]]:
     """Source dirs for the vulnerable package; then the top-level packages it is reached
     through (what apps import: a spec must say whether each reaches the vulnerable code);
     then every package that directly depends on it (`send` <- express AND serve-static);
     then the rest of the shortest lockfile chain. At most `limit`.
+    With `importers` (pypi), the distributions pyimports.optional_importers names come right
+    after the vulnerable package: they import it outside the lock's chains; then the
+    distributions pycallers finds calling the advisory's functions (`vuln_symbols`), then the
+    libraries the app uses that call the package (pyimports.dependent_dists).
     Returns ([(name@version, dir)], [refusal notes])."""
     from .judges import depgraph
     g = depgraph.load(Path(repo).expanduser(), ecosystem)
@@ -342,12 +425,24 @@ def for_query(repo: str | Path, dependency: str, version: str = "", limit: int =
     if not cs:
         return [], []
     target = cs[0][-1]
-    get = {"cargo": fetch_crate, "go": fetch_gomodule, "pypi": fetch_pypi}.get(ecosystem, fetch)
+    get = {"cargo": fetch_crate, "go": fetch_gomodule, "pypi": fetch_pypi, "maven": fetch_maven}.get(ecosystem, fetch)
     dependents = sorted((p for p, kids in g.edges.items() if p and target in kids),
                         key=lambda p: (p.count("node_modules/"), g.nodes[p]["name"]))
     got, notes, seen = [], [], set()
     tops = [c[0] for c in cs if len(c) > 1]
-    for p in [target, *tops, *dependents, *reversed(cs[0][:-1])]:
+    extra = []
+    if importers and ecosystem == "pypi":
+        from .judges.pyimports import optional_importers
+        extra = [p for n, v in optional_importers(repo, dependency, version) for p in (f"{n}@{v}",) if p in g.nodes]
+        from .judges.pycallers import caller_dists
+        extra += [p for p in caller_dists(repo, dependency, version, vuln_symbols) if p in g.nodes and p not in extra]
+        from .judges.pyimports import dependent_dists
+        extra += [p for p in dependent_dists(repo, dependency, version, vuln_symbols) if p in g.nodes and p not in extra]
+    if ecosystem == "maven" and vuln_symbols:
+        # the libraries on the bytecode call chains into the advisory's code (jvmcallers)
+        from .jvmcallers import caller_coords
+        extra += [p for p in caller_coords(repo, dependency, vuln_symbols) if p in g.nodes and p not in extra]
+    for p in [target, *extra, *tops, *dependents, *reversed(cs[0][:-1])]:
         if len(got) + len(notes) >= limit:
             break
         n = g.nodes[p]
@@ -486,6 +581,31 @@ def pypi_json() -> str:
     if not r.startswith("https://"):
         raise Rejected(f"PyPI JSON API must be https: {r}")
     return r
+
+
+def pypi_requires(name: str, version: str) -> list[str] | None:
+    """A release's `requires_dist` from the PyPI JSON API (name and version only are sent),
+    cached under pypi-meta/. PyPI says null both for "requires nothing" and for missing
+    metadata: null counts as [] only when the release has a wheel (whose METADATA lists every
+    Requires-Dist). None when unknown: no wheel and no list, or it couldn't be fetched (not
+    cached, so a later run retries)."""
+    if not _PYNAME.fullmatch(name) or not _PYVER.fullmatch(version):
+        return None
+    norm = re.sub(r"[-_.]+", "-", name).lower()
+    cf = cache_root() / "pypi-meta-v2" / f"{norm}@{version}.json"
+    if cf.is_file():
+        return json.loads(cf.read_text()).get("requires_dist")
+    try:
+        doc = json.loads(_get(f"{pypi_json()}/{norm}/{version}/json", MAX_META))
+    except (Rejected, OSError, ValueError) as exc:
+        logger.info("pkgsrc: no PyPI metadata for %s@%s: %s", name, version, exc)
+        return None
+    reqs = ((doc or {}).get("info") or {}).get("requires_dist")
+    wheel = any(isinstance(f, dict) and f.get("packagetype") == "bdist_wheel" for f in (doc or {}).get("urls") or [])
+    reqs = [r for r in reqs if isinstance(r, str)] if isinstance(reqs, list) else ([] if wheel else None)
+    cf.parent.mkdir(parents=True, exist_ok=True)
+    cf.write_text(json.dumps({"requires_dist": reqs}))
+    return reqs
 
 
 def _py_max() -> int:
@@ -690,4 +810,111 @@ def _fetch_crate(name: str, version: str, checksum: str) -> Path:
                                     "fetched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                                     **stats}, indent=1))
     logger.info("pkgsrc: crate %s@%s -> %s (%d files)", name, version, final, stats["written"])
+    return final
+
+
+# --- Maven Central (jv1) ------------------------------------------------------------
+
+JVM_EXT = (".java", ".kt", ".scala", ".groovy")
+MAX_SOURCES_JAR = 40 * 2**20
+
+
+def _extract_zip(data: bytes, dest: Path, keep: tuple[str, ...]) -> dict:
+    """`extract` for a verified zip (a -sources.jar): same caps and refusals, paths kept as is."""
+    import zipfile
+    stats = {"written": 0, "bytes": 0, "skipped_type": 0, "skipped_ext": 0, "skipped_size": 0, "skipped_dup": 0}
+    seen: set[str] = set()
+    dest.mkdir(mode=0o755)
+    try:
+        z = zipfile.ZipFile(io.BytesIO(data))
+    except (zipfile.BadZipFile, ValueError) as exc:
+        raise Rejected(f"bad zip: {exc}") from exc
+    infos = z.infolist()
+    if len(infos) > MAX_MEMBERS:
+        raise Rejected("too many zip members")
+    for zi in infos:
+        if zi.is_dir():
+            continue
+        parts = _safe_parts(zi.filename, strip=0)
+        if (zi.external_attr >> 16) & 0o170000 not in (0, 0o100000):   # symlinks and other non-files
+            stats["skipped_type"] += 1
+            continue
+        if not parts or not parts[-1].lower().endswith(keep):
+            stats["skipped_ext"] += 1
+            continue
+        if zi.file_size > MAX_FILE or stats["bytes"] + zi.file_size > MAX_WRITTEN:
+            stats["skipped_size"] += 1
+            continue
+        key = "/".join(parts).casefold()
+        if key in seen:
+            stats["skipped_dup"] += 1
+            continue
+        seen.add(key)
+        with z.open(zi) as fh:
+            body = fh.read(MAX_FILE + 1)
+        target = dest.joinpath(*parts)
+        try:
+            target.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
+            fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+        except (FileExistsError, NotADirectoryError):
+            stats["skipped_dup"] += 1
+            continue
+        with os.fdopen(fd, "wb") as out:
+            out.write(body[:MAX_FILE])
+        os.chmod(target, 0o444)
+        stats["written"] += 1
+        stats["bytes"] += len(body)
+    return stats
+
+
+def fetch_maven(name: str, version: str, integrity: str) -> Path:
+    with keylock(("pkgsrc", "maven", name, version, integrity)):
+        return _fetch_maven(name, version, integrity)
+
+
+def _fetch_maven(name: str, version: str, integrity: str) -> Path:
+    """Directory holding a Maven artifact's published source (its -sources.jar from
+    Central; .java/.kt/.scala/.groovy only). `integrity` is "sha1:<hex>" of the jar that
+    shipped: Central's sha1 for the binary jar must equal it (the shipped jar IS the
+    published one, not a rebuild); or "shaded": the library was bundled into another jar
+    (its own pom.properties names it there), so there is no jar of its own to compare and
+    the source is the published version's, recorded as such. Either way the sources jar
+    must match Central's own sha1 for it. Only the coordinates are sent. Raises Rejected."""
+    if name.count(":") != 1:
+        raise Rejected(f"invalid Maven name {name!r}")
+    group, artifact = name.split(":")
+    _check_mvn(group, artifact, version)
+    shaded = integrity == "shaded"
+    want = "shaded" if shaded else (integrity or "").removeprefix("sha1:").lower()
+    if not shaded and not re.fullmatch(r"[0-9a-f]{40}", want):
+        raise Rejected(f"{name}:{version}: no verified jar (rebuilt or unidentified): no published source")
+    root = cache_root()
+    final = root / f"maven+{group}+{artifact}@{version}-{want[:12]}"
+    manifest = final.with_name(final.name + ".json")
+    if final.is_dir() and manifest.is_file():
+        return final
+    if not shaded and maven_jar_sha1(group, artifact, version) != want:
+        raise Rejected(f"{name}:{version}: the shipped jar is not Central's published jar")
+    base = f"{maven_repo()}/{group.replace('.', '/')}/{artifact}/{version}/{artifact}-{version}-sources.jar"
+    try:
+        sha = _get(base + ".sha1", 1024, timeout=30).decode("ascii", "replace").split()[0].lower()
+    except (Rejected, IndexError):
+        raise Rejected(f"{name}:{version}: no sources jar on Central") from None
+    data = _get(base, MAX_SOURCES_JAR)
+    if hashlib.sha1(data).hexdigest() != sha:
+        raise Rejected(f"{name}:{version}: sources jar does not match Central's sha1")
+    root.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=".staging-", dir=root))
+    try:
+        stats = _extract_zip(data, staging / "src", JVM_EXT)
+        if final.exists():
+            return final
+        os.rename(staging / "src", final)
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    manifest.write_text(json.dumps({"name": name, "version": version, "url": base, "ecosystem": "maven",
+                                    "verified": {"jar_sha1": want, "sources_sha1": sha} if not shaded
+                                    else {"shaded": True, "sources_sha1": sha},
+                                    "fetched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), **stats}, indent=1))
+    logger.info("pkgsrc: maven %s:%s -> %s (%d files)", name, version, final, stats["written"])
     return final

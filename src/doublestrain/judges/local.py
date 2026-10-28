@@ -269,6 +269,9 @@ def _parse(content: str) -> dict | None:
     return None
 
 
+BASE_QUANT = "Q4_K_M"     # the quant every answer cached before 2026-10-24 came from
+
+
 class OpenAIJudge:
     def __init__(self, name: str = "local", model: str | None = None, timeout: float | None = None):
         if not _NAME.match(name):
@@ -280,13 +283,14 @@ class OpenAIJudge:
         self._model = model or env(name, "MODEL")
         self.timeout = timeout or float(env(name, "TIMEOUT", "180"))
         self.budget = int(env(name, "CONTEXT_CHARS", "24000"))
+        self._quant: str | None = None
 
-    def _req(self, path: str, payload: dict | None, timeout: float) -> dict:
+    def _req(self, path: str, payload: dict | None, timeout: float, root: str | None = None) -> dict:
         headers = {"Content-Type": "application/json"}
         if key := env(self.name, "API_KEY").strip():
             headers["Authorization"] = f"Bearer {key}"
         req = urllib.request.Request(  # noqa: S310 — configured, egress-checked base URL
-            f"{self.base_url}{path}", headers=headers,
+            f"{self.base_url if root is None else root}{path}", headers=headers,
             data=json.dumps(payload).encode() if payload is not None else None,
             method="POST" if payload is not None else "GET")
         with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
@@ -300,6 +304,22 @@ class OpenAIJudge:
             except (urllib.error.URLError, TimeoutError, OSError, ValueError, KeyError, IndexError):
                 return None
         return self._model or None
+
+    def quant(self) -> str:
+        """The loaded model's quantization as LM Studio reports it (/api/v0/models on the same
+        host), "" when the server doesn't say. Read once per process: switching the quant
+        mid-run isn't seen until the next run."""
+        if self._quant is None:
+            self._quant = ""
+            root = self.base_url[:-3] if self.base_url.endswith("/v1") else self.base_url
+            try:
+                for m in self._req("/api/v0/models", None, 10, root=root).get("data") or []:
+                    if m.get("id") == self.model() and m.get("state", "loaded") == "loaded":
+                        self._quant = str(m.get("quantization") or "")
+                        break
+            except (urllib.error.URLError, TimeoutError, OSError, ValueError, AttributeError):
+                pass
+        return self._quant
 
     def answer_model(self) -> str:
         """The model behind this tier's answers (floors.toml); in the cache key too."""
@@ -368,9 +388,16 @@ class OpenAIJudge:
         return True, f"{self.base_url} model {m}"
 
     def fingerprint(self) -> str:
-        # resolve the auto-detected model so the cache never mixes answers from different models
-        return (f"{self.name}@{self.base_url}@{self.model() or 'auto'}@prepass{PREPASS_VERSION}@p{PROMPT_ID}"
-                f"@ctx{CONTEXT_VERSION}")
+        # resolve the auto-detected model so the cache never mixes answers from different models;
+        # the same model id at another quantization is another model (2026-10-24: a Q6_K switch
+        # under the Q4 key mixed two quants into one run). The baseline quant keeps the older
+        # keys, so earlier answers stay valid; any other one is keyed on it. The tier name and
+        # model are the key, not the URL: the box moving address (2026-10-25, .7 -> .6) is the
+        # same model, and runs/cache_drop_url.py moved the older URL-keyed answers over.
+        q = self.quant()
+        qs = f"@q{q}" if q and q != env(self.name, "BASE_QUANT", BASE_QUANT) else ""
+        return (f"{self.name}@{self.model() or 'auto'}@prepass{PREPASS_VERSION}@p{PROMPT_ID}"
+                f"@ctx{CONTEXT_VERSION}{qs}")
 
     def judge(self, q: ReachQuery) -> JudgeResult | None:
         model = self.model()

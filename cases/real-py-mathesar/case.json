@@ -1,0 +1,1725 @@
+{
+  "id": "real-py-mathesar",
+  "description": "Mathesar 0.2.5 (requirements.txt pins): held-out Python app (py8), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#1",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48588",
+            "BIT-django-2026-48588",
+            "GHSA-3h9f-r86x-qvjx",
+            "PYSEC-2026-2090"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: cache middleware may expose private responses when unrelated request cookies are present \u2014 An issue was discovered in Django 6.0 before 6.0.7 and 5.2 before 5.2.16.\n`UpdateCacheMiddleware` and the `cache_page()` decorator cache responses that vary on cookies when the incoming request carries unrelated cookies, which allows remote attackers to read private data from the shared cache.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Chris Whyland for reporting this issue.",
+        "vuln_symbols": [
+          "UpdateCacheMiddleware",
+          "cache_page"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.16",
+          "6.0.7"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No UpdateCacheMiddleware/FetchFromCacheMiddleware in MIDDLEWARE (config/settings/common_settings.py:48-60), no CACHES setting, no cache_page() anywhere in mathesar/ or config/; DRF/whitenoise don't use cache_page."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#2",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-8404",
+            "BIT-django-2026-8404",
+            "GHSA-8cjm-8mp7-r2xf",
+            "PYSEC-2026-201"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: UpdateCacheMiddleware may disclose cached responses due to case-sensitive Cache-Control handling \u2014 An issue was discovered in Django 5.2 before 5.2.15 and 6.0 before 6.0.6.\n`django.middleware.cache.UpdateCacheMiddleware` in Django does not match `Cache-Control` response directives case-insensitively, which allows remote attackers to read responses that were incorrectly cached because their `Cache-Control` directives used uppercase or mixed-case values.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to ",
+        "vuln_symbols": [
+          "django.middleware.cache.UpdateCacheMiddleware"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.15",
+          "6.0.6"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "UpdateCacheMiddleware not in MIDDLEWARE (config/settings/common_settings.py:48-60); no per-site/per-view caching used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#3",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-53878",
+            "BIT-django-2026-53878",
+            "GHSA-8qcx-xf44-272x",
+            "PYSEC-2026-2092"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: DomainNameValidator permits newline characters that may enable HTTP header injection \u2014 An issue was discovered in Django 6.0 before 6.0.7 and 5.2 before 5.2.16.\n`DomainNameValidator` does not prohibit newlines in domain names (unless used via a form field, since `CharField` strips newlines). If an application uses values with newlines in an HTTP response, header injection can occur. Django itself is unaffected because `HttpResponse` prohibits newlines in HTTP headers.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjang",
+        "vuln_symbols": [
+          "DomainNameValidator",
+          "CharField",
+          "HttpResponse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.16",
+          "6.0.7"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DomainNameValidator does not exist in Django 4.2.18 (added in 5.1; grep of pkgsrc django/core/validators.py finds no class); app doesn't use it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#4",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48587",
+            "BIT-django-2026-48587",
+            "GHSA-923m-gv2p-w5qp",
+            "PYSEC-2026-198"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: has_vary_header may expose cached responses when Vary values contain whitespace \u2014 An issue was discovered in Django 5.2 before 5.2.15 and 6.0 before 6.0.6.\n`django.utils.cache.has_vary_header()` in Django does not strip leading or trailing whitespace from `Vary` response header values before comparison, which allows remote attackers to read cached responses via requests to URLs whose responses contain whitespace-padded Vary header values.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Navid Re",
+        "vuln_symbols": [
+          "django.utils.cache.has_vary_header",
+          "Vary"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.15",
+          "6.0.6"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "has_vary_header() only called from django/middleware/cache.py:96 (UpdateCacheMiddleware), which is not configured; no cache_page in app."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#5",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-53877",
+            "BIT-django-2026-53877",
+            "GHSA-crhf-3pfg-w68w",
+            "PYSEC-2026-2091"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": " Django: GDALRaster may over-read heap memory when constructed from bytes \u2014 An issue was discovered in Django 6.0 before 6.0.7 and 5.2 before 5.2.16.\n`django.contrib.gis.gdal.GDALRaster` over-reads its in-memory buffer when constructed from a bytes object, which can disclose adjacent memory or cause service degradation via a potential segmentation fault when the `vsi_buffer` property is accessed.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Bence Nagy for reporting this issue.",
+        "vuln_symbols": [
+          "django.contrib.gis.gdal.GDALRaster",
+          "vsi_buffer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.16",
+          "6.0.7"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "django.contrib.gis not in INSTALLED_APPS (config/settings/common_settings.py:33-46); no GDAL/GDALRaster use in app (grep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#6",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-6873",
+            "BIT-django-2026-6873",
+            "GHSA-h7pc-vwp9-298g",
+            "PYSEC-2026-199"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: signed cookies are vulnerable to salt namespace collisions \u2014 An issue was discovered in Django 6.0 before 6.0.6 and 5.2 before 5.2.15.\n`django.http.HttpRequest.get_signed_cookie` in Django uses a non-injective salt derivation (concatenating the cookie name and salt argument), which allows a remote attacker to use a cookie in a context different from the one where it was signed, via distinct `(name, salt)` pairs that produce the same concatenation.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank",
+        "vuln_symbols": [
+          "django.http.HttpRequest.get_signed_cookie"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.15",
+          "6.0.6"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "get_signed_cookie (django/http/request.py:177) never called by app or Django internals/DRF (grep); messages/sessions use signing directly, not get_signed_cookie."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#7",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-13372",
+            "BIT-django-2025-13372",
+            "GHSA-rqw2-ghq9-44m7",
+            "PYSEC-2025-104"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django is vulnerable to SQL injection in column aliases \u2014 An issue was discovered in 5.2 before 5.2.9, 5.1 before 5.1.15, and 4.2 before 4.2.27.\n`FilteredRelation` is subject to SQL injection in column aliases, using a suitably crafted dictionary, with dictionary expansion, as the `**kwargs` passed to `QuerySet.annotate()` or `QuerySet.alias()` on PostgreSQL.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Stackered for reporting this issue.",
+        "vuln_symbols": [
+          "FilteredRelation",
+          "QuerySet.annotate",
+          "QuerySet.alias"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.27",
+          "5.1.15",
+          "5.2.9"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No **dict expansion into annotate()/alias()/FilteredRelation in mathesar/ (grep); only ORM filtering is DataFileFilter with fixed fields (mathesar/api/dj_filters.py:13-27). User data goes to db/ via psycopg SQL, not Django ORM."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#8",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-57833",
+            "BIT-django-2025-57833",
+            "GHSA-6w2r-r2m5-xq5w",
+            "PYSEC-2025-105"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django is subject to SQL injection through its column aliases \u2014 An issue was discovered in Django 4.2 before 4.2.24, 5.1 before 5.1.12, and 5.2 before 5.2.6. FilteredRelation is subject to SQL injection in column aliases, using a suitably crafted dictionary, with dictionary expansion, as the **kwargs passed QuerySet.annotate() or QuerySet.alias().",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.24",
+          "5.1.12",
+          "5.2.6"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as CVE-2025-13372: no FilteredRelation or user-keyed **kwargs to annotate/alias in mathesar/ (grep); DataFileFilter fields fixed (mathesar/api/dj_filters.py:13-27)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#9",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-59681",
+            "BIT-django-2025-59681",
+            "GHSA-hpr9-3m2g-3j9p",
+            "PYSEC-2025-106"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to SQL injection in column aliases \u2014 An issue was discovered in Django 4.2 before 4.2.25, 5.1 before 5.1.13, and 5.2 before 5.2.7. QuerySet.annotate(), QuerySet.alias(), QuerySet.aggregate(), and QuerySet.extra() are subject to SQL injection in column aliases, when using a suitably crafted dictionary, with dictionary expansion, as the **kwargs passed to these methods (on MySQL and MariaDB).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.25",
+          "5.1.13",
+          "5.2.7"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "MySQL/MariaDB only; settings force PostgreSQL engines (config/settings/common_settings.py:136-142). Also no user-keyed **kwargs to annotate/alias/aggregate/extra."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#10",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-64458",
+            "BIT-django-2025-64458",
+            "GHSA-qw25-v68c-qjf3",
+            "PYSEC-2025-107"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has a denial-of-service vulnerability in HttpResponseRedirect and HttpResponsePermanentRedirect on Windows \u2014 An issue was discovered in 5.1 before 5.1.14, 4.2 before 4.2.26, and 5.2 before 5.2.8.\nNFKC normalization in Python is slow on Windows. As a consequence, `django.http.HttpResponseRedirect`, `django.http.HttpResponsePermanentRedirect`, and the shortcut `django.shortcuts.redirect`  were subject to a potential  denial-of-service attack via certain inputs with a very large number of Unicode characters.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not eval",
+        "vuln_symbols": [
+          "django.http.HttpResponseRedirect",
+          "django.http.HttpResponsePermanentRedirect",
+          "django.shortcuts.redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.26",
+          "5.1.14",
+          "5.2.8"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Windows-only NFKC slowness; Mathesar deployed on Linux Docker image (Dockerfile, run.sh gunicorn). Redirects use fixed reverse() URLs (mathesar/middleware.py:33, views/installation/decorators.py:16,26)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#11",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-64459",
+            "BIT-django-2025-64459",
+            "GHSA-frmv-pr5f-9mcr",
+            "PYSEC-2025-108"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to SQL injection via _connector keyword argument in QuerySet and Q objects. \u2014 An issue was discovered in 5.1 before 5.1.14, 4.2 before 4.2.26, and 5.2 before 5.2.8.\nThe methods `QuerySet.filter()`, `QuerySet.exclude()`, and `QuerySet.get()`, and the class `Q()`, are subject to SQL injection when using a suitably crafted dictionary, with dictionary expansion, as the `_connector` argument.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank cyberstan for reporting this issue.",
+        "vuln_symbols": [
+          "QuerySet.filter",
+          "QuerySet.exclude",
+          "QuerySet.get",
+          "Q",
+          "_connector"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.26",
+          "5.1.14",
+          "5.2.8"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No filter()/exclude()/get()/Q() called with user-controlled **dict (grep of mathesar/); django-filter/django-property-filter build lookups from fixed declared field names (mathesar/api/dj_filters.py:13-27)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#12",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-64460",
+            "BIT-django-2025-64460",
+            "GHSA-vrcr-9hj9-jcg6",
+            "PYSEC-2025-109"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django is vulnerable to DoS via XML serializer text extraction \u2014 An issue was discovered in 5.2 before 5.2.9, 5.1 before 5.1.15, and 4.2 before 4.2.27.\nAlgorithmic complexity in `django.core.serializers.xml_serializer.getInnerText()` allows a remote attacker to cause a potential denial-of-service attack triggering CPU and memory exhaustion via specially crafted XML input processed by the XML `Deserializer`.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Seokchan Yoon for reporting this issue.",
+        "vuln_symbols": [
+          "django.core.serializers.xml_serializer.getInnerText",
+          "Deserializer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.27",
+          "5.1.15",
+          "5.2.9"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "XML Deserializer only used by loaddata/serializers.deserialize; no deserialize()/xml serializer use in app (grep), no fixtures from users."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#13",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-26699",
+            "BIT-django-2025-26699",
+            "GHSA-p3fp-8748-vqfq",
+            "PYSEC-2025-13"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to Allocation of Resources Without Limits or Throttling \u2014 An issue was discovered in Django 5.1 before 5.1.7, 5.0 before 5.0.13, and 4.2 before 4.2.20. The django.utils.text.wrap() method and wordwrap template filter are subject to a potential denial-of-service attack when used with very long strings.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.20",
+          "5.0.13",
+          "5.1.7"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "django.utils.text.wrap only reached via the wordwrap filter (django/template/defaultfilters.py:413); not used in mathesar/templates (grep); Django admin/DRF templates don't use wordwrap on attacker data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#14",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-32873",
+            "BIT-django-2025-32873",
+            "GHSA-8j24-cjrq-gr2m",
+            "PYSEC-2025-37"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has a denial-of-service possibility in strip_tags() \u2014 An issue was discovered in Django 4.2 before 4.2.21, 5.1 before 5.1.9, and 5.2 before 5.2.1. The django.utils.html.strip_tags() function is vulnerable to a potential denial-of-service (slow performance) when processing inputs containing large sequences of incomplete HTML tags. The template filter striptags is also vulnerable, because it is built on top of strip_tags().",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.21",
+          "5.1.9",
+          "5.2.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "strip_tags only called via striptags filter (django/template/defaultfilters.py:518); no striptags in mathesar/templates; at most admin templates (admin-only, admin-authored strings, no inlines registered mathesar/admin.py)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#15",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-48432",
+            "BIT-django-2025-48432",
+            "GHSA-7xr5-9hcq-chf9",
+            "PYSEC-2025-47"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django Improper Output Neutralization for Logs vulnerability \u2014 An issue was discovered in Django 5.2 before 5.2.2, 5.1 before 5.1.10, and 4.2 before 4.2.22. Internal HTTP response logging does not escape request.path, which allows remote attackers to potentially manipulate log output via crafted URLs. This may lead to log injection or forgery when logs are viewed in terminals or processed by external systems.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.22",
+          "5.1.10",
+          "5.2.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "django.utils.log.log_response logs unescaped request.path for every 4xx/5xx; anyone can request crafted URLs (e.g. 404s, handler404 config/urls.py:28). No LOGGING override; default django logger only emits to console when DEBUG, but the vulnerable path runs and DEBUG=true or custom logging/gunicorn capture exposes it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#16",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-59682",
+            "BIT-django-2025-59682",
+            "GHSA-q95w-c7qg-hrff",
+            "PYSEC-2026-1296"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to partial directory traversal via archives \u2014 An issue was discovered in Django 4.2 before 4.2.25, 5.1 before 5.1.13, and 5.2 before 5.2.7. The django.utils.archive.extract() function, used by the \"startapp --template\" and \"startproject --template\" commands, allows partial directory traversal via an archive with file paths sharing a common prefix with the target directory.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.25",
+          "5.1.13",
+          "5.2.7"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "django.utils.archive.extract only used by startapp/startproject --template management commands; never in the served app."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#17",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25673",
+            "BIT-django-2026-25673",
+            "GHSA-8p8v-wh79-9r56",
+            "PYSEC-2026-2448"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to Uncontrolled Resource Consumption \u2014 An issue was discovered in 6.0 before 6.0.3, 5.2 before 5.2.12, and 4.2 before 4.2.29.\n\n`URLField.to_python()` in Django calls `urllib.parse.urlsplit()`, which performs NFKC normalization on Windows that is disproportionately slow for certain Unicode characters, allowing a remote attacker to cause denial of service via large URL inputs containing these characters.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Seokchan Yoon for reporting this i",
+        "vuln_symbols": [
+          "URLField.to_python",
+          "urllib.parse.urlsplit"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.29",
+          "5.2.12",
+          "6.0.3"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Windows-only NFKC slowness in urlsplit; deployment is Linux Docker. (DRF serializers.URLField in mathesar/api/serializers/data_files.py:19 is DRF's, not forms.URLField.to_python.)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#18",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25674",
+            "BIT-django-2026-25674",
+            "GHSA-mjgh-79qc-68w3",
+            "PYSEC-2026-2449"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has a Race Condition vulnerability \u2014 An issue was discovered in 6.0 before 6.0.3, 5.2 before 5.2.12, and 4.2 before 4.2.29.\n\nRace condition in file-system storage and file-based cache backends in Django allows an attacker to cause file system objects to be created with incorrect permissions via concurrent requests, where one thread's temporary `umask` change affects other threads in multi-threaded environments.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Tarek Nakkouch for reporting this is",
+        "vuln_symbols": [
+          "umask"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.29",
+          "5.2.12",
+          "6.0.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "FileSystemStorage only changes umask when FILE_UPLOAD_DIRECTORY_PERMISSIONS is set (django/core/files/storage/filesystem.py _save), which settings don't set; no file-based cache (no CACHES); gunicorn run.sh uses default sync single-threaded workers."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#19",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-15830",
+            "BIT-django-2026-15830",
+            "GHSA-q238-5cxm-5c9h",
+            "PYSEC-2026-3717"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django GeoDjango vulnerable to denial of service through deeply nested geometry collections \u2014 An issue was discovered in Django 5.2 before 5.2.17 and 6.0 before 6.0.8.\nGeoDjango's `django.contrib.gis.geos.GEOSGeometry` is subject to a potential denial-of-service when parsing deeply nested `GEOMETRYCOLLECTION` objects supplied as well-known text (WKT), well-known binary (WKB), or hex-encoded WKB, which triggers unbounded recursion and a segmentation fault in the underlying GEOS library. Spatial field lookups and the `django.contrib.gis.forms.GeometryField` form field are also affected.\nEarlier,",
+        "vuln_symbols": [
+          "django.contrib.gis.geos.GEOSGeometry",
+          "GEOMETRYCOLLECTION",
+          "django.contrib.gis.forms.GeometryField"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.17",
+          "6.0.8",
+          "6.1.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "GeoDjango (django.contrib.gis) not installed (config/settings/common_settings.py:33-46); no GEOSGeometry use."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#20",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-15307",
+            "BIT-django-2026-15307",
+            "GHSA-wvqv-fj8w-qmhm",
+            "PYSEC-2026-4035"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django GeoDjango spatial lookups allow file writes and outbound requests through GDAL raster parsing \u2014 An issue was discovered in Django 5.2 before 5.2.17 and 6.0 before 6.0.8.\nGeoDjango spatial lookups optimistically parse the right-hand-side value as a raster by passing it to the `django.contrib.gis.gdal.GDALRaster` constructor. Any value used in a spatial lookup against a `GeometryField` or `RasterField` reaches this constructor, including untrusted input, for example a spatial-field filter submitted through the Django admin changelist query string by a staff user with view permission. A `d",
+        "vuln_symbols": [
+          "django.contrib.gis.gdal.GDALRaster",
+          "GeometryField",
+          "RasterField",
+          "dict",
+          "str"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.17",
+          "6.0.8"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "GeoDjango not installed (config/settings/common_settings.py:33-46); no GeometryField/RasterField models."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#21",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-13473",
+            "BIT-django-2025-13473",
+            "GHSA-2mcm-79hx-8fxw",
+            "PYSEC-2026-42"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has Observable Timing Discrepancy \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\nThe `django.contrib.auth.handlers.modwsgi.check_password()` function for authentication via `mod_wsgi` allows remote attackers to enumerate users via a timing attack. Earlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Stackered for reporting this issue.",
+        "vuln_symbols": [
+          "django.contrib.auth.handlers.modwsgi.check_password",
+          "mod_wsgi"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "modwsgi check_password only for Apache mod_wsgi auth; Mathesar runs gunicorn (run.sh) and never imports django.contrib.auth.handlers.modwsgi."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#22",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-14550",
+            "BIT-django-2025-14550",
+            "GHSA-33mw-q7rj-mjwj",
+            "PYSEC-2026-43"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has Inefficient Algorithmic Complexity \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\n`ASGIRequest` allows a remote attacker to cause a potential denial-of-service via a crafted request with multiple duplicate headers.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Jiyong Yang for reporting this issue.",
+        "vuln_symbols": [
+          "ASGIRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ASGIRequest only under ASGI; production runs 'gunicorn config.wsgi' (run.sh) \u2014 WSGI. config/asgi.py exists but unused by default deployment."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#23",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1207",
+            "BIT-django-2026-1207",
+            "GHSA-mwm9-4648-f68q",
+            "PYSEC-2026-44"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has an SQL Injection issue \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\nRaster lookups on ``RasterField`` (only implemented on PostGIS) allows remote attackers to inject SQL via the band index parameter. Earlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Tarek Nakkouch for reporting this issue.",
+        "vuln_symbols": [
+          "RasterField"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "RasterField lookups require PostGIS/GeoDjango; contrib.gis not installed (config/settings/common_settings.py:33-46)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#24",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1285",
+            "BIT-django-2026-1285",
+            "GHSA-4rrr-2h4v-f3j9",
+            "PYSEC-2026-45"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has Inefficient Algorithmic Complexity \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\n`django.utils.text.Truncator.chars()` and `Truncator.words()` methods (with `html=True`) and the `truncatechars_html` and `truncatewords_html` template filters allow a remote attacker to cause a potential denial-of-service via crafted inputs containing a large number of unmatched HTML end tags. Earlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Seokchan Yoon for reportin",
+        "vuln_symbols": [
+          "django.utils.text.Truncator.chars",
+          "Truncator.words",
+          "truncatechars_html",
+          "truncatewords_html"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Truncator html=True only via truncatechars_html/truncatewords_html filters (django/template/defaultfilters.py:326,354); not used in mathesar/templates; admin uses Truncator.words without html (contrib/admin/widgets.py:212)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#25",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1287",
+            "BIT-django-2026-1287",
+            "GHSA-gvg8-93h5-g6qq",
+            "PYSEC-2026-46"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has an SQL Injection issue \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\n`FilteredRelation` is subject to SQL injection in column aliases via control characters, using a suitably crafted dictionary, with dictionary expansion, as the `**kwargs` passed to `QuerySet` methods `annotate()`, `aggregate()`, `extra()`, `values()`, `values_list()`, and `alias()`. Earlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Solomon Kebede for reporting this issue.",
+        "vuln_symbols": [
+          "FilteredRelation",
+          "QuerySet",
+          "annotate",
+          "aggregate",
+          "extra",
+          "values"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No FilteredRelation or user-keyed **kwargs to annotate/aggregate/extra/values/alias in mathesar/ (grep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#26",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1312",
+            "BIT-django-2026-1312",
+            "GHSA-6426-9fv3-65x8",
+            "PYSEC-2026-47"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has an SQL Injection issue \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\n`.QuerySet.order_by()` is subject to SQL injection in column aliases containing periods when the same alias is, using a suitably crafted dictionary, with dictionary expansion, used in `FilteredRelation`. Earlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Solomon Kebede for reporting this issue.",
+        "vuln_symbols": [
+          "FilteredRelation"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No FilteredRelation in app; order_by only fixed '-created_at' (mathesar/api/viewsets/data_files.py:21) and PropertyOrderingFilter with fixed fields (mathesar/api/dj_filters.py:16-22)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#27",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33033",
+            "BIT-django-2026-33033",
+            "GHSA-5mf9-h53q-7mhq",
+            "PYSEC-2026-48"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has potential DoS via MultiPartParser through crafted multipart uploads \u2014 An issue was discovered in 6.0 before 6.0.4, 5.2 before 5.2.13, and 4.2 before 4.2.30. `MultiPartParser` allows remote attackers to degrade performance by submitting multipart uploads with `Content-Transfer-Encoding: base64` including excessive whitespace.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Seokchan Yoon for reporting this issue.",
+        "vuln_symbols": [
+          "MultiPartParser"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.30",
+          "5.2.13",
+          "6.0.4"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Django MultiPartParser parses any multipart POST: DataFileViewSet uses DRF MultiPartParser (mathesar/api/viewsets/data_files.py:25) for file uploads, and unauthenticated login/password forms (mathesar/urls.py auth/) parse multipart request.POST."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#28",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33034",
+            "BIT-django-2026-33034",
+            "GHSA-933h-hp56-hf7m",
+            "PYSEC-2026-49"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: SGI requests with a missing or understated `Content-Length` header could bypass the `DATA_UPLOAD_MAX_MEMORY_SIZE` limit \u2014 An issue was discovered in 6.0 before 6.0.4, 5.2 before 5.2.13, and 4.2 before 4.2.30. ASGI requests with a missing or understated `Content-Length` header could bypass the `DATA_UPLOAD_MAX_MEMORY_SIZE` limit when reading `HttpRequest.body`, allowing remote attackers to load an unbounded request body into memory.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Superior for r",
+        "vuln_symbols": [
+          "DATA_UPLOAD_MAX_MEMORY_SIZE",
+          "HttpRequest.body"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.30",
+          "5.2.13",
+          "6.0.4"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ASGI-only; production is gunicorn WSGI (run.sh 'gunicorn config.wsgi')."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#29",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-3902",
+            "BIT-django-2026-3902",
+            "GHSA-mvfq-ggxm-9mc5",
+            "PYSEC-2026-51"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to ASGI header spoofing via underscore/hyphen conflation \u2014 An issue was discovered in 6.0 before 6.0.4, 5.2 before 5.2.13, and 4.2 before 4.2.30. `ASGIRequest` allows a remote attacker to spoof headers by exploiting an ambiguous mapping of two header variants (with hyphens or with underscores) to a single version with underscores.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Tarek Nakkouch for reporting this issue.",
+        "vuln_symbols": [
+          "ASGIRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.30",
+          "5.2.13",
+          "6.0.4"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ASGIRequest header mapping only under ASGI; production is gunicorn WSGI (run.sh)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#30",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-4277",
+            "BIT-django-2026-4277",
+            "GHSA-pwjp-ccjc-ghwg",
+            "PYSEC-2026-52"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to privilege abuse in GenericInlineModelAdmin \u2014 An issue was discovered in 6.0 before 6.0.4, 5.2 before 5.2.13, and 4.2 before 4.2.30. Add permissions on inline model instances were not validated on submission of forged `POST` data in `GenericInlineModelAdmin`.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank N05ec@LZU-DSLab for reporting this issue.",
+        "vuln_symbols": [
+          "POST",
+          "GenericInlineModelAdmin"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.30",
+          "5.2.13",
+          "6.0.4"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No GenericInlineModelAdmin anywhere; admin registers only DataFile (default ModelAdmin) and MathesarUserAdmin (mathesar/admin.py:8-22); contenttypes generic admin unused."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#31",
+      "facts": {
+        "package": "django",
+        "version": "4.2.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-4292",
+            "BIT-django-2026-4292",
+            "GHSA-mmwr-2jhp-mc7j",
+            "PYSEC-2026-53"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to privilege abuse in ModelAdmin.list_editable \u2014 An issue was discovered in 6.0 before 6.0.4, 5.2 before 5.2.13, and 4.2 before 4.2.30. Admin changelist forms using `ModelAdmin.list_editable` incorrectly allowed new instances to be created via forged `POST` data.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Cantina for reporting this issue.",
+        "vuln_symbols": [
+          "ModelAdmin.list_editable",
+          "POST"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.30",
+          "5.2.13",
+          "6.0.4"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No ModelAdmin.list_editable: mathesar/admin.py:8-22 (UserAdmin subclass and default DataFile admin) define none; Django UserAdmin has none."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#32",
+      "facts": {
+        "package": "djangorestframework",
+        "version": "3.15.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-114138",
+            "GHSA-33wh-fxxf-88vv"
+          ],
+          [
+            "djangorestframework"
+          ]
+        ],
+        "advisory_summary": "Django REST framework: Accept header with many large quoted parameters burns ~19s of CPU per request in content negotiation \u2014 ### Summary\n\nDRF's content negotiation parses each Accept token several times per request and never limits the number of tokens or their total size. Each parse ends up in Django's parse_header_parameters, which takes quadratic time when a quoted parameter value is packed with semicolons. On my machine a single GET with a 780KB Accept header made of 96 such tokens kept one gunicorn worker busy for 18.87 seconds (Django 6.1, djangorestframework 3.18.0, gunicorn 26.0.0, Py",
+        "vuln_symbols": [
+          "_MediaType.__init__"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.18.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "DRF APIView.initial runs perform_content_negotiation before auth/permission checks (rest_framework/views.py:406 vs 414-415), parsing Accept via _MediaType/parse_header_parameters (utils/mediatypes.py:47); /api/db/v0/data_files/ (mathesar/urls.py, DefaultRouter) reachable pre-auth."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#33",
+      "facts": {
+        "package": "djangorestframework",
+        "version": "3.15.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-114136",
+            "GHSA-3547-9m27-7rxg"
+          ],
+          [
+            "djangorestframework"
+          ]
+        ],
+        "advisory_summary": "Django REST framework: JSONParser applies an attacker-named codec to the request stream \u2014 ### Summary\n\nAn unauthenticated attacker can defeat Django's `DATA_UPLOAD_MAX_MEMORY_SIZE` limit and force a\nworker process to allocate arbitrary memory, by naming a compression codec in the Content-Type\ncharset parameter. A 108-byte request body produces a 50,331,648-character value inside the view, an\namplification factor of 466,033, and grows process peak RSS by about 97 MiB. No application\nconfiguration is required beyond DRF's default parser set; the endpoint only has to accept a JSON\nbody.\n\n### Deta",
+        "vuln_symbols": [
+          "DATA_UPLOAD_MAX_MEMORY_SIZE",
+          "JSONParser.parse",
+          "codecs.lookup",
+          "bz2_codec",
+          "zlib_codec",
+          "base64_codec"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.18.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "JSONParser in DEFAULT_PARSER_CLASSES and DataFileViewSet (config/settings/common_settings.py:218-220; mathesar/api/viewsets/data_files.py:25); parse does codecs.getreader(encoding)(stream) with charset from Content-Type (rest_framework/parsers.py JSONParser.parse). create/partial_update read request.data (data_files.py:28,50) for any authenticated user."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#34",
+      "facts": {
+        "package": "djangorestframework",
+        "version": "3.15.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-114137",
+            "GHSA-xw6w-gcfp-cf8m"
+          ],
+          [
+            "djangorestframework"
+          ]
+        ],
+        "advisory_summary": "Django REST framework: TokenProxy.delete() reports success and revokes nothing \u2014 ### Summary\n\nDeleting an authentication token through `TokenProxy` silently deletes nothing. The call raises no\nexception and reports success, the database row survives, and the token keeps authenticating. Any\napplication, admin integration or operational script that revokes credentials by calling `.delete()`\non a `TokenProxy` instance believes it has revoked a token that is still live.\n\n### Details\n\n`TokenProxy` overrides `pk` to return the user id (`rest_framework/authtoken/models.py:49-63`):\n\n```python\n@propert",
+        "vuln_symbols": [
+          "TokenProxy",
+          "pk",
+          "Token",
+          "key",
+          "Model.delete",
+          "TokenAdmin.delete_model"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.18.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.92
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rest_framework.authtoken not in INSTALLED_APPS (config/settings/common_settings.py:33-46); TokenProxy only used by authtoken admin; app never deletes tokens via TokenProxy."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#35",
+      "facts": {
+        "package": "djangorestframework",
+        "version": "3.15.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-73228",
+            "GHSA-2m8g-3cmr-wg3w",
+            "PYSEC-2026-3827"
+          ],
+          [
+            "djangorestframework"
+          ]
+        ],
+        "advisory_summary": "Django REST framework: Potential bypass of Django `DATA_UPLOAD_MAX_MEMORY_SIZE` when parsing oversized JSON and urlencoded request bodies via DRF `request.data` \u2014 ## Summary\n\nWhile investigating Django REST Framework's request parsing behavior, I identified that DRF's high-level `request.data` parsing appears to bypass Django's configured `DATA_UPLOAD_MAX_MEMORY_SIZE` protection for `application/json` and `application/x-www-form-urlencoded` request bodies.\n\nIn the tested configurations, Django correctly raises `RequestDataTooBig` when applications access `request.body` or Django's native `requ",
+        "vuln_symbols": [
+          "DATA_UPLOAD_MAX_MEMORY_SIZE",
+          "request.data",
+          "RequestDataTooBig",
+          "request.body",
+          "request.POST",
+          "HttpRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.17.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "DataFileViewSet reads request.data with JSONParser (mathesar/api/viewsets/data_files.py:25,28,50); DRF parses stream directly, bypassing DATA_UPLOAD_MAX_MEMORY_SIZE; any authenticated user."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#36",
+      "facts": {
+        "package": "djangorestframework",
+        "version": "3.15.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-73229",
+            "GHSA-g47c-3xmw-q6m2",
+            "PYSEC-2026-3828"
+          ],
+          [
+            "djangorestframework"
+          ]
+        ],
+        "advisory_summary": "Django REST framework: AdminRenderer may disclose GET-protected data when rendering invalid write requests \u2014 Summary\n\nAdminRenderer may disclose data that would normally be protected by GET permissions when rendering a 400 Bad Request response for an invalid write request.\n\nIf a view allows POST (or another write method) but denies GET, an invalid request rendered through AdminRenderer can invoke the view's GET handler and include data from the GET representation in the generated HTML response.\n\nThis behavior appears to be specific to AdminRenderer and does not affect the normal JSON rendering",
+        "vuln_symbols": [
+          "cf582fb58e9e5ffcc8ed78a2cb9aaa8f4865666a"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.17.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AdminRenderer not configured: no DEFAULT_RENDERER_CLASSES in REST_FRAMEWORK (defaults JSON+Browsable) and no renderer_classes in app (grep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#37",
+      "facts": {
+        "package": "requests",
+        "version": "2.32.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-47081",
+            "GHSA-9hjg-9r4m-mvj7",
+            "PYSEC-2026-1872"
+          ],
+          [
+            "requests"
+          ]
+        ],
+        "advisory_summary": "Requests vulnerable to .netrc credentials leak via malicious URLs \u2014 ### Impact\n\nDue to a URL parsing issue, Requests releases prior to 2.32.4 may leak .netrc credentials to third parties for specific maliciously-crafted URLs.\n\n### Workarounds\nFor older versions of Requests, use of the .netrc file can be disabled with `trust_env=False` on your Requests Session ([docs](https://requests.readthedocs.io/en/latest/api/#requests.Session.trust_env)).\n\n### References\nhttps://github.com/psf/requests/pull/6965\nhttps://seclists.org/fulldisclosure/2025/Jun/2",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.32.4"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "User-supplied URL fetched with requests.get (mathesar/utils/datafiles.py:19) and requests.head (mathesar/api/serializers/data_files.py:65) via default trust_env session, so get_netrc_auth runs on attacker URLs. Leak requires a ~/.netrc for the service user (absent in default Docker image; plausible on host installs)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-mathesar#38",
+      "facts": {
+        "package": "requests",
+        "version": "2.32.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25645",
+            "GHSA-gc5v-m9x4-r6x2",
+            "PYSEC-2026-2275"
+          ],
+          [
+            "requests"
+          ]
+        ],
+        "advisory_summary": "Requests has Insecure Temp File Reuse in its extract_zipped_paths() utility function \u2014 ### Impact\nThe `requests.utils.extract_zipped_paths()` utility function uses a predictable filename when extracting files from zip archives into the system temporary directory. If the target file already exists, it is reused without validation. A local attacker with write access to the temp directory could pre-create a malicious file that would be loaded in place of the legitimate one.\n\n### Affected usages\n**Standard usage of the Requests library is not affected by this vulnerability.** Only applications tha",
+        "vuln_symbols": [
+          "requests.utils.extract_zipped_paths",
+          "extract_zipped_paths",
+          "TMPDIR"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.33.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "extract_zipped_paths only called on DEFAULT_CA_BUNDLE_PATH (requests/adapters.py:82) and returns early when path exists (utils.py:273-275); certifi installed as normal files, not zipped; needs local attacker."
+      }
+    }
+  ]
+}

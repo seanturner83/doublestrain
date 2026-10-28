@@ -76,6 +76,14 @@ def main(argv=None) -> int:
     ap.add_argument("--exposure", default="unknown",
                     help="exposure class of this app (public-internet, sase-reachable, mesh-only, ...)")
     ap.add_argument("--prod-only", action="store_true", help="skip dev-only dependencies")
+    ap.add_argument("--artifact", action="append", metavar="PATH",
+                    help="a JVM release artifact (tarball, zip, fat jar, war; repeat for an image's layers "
+                         "in order): its jars are the deployed classpath")
+    ap.add_argument("--artifact-include", action="append", metavar="GLOB", help="only jars under these archive paths")
+    ap.add_argument("--artifact-exclude", action="append", metavar="GLOB",
+                    help="skip jars under these archive paths (a bundled CLI client, examples)")
+    ap.add_argument("--first-party", action="append", metavar="GROUP",
+                    help="Maven group prefix that is the app itself, not a dependency (e.g. org.keycloak)")
     ap.add_argument("--offline", action="store_true", help="OSV + feeds from cache only")
     ap.add_argument("--out", default="runs")
     ap.add_argument("--emit-case", metavar="DIR", help="also write a harness case skeleton here")
@@ -121,7 +129,14 @@ def main(argv=None) -> int:
 
     repo = Path(args.repo).expanduser().resolve()
     name = args.name or repo.name
-    records, osv_prov = osv_candidates(repo, name, include_dev=not args.prod_only, offline=args.offline)
+    artifact = ({"paths": [str(Path(p).expanduser().resolve()) for p in args.artifact],
+                 "include": args.artifact_include or [], "exclude": args.artifact_exclude or [],
+                 "first_party": args.first_party or []} if args.artifact else None)
+    if artifact:
+        from . import jvmjars
+        jvmjars.register(repo, artifact)
+    records, osv_prov = osv_candidates(repo, name, include_dev=not args.prod_only, offline=args.offline,
+                                       artifact=artifact)
     print(f"osv: {json.dumps(osv_prov)}", flush=True)
     if not records:
         print("no advisories for the locked dependency versions")
@@ -184,6 +199,7 @@ def main(argv=None) -> int:
         d.mkdir(parents=True, exist_ok=True)
         case = {"id": d.name, "description": f"{name} (OSV-generated; label each `expect`)",
                 "repo": str(repo), "exposure": args.exposure,
+                **({"artifact": artifact} if artifact else {}),
                 "_note": "enrichment empty: run the harness with --enrich live",
                 "enrichment": {},
                 "candidates": [{**rec, "pr": f"local/{d.name}#{rec['pr'].rsplit('#', 1)[1]}",

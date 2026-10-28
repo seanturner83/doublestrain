@@ -1,0 +1,2502 @@
+{
+  "id": "real-py-fastapitpl",
+  "description": "full-stack-fastapi-template 0.8.0 backend/ (uv.lock): held-out Python app (py7), labelled blind",
+  "repo": "repo/backend",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#1",
+      "facts": {
+        "package": "anyio",
+        "version": "4.6.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-64847",
+            "GHSA-5p39-cfhj-2xmp",
+            "PYSEC-2026-4024"
+          ],
+          [
+            "anyio"
+          ]
+        ],
+        "advisory_summary": "AnyIO process-pool workers can block indefinitely on undrained stderr \u2014 ### Impact\nAnyIO starts process-pool workers with stderr connected to a pipe but never drains that pipe. The worker redirects stdin and stdout to /dev/null to protect its protocol, but does not redirect stderr even though the documentation says all three standard streams are redirected. Worker code that writes enough attacker-influenced data to stderr can fill the pipe, block before returning the stdout protocol response, and wedge the awaiting process-pool call.\n\nAnyone who runs untrusted or faulty code that writes too mu",
+        "vuln_symbols": [
+          "stderr",
+          "sys.stderr"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.14.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "anyio process-pool (to_process) never used: no to_process/run_sync_in_process in app, starlette 0.38.6, fastapi 0.115.0, uvicorn, sentry-sdk; starlette uses to_thread only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#2",
+      "facts": {
+        "package": "anyio",
+        "version": "4.6.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-63374",
+            "GHSA-82r6-8w77-94w6",
+            "PYSEC-2026-4025"
+          ],
+          [
+            "anyio"
+          ]
+        ],
+        "advisory_summary": "AnyIO: TLSStream IDNA 2003 host name encoding enables potential TLS certificate spoofing \u2014 ### Impact\nServices using internationalized (non-ASCII) domain names are potentially vulnerable to TLS connections made from AnyIO's `connect_tcp()` or directly via `TLSStream.wrap()` where the connection has (through other means) been hijacked and redirected to a malicious server. The attacker would obtain a legitimate certificate using the IDNA 2003 encoded version of the domain name and offer it to the connecting client, making the certificate validate properly on the client's end.\n\n### Patches\nThe vu",
+        "vuln_symbols": [
+          "connect_tcp",
+          "TLSStream.wrap",
+          "idna"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.14.2"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "hijacked"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No outbound anyio TLS: app makes no async HTTP (httpx only in app/tests); SMTP via smtplib in emails/backend/smtp/client.py; sentry uses urllib3. connect_tcp(tls)/TLSStream.wrap never run."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#3",
+      "facts": {
+        "package": "certifi",
+        "version": "2024.8.30",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-6q48-6c7w-9gw2",
+            "PYSEC-2026-4320"
+          ],
+          [
+            "certifi"
+          ]
+        ],
+        "advisory_summary": "certifi bundles emSign root CAs with compromised intermediate CA keys \u2014 Certifi versions before 2026.10.18 include the `emSign ECC Root CA - G3` root certificate in their bundled CA store. Eight eMudhra intermediate CA certificates that chain to this root have compromised private keys and the CA has revoked them. \n\nAn attacker with one of the compromised keys can issue valid-looking certificates for any hostname. If the attacker is also on-path, they can intercept or modify TLS traffic from clients that trust the certifi bundle. Examples include `requests`, `urllib3` and `pip`, and the Python.",
+        "vuln_symbols": [
+          "requests",
+          "urllib3"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2026.10.19"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.62
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "certifi bundle used for outbound TLS when SENTRY_DSN is set (common optional config; app/main.py:14 sentry_sdk.init when SENTRY_DSN and ENVIRONMENT!=local): sentry_sdk/transport.py:483 ca_certs=certifi.where(). On-path attacker with compromised emSign intermediate could MITM Sentry traffic. requests (emails dep) is imported but never fetches."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#4",
+      "facts": {
+        "package": "h11",
+        "version": "0.14.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-43859",
+            "GHSA-vqfr-h8mv-ghfj",
+            "PYSEC-2026-348"
+          ],
+          [
+            "h11"
+          ]
+        ],
+        "advisory_summary": "h11 accepts some malformed Chunked-Encoding bodies \u2014 ### Impact\n\nA leniency in h11's parsing of line terminators in chunked-coding message bodies can lead to request smuggling vulnerabilities under certain conditions.\n \n### Details\n\nHTTP/1.1 Chunked-Encoding bodies are formatted as a sequence of \"chunks\", each of which consists of:\n\n- chunk length\n- `\\r\\n`\n- `length` bytes of content\n- `\\r\\n`\n\nIn versions of h11 up to 0.14.0, h11 instead parsed them as:\n\n- chunk length\n- `\\r\\n`\n- `length` bytes of content\n- any two bytes\n \ni.e. it did not validate that the trailing `\\r\\n` bytes were correct, a",
+        "vuln_symbols": [
+          "length",
+          "AAAAA45"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.16.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "uvicorn 0.30.6 http='auto' picks httptools when importable (uvicorn/protocols/http/auto.py:7); uvicorn[standard] installs httptools 0.6.1 (uv.lock:501, linux cp310 wheels) and fastapi-cli run passes no http= (fastapi_cli/cli.py:92). h11 not used for server parsing; httpx/httpcore client not used at runtime."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#5",
+      "facts": {
+        "package": "idna",
+        "version": "3.10",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45409",
+            "GHSA-65pc-fj4g-8rjx",
+            "PYSEC-2026-215"
+          ],
+          [
+            "idna"
+          ]
+        ],
+        "advisory_summary": "Internationalized Domain Names in Applications (IDNA) for Python provides support for Internationalized Domain Names in Applications (IDNA) and Unicode IDNA Compatibility Processing. In versions prior to 3.15, payloads such as `\"\\u0660\" * N` or `\"\\u30fb\" * N + \"\\u6f22\"` utilize the `valid_contexto` function prior to length rejection, and for high values of `N` will take a long time to process. This is the same issue as CVE-2024-3651, however the original remediation in 2024 was not a complete fix. A specially crafted argument to the `idna.encode()` function could consume significant resources.",
+        "vuln_symbols": [
+          "valid_contexto",
+          "N",
+          "idna.encode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.15"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Unauthenticated POST /api/v1/users/signup (app/api/routes/users.py:142) takes UserRegister.email: EmailStr (app/models.py:21). pydantic 2.9.2 EmailStr is function-after on str (networks.py:460) so max_length=255 is applied after email validation; email_validator 2.2.0 syntax.py:523 calls idna.alabel(label) -> check_label -> valid_contexto (idna 3.10 core.py:294,222-233) before any length check (syntax.py:542). Attacker sends '\\u30fb'*N+'\\u6f22' domain."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#6",
+      "facts": {
+        "package": "jinja2",
+        "version": "3.1.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-27516",
+            "GHSA-cpwx-vrp4-4pq7",
+            "PYSEC-2026-1471"
+          ],
+          [
+            "jinja2"
+          ]
+        ],
+        "advisory_summary": "Jinja2 vulnerable to sandbox breakout through attr filter selecting format method \u2014 An oversight in how the Jinja sandboxed environment interacts with the `|attr` filter allows an attacker that controls the content of a template to execute arbitrary Python code.\n\nTo exploit the vulnerability, an attacker needs to control the content of a template. Whether that is the case depends on the type of application using Jinja. This vulnerability impacts users of applications which execute untrusted templates.\n\nJinja's sandbox does catch calls to `str.format` and ensures they don't escape the sandbox. ",
+        "vuln_symbols": [
+          "str.format"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jinja2 only used in app/utils.py:29 Template(template_str) on static files in app/email-templates/build; no SandboxedEnvironment and attacker never controls template content (user data only in render context)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#7",
+      "facts": {
+        "package": "jinja2",
+        "version": "3.1.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-56201",
+            "GHSA-gmj6-6f8f-6699",
+            "PYSEC-2026-1472"
+          ],
+          [
+            "jinja2"
+          ]
+        ],
+        "advisory_summary": "Jinja has a sandbox breakout through malicious filenames \u2014 A bug in the Jinja compiler allows an attacker that controls both the content and filename of a template to execute arbitrary Python code, regardless of if Jinja's sandbox is used.\n\nTo exploit the vulnerability, an attacker needs to control both the filename and the contents of a template. Whether that is the case depends on the type of application using Jinja. This vulnerability impacts users of applications which execute untrusted templates where the template author can also choose the template filename.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.5"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Attacker controls neither template filename nor content: templates are fixed files read in app/utils.py:25-29."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#8",
+      "facts": {
+        "package": "jinja2",
+        "version": "3.1.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-56326",
+            "GHSA-q2x7-8rv6-6q7h",
+            "PYSEC-2026-1475"
+          ],
+          [
+            "jinja2"
+          ]
+        ],
+        "advisory_summary": "Jinja has a sandbox breakout through indirect reference to format method \u2014 An oversight in how the Jinja sandboxed environment detects calls to `str.format` allows an attacker that controls the content of a template to execute arbitrary Python code.\n\nTo exploit the vulnerability, an attacker needs to control the content of a template. Whether that is the case depends on the type of application using Jinja. This vulnerability impacts users of applications which execute untrusted templates.\n\nJinja's sandbox does catch calls to `str.format` and ensures they don't escape the sandbox. However, it's",
+        "vuln_symbols": [
+          "str.format",
+          "format"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.5"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No sandbox and no untrusted template content; templates static (app/utils.py:25-29)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#9",
+      "facts": {
+        "package": "lxml",
+        "version": "5.3.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41066",
+            "GHSA-vfmq-68hx-4jfw",
+            "PYSEC-2026-87"
+          ],
+          [
+            "lxml"
+          ]
+        ],
+        "advisory_summary": "lxml: Default configuration of iterparse() and ETCompatXMLParser() allows XXE to local files \u2014 ### Impact\nUsing either of the two parsers in the default configuration (with `resolve_entities=True`) allows untrusted XML input to read local files.\n\n### Patches\nlxml 6.1.0 changes the default to `resolve_entities='internal'`, thus disallowing local file access by default.\n\n### Workarounds\nSetting the `resolve_entities` option explicitly to `resolve_entities='internal'` or `resolve_entities=False` disables the local file access.\n\n### Resources\nOriginal report: https://bugs.launchpad.net/lxml/+bug/2",
+        "vuln_symbols": [
+          "resolve_entities",
+          "iterparse",
+          "ETCompatXMLParser"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.1.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "lxml only pulled in by emails/premailer; app only builds emails.Message(html=...) and send() (app/utils.py:40-56); no iterparse/ETCompatXMLParser in emails 0.6, premailer 3.10.0, or sentry-sdk; no attacker XML parsed."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#10",
+      "facts": {
+        "package": "mako",
+        "version": "1.3.5",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44307",
+            "GHSA-2h4p-vjrc-8xpq",
+            "PYSEC-2026-2617"
+          ],
+          [
+            "mako"
+          ]
+        ],
+        "advisory_summary": "Mako vulnerable to path traversal via backslash URI on Windows in TemplateLookup \u2014 ## Summary\n\nOn Windows, a URI using backslash traversal (e.g. `\\..\\..\\ secret.txt`) bypasses the directory traversal check in `Template.__init__` and the `posixpath`-based normalization in `TemplateLookup.get_template()`, allowing reads of files outside the configured template directory.\n\n\n## Details\n\nThe root cause is a mismatch between `posixpath` (used for URI normalization in `get_template()`) and `os.path` (used for file access via `os.path.isfile()` and validation via `os.path.normpath()` in `Template.__in",
+        "vuln_symbols": [
+          "Template.__init__",
+          "posixpath",
+          "TemplateLookup.get_template",
+          "get_template",
+          "os.path",
+          "os.path.isfile"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Mako only used by alembic for revision script generation (dev/ops CLI), not by the web app; Windows-only; TemplateLookup URIs never attacker-controlled. Docker image is Linux (python:3.10)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#11",
+      "facts": {
+        "package": "mako",
+        "version": "1.3.5",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102991",
+            "GHSA-5639-2j2p-m4mx",
+            "PYSEC-2026-4243"
+          ],
+          [
+            "mako"
+          ]
+        ],
+        "advisory_summary": "Mako: Path traversal via drive-letter URI on Windows in TemplateLookup \u2014 ## Summary\n\nOn Windows, a `TemplateLookup` URI beginning with a drive designator (e.g. `C:/../../secret.txt` or `C:\\..\\..\\secret.txt`) bypasses the directory traversal check in `Template.__init__`, allowing reads of files outside the configured template directory.\n\nThis is a third, independent instance of the root cause behind CVE-2026-41205 (the `//` prefix) and CVE-2026-44307 (the backslash form). Both of those fixes normalized a separator *spelling*. Neither addressed the other way `posixpath` and `ntpath` disagree: th",
+        "vuln_symbols": [
+          "TemplateLookup",
+          "Template.__init__",
+          "posixpath",
+          "ntpath",
+          "os.path",
+          "ntpath.normpath"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.4.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Windows-only Mako TemplateLookup path traversal; Mako used only by alembic tooling, Linux container, no attacker URIs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#12",
+      "facts": {
+        "package": "mako",
+        "version": "1.3.5",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41205",
+            "GHSA-v92g-xgxw-vvmm",
+            "PYSEC-2026-88"
+          ],
+          [
+            "mako"
+          ]
+        ],
+        "advisory_summary": "Mako: Path traversal via double-slash URI prefix in TemplateLookup \u2014 ### Summary\n\n`TemplateLookup.get_template()` is vulnerable to path traversal when a URI starts with `//` (e.g., `//../../../secret.txt`). The root cause is an inconsistency between two slash-stripping implementations:\n\n- `Template.__init__` strips **one** leading `/` using `if`/slice\n- `TemplateLookup.get_template()` strips **all** leading `/` using `re.sub(r\"^\\/+\", \"\")`\n\nWhen a URI like `//../../../../etc/passwd` is passed:\n1. `get_template()` strips all `/` \u2192 `../../../../etc/passwd` \u2192 file found via `posixpath.join(dir_, u",
+        "vuln_symbols": [
+          "TemplateLookup.get_template",
+          "Template.__init__",
+          "if",
+          "get_template",
+          "normpath",
+          "BaseHTTPRequestHandler"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.11"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Mako TemplateLookup.get_template never called with attacker URI; only alembic uses Mako (script templates at revision time)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#13",
+      "facts": {
+        "package": "pygments",
+        "version": "2.18.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-4539",
+            "GHSA-5239-wwwm-4pmq",
+            "PYSEC-2026-2987"
+          ],
+          [
+            "pygments"
+          ]
+        ],
+        "advisory_summary": "Pygments has Regular Expression Denial of Service (ReDoS) due to Inefficient Regex for GUID Matching \u2014 A security flaw has been discovered in pygments before 2.20.0. The impacted element is the function AdlLexer of the file pygments/lexers/archetype.py. The manipulation results in inefficient regular expression complexity. The attack is only possible with local access. The exploit has been released to the public and may be used for attacks. The project was informed of the problem early through an issue report but has not responded yet.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.20.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Pygments only via rich (typer CLI for fastapi run); AdlLexer never invoked on attacker data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#14",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-pxh4-856f-4h89"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: HS256/384/512 verify accepts empty HMAC key via oct JWK (PyJWK/PyJWKClient) enabling token forgery \u2014 ### Summary\n\n`HMACAlgorithm.from_jwk` accepts a symmetric (`kty=oct`) JWK whose `k` value is\nthe empty string and returns a zero-length key without raising. When a token is\nthen verified with that key object (a `PyJWK`, or a `PyJWK` resolved by\n`PyJWKSet` / `PyJWKClient`), the HMAC verifier computes\n`HMAC(key=b\"\", signing_input)` and accepts any token an attacker forged with the\nsame empty key. The attacker needs no secret knowledge: they reproduce the digest\nlocally with an empty key an",
+        "vuln_symbols": [
+          "HMACAlgorithm.from_jwk",
+          "k",
+          "PyJWK",
+          "PyJWKSet",
+          "PyJWKClient",
+          "kid"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "App never uses PyJWK/PyJWKSet/PyJWKClient; jwt.decode with string SECRET_KEY and algorithms=['HS256'] (app/api/deps.py:33, app/utils.py:113)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#15",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-45768",
+            "PYSEC-2025-183"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "pyjwt v2.10.1 was discovered to contain weak encryption. NOTE: this is disputed by the Supplier because the key length is chosen by the application that uses the library (admittedly, library users may benefit from a minimum value and a mechanism for opting in to strict enforcement).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Disputed 'no minimum HMAC key length' issue. App signs/verifies HS256 with settings.SECRET_KEY (app/core/security.py:18, app/api/deps.py:33) on attacker-supplied tokens; shipped .env sets SECRET_KEY=changethis with ENVIRONMENT=local, which only warns (app/core/config.py:99-111), so a weak key is accepted as shipped. Default without .env is token_urlsafe(32) (strong). Chose reachable per uncertainty rule."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#16",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-32597",
+            "GHSA-752w-5fwx-jx9f",
+            "PYSEC-2026-120"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT accepts unknown `crit` header extensions \u2014 ## Summary\n\nPyJWT does not validate the `crit` (Critical) Header Parameter defined in\nRFC 7515 \u00a74.1.11. When a JWS token contains a `crit` array listing\nextensions that PyJWT does not understand, the library accepts the token\ninstead of rejecting it. This violates the **MUST** requirement in the RFC.\n\nThis is the same class of vulnerability as CVE-2025-59420 (Authlib),\nwhich received CVSS 7.5 (HIGH).\n\n---\n\n## RFC Requirement\n\nRFC 7515 \u00a74.1.11:\n\n> The \"crit\" (Critical) Header Parameter indicates that extensions to this\n> specification and/or [JWA",
+        "vuln_symbols": [
+          "crit",
+          "cnf",
+          "_validate_headers",
+          "decode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.12.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jwt.decode in deps.py:33/utils.py:113 verifies HS256 signature with server key; app-issued tokens never contain crit, and attacker can't sign tokens with crit, so the missing crit check has no effect. App relies on no crit extensions."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#17",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48522",
+            "GHSA-993g-76c3-p5m4",
+            "PYSEC-2026-175"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWKClient: missing scheme allowlist enables CVE-2024-21643-class SSRF + token forgery via file://, ftp://, data: schemes \u2014 > [!NOTE]\n> The library does not directly return non-HTTP(S) URI contents to the attacker; the chained \"plant a JWKS to forge tokens\" scenario described in the original report requires additional application-layer flaws (attacker write access to a filesystem path, untrusted jku derivation) that this fix does not address. Severity is scored for the scheme-acceptance bug in isolation.\n\n## Summary\n\nPyJWKClient passes its `uri` argument directly to `urllib.request.urlopen()`",
+        "vuln_symbols": [
+          "uri",
+          "urllib.request.urlopen",
+          "OpenerDirector",
+          "HTTPHandler",
+          "HTTPSHandler",
+          "FTPHandler"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.13.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWKClient never used (no jwks/jku in app)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#18",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48523",
+            "GHSA-jq35-7prp-9v3f",
+            "PYSEC-2026-176"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Algorithm allow-list bypass when decoding with `PyJWK` / `PyJWKClient` keys \u2014 > [!NOTE]\n> Scored assuming a deployment where algorithm policy functions as an authentication/authorization boundary. In deployments where the algorithm policy enforces crypto agility only, the practical confidentiality impact is lower and the issue is closer to an integrity-of-policy-enforcement bug.\n\nPyJWT `2.9.0` through `2.12.1` allows a verifier-side algorithm allow-list bypass when `jwt.decode()` or `jwt.decode_complete()` are called with a `PyJWK` key. The token header `alg` is checked against the call",
+        "vuln_symbols": [
+          "PyJWK",
+          "PyJWKClient",
+          "jwt.decode",
+          "jwt.decode_complete",
+          "alg",
+          "algorithms"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.12.1",
+          "2.13.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No PyJWK/PyJWKClient keys passed to jwt.decode; key is a str secret."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#19",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48524",
+            "GHSA-fhv5-28vv-h8m8",
+            "PYSEC-2026-177"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWKClient unbounded JWKS endpoint requests via attacker-controlled kid values (DoS) \u2014 > [!NOTE]\n>  The vulnerability surfaces only when a JWKS fetch fails; an attacker can attempt to provoke that with sustained unknown-kid traffic, but the outcome depends on upstream JWKS-endpoint behavior (rate limiting, transient errors) which is beyond the attacker's control. Impact is reduced auth availability until the next successful fetch, not complete denial of service.\n\n## Summary\nPyJWKClient.get_signing_key() forces a fresh HTTP request to the JWKS endpoint for every JWT with an unknown kid value, ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.13.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWKClient never used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#20",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48525",
+            "GHSA-w7vc-732c-9m39",
+            "PYSEC-2026-178"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Unauthenticated DoS via unbounded Base64URL decoding of unused payload segment in b64=false detached JWS \u2014 > [!NOTE]\n> Practical impact depends on whether request body-size limits are enforced upstream (proxy/web-server/framework). Deployments with typical body-size caps (\u22642 MB) bound the amplifier significantly; deployments accepting larger token inputs are more exposed.\n\nWhen verifying detached JWS tokens using the unencoded-payload option (`\"b64\": false`, RFC 7797), PyJWT performs **Base64URL decoding of the compact-serialization payload segment** *before* enforcing the detached-payl",
+        "vuln_symbols": [
+          "detached_payload",
+          "PyJWS.decode",
+          "PyJWS.decode_complete",
+          "_load",
+          "decode_complete",
+          "crit"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.13.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "No detached-payload verification in app, but attacker controls token header: unauthenticated POST /api/v1/reset-password/ takes body.token of unbounded length (app/api/routes/login.py:83, app/utils.py:113) and Bearer header -> jwt.decode -> api_jws._load base64-decodes payload (api_jws.py:277) before the b64=false check (api_jws.py:201). Code path runs on attacker data, though a normal oversized token costs the same, so the added impact is small."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#21",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48526",
+            "GHSA-xgmm-8j9v-c9wx",
+            "PYSEC-2026-179"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Public-key JWK accepted as HMAC secret enables forged HS256 tokens when mixed families are allowed \u2014 > [!NOTE]\n> Exploitation requires a verifier configured with both symmetric and asymmetric algorithms in `algorithms=[\u2026]` and a raw-JSON JWK as the `key=` argument, both contrary to documented usage, hence the High attack-complexity rating.\n\n### Summary\nWhen the verifier is decoding JSON Web Tokens, while supporting both asymmetric and HMAC algorithms, the library does not validate use of JSON Web Keys in HMAC algorithm, allowing attacker to use the issuer public key as the secret key fo",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.13.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "algorithms=['HS256'] only (app/core/security.py:12) and key is a str secret, not a JWK; mixed families never allowed."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#22",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101917",
+            "GHSA-2gx3-rcp4-g85q",
+            "PYSEC-2026-4140"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: PyJWKClient still amplifies unauthenticated JWKS fetches on unknown kid values (incomplete fix of CVE-2026-48524) \u2014 Summary\nCVE-2026-48524 (GHSA-fhv5-28vv-h8m8, \"PyJWKClient unbounded JWKS endpoint requests via attacker-controlled kid values (DoS)\") was fixed in 2.13.0 by stopping fetch_data() from clearing the cache on a fetch error. That closed one amplification path but did not add the mitigation the advisory's title implies: there is still no rate-limit, negative-cache, or minimum-refresh-interval for unknown kids.\n\nAt HEAD, get_signing_key(kid) (jwt/jwks_client.py:185-211), on any ",
+        "vuln_symbols": [
+          "kid",
+          "master",
+          "ba4853a",
+          "PyJWKClient"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWKClient never used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#23",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101918",
+            "GHSA-42vr-xj54-vc7v",
+            "PYSEC-2026-4141"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Unauthenticated RecursionError DoS in pre-verification payload parse (PyJWKClient.get_signing_key_from_jwt / verify_signature=False) \u2014 ## Summary\n\n`PyJWKClient.get_signing_key_from_jwt(token)` \u2014 the first step of the JWKS\nverification flow documented in `docs/usage.rst` \u2014 must decode a token's\npayload before its signature can be checked, via\n`jwt.api_jwt.decode_complete(token, options={\"verify_signature\": False})`.\nThat call parses the payload with `json.loads` in `PyJWT._decode_payload`\n(`jwt/api_jwt.py:297-300`), whose `except` clause catches only `ValueError`.\nA payload that is valid",
+        "vuln_symbols": [
+          "json.loads",
+          "PyJWT._decode_payload",
+          "except",
+          "ValueError",
+          "RecursionError",
+          "DecodeError"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.15.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "App never calls get_signing_key_from_jwt or verify_signature=False; in 2.9.0 api_jwt.decode_complete verifies the signature (api_jwt.py:152) before _decode_payload json.loads (api_jwt.py:160), so attacker payloads aren't parsed before verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#24",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102267",
+            "GHSA-9v7f-9g4p-ffgj",
+            "PYSEC-2026-4144"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: PyJWKClient follows redirects when fetching JWKS \u2014 ### Summary\n\nPyJWT 2.13.0 `PyJWKClient` followed HTTP redirects while fetching a JWKS,\nwithout validating the redirect destination. A configured trusted endpoint\ncould therefore redirect the client to a different host.\n\n### Impact\n\nWhen an application uses `PyJWKClient` with caller-supplied request headers and\nan attacker can influence the configured endpoint's response, the redirected\nrequest could expose those headers and the redirected response could be used as\nauthoritative key material. This could cause JWKS trust poisoning and, in",
+        "vuln_symbols": [
+          "PyJWKClient",
+          "kid",
+          "master"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWKClient never used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#25",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102268",
+            "GHSA-ffc3-869f-jxw9",
+            "PYSEC-2026-4145"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Asymmetric-PEM detection bypass: whitespace/line-ending-mutated public keys skip the HS/asymmetric confusion guard \u2014 **Prerequisites** (both conditions must hold; both are deployment properties, not attacker-controlled at request time):\n\n- The `jwt.decode` allow-list mixes an HMAC algorithm with an asymmetric one, e.g. `algorithms=[\"ES256\", \"HS256\"]` (the RFC 8725 footgun the guard exists to backstop).\n- The verification key is passed as raw PEM text/bytes on the non-`PyJWK` path, in a byte-form that `cryptography`'s loader accepts but PyJWT's `is_pem_format` regex does not recognize (m",
+        "vuln_symbols": [
+          "jwt.decode",
+          "PyJWK",
+          "cryptography",
+          "is_pem_format",
+          "cryptography.load_pem_public_key",
+          "HMACAlgorithm.prepare_key"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only HS256 allowed and key is SECRET_KEY string, not a PEM public key; no mixed alg list."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#26",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102269",
+            "GHSA-hxm8-2xgr-2p9m",
+            "PYSEC-2026-4147"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Non-canonical signature segments enable raw-token revocation bypass \u2014 ## Summary\n\nPyJWT 2.13.0 accepts compact JWS signature segments containing characters that\nare not in the Base64URL alphabet. Appending `!!!!` to a valid signature does\nnot change the decoded signature bytes or authenticated claims, but it changes\nthe serialized token and its SHA-256 hash. An application that indexes logout\nor revocation state by the raw token therefore rejects the logged-out token and\naccepts its no-key alternate serialization.\n\nThis report separates two issues: permissive compact-JWS decoding is the",
+        "vuln_symbols": [
+          "jti",
+          "master",
+          "e6f48401001609a8f99e71fcaf355fb895d508a8"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Permissive signature base64 decoding runs, but app has no logout/revocation list keyed by raw token (no blocklist in app/), so the revocation-bypass impact does not exist."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#27",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102270",
+            "GHSA-jwrc-g2q2-pq5p",
+            "PYSEC-2026-4148"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: ReDoS vulnerability when calling the `is_pem_format` function. \u2014 ### Summary\nThere is a Re-DoS vulnerability in the `is_pem_format` function which results in a intesive CPU usage if an attacker is been able to provide a custom certificate.\n\n\n### Details\nThe problem is that the lazy quantifier `.+?` will always first try to match as little as possible until it finds a `---- END`. Normally this means the complexity of this should be O(N). However, by providing an input which consists only of `----BEGIN CERTIFICATE-----` lines and no `---- END` line, the regex algorithm will first try to m",
+        "vuln_symbols": [
+          "is_pem_format"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "is_pem_format only runs on the verification key (algorithms.py:258 in HMAC prepare_key) = server SECRET_KEY, never attacker data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#28",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102271",
+            "GHSA-p4g4-x82p-q773",
+            "PYSEC-2026-4149"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Public keys in DER form are accepted as HMAC secrets, bypassing the CVE-2022-29217 guard \u2014 ### Summary\n\n`HMACAlgorithm.prepare_key` blocks asymmetric keys from being used as HMAC secrets by searching for text markers only. It looks for `-----BEGIN` and for an `ssh-` prefix. The same key in DER form is binary ASN.1 and has neither marker, so it passes the check and is used as an HMAC secret.\n\nAn application that verifies tokens with an RSA or EC public key, and also allows HS256 with that same key, can be given a forged token. The attacker signs it with the public key, which is public. T",
+        "vuln_symbols": [
+          "HMACAlgorithm.prepare_key",
+          "is_pem_format",
+          "is_ssh_key",
+          "startswith",
+          "prepare_key",
+          "PyJWK"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Key is SECRET_KEY string, not a DER public key; only HS256 allowed."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#29",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102274",
+            "GHSA-w6j9-cwv2-h6wq",
+            "PYSEC-2026-4152"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Malformed RSA JWK aborts parsing of an entire JWK Set \u2014 ## Summary\n\nA malformed RSA JWK inside a JWK Set aborts parsing of the entire set instead of being skipped, because `RSAAlgorithm.from_jwk` can raise a plain `ValueError` that isn't caught by `PyJWKSet`'s per-key error-skipping logic.\n\n## Affected component / version\n\n- Package: `PyJWT` (PyPI, ecosystem `pip`)\n- Files: `jwt/api_jwk.py` (`PyJWK.__init__`, `PyJWKSet.__init__`), `jwt/algorithms.py` (`RSAAlgorithm.from_jwk`)\n- Confirmed present in the `master` branch as of 2026-09-05 (commit `7144e4534c34810f4525dc4578a32addd8212cff`, ",
+        "vuln_symbols": [
+          "RSAAlgorithm.from_jwk",
+          "ValueError",
+          "PyJWKSet",
+          "PyJWK.__init__",
+          "PyJWKSet.__init__",
+          "master"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No JWK Set parsing (PyJWKSet/PyJWKClient) in app."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#30",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.9.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102275",
+            "GHSA-x33g-cr3x-6449",
+            "PYSEC-2026-4183"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT accepts inconsistent OKP x/d JWKs, causing public/private key identity confusion \u2014 ### Summary\n\nPyJWT accepts internally inconsistent OKP private JWKs where the declared public key `x` does not correspond to the supplied private key `d`.\n\nWhen `d` is present, `OKPAlgorithm.from_jwk()` constructs the Ed25519/Ed448 private key from `d` without verifying that the public key derived from `d` matches `x`. As a result, the original JWK can contain one public key identity while PyJWT performs cryptographic operations using a different key.\n\nIn affected DPoP integrations, this can allow a stolen",
+        "vuln_symbols": [
+          "x",
+          "d",
+          "OKPAlgorithm.from_jwk",
+          "cnf.jkt",
+          "PyJWK.from_dict",
+          "master"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.15.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No OKP JWKs / DPoP in app."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#31",
+      "facts": {
+        "package": "python-dotenv",
+        "version": "1.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-28684",
+            "GHSA-mf9w-mj56-hr94",
+            "PYSEC-2026-2270"
+          ],
+          [
+            "python-dotenv"
+          ]
+        ],
+        "advisory_summary": "python-dotenv: Symlink following in set_key allows arbitrary file overwrite via cross-device rename fallback \u2014 ### Summary\n\n`set_key()` and `unset_key()` in python-dotenv follow symbolic links when rewriting `.env` files, allowing a local attacker to overwrite arbitrary files via a crafted symlink when a cross-device rename fallback is triggered.\n\n\n### Details\n\nThe `rewrite()` context manager in `dotenv/main.py` is used by both `set_key()` and `unset_key()` to safely modify `.env` files. It works by writing to a temporary file (created in the system's default temp directory, typically `/tmp`) ",
+        "vuln_symbols": [
+          "set_key",
+          "unset_key",
+          "rewrite",
+          "shutil.move",
+          "os.rename",
+          "OSError"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.2.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "python-dotenv set_key/unset_key never called; pydantic-settings/uvicorn only read .env (dotenv_values/load_dotenv)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#32",
+      "facts": {
+        "package": "python-multipart",
+        "version": "0.0.10",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-53981",
+            "GHSA-59g5-xgcq-4qw3",
+            "PYSEC-2026-1851"
+          ],
+          [
+            "python-multipart"
+          ]
+        ],
+        "advisory_summary": "Denial of service (DoS) via deformation `multipart/form-data` boundary \u2014 ### Summary\n\nWhen parsing form data, `python-multipart` skips line breaks (CR `\\r` or LF `\\n`) in front of the first boundary and any tailing bytes after the last boundary. This happens one byte at a time and emits a log event each time, which may cause excessive logging for certain inputs.\n\nAn attacker could abuse this by sending a malicious request with lots of data before the first or after the last boundary, causing high CPU load and stalling the processing thread for a significant amount of time. In case of ASGI appl",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.0.18"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Unauthenticated POST /api/v1/login/access-token uses OAuth2PasswordRequestForm (app/api/routes/login.py:24-26) -> FastAPI request.form() -> starlette formparsers.py:235 multipart.MultipartParser for multipart/form-data; python-multipart 0.0.10 skips leading CR/LF byte-by-byte with logging (multipart.py:1089)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#33",
+      "facts": {
+        "package": "python-multipart",
+        "version": "0.0.10",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24486",
+            "GHSA-wp53-j4wj-2cfg",
+            "PYSEC-2026-1852"
+          ],
+          [
+            "python-multipart"
+          ]
+        ],
+        "advisory_summary": "Python-Multipart has Arbitrary File Write via Non-Default Configuration \u2014 ### Summary\n\nA Path Traversal vulnerability exists when using non-default configuration options `UPLOAD_DIR` and `UPLOAD_KEEP_FILENAME=True`. An attacker can write uploaded files to arbitrary locations on the filesystem by crafting a malicious filename.\n\n### Details\n\nWhen `UPLOAD_DIR` is set and `UPLOAD_KEEP_FILENAME` is `True`, the library constructs the file path using `os.path.join(file_dir, fname)`. Due to the behavior of `os.path.join()`, if the filename begins with a `/`, all preceding path components are discarded",
+        "vuln_symbols": [
+          "UPLOAD_DIR",
+          "UPLOAD_KEEP_FILENAME",
+          "os.path.join",
+          "MAX_MEMORY_FILE_SIZE"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.0.22"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Starlette uses MultipartParser with its own callbacks and SpooledTemporaryFile (formparsers.py:193,235); python-multipart File/UPLOAD_DIR/UPLOAD_KEEP_FILENAME config (multipart.py:448) never used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#34",
+      "facts": {
+        "package": "python-multipart",
+        "version": "0.0.10",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-53539",
+            "GHSA-5rvq-cxj2-64vf",
+            "PYSEC-2026-3036"
+          ],
+          [
+            "python-multipart"
+          ]
+        ],
+        "advisory_summary": "python-multipart: Quadratic-time querystring parsing with semicolon separators causes CPU denial of service \u2014 ### Summary\n\nWhen parsing `application/x-www-form-urlencoded` bodies, `QuerystringParser` located the field separator with a two step lookup: it first scanned the entire remaining buffer for `&`, and only when no `&` existed anywhere ahead did it fall back to scanning for `;`. For a body that uses `;` as the separator and contains no `&`, every field iteration performed a full failed `&` scan over the entire remaining buffer before locating the nearby `;`. With N semicolon separated fi",
+        "vuln_symbols": [
+          "QuerystringParser",
+          "FIELD_NAME",
+          "FIELD_DATA",
+          "i",
+          "FormParser",
+          "create_form_parser"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.0.30"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Login form urlencoded body parsed by multipart.QuerystringParser (starlette formparsers.py:86); 0.0.10 does data.find(b'&') then falls back to ';' (multipart.py:829-831,889-891) -> quadratic on ';'-separated body. Unauthenticated /login/access-token."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#35",
+      "facts": {
+        "package": "python-multipart",
+        "version": "0.0.10",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-53538",
+            "GHSA-6jv3-5f52-599m",
+            "PYSEC-2026-3037"
+          ],
+          [
+            "python-multipart"
+          ]
+        ],
+        "advisory_summary": "python-multipart: Semicolon treated as querystring field separator enables parameter smuggling \u2014 ### Summary\n\n`QuerystringParser` treated `;` as a field separator in `application/x-www-form-urlencoded` bodies, in addition to `&`. The [WHATWG URL standard](https://url.spec.whatwg.org/#urlencoded-parsing), modern browsers, and Python's `urllib.parse` (since the CVE-2021-23336 fix) treat only `&` as a separator. This creates a parser differential: the same bytes are tokenized into different fields than a WHATWG compliant intermediary would produce, allowing an attacker to smuggle extra form field",
+        "vuln_symbols": [
+          "QuerystringParser",
+          "urllib.parse",
+          "FIELD_NAME",
+          "FIELD_DATA",
+          "write",
+          "request.form"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.0.30"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "QuerystringParser treats ';' as separator (multipart.py:803) on unauthenticated login form (login.py:24-26); parser-differential parameter smuggling possible vs. WHATWG intermediaries (impact limited for this app)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#36",
+      "facts": {
+        "package": "python-multipart",
+        "version": "0.0.10",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40347",
+            "GHSA-mj87-hwqh-73pj",
+            "PYSEC-2026-3038"
+          ],
+          [
+            "python-multipart"
+          ]
+        ],
+        "advisory_summary": "python-multipart affected by Denial of Service via large multipart preamble or epilogue data \u2014 ### Summary\n\nA denial of service vulnerability exists when parsing crafted `multipart/form-data` requests with large preamble or epilogue sections.\n\n### Details\n\nTwo inefficient multipart parsing paths could be abused with attacker-controlled input.\n\nBefore the first multipart boundary, the parser handled leading CR and LF bytes inefficiently while searching for the start of the first part. After the closing boundary, the parser continued processing trailing epilogue data instead of discarding it imm",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.0.26"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Multipart preamble/epilogue inefficiency in MultipartParser (multipart.py:1089, 1392) reachable via multipart/form-data POST to unauthenticated /api/v1/login/access-token."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#37",
+      "facts": {
+        "package": "python-multipart",
+        "version": "0.0.10",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42561",
+            "GHSA-pp6c-gr5w-3c5g",
+            "PYSEC-2026-3039"
+          ],
+          [
+            "python-multipart"
+          ]
+        ],
+        "advisory_summary": "python-multipart has Denial of Service via unbounded multipart part headers \u2014 ### Summary\n\n`python-multipart` has a denial of service vulnerability in multipart part header parsing. When parsing `multipart/form-data`, `MultipartParser` previously had no limit on the number of part headers or the size of an individual part header. An attacker could send a request with either many repeated headers without terminating the header block or a single very large header value, causing excessive CPU work before request rejection or completion.\n\n### Impact\n\nApplications that parse attacker-controlled `mu",
+        "vuln_symbols": [
+          "MultipartParser",
+          "HEADER_FIELD_START",
+          "HEADER_FIELD",
+          "HEADER_VALUE_START",
+          "HEADER_VALUE",
+          "HEADER_VALUE_ALMOST_DONE"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.0.27"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "No header count/size limits in 0.0.10 MultipartParser HEADER_FIELD state (multipart.py:1162); reached by multipart POST to /login/access-token; starlette 0.38.6 adds no header limits."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#38",
+      "facts": {
+        "package": "python-multipart",
+        "version": "0.0.10",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-53540",
+            "GHSA-v9pg-7xvm-68hf",
+            "PYSEC-2026-3040"
+          ],
+          [
+            "python-multipart"
+          ]
+        ],
+        "advisory_summary": "python-multipart: Negative Content-Length in parse_form buffers the entire body in memory \u2014 ### Summary\n\n`parse_form()` did not validate the `Content-Length` header before using it to bound its chunked read of the request body. A negative `Content-Length` turned the bounded read into a read-until-EOF, so the entire body was loaded into memory in a single read instead of in fixed-size chunks.\n\n### Details\n\n`parse_form()` reads the input stream in chunks, never reading more than the remaining `Content-Length` at a time. The per-chunk size is computed as `min(content_length - bytes_read, chunk_si",
+        "vuln_symbols": [
+          "parse_form",
+          "MultipartParser",
+          "receive",
+          "http.server",
+          "ValueError"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.0.31"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "parse_form() is never called: starlette uses QuerystringParser/MultipartParser directly (formparsers.py:86,235); app never calls multipart.parse_form."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#39",
+      "facts": {
+        "package": "python-multipart",
+        "version": "0.0.10",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-53537",
+            "GHSA-vffw-93wf-4j4q",
+            "PYSEC-2026-3041"
+          ],
+          [
+            "python-multipart"
+          ]
+        ],
+        "advisory_summary": "python-multipart: Content-Disposition parameter smuggling via RFC 2231/5987 extended parameters \u2014 ### Summary\n\n`parse_options_header` parsed `Content-Disposition` (and `Content-Type`) headers with [`email.message.Message`](https://docs.python.org/3/library/email.compat32-message.html#email.message.Message), which transparently applies [RFC 2231](https://datatracker.ietf.org/doc/html/rfc2231)/[5987](https://datatracker.ietf.org/doc/html/rfc5987) decoding. The extended parameter syntax (`filename*=charset'lang'value`, `name*=...`, and the `filename*0`/`filename*1` continuation form) is decoded a",
+        "vuln_symbols": [
+          "parse_options_header",
+          "email.message.Message",
+          "filename",
+          "name",
+          "comment",
+          "safe.txt"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.0.30"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "starlette formparsers.py:183,212 calls multipart parse_options_header, which in 0.0.10 uses email.message.Message (multipart.py:153-173) with RFC2231 decoding, on attacker multipart headers at unauthenticated /login/access-token. Impact is a parser differential."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#40",
+      "facts": {
+        "package": "requests",
+        "version": "2.32.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-47081",
+            "GHSA-9hjg-9r4m-mvj7",
+            "PYSEC-2026-1872"
+          ],
+          [
+            "requests"
+          ]
+        ],
+        "advisory_summary": "Requests vulnerable to .netrc credentials leak via malicious URLs \u2014 ### Impact\n\nDue to a URL parsing issue, Requests releases prior to 2.32.4 may leak .netrc credentials to third parties for specific maliciously-crafted URLs.\n\n### Workarounds\nFor older versions of Requests, use of the .netrc file can be disabled with `trust_env=False` on your Requests Session ([docs](https://requests.readthedocs.io/en/latest/api/#requests.Session.trust_env)).\n\n### References\nhttps://github.com/psf/requests/pull/6965\nhttps://seclists.org/fulldisclosure/2025/Jun/2",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.32.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "requests only imported by emails/premailer (emails/utils.py:17); requests.get only in emails/utils.py:240 fetch_url for URL loaders, never used by app (app/utils.py:40-56 uses html string + SMTP). No attacker URLs fetched."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#41",
+      "facts": {
+        "package": "requests",
+        "version": "2.32.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25645",
+            "GHSA-gc5v-m9x4-r6x2",
+            "PYSEC-2026-2275"
+          ],
+          [
+            "requests"
+          ]
+        ],
+        "advisory_summary": "Requests has Insecure Temp File Reuse in its extract_zipped_paths() utility function \u2014 ### Impact\nThe `requests.utils.extract_zipped_paths()` utility function uses a predictable filename when extracting files from zip archives into the system temporary directory. If the target file already exists, it is reused without validation. A local attacker with write access to the temp directory could pre-create a malicious file that would be loaded in place of the legitimate one.\n\n### Affected usages\n**Standard usage of the Requests library is not affected by this vulnerability.** Only applications tha",
+        "vuln_symbols": [
+          "requests.utils.extract_zipped_paths",
+          "extract_zipped_paths",
+          "TMPDIR"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.33.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "extract_zipped_paths only matters when requests runs from a zip and requires local temp-dir write; standard install, requests not even used at runtime."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#42",
+      "facts": {
+        "package": "starlette",
+        "version": "0.38.6",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48710",
+            "GHSA-86qp-5c8j-p5mr",
+            "PYSEC-2026-161",
+            "X41-2026-002"
+          ],
+          [
+            "starlette"
+          ]
+        ],
+        "advisory_summary": "Starlette has missing Host header validation that poisons request.url.path, bypassing path-based security checks \u2014 ### Summary\nIn affected versions, the HTTP `Host` request header was not validated before being used to reconstruct `request.url`. Because the routing algorithm relies on the raw HTTP path while `request.url` is rebuilt from the `Host` header, a malformed header could make `request.url.path` differ from the path that was actually requested. Middleware and endpoints that apply security restrictions based on `request.url` (rather than the raw `scope` path) could therefore be bypasse",
+        "vuln_symbols": [
+          "Host",
+          "request.url",
+          "request.url.path",
+          "scope",
+          "host",
+          "path"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No middleware/endpoint applies security decisions based on request.url.path: app/main.py only adds CORSMiddleware (Origin-based); FastAPI routing uses scope path; auth is JWT dependency per route."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#43",
+      "facts": {
+        "package": "starlette",
+        "version": "0.38.6",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-54121",
+            "GHSA-2c2j-9gv5-cj73",
+            "PYSEC-2026-1941"
+          ],
+          [
+            "starlette"
+          ]
+        ],
+        "advisory_summary": "Starlette has possible denial-of-service vector when parsing large files in multipart forms \u2014 ### Summary\nWhen parsing a multi-part form with large files (greater than the [default max spool size](https://github.com/encode/starlette/blob/fa5355442753f794965ae1af0f87f9fec1b9a3de/starlette/formparsers.py#L126)) `starlette` will block the main thread to roll the file over to disk. This blocks the event thread which means we can't accept new connections.\n\n### Details\nPlease see this discussion for details: https://github.com/encode/starlette/discussions/2927#discussioncomment-13721403. In summary ",
+        "vuln_symbols": [
+          "self._in_memory"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.47.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Starlette 0.38.6 MultiPartParser writes file parts to SpooledTemporaryFile(max_size=1MB) (formparsers.py:117,193) with sync rollover on the event loop; attacker can send a multipart file part to unauthenticated /api/v1/login/access-token (OAuth2PasswordRequestForm -> request.form())."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#44",
+      "facts": {
+        "package": "starlette",
+        "version": "0.38.6",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-47874",
+            "GHSA-f96h-pmfr-66vw",
+            "PYSEC-2026-1943"
+          ],
+          [
+            "starlette"
+          ]
+        ],
+        "advisory_summary": "Starlette Denial of service (DoS) via multipart/form-data \u2014 ### Summary\nStarlette treats `multipart/form-data` parts without a `filename` as text form fields and buffers those in byte strings with no size limit. This allows an attacker to upload arbitrary large form fields and cause Starlette to both slow down significantly due to excessive memory allocations and copy operations, and also consume more and more memory until the server starts swapping and grinds to a halt, or the OS terminates the server process with an OOM error. Uploading multiple such requests in parallel may be enough to ren",
+        "vuln_symbols": [
+          "filename"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.40.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Starlette 0.38.6 (<0.40.0) buffers non-file multipart fields with no size limit (no max_part_size in formparsers.py:124-131); reached via multipart POST to unauthenticated /login/access-token."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#45",
+      "facts": {
+        "package": "starlette",
+        "version": "0.38.6",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48817",
+            "GHSA-x746-7m8f-x49c",
+            "PYSEC-2026-2280"
+          ],
+          [
+            "starlette"
+          ]
+        ],
+        "advisory_summary": "Starlette: Arbitrary HTTP method dispatched to `HTTPEndpoint` attributes via `getattr` \u2014 ### Summary\n\nWhen dispatching a request, `HTTPEndpoint` selects the handler by lowercasing the HTTP method and looking it up as an attribute with `getattr`, without restricting the lookup to a known set of HTTP verbs.\n\nWhen an `HTTPEndpoint` subclass is registered through `Route(...)` without an explicit `methods=` argument, the route does not constrain the method and every method reaches the endpoint. If a non-standard HTTP method whose lowercased name matches an attribute on the endpoint subclass reaches",
+        "vuln_symbols": [
+          "HTTPEndpoint",
+          "getattr",
+          "_DO_DELETE",
+          "_do_delete",
+          "request",
+          "Route"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No starlette HTTPEndpoint used; FastAPI APIRouter routes only (app/api/routes/*)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#46",
+      "facts": {
+        "package": "starlette",
+        "version": "0.38.6",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48818",
+            "GHSA-wqp7-x3pw-xc5r",
+            "PYSEC-2026-2281"
+          ],
+          [
+            "starlette"
+          ]
+        ],
+        "advisory_summary": "Starlette: SSRF and NTLM credential theft via UNC paths in StaticFiles on Windows \u2014 ### Summary\n\nWhen serving static files on Windows, `StaticFiles` resolves the requested path with [`os.path.realpath`](https://docs.python.org/3/library/os.path.html#os.path.realpath). If a UNC path (such as `\\\\attacker.com\\share`) reaches the resolver, `realpath` causes the process to open a connection to the remote host over SMB (port 445). This is a server-side request forgery (SSRF) that leaks the service account's NTLMv2 credentials to the attacker-controlled host, which can then be cracked offline or rela",
+        "vuln_symbols": [
+          "StaticFiles",
+          "os.path.realpath",
+          "realpath",
+          "StaticFiles.lookup_path",
+          "os.path.commonpath",
+          "os.path.join"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No StaticFiles mount and Linux container; Windows-only UNC issue."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#47",
+      "facts": {
+        "package": "starlette",
+        "version": "0.38.6",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54282",
+            "GHSA-jp82-jpqv-5vv3",
+            "PYSEC-2026-248"
+          ],
+          [
+            "starlette"
+          ]
+        ],
+        "advisory_summary": "Starlette: Unvalidated request path concatenated into authority poisons request.url.hostname \u2014 ### Summary\n\nIn affected versions, the HTTP request path is not validated before being used to reconstruct `request.url`. Because `request.url` is rebuilt by concatenating `{scheme}://{host}{path}` and re-parsing the result, a path that does not begin with `/` (for example `@google.com`) moves the authority boundary during re-parsing, so `request.url.hostname` and `request.url.netloc` become attacker-controlled. Code that reads `request.url.hostname` (rather than the `Host` header or `scope`) can the",
+        "vuln_symbols": [
+          "request.url",
+          "request.url.hostname",
+          "request.url.netloc",
+          "Host",
+          "scope",
+          "userinfo"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Nothing reads request.url.hostname/netloc for security or URL building in app; FastAPI routes use scope path; CORS uses Origin header."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#48",
+      "facts": {
+        "package": "starlette",
+        "version": "0.38.6",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54283",
+            "GHSA-82w8-qh3p-5jfq",
+            "PYSEC-2026-249"
+          ],
+          [
+            "starlette"
+          ]
+        ],
+        "advisory_summary": "Starlette: request.form() limits silently ignored for application/x-www-form-urlencoded enable DoS \u2014 ### Summary\n`request.form()` accepts `max_fields` and `max_part_size` to bound resource consumption while parsing form data. These limits are enforced for `multipart/form-data`, but silently ignored for `application/x-www-form-urlencoded`. An unauthenticated attacker can therefore send a urlencoded body with an arbitrarily large number of fields or an arbitrarily large field, even when the application configured limits it believed would apply.\n\n### Details\n`request.form()` dispatches to a diffe",
+        "vuln_symbols": [
+          "request.form",
+          "max_fields",
+          "max_part_size",
+          "max_files",
+          "FormData"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Starlette 0.38.6 FormParser (urlencoded, formparsers.py:86) enforces no max_fields/size; unauthenticated /api/v1/login/access-token form accepts arbitrarily many/large urlencoded fields."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#49",
+      "facts": {
+        "package": "urllib3",
+        "version": "2.2.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44431",
+            "GHSA-qccp-gfcp-xxvc",
+            "PYSEC-2026-141"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3: Sensitive headers forwarded across origins in proxied low-level redirects \u2014 ### Impact\n\nWhen following cross-origin redirects for requests made using urllib3\u2019s high-level APIs, such as `urllib3.request()`, `PoolManager.request()`, and `ProxyManager.request()`, sensitive headers \u2014 `Authorization`, `Cookie`, and `Proxy-Authorization` (defined in `Retry.DEFAULT_REMOVE_HEADERS_ON_REDIRECT`) \u2014 are stripped by default, as expected.\n\nHowever, cross-origin redirects followed from the low-level API via `ProxyManager.connection_from_url().urlopen(..., assert_same_host=False)` still forward thes",
+        "vuln_symbols": [
+          "urllib3.request",
+          "PoolManager.request",
+          "ProxyManager.request",
+          "Authorization",
+          "Cookie",
+          "Retry.DEFAULT_REMOVE_HEADERS_ON_REDIRECT"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.7.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only runtime urllib3 user is sentry-sdk transport (if SENTRY_DSN), which uses pool.request (transport.py:274), not connection_from_url().urlopen(assert_same_host=False); requests never used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#50",
+      "facts": {
+        "package": "urllib3",
+        "version": "2.2.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66471",
+            "GHSA-2xpw-w6gg-jr37",
+            "PYSEC-2026-1994"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3 streaming API improperly handles highly compressed data \u2014 ### Impact\n\nurllib3's [streaming API](https://urllib3.readthedocs.io/en/2.5.0/advanced-usage.html#streaming-and-i-o) is designed for the efficient handling of large HTTP responses by reading the content in chunks, rather than loading the entire response body into memory at once.\n\nWhen streaming a compressed response, urllib3 can perform decoding or decompression based on the HTTP `Content-Encoding` header (e.g., `gzip`, `deflate`, `br`, or `zstd`). The library must read compressed data from the network and decompress it until th",
+        "vuln_symbols": [
+          "gzip",
+          "deflate",
+          "br",
+          "zstd",
+          "stream",
+          "urllib3.HTTPResponse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No urllib3 streaming of untrusted responses: sentry-sdk posts envelopes to the configured DSN (trusted) via pool.request (transport.py:274); requests unused."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#51",
+      "facts": {
+        "package": "urllib3",
+        "version": "2.2.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-21441",
+            "GHSA-38jv-5279-wg99",
+            "PYSEC-2026-1996"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "Decompression-bomb safeguards bypassed when following HTTP redirects (streaming API) \u2014 ### Impact\n\nurllib3's [streaming API](https://urllib3.readthedocs.io/en/2.6.2/advanced-usage.html#streaming-and-i-o) is designed for the efficient handling of large HTTP responses by reading the content in chunks, rather than loading the entire response body into memory at once.\n\nurllib3 can perform decoding or decompression based on the HTTP `Content-Encoding` header (e.g., `gzip`, `deflate`, `br`, or `zstd`). When using the streaming API, the library decompresses only the necessary bytes, enabling partial ",
+        "vuln_symbols": [
+          "gzip",
+          "deflate",
+          "br",
+          "zstd"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No streaming API with redirects against untrusted servers; sentry transport talks only to configured DSN."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#52",
+      "facts": {
+        "package": "urllib3",
+        "version": "2.2.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-50182",
+            "GHSA-48p4-8xcf-vxj5",
+            "PYSEC-2026-1997"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3 does not control redirects in browsers and Node.js \u2014 urllib3 [supports](https://urllib3.readthedocs.io/en/2.4.0/reference/contrib/emscripten.html) being used in a Pyodide runtime utilizing the [JavaScript Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) or falling back on [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest). This means you can use Python libraries to make HTTP requests from your browser or Node.js. Additionally, urllib3 provides [a mechanism](https://urllib3.readthedocs.io/en/2.4.0/user-guide.html#retrying-requests) to",
+        "vuln_symbols": [
+          "retries",
+          "redirect",
+          "XMLHttpRequest",
+          "opaqueredirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.5.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Pyodide/emscripten-only issue; app runs CPython in Linux container."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#53",
+      "facts": {
+        "package": "urllib3",
+        "version": "2.2.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66418",
+            "GHSA-gm62-xv2j-4w53",
+            "PYSEC-2026-1998"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3 allows an unbounded number of links in the decompression chain \u2014 ## Impact\n\nurllib3 supports chained HTTP encoding algorithms for response content according to RFC 9110 (e.g., `Content-Encoding: gzip, zstd`).\n\nHowever, the number of links in the decompression chain was unbounded allowing a malicious server to insert a virtually unlimited number of compression steps leading to high CPU usage and massive memory allocation for the decompressed data.\n\n\n## Affected usages\n\nApplications and libraries using urllib3 version 2.5.0 and earlier for HTTP requests to untrusted sources unless they d",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "urllib3 only contacts the configured Sentry DSN (trusted, TLS-verified) when SENTRY_DSN set; no requests to untrusted servers, so a malicious Content-Encoding chain isn't attacker-reachable without MITM of verified TLS."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#54",
+      "facts": {
+        "package": "urllib3",
+        "version": "2.2.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-50181",
+            "GHSA-pq67-6m6q-mj2v",
+            "PYSEC-2026-1999"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3 redirects are not disabled when retries are disabled on PoolManager instantiation \u2014 urllib3 handles redirects and retries using the same mechanism, which is controlled by the `Retry` object. The most common way to disable redirects is at the request level, as follows:\n\n```python\nresp = urllib3.request(\"GET\", \"https://httpbin.org/redirect/1\", redirect=False)\nprint(resp.status)\n# 302\n```\n\nHowever, it is also possible to disable redirects, for all requests, by instantiating a `PoolManager` and specifying `retries` in a way that disable redirects:\n\n```python\nimport urllib3\n\nhttp = urllib3.",
+        "vuln_symbols": [
+          "Retry",
+          "PoolManager",
+          "retries",
+          "request"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.5.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Issue only matters when an app disables redirects via PoolManager(retries=...) and fetches untrusted URLs; sentry transport targets fixed DSN; no attacker-influenced URLs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#55",
+      "facts": {
+        "package": "urllib3",
+        "version": "2.2.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-97687",
+            "GHSA-8988-9cw3-xx77",
+            "PYSEC-2026-4175"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3: HTTPS proxy TLS configuration may be ignored or overridden \u2014 ## Impact\n\nurllib3 supports configuring TLS independently for an HTTPS proxy and the target server.\n\n`proxy_ssl_context`, `proxy_assert_hostname`, and `proxy_assert_fingerprint` configure the TLS connection to the proxy. `ssl_context` and the other target-specific TLS parameters configure the connection to the target server.\n\nIn urllib3 versions 1.26.0 through 2.7.0, these configurations were not consistently separated. Depending on the proxy mode, urllib3 could:\n\n1. Ignore `proxy_ssl_context` and use the target server's SSL",
+        "vuln_symbols": [
+          "proxy_ssl_context",
+          "proxy_assert_hostname",
+          "proxy_assert_fingerprint",
+          "ssl_context",
+          "verify_mode",
+          "cert_reqs"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.8.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Proxy TLS separation only matters with an HTTPS proxy configured with proxy_ssl_context etc.; sentry-sdk (transport.py:529-559) builds ProxyManager only if https_proxy set and passes no proxy_ssl_context; no attacker influence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-fastapitpl#56",
+      "facts": {
+        "package": "urllib3",
+        "version": "2.2.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-97689",
+            "GHSA-vxq7-64xx-v4gw",
+            "PYSEC-2026-4177"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3: HTTPResponse.stream()/read_chunked() buffers an unbounded chunk-size line into memory \u2014 ## Impact\n\nurllib3's [streaming API](https://urllib3.readthedocs.io/en/2.7.0/advanced-usage.html#streaming-and-i-o) is designed for efficiently handling large HTTP responses by reading the content in chunks, rather than loading the entire response body into memory at once. When decoding a [chunked-transfer-encoded response](https://httpwg.org/specs/rfc9112.html#chunked.encoding), this API reads each chunk's size field by buffering until it sees `\\n` or EOF.\n\nA malicious HTTP server can return `Tran",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.8.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Chunk-size buffering only on responses from malicious servers; only urllib3 use is sentry transport to configured DSN."
+      }
+    }
+  ]
+}

@@ -1,0 +1,1986 @@
+{
+  "id": "real-rs-svix",
+  "description": "real-rs-svix: Rust held-out set (rs2), labelled blind",
+  "repo": "repo/server",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#1",
+      "facts": {
+        "package": "anyhow",
+        "version": "1.0.97",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0190"
+          ],
+          [
+            "anyhow"
+          ]
+        ],
+        "advisory_summary": "Unsoundness in `Error::downcast_mut()` \u2014 Affected versions of this crate violate borrow rules, resulting in undefined behavior, when the user adds context to an error via `Error::context` and then later calls `Error::downcast_mut` on the returned `Error`.\n\nThe flaw was corrected in commit `6e8c000` by revising how the mutable reference is constructed, avoiding inclusion of a shared reference in the resulting borrow chain.\n\n## Example\n\n```rust\nuse anyhow::Error;\nuse std::fmt;\n\n#[derive(Debug)]\nstruct ErrorContext(&'static str);\n\nimpl fmt::Display for ErrorContext {\n    fn fmt(&self, f: &mut fmt",
+        "vuln_symbols": [
+          "anyhow::Error::downcast_mut"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.0.103"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "anyhow"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "anyhow 1.0.97 used by svix-server (cfg.rs:6, main.rs:7 bail/Context), jsonschema, jwt-simple, prost-derive; no call to Error::downcast_mut anywhere in svix-server/src or jsonschema/jwt-simple sources."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#2",
+      "facts": {
+        "package": "bytes",
+        "version": "1.10.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25541",
+            "GHSA-434x-w66g-qw3r",
+            "RUSTSEC-2026-0007"
+          ],
+          [
+            "bytes"
+          ]
+        ],
+        "advisory_summary": "bytes has integer overflow in BytesMut::reserve \u2014 # Details\n\nIn the unique reclaim path of `BytesMut::reserve`, the condition\n```rs\nif v_capacity >= new_cap + offset\n```\nuses an unchecked addition. When `new_cap + offset` overflows `usize` in release builds, this condition may incorrectly pass, causing `self.cap` to be set to a value that exceeds the actual allocated capacity. Subsequent APIs such as `spare_capacity_mut()` then trust this corrupted `cap` value and may create out-of-bounds slices, leading to UB.\n\nThis behavior is observable in release builds (integer overflow wraps), whereas de",
+        "vuln_symbols": [
+          "usize",
+          "self.cap",
+          "spare_capacity_mut",
+          "cap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "bytes"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "BytesMut::reserve is called widely (hyper/h2/tokio-util) but the overflow needs len+additional+offset > usize::MAX (~1.8e19 on 64-bit); all callers reserve bounded/framed sizes (h2 max frame 16MB, sqlx i32 lengths), so attacker data cannot reach the overflow condition."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#3",
+      "facts": {
+        "package": "crypto-bigint",
+        "version": "0.5.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0387"
+          ],
+          [
+            "crypto-bigint"
+          ]
+        ],
+        "advisory_summary": "Multiple timing variability issues in operations intended to be constant-time \u2014 ## Summary\n\nSeveral operations intended to be constant-time could execute secret-dependent\nbranches, depending on the compiler and target CPU. These include subtraction,\nzero counting, division, and Montgomery multiplication.\n\nAdditionally, `UintRef` equality could terminate at the first unequal limb,\nand `BoxedMontyForm::invert` branched on whether an inverse exists.\n\n## Impact\n\nApplications using affected operations on secret integers may leak information\nthrough timing or microarchitectural side channels. This i",
+        "vuln_symbols": [
+          "UintRef",
+          "ctutils"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.6"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "crypto_bigint"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crypto-bigint 0.5.5 only via elliptic-curve -> p256/p384/k256/ecdsa (jwt-simple). svix supports only HS*/RS*/EdDSA JWTs (config.default.toml:22, core/security.rs:214-262); no ECDSA secret-key operations run. Advisory's UintRef/BoxedMontyForm don't exist in 0.5."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#4",
+      "facts": {
+        "package": "event-listener",
+        "version": "5.4.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0221"
+          ],
+          [
+            "event-listener"
+          ]
+        ],
+        "advisory_summary": "`event-listener` allows `!Send` tags to cross thread boundaries via `StackSlot` \u2014 Affected versions of `event-listener` unconditionally implement `Send` and\n`Sync` for `StackSlot<'_, T>`, the stack-allocated listener type created\nby the `listener!` macro.\n\nThis allows a `!Send` tag type set via `Event::with_tag` to be moved to\nanother thread and accessed via `StackSlot::wait`, causing a data race in safe\ncode.",
+        "vuln_symbols": [
+          "StackSlot",
+          "Send",
+          "Sync"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.2"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "event_listener"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "event-listener 5.4.0 via async-lock/event-listener-strategy/sqlx-core; only listener! use is async-lock once_cell.rs:291,344 with default () tag; no Event::with_tag with a !Send tag anywhere."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#5",
+      "facts": {
+        "package": "h2",
+        "version": "0.3.26",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.3.26 is the HTTP/2 server under hyper 0.14 (features=full) used by axum::Server::builder(incoming).serve(svc) in svix-server/src/lib.rs:196 with no http1_only, so internet clients can speak h2c prior-knowledge. h2 0.3.26 recv.rs recv_data (~L567) has no empty-frame limit; unauthenticated peers can queue empty DATA frames on streams the handler doesn't drain. (Worker client sets no ALPN -> HTTP/1.1 only, webhook_http_client.rs:85.)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#6",
+      "facts": {
+        "package": "hickory-proto",
+        "version": "0.24.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q2qq-hmj6-3wpp",
+            "RUSTSEC-2026-0119"
+          ],
+          [
+            "hickory-proto"
+          ]
+        ],
+        "advisory_summary": "CPU exhaustion during message encoding due to O(n\u00b2) name compression \u2014 During message encoding, `hickory-proto`'s `BinEncoder` stores pointers to\nlabels that are candidates for name compression in a `Vec<(usize, Vec<u8>)>`.\nThe name compression logic then searches for matches with a linear scan.\n\nA malicious message with many records can both introduce many candidate labels,\nand invoke this linear scan many times. This can amplify CPU exhaustion in DoS\nattacks.\n\nThis is similar to\n[CVE-2024-8508](https://www.nlnetlabs.nl/downloads/unbound/CVE-2024-8508.txt).\n\nWe recommend all affected users up",
+        "vuln_symbols": [
+          "BinEncoder"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "hickory_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "hickory-proto 0.24.4 used only as hickory-resolver's client (NonLocalDnsResolver, webhook_http_client.rs:593 lookup_ip). Resolver only BinEncodes its own single-question queries; O(n^2) name compression needs encoding a message with many records (server/forwarder role), not done here."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#7",
+      "facts": {
+        "package": "hickory-resolver",
+        "version": "0.24.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93657",
+            "GHSA-5j98-2g5x-46v6"
+          ],
+          [
+            "hickory-resolver"
+          ]
+        ],
+        "advisory_summary": "hickory-resolver: Resolver::lookup() and Resolver::lookup_ip() APIs obscure DNSSEC validation failures \u2014 When calling `Resolver::lookup()` or `Resolver::lookup_ip()` on a resolver with DNSSEC validation enabled, both methods return `Ok(...)` if DNSSEC validation fails. It is possible but very inconvenient to check the validation status of individual records. These methods should instead return an error when DNSSEC validation determines a response is bogus.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "hickory_resolver"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "hickory-resolver 0.24.4 used for lookup_ip (webhook_http_client.rs:593, tokio_from_system_conf at :630) but DNSSEC validation is not compiled: hickory-resolver/proto pulled with default-features=false and no dnssec features (Cargo.lock hickory-proto has no ring/openssl deps); advisory only applies with DNSSEC validation enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#8",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.71",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41678",
+            "GHSA-8c75-8mhr-p7r9"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has incorrect bounds assertion in aes key wrap \u2014 ### Summary\n``aes::unwrap_key()`` has an incorrect bounds assertion on the out buffer size, which can lead to out-of-bounds write.\n\n### Details\n``aes::unwrap_key()`` contains an incorrect assertion: it checks that `out.len() + 8 <= in_.len()`, but this condition is reversed. The intended invariant is `out.len() >= in_.len() - 8`, ensuring the output buffer is large enough.\n\nBecause of the inverted check, the function only accepts buffers at or below the minimum required size and rejects larger ones. If a smaller buffer is provided t",
+        "vuln_symbols": [
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.71: aes::unwrap_key not called by svix-server (only openssl::ssl in webhook_http_client.rs:28) nor by hyper-openssl/tokio-openssl/native-tls/redis/sentry/ureq sources (grep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#9",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.71",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41681",
+            "GHSA-ghm9-cr32-g9qj"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: rustMdCtxRef::digest_final() writes past caller buffer with no length check \u2014 `EVP_DigestFinal()` always writes `EVP_MD_CTX_size(ctx)` to the `out` buffer. If `out` is smaller than that, `MdCtxRef::digest_final()` writes past its end, usually corrupting the stack. This is reachable from safe Rust.",
+        "vuln_symbols": [
+          "EVP_DigestFinal",
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "MdCtxRef::digest_final not called by svix-server or any openssl-using dependency (hyper-openssl, tokio-openssl, native-tls, hyper-proxy, redis, sentry, ureq) - grep; only TLS APIs used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#10",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.71",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41898",
+            "GHSA-hppc-g8h3-xhp3"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Unchecked callback length in PSK/cookie trampolines leaks adjacent memory to peer \u2014 The FFI trampolines behind `SslContextBuilder::set_psk_client_callback`, `set_psk_server_callback`, `set_cookie_generate_cb`,  and `set_stateless_cookie_generate_cb` forwarded the user closure's returned usize directly to OpenSSL without checking it against the `&mut [u8]` that was handed to the closure. This can lead to buffer overflows and other unintended consequences.",
+        "vuln_symbols": [
+          "set_psk_server_callback",
+          "set_cookie_generate_cb",
+          "set_stateless_cookie_generate_cb"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No set_psk_*_callback / set_cookie_generate_cb / set_stateless_cookie_generate_cb in svix-server or openssl-using deps; worker uses plain SslConnector (webhook_http_client.rs:79)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#11",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.71",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45784",
+            "GHSA-phqj-4mhp-q6mq"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Potential out-of-bounds write in `CipherCtxRef::cipher_update_inplace` for AES-KW-PAD ciphers \u2014 `CipherCtxRef::cipher_update_inplace` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (EVP_aes_{128,192,256}_wrap_pad). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.\n\nThis method was missed in the fix for GHSA-xv59-967r-8726",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.80"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No cipher_update_inplace / AES-KW-PAD cipher use in svix-server or deps (grep); svix's own crypto uses chacha20poly1305/blake2."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#12",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.71",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41676",
+            "GHSA-pqf5-4pqq-29f5"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Deriver::derive and PkeyCtxRef::derive can overflow short buffers on OpenSSL 1.1.1 \u2014 `Deriver::derive` (and `PkeyCtxRef::derive`) sets `len = buf.len()` and passes it as the in/out length to `EVP_PKEY_derive`, relying on OpenSSL to honor it. On OpenSSL 1.1.x, X25519, X448, DH and HKDF-extract  ignore the incoming `*keylen`, unconditionally writing the full shared secret (32/56/prime-size bytes). A caller passing a short slice gets a heap/stack overflow from safe code. OpenSSL 3.x providers do check, so this only impacts older OpenSSL.",
+        "vuln_symbols": [
+          "EVP_PKEY_derive"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Deriver::derive / PkeyCtxRef::derive not called by app or deps; also image ships OpenSSL 3 (Dockerfile prod libssl3=3.*), where the bug doesn't occur."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#13",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.71",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41677",
+            "GHSA-xmgf-hq76-4vx2"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-opennssl has an Out-of-bounds read in PEM password callback when returning an oversized length \u2014 The `*_from_pem_callback` APIs did not validate the length returned by the user's callback. A password callback that returns a value larger than the buffer it was given can cause some versions of OpenSSL to over-read this buffer. OpenSSL 3.x is not affected by this.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No *_from_pem_callback calls in app or deps; and runtime OpenSSL is 3.x (Dockerfile libssl3) which is not affected."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#14",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.71",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42327",
+            "GHSA-xp3w-r5p5-63rr"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has undefined behavior in X509Ref::ocsp_responders for certificates with non-UTF-8 OCSP URLs \u2014 `X509Ref::ocsp_responders` returns OCSP responder URLs from a certificate's AIA extension as `OpensslString`, whose `Deref<Target = str>` wraps the raw bytes with `str::from_utf8_unchecked`. OpenSSL does not enforce that the underlying IA5String is ASCII, so a certificate with non-UTF-8 bytes in its OCSP accessLocation causes safe Rust code to construct a `&str` that violates the UTF-8 invariant \u2014 resulting in undefined behavior.",
+        "vuln_symbols": [
+          "OpensslString"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "X509Ref::ocsp_responders not called by svix-server or openssl-using deps (grep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#15",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.71",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44662",
+            "GHSA-xv59-967r-8726"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl vulnerable to heap buffer overflow when encrypting with AES key-wrap-with-padding \u2014 `CipherCtxRef::cipher_update`, `CipherCtxRef::cipher_update_vec`, and `symm::Crypter::update` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (`EVP_aes_{128,192,256}_wrap_pad`). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No cipher_update/Crypter/symm with AES-KW-PAD in svix-server or deps (grep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#16",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.71",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4fcv-w3qc-ppgg",
+            "RUSTSEC-2025-0022"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl Use-After-Free in `Md::fetch` and `Cipher::fetch` \u2014 When a `Some(...)` value was passed to the `properties` argument of either of these functions, a use-after-free would result.\n\nIn practice this would nearly always result in OpenSSL treating the properties as an empty string (due to `CString::drop`'s behavior).\n\nThe maintainers thank [quitbug](https://github.com/quitbug/) for reporting this vulnerability to us.",
+        "vuln_symbols": [
+          "openssl::cipher::Cipher::fetch",
+          "openssl::md::Md::fetch"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.72"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Md::fetch / Cipher::fetch not called anywhere in app or openssl-using deps (grep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#17",
+      "facts": {
+        "package": "opentelemetry_sdk",
+        "version": "0.23.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48504",
+            "GHSA-w9wp-h8wv-79jx"
+          ],
+          [
+            "opentelemetry_sdk"
+          ]
+        ],
+        "advisory_summary": "opentelemetry_sdk has unbounded memory allocation in W3C Baggage propagation \u2014 ## Summary\n\n`BaggagePropagator::extract_with_context` in `opentelemetry_sdk` did not enforce the W3C Baggage size limits before parsing an inbound `baggage` header. A large attacker-controlled header could cause unnecessary CPU work and short-lived heap allocations while parsing entries that would later be discarded by the SDK's baggage storage limits.\n\nThe SDK now applies limits aligned with the W3C Baggage limits:\n\n  - 64 list-members\n  - 8192 bytes total\n\n## Impact\n\nServices that accept untrusted inbound propagat",
+        "vuln_symbols": [
+          "baggage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "opentelemetry_sdk"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "svix sets only TraceContextPropagator (svix-server/src/lib.rs:263-264) and extracts with it (core/otel_spans.rs:60); BaggagePropagator never installed, so inbound baggage header isn't parsed."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#18",
+      "facts": {
+        "package": "rand",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rand 0.8.5 built without the log feature (Cargo.lock rand 0.8.5 deps: libc, rand_chacha, rand_core only - no log), a required condition of the advisory."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#19",
+      "facts": {
+        "package": "rand",
+        "version": "0.9.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rand 0.9.0 (via svix crate, p12-keystore) built without log feature (Cargo.lock deps: rand_chacha, rand_core, zerocopy - no log)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#20",
+      "facts": {
+        "package": "rsa",
+        "version": "0.7.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-21895",
+            "GHSA-9c48-w39g-hm26"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "rsa crate has potential panic on a prime being equal to 1 \u2014 When creating a RSA private key from its components, the construction panics, instead of returning an error, when one of the primes is `1`. \n\nDiscovered by Christian Reitter from [Radically Open Security](https://www.radicallyopensecurity.com/) during a security review for [Proton AG](https://proton.me/).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.10"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rsa 0.7.2 via jwt-simple; private keys only constructed from operator-supplied PEM jwt_secret when jwt_algorithm=RS* (core/security.rs:384-392); attacker cannot supply key components."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#21",
+      "facts": {
+        "package": "rsa",
+        "version": "0.7.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-49092",
+            "GHSA-4grx-2x9w-596c",
+            "GHSA-c38w-74pg-36hr",
+            "RUSTSEC-2023-0071"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "Marvin Attack: potential key recovery through timing sidechannels \u2014 ### Impact\nDue to a non-constant-time implementation, information about the private key is leaked through timing information which is observable over the network. An attacker may be able to use that information to recover the key.\n\n### Patches\nNo patch is yet available. The crypto-bigint migration ([RustCrypto/RSA#394](https://github.com/RustCrypto/RSA/pull/394)) did not close this. Tracking is [RustCrypto/RSA#626](https://github.com/RustCrypto/RSA/issues/626) (padding still not constant-time). Implicit rejection work is in [R",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rsa 0.7.2 via jwt-simple: no RSA decryption anywhere; private-key ops only signing JWTs when operator sets jwt_algorithm=RS* with a key pair (security.rs:275, used by generate_management_token for operational webhooks / CLI token gen), over server-chosen claims whose timing the attacker can't observe; verification uses public key only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#22",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-21895",
+            "GHSA-9c48-w39g-hm26"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "rsa crate has potential panic on a prime being equal to 1 \u2014 When creating a RSA private key from its components, the construction panics, instead of returning an error, when one of the primes is `1`. \n\nDiscovered by Christian Reitter from [Radically Open Security](https://www.radicallyopensecurity.com/) during a security review for [Proton AG](https://proton.me/).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.10"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rsa 0.9.7 only via sqlx-mysql; mysql feature not enabled (svix-server sqlx features postgres/migrate/runtime-tokio-rustls; sea-orm sqlx-postgres only), so sqlx-mysql/rsa aren't compiled into the binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#23",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-49092",
+            "GHSA-4grx-2x9w-596c",
+            "GHSA-c38w-74pg-36hr",
+            "RUSTSEC-2023-0071"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "Marvin Attack: potential key recovery through timing sidechannels \u2014 ### Impact\nDue to a non-constant-time implementation, information about the private key is leaked through timing information which is observable over the network. An attacker may be able to use that information to recover the key.\n\n### Patches\nNo patch is yet available. The crypto-bigint migration ([RustCrypto/RSA#394](https://github.com/RustCrypto/RSA/pull/394)) did not close this. Tracking is [RustCrypto/RSA#626](https://github.com/RustCrypto/RSA/issues/626) (padding still not constant-time). Implicit rejection work is in [R",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rsa 0.9.7 only via sqlx-mysql which is not compiled (sqlx mysql / sea-orm sqlx-mysql features off; only postgres)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#24",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.21.12 only via reqwest 0.11 (svix-server direct dep used only in #[cfg(test)]: v1/endpoints/endpoint/mod.rs:883, core/idempotency.rs:356; jsonschema resolve-http only fetches on validate, never called). Also no custom ClientSessionStore Debug-formatting values."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#25",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.21.12 only via reqwest 0.11 which never makes requests in production (reqwest used only in tests; jsonschema remote $ref resolution is lazy at validate time, and svix only compiles schemas: db/models/eventtype.rs:156-161)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#26",
+      "facts": {
+        "package": "rustls",
+        "version": "0.22.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.22.4 (svix client -> hyper-rustls 0.26) uses default ClientSessionMemoryCache whose Debug omits values; no custom ClientSessionStore that Debug-formats session values."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#27",
+      "facts": {
+        "package": "rustls",
+        "version": "0.22.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.22.4 reached only via svix crate for operational webhooks (operational_webhook_address, off by default). Ring-only provider (Cargo.lock: ring, no aws-lc) offers no X25519MLKEM768, so there is no PQ group to downgrade from; advisory condition unmet."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#28",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.23",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2mjx-qc3c-rqvc",
+            "RUSTSEC-2026-0285"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Rustls: TLS 1.3 handshake messages incorrectly accepted across encryption level boundaries \u2014 Rustls accepted TLS 1.3 handshake messages sent at the wrong encryption level when they followed a key-changing message in the same record. The handshake transcript is still authenticated, so a network-position attacker cannot use this to alter or complete a handshake; the practical effect is that a peer could send handshake messages that should be encrypted in plaintext without rustls rejecting the connection.\n\nThis issue affects rustls versions 0.23.13 through 0.23.44 inclusive.\n\n# Original report\n##",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.45"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls 0.23.23 is sqlx-core's TLS (runtime-tokio-rustls -> tls-rustls-ring) for Postgres; sqlx default sslmode=prefer does a TLS 1.3 handshake whenever the DB supports SSL (common with managed Postgres), also amqps via lapin rustls-connector. Version in 0.23.13-0.23.44 range; handshake-level bug runs on every handshake with a network attacker/peer."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#29",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.23",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.23 clients (sqlx, rustls-connector) use default ClientSessionMemoryCache, whose Debug impl omits stored values (rustls src/client/handy.rs:183-188); no custom store."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#30",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.23",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h2v8-394m-p7vv",
+            "RUSTSEC-2026-0348"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Brotli certificate decompression can allocate up to 1 GiB before authentication \u2014 The built-in Brotli certificate decompressor (enabled by the non-default\n`brotli` crate feature) bounded the size of the decompressed output, but\naccepted a peer-selected history window. Brotli's large-window extension was\nenabled, so a five-byte header could cause an allocation of 1 GiB. A peer can\nabort a process whose allocator cannot satisfy that request.\n\nNo trusted certificate is required by the attacker. Affected configurations are:\n\n- clients that enable the `brotli` feature and connect to a malicious ser",
+        "vuln_symbols": [
+          "brotli"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "brotli feature not enabled for rustls 0.23.23 (Cargo.lock deps: once_cell, ring, pki-types, webpki, subtle, zeroize - no brotli)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#31",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.23",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.23 built with ring provider only (no aws-lc-rs in Cargo.lock); ring ALL_KX_GROUPS = X25519,SECP256R1,SECP384R1 (crypto/ring/mod.rs:177) - no X25519MLKEM768, so the PQ downgrade the advisory describes can't happen."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#32",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 only via rustls 0.21 / reqwest 0.11, which makes no requests in the deployed binary (reqwest only in #[cfg(test)]; jsonschema compile doesn't fetch)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#33",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 only via rustls 0.21/reqwest 0.11, unused at runtime (see row 31)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#34",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 unused at runtime (reqwest only in tests) and no CRL/RevocationOptions are configured anywhere."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#35",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 only via reqwest 0.11 which performs no TLS in production (tests only; jsonschema never validates/fetches)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#36",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93602",
+            "GHSA-pwjx-qhcg-rvj4",
+            "RUSTSEC-2026-0049"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "CRLs not considered authoritative by Distribution Point due to faulty matching logic \u2014 If a certificate had more than one `distributionPoint`, then only the first `distributionPoint` would be considered against each CRL's `IssuingDistributionPoint` `distributionPoint`, and then the certificate's subsequent `distributionPoint`s would be ignored.\n\nThe impact was that correctly provided CRLs would not be consulted to check revocation. With `UnknownStatusPolicy::Deny` (the default) this would lead to incorrect but safe `Error::UnknownRevocationStatus`. With `UnknownStatusPolicy::Allow` this would ",
+        "vuln_symbols": [
+          "distributionPoint",
+          "IssuingDistributionPoint"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.10",
+          "0.104.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.102.8 (rustls 0.22/0.23 via svix client, sqlx, rustls-connector) - none configure CRLs (no with_crls/RevocationOptions in sqlx-core tls_rustls.rs or hyper-rustls); revocation checking not used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#37",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.102.8 does chain validation for sqlx Postgres TLS when sslmode=verify-ca/verify-full (sqlx-core net/tls/tls_rustls.rs:156 WebPkiServerVerifier; managed-DB cert verification is common), and for svix operational webhooks (operational_webhook_address) / amqps. URI name-constraint check is part of path building; needs misissued cert from a constrained CA."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#38",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Same path as row 36: rustls-webpki 0.102.8 verifies server chains for sqlx Postgres with sslmode=verify-ca/verify-full (tls_rustls.rs:156), operational webhooks (svix crate) and amqps; wildcard-vs-name-constraint check runs during verification (requires misissuance)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#39",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No CRL parsing/RevocationOptions in any rustls-webpki 0.102.8 user (sqlx-core tls_rustls.rs, hyper-rustls 0.26, rustls-connector); CRL checking is opt-in and never enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#40",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.102.8 validates paths for sqlx Postgres with sslmode=verify-ca/verify-full using webpki-roots 0.26.8 (tls_rustls.rs:218) and for svix op-webhooks/amqps using native roots (Debian ca-certificates incl. emSign); an attacker with a distrusted emSign intermediate could impersonate the server on that path."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#41",
+      "facts": {
+        "package": "time",
+        "version": "0.3.39",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25727",
+            "GHSA-r6v5-fh4h-64xc",
+            "RUSTSEC-2026-0009"
+          ],
+          [
+            "time"
+          ]
+        ],
+        "advisory_summary": "time vulnerable to stack exhaustion Denial of Service attack \u2014 ### Impact\n\nWhen user-provided input is provided to any type that parses with the RFC 2822 format, a denial of service attack via stack exhaustion is possible. The attack relies on formally deprecated and rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary, non-malicious input will never encounter this scenario.\n\n### Patches\n\nA limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned rather than exhausting the stack.\n\n### Workarounds\n\nLimiting the ",
+        "vuln_symbols": [
+          "time::Date::parse",
+          "time::OffsetDateTime::parse",
+          "time::PrimitiveDateTime::parse",
+          "time::Time::parse",
+          "time::UtcDateTime::parse",
+          "time::UtcOffset::parse",
+          "time::parsing::Parsed::parse_item"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.47"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "time"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No RFC 2822 parsing: no Rfc2822 in svix-server/src; jsonschema format.rs uses only Date::parse with [year]-[month]-[day] and Rfc3339 (format.rs:90,115); x509-parser only formats to_rfc2822 (time.rs:89)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#42",
+      "facts": {
+        "package": "tokio",
+        "version": "1.43.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rr8g-9fpq-6wmg",
+            "RUSTSEC-2025-0023"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "Tokio broadcast channel calls clone in parallel, but does not require `Sync` \u2014 The broadcast channel internally calls `clone` on the stored value when receiving it, and only requires `T:Send`. This means that using the broadcast channel with values that are `Send` but not `Sync` can trigger unsoundness if the `clone` implementation makes use of the value being `!Sync`.\n\nThank you to Austin Bonander for finding and reporting this issue.",
+        "vuln_symbols": [
+          "Sync",
+          "clone",
+          "Send"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.2",
+          "1.42.1",
+          "1.43.1",
+          "1.44.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.83
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tokio broadcast not used by svix-server; deps using it (redis aio/mod.rs:175 PushInfo, hyper-util graceful.rs:306) use Sync value types, so the Send-but-!Sync clone condition is not met."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#43",
+      "facts": {
+        "package": "tokio",
+        "version": "1.43.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0386"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "`AsyncFd::new` and related constructors violate I/O safety \u2014 `tokio::io::unix::AsyncFd` provides safe constructors (`new`, `with_interest`, `try_new`, and `try_with_interest`) that accept any `T: AsRawFd` rather than requiring proof of ownership or validity of the file descriptor. Because `RawFd` implements `AsRawFd`, safe code can construct an `AsyncFd` from an arbitrary or closed file descriptor, or close/replace the underlying file descriptor while the `AsyncFd` is still alive.\n\nThis violates I/O safety in two ways:\n\n1. `AsyncFd<T>` implements `AsFd` for all `T: AsRawFd` by calling `Borrowe",
+        "vuln_symbols": [
+          "tokio::io::unix::AsyncFd::new",
+          "tokio::io::unix::AsyncFd::try_new",
+          "tokio::io::unix::AsyncFd::try_with_interest",
+          "tokio::io::unix::AsyncFd::with_interest"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.51.6",
+          "1.53.3"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tokio::io::unix::AsyncFd not used by svix-server or any tokio-dependent crate in the closure (grep across all tokio dependents)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#44",
+      "facts": {
+        "package": "tracing-subscriber",
+        "version": "0.3.19",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58160",
+            "GHSA-xwfj-jgwm-7wp5",
+            "RUSTSEC-2025-0055"
+          ],
+          [
+            "tracing-subscriber"
+          ]
+        ],
+        "advisory_summary": " Tracing logging user input may result in poisoning logs with ANSI escape sequences \u2014 ### Impact\n\nPrevious versions of tracing-subscriber were vulnerable to ANSI escape sequence injection attacks. Untrusted user input containing ANSI escape sequences could be injected into terminal output when logged, potentially allowing attackers to:\n\n- Manipulate terminal title bars\n- Clear screens or modify terminal display\n- Potentially mislead users through terminal manipulation\n\nIn isolation, impact is minimal, however security issues have been found in terminal emulators that enabled an attacker to use",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.20"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tracing_subscriber"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "tracing-subscriber 0.3.19 with ansi (nu-ansi-term in Cargo.lock); default log_format='default' (config.default.toml:33) -> tracing_subscriber::fmt::layer() (svix-server/src/lib.rs:312) with ANSI on; attacker-influenced strings are logged, e.g. endpoint header values (worker.rs:231), hyper errors from attacker endpoints (webhook_http_client.rs:178), app ids (worker.rs:834)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#45",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.25.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "webpki-roots 0.25.4 only via reqwest 0.11 (rustls-tls), which makes no TLS connections in the deployed binary (reqwest only in #[cfg(test)]; jsonschema compile-only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-svix#46",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.26.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "webpki-roots 0.26.8 is sqlx-core's root store (tls-rustls-ring-webpki; tls_rustls.rs:218) used for Postgres TLS verification when DSN sets sslmode=verify-ca/verify-full (common for managed DBs); includes emSign ECC Root CA - G3, so a distrusted emSign intermediate could MITM the DB connection."
+      }
+    }
+  ]
+}

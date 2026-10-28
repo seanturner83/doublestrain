@@ -32,6 +32,8 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
+from . import imagedeps
+
 _DEV = re.compile(r"(^|[-_.])(dev|develop|development|test|tests|testing|lint|linting|docs?|typing|mypy|"
                   r"style|format|ci|bench|benchmarks?)($|[-_.])", re.I)
 _PIN = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)(?:\[[^\]]*\])?\s*===?\s*([^\s;#\\]+)")
@@ -62,6 +64,7 @@ class Lock:
     edges: dict[str, tuple[str, ...]]           # id -> ids it depends on
     prod_roots: set[str] = field(default_factory=set)
     dev_roots: set[str] = field(default_factory=set)
+    stale: tuple[str, ...] = ()                 # ids pinned by the project's manifests but missing from the lock
 
     def reach(self, roots) -> set[str]:
         seen, todo = set(roots), deque(roots)
@@ -140,12 +143,13 @@ def _uv(path: Path) -> Lock:
     edges = {i: tuple(sorted({c for r in refs(e, ("dependencies", "optional-dependencies")) for c in resolve(r)}))
              for i, e in raw.items()}
     prod, dev = set(), set()
+    inst = imagedeps.installed(path.parent)
     for r in roots:
         prod |= {c for ref in r.get("dependencies") or [] for c in resolve(ref)}
         for extra, lst in (r.get("optional-dependencies") or {}).items():
-            (dev if _DEV.search(extra) else prod).update(c for ref in lst for c in resolve(ref))
-        for _group, lst in (r.get("dev-dependencies") or {}).items():
-            dev |= {c for ref in lst for c in resolve(ref)}
+            (dev if _DEV.search(extra) and not inst.extra(extra) else prod).update(c for ref in lst for c in resolve(ref))
+        for group, lst in (r.get("dev-dependencies") or {}).items():
+            (prod if inst.uv_group(group) else dev).update(c for ref in lst for c in resolve(ref))
     return Lock("uv.lock", pkgs, edges, prod, dev - prod)
 
 
@@ -158,18 +162,20 @@ def _pyproject_roots(repo: Path) -> tuple[set[str], set[str]]:
     except (OSError, ValueError):
         return set(), set()
     prod, dev = set(), set()
+    inst = imagedeps.installed(repo)          # what the image installs counts as production
     proj = pp.get("project") or {}
     prod |= {_req_name(s) for s in proj.get("dependencies") or []}
     for extra, lst in (proj.get("optional-dependencies") or {}).items():
-        (dev if _DEV.search(extra) else prod).update(_req_name(s) for s in lst)
-    for _g, lst in (pp.get("dependency-groups") or {}).items():
-        dev |= {_req_name(s) for s in lst if isinstance(s, str)}
+        (dev if _DEV.search(extra) and not inst.extra(extra) else prod).update(_req_name(s) for s in lst)
+    for g, lst in (pp.get("dependency-groups") or {}).items():
+        (prod if inst.uv_group(g) else dev).update(_req_name(s) for s in lst if isinstance(s, str))
     po = (pp.get("tool") or {}).get("poetry") or {}
     prod |= {normalize(n) for n in (po.get("dependencies") or {}) if n.lower() != "python"}
-    dev |= {normalize(n) for n in (po.get("dev-dependencies") or {})}
+    (prod if inst.poetry_group("dev", False) else dev).update(normalize(n) for n in (po.get("dev-dependencies") or {}))
     for g, gd in (po.get("group") or {}).items():
         names = {normalize(n) for n in (gd.get("dependencies") or {})}
-        (dev if _DEV.search(g) or gd.get("optional") else prod).update(names)
+        held = _DEV.search(g) or gd.get("optional")
+        (dev if held and not inst.poetry_group(g, bool(gd.get("optional"))) else prod).update(names)
     prod.discard("")
     dev.discard("")
     return prod, dev - prod
@@ -226,13 +232,14 @@ def requirement_files(repo: Path) -> list[Path]:
     return [f for f in files if f.is_file() and not f.is_symlink()]
 
 
-def _requirements(files: list[Path]) -> Lock:
+def _requirements(files: list[Path], root: Path | None = None) -> Lock:
     pkgs: dict[str, Pkg] = {}
     via: dict[str, set[str]] = {}            # child id -> parent names ("-r" = direct)
     prod, dev = set(), set()
     any_via = False
+    installed = imagedeps.installed(root).req_closure(files) if root else set()
     for f in files:
-        is_dev = bool(_DEV.search(f.stem.replace("requirements", "")))
+        is_dev = bool(_DEV.search(f.stem.replace("requirements", ""))) and f.name not in installed
         lines = f.read_text(errors="replace").splitlines()
         joined, buf = [], ""
         for ln in lines:                      # join backslash continuations
@@ -271,7 +278,9 @@ def _requirements(files: list[Path]) -> Lock:
         names = _by_name(pkgs)
         roots_p, roots_d = set(), set()
         for child, parents in via.items():
-            if not parents or "-r" in parents:
+            # a parent the files don't pin is the project itself (`-e file:.`, pip-compile's
+            # "via apache-superset") or something installed outside them: a root, not a dead end
+            if not parents or "-r" in parents or any(par not in names for par in parents - {"-r"}):
                 (roots_d if child in dev and child not in prod else roots_p).add(child)
             for par in parents - {"-r"}:
                 for pid in names.get(par, []):
@@ -294,6 +303,43 @@ def _via_names(text: str) -> set[str]:
 
 # --- entry point ---------------------------------------------------------------------
 
+def _declared_pins(root: Path) -> dict[str, str]:
+    """Exact production pins (`name==version`) in the project's own manifests: PEP 621
+    `[project].dependencies` and the root's non-dev requirements files."""
+    pins: dict[str, str] = {}
+    try:
+        proj = tomllib.loads((root / "pyproject.toml").read_text()).get("project") or {}
+        lines = [s for s in proj.get("dependencies") or [] if isinstance(s, str)]
+    except (OSError, ValueError):
+        lines = []
+    for f in requirement_files(root):
+        if not _DEV.search(f.stem.replace("requirements", "")):
+            lines += f.read_text(errors="replace").splitlines()
+    for ln in lines:
+        if (m := _PIN.match(ln)) and not ln.lstrip().startswith("#"):
+            pins.setdefault(normalize(m.group(1)), m.group(2))
+    return pins
+
+
+def _with_stale(lock: Lock, root: Path) -> Lock:
+    """A lock that falls behind its manifests (open-webui v0.4.0: pyproject pins
+    pymdown-extensions, uv.lock doesn't have it, the image installs the pins) misses
+    installed code, and an import route through it is invisible. Packages the manifests
+    pin exactly but the lock lacks by name join as direct production dependencies, with
+    no hashes (pkgsrc verifies them against the registry) and no edges. Widening only:
+    a version mismatch for a locked name keeps the locked version."""
+    have = {p.name for p in lock.pkgs.values()}
+    added = [Pkg(n, v) for n, v in sorted(_declared_pins(root).items()) if n not in have]
+    if not added:
+        return lock
+    for p in added:
+        lock.pkgs[p.id] = p
+        if lock.prod_roots or lock.dev_roots:
+            lock.prod_roots.add(p.id)
+    lock.stale = tuple(p.id for p in added)
+    return lock
+
+
 @lru_cache(maxsize=16)
 def _load(repo: str, stamp: tuple) -> Lock | None:
     root = Path(repo)
@@ -301,11 +347,12 @@ def _load(repo: str, stamp: tuple) -> Lock | None:
         p = root / name
         if p.is_file() and not p.is_symlink():
             try:
-                return fn(p)
+                lock = fn(p)
             except (OSError, ValueError, KeyError, TypeError):
                 continue
+            return _with_stale(lock, root)
     reqs = requirement_files(root)
-    return _requirements(reqs) if reqs else None
+    return _requirements(reqs, root) if reqs else None
 
 
 def load(repo: Path) -> Lock | None:

@@ -1,0 +1,2947 @@
+{
+  "id": "real-rs-unleashedge",
+  "description": "Unleash Edge v19.9.1 (feature-flag proxy, edge mode): Rust held-out (rs3), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#1",
+      "facts": {
+        "package": "actix-http",
+        "version": "3.10.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-73051",
+            "GHSA-xhj4-vrgc-hr34"
+          ],
+          [
+            "actix-http"
+          ]
+        ],
+        "advisory_summary": "actix-http has HTTP/1.1 CL.TE Request Smuggling  \u2014 A vulnerability in `actix-http`'s HTTP/1.1 request parser allows an unauthenticated remote client to smuggle requests in deployments where a front-end HTTP intermediary and the Actix backend disagree about whether `Content-Length` or `Transfer-Encoding: chunked` defines the request body length.\n\n## Severity\n\n**Medium**.\nThis is an HTTP request smuggling vulnerability that can be triggered over the network without application-level credentials. Exploitation requires a specific proxy topology: an upstream proxy, WAF, load balancer, or similar in",
+        "vuln_symbols": [
+          "awc"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "actix_http"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "actix-http 3.10.0 is Edge's HTTP/1 server parser (actix-web HttpServer, server/src/main.rs:119,205-213). src/h1/decoder.rs:101-150,198-208 accepts a request carrying both Content-Length and Transfer-Encoding: chunked (TE wins, CL silently ignored, no rejection) -> CL.TE desync with a front proxy that honours CL. Any unauthenticated client reaches the parser; exploitation needs a fronting proxy/LB, common for internet-exposed Edge."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#2",
+      "facts": {
+        "package": "actix-web-lab",
+        "version": "0.24.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-vhj5-x93p-67jw"
+          ],
+          [
+            "actix-web-lab"
+          ]
+        ],
+        "advisory_summary": "actix-web-lab has host header poisoning in redirect middleware can generate attacker-controlled absolute redirects \u2014 ### Summary\n`actix-web-lab` redirect middleware uses request-derived host information to construct absolute redirect URLs (for example, `https://{hostname}{path}`). In deployments without strict host allowlisting, an attacker can supply a malicious Host header and poison the `Location` response header, causing open redirect/phishing behavior.\n\n### CVE\nAssigned CVE ID:  CVE-2025-63762\n\n### Details\nThe issue is in redirect middleware paths that construct absolute URLs from `req.co",
+        "vuln_symbols": [
+          "Location",
+          "req.connection_info"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "actix_web_lab"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Edge only uses actix_web_lab::sse and util::InfallibleStream (server/src/http/broadcaster.rs:11-14, error.rs:5). The vulnerable redirect middlewares (redirect_to_https.rs, redirect_to_www.rs, redirect_to_non_www.rs) are never wrapped; no other crate depends on actix-web-lab."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#3",
+      "facts": {
+        "package": "anyhow",
+        "version": "1.0.97",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0190"
+          ],
+          [
+            "anyhow"
+          ]
+        ],
+        "advisory_summary": "Unsoundness in `Error::downcast_mut()` \u2014 Affected versions of this crate violate borrow rules, resulting in undefined behavior, when the user adds context to an error via `Error::context` and then later calls `Error::downcast_mut` on the returned `Error`.\n\nThe flaw was corrected in commit `6e8c000` by revising how the mutable reference is constructed, avoiding inclusion of a shared reference in the resulting borrow chain.\n\n## Example\n\n```rust\nuse anyhow::Error;\nuse std::fmt;\n\n#[derive(Debug)]\nstruct ErrorContext(&'static str);\n\nimpl fmt::Display for ErrorContext {\n    fn fmt(&self, f: &mut fmt",
+        "vuln_symbols": [
+          "anyhow::Error::downcast_mut"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.0.103"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "anyhow"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Error::downcast_mut is never called in server/src (grep empty); only other anyhow dependent is prost-derive (proc-macro, build time). Unsound context+downcast_mut combination does not occur."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#4",
+      "facts": {
+        "package": "aws-lc-sys",
+        "version": "0.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-3337",
+            "GHSA-65p9-r9h6-22vj",
+            "GHSA-frmv-5gcm-jwxh",
+            "RUSTSEC-2026-0043",
+            "RUSTSEC-2026-0045"
+          ],
+          [
+            "aws-lc-sys"
+          ]
+        ],
+        "advisory_summary": "AWS-LC has Timing Side-Channel in AES-CCM Tag Verification \u2014 ### Summary\nAWS-LC is an open-source, general-purpose cryptographic library.\n\n### Impact\nObservable timing discrepancy in AES-CCM decryption in AWS-LC allows an unauthenticated user to potentially determine authentication tag validity via timing analysis.\n\nThe impacted implementations are through the EVP CIPHER API: EVP_aes_128_ccm, EVP_aes_192_ccm, and EVP_aes_256_ccm.\n\nCustomers of AWS services do not need to take action. aws-lc-sys and aws-lc-fips-sys contain code from AWS-LC. Applications using aws-lc-sys or aws-lc-fips-sys shoul",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.38.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_lc_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-lc-sys is compiled in (rustls 0.23.25 gets aws_lc_rs via aws-smithy-runtime default-https-client -> aws-smithy-http-client/rustls-aws-lc, only used by the optional S3 client), but AES-CCM is not exposed by aws-lc-rs 1.13.0 (no ccm in src/) and rustls cipher suites are GCM/ChaCha20; EVP_aes_*_ccm never called."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#5",
+      "facts": {
+        "package": "aws-lc-sys",
+        "version": "0.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-3336",
+            "GHSA-cfwj-9wp5-wqvp",
+            "GHSA-vw5v-4f2q-w9xf",
+            "RUSTSEC-2026-0046"
+          ],
+          [
+            "aws-lc-sys"
+          ]
+        ],
+        "advisory_summary": "AWS-LC has PKCS7_verify Certificate Chain Validation Bypass \u2014 ### Summary\nAWS-LC is an open-source, general-purpose cryptographic library.\n\n### Impact\nImproper certificate validation in PKCS7_verify() in AWS-LC allows an unauthenticated user to bypass certificate chain verification when processing PKCS7 objects with multiple signers, except the final signer.\n\nCustomers of AWS services do not need to take action. aws-lc-sys contains code from AWS-LC. Applications using aws-lc-sys should upgrade to the most recent release of aws-lc-sys.\n\n#### Impacted versions: \naws-lc-sys versions: >= 0.24.0, <",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.38.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_lc_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-lc-sys is compiled in (rustls 0.23.25 gets aws_lc_rs via aws-smithy-runtime default-https-client -> aws-smithy-http-client/rustls-aws-lc, only used by the optional S3 client), but PKCS7_verify is not bound/used by aws-lc-rs 1.13.0 (grep PKCS7 only hits CBC padding, src/cipher/padded.rs) and certificate validation is done by rustls-webpki, not AWS-LC X509/PKCS7."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#6",
+      "facts": {
+        "package": "aws-lc-sys",
+        "version": "0.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-3338",
+            "GHSA-hfpc-8r3f-gw53",
+            "GHSA-jchq-39cv-q4wj",
+            "RUSTSEC-2026-0047"
+          ],
+          [
+            "aws-lc-sys"
+          ]
+        ],
+        "advisory_summary": "AWS-LC has PKCS7_verify Signature Validation Bypass \u2014 ### Summary\nAWS-LC is an open-source, general-purpose cryptographic library.\n\n### Impact\nImproper signature validation in PKCS7_verify() in AWS-LC allows an unauthenticated user to bypass signature verification when processing PKCS7 objects with Authenticated Attributes.\n\nCustomers of AWS services do not need to take action. aws-lc-sys contains code from AWS-LC. Applications using aws-lc-sys should upgrade to the most recent release of aws-lc-sys.\n\n#### Impacted versions: \naws-lc-sys versions: >= 0.24.0, < 0.38.0\n\n### Patches\nThe patch is i",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.38.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_lc_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-lc-sys is compiled in (rustls 0.23.25 gets aws_lc_rs via aws-smithy-runtime default-https-client -> aws-smithy-http-client/rustls-aws-lc, only used by the optional S3 client), but PKCS7_verify (authenticated attributes) is never called: aws-lc-rs exposes no PKCS7 verification, rustls/webpki don't use it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#7",
+      "facts": {
+        "package": "aws-lc-sys",
+        "version": "0.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-4428",
+            "GHSA-9f94-5g5w-gf6r",
+            "RUSTSEC-2026-0042",
+            "RUSTSEC-2026-0048"
+          ],
+          [
+            "aws-lc-sys"
+          ]
+        ],
+        "advisory_summary": "CRL Distribution Point Scope Check Logic Error in AWS-LC \u2014 ### Summary\n\nAWS-LC is an open-source, general-purpose cryptographic library.\n\n### Impact \n\nA logic error in CRL distribution point matching in AWS-LC allows a revoked certificate to bypass revocation checks during certificate validation, when the application enables CRL checking and uses partitioned CRLs with Issuing Distribution Point (IDP) extensions.\n\nCustomers of AWS services do not need to take action. aws-lc-sys and aws-lc-fips-sys contain code from AWS-LC. Applications using aws-lc-sys or aws-lc-fips-sys should upgrade to the m",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.39.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_lc_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-lc-sys is compiled in (rustls 0.23.25 gets aws_lc_rs via aws-smithy-runtime default-https-client -> aws-smithy-http-client/rustls-aws-lc, only used by the optional S3 client), but the bug is in AWS-LC's X509 CRL distribution-point check, which only runs when AWS-LC's own X509 verifier with CRL checking is used; rustls uses rustls-webpki for chain/CRL validation and Edge configures no CRLs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#8",
+      "facts": {
+        "package": "aws-sdk-s3",
+        "version": "1.82.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g59m-gf8j-gjf5"
+          ],
+          [
+            "aws-sdk-s3"
+          ]
+        ],
+        "advisory_summary": "AWS SDK for Rust v1 adopted defense in depth enhancement for region parameter value \u2014 ## **Summary**\nThis notification is related to the use of specific values for the region input field when calling AWS services. An actor with access to the environment in which the SDK is used could set the region input field to an invalid value.\n\nA defense-in-depth enhancement has been implemented in the AWS SDK for Rust. This enhancement validates that a region used to construct an endpoint URL is a valid host label. The change was released on November 6, 2025. This advisory is informational to help custome",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.112.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "aws_sdk_s3"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-sdk-s3: Region-value hardening is defense-in-depth; region comes from the operator's environment (aws_config::load_from_env(), server/src/persistence/s3.rs:35) and only when S3 persistence (--s3-bucket-name, builder.rs:211) is configured. No attacker (SDK/browser client) can influence the region; the advisory's actor needs control of the environment."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#9",
+      "facts": {
+        "package": "aws-sdk-sso",
+        "version": "1.64.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g59m-gf8j-gjf5"
+          ],
+          [
+            "aws-sdk-sso"
+          ]
+        ],
+        "advisory_summary": "AWS SDK for Rust v1 adopted defense in depth enhancement for region parameter value \u2014 ## **Summary**\nThis notification is related to the use of specific values for the region input field when calling AWS services. An actor with access to the environment in which the SDK is used could set the region input field to an invalid value.\n\nA defense-in-depth enhancement has been implemented in the AWS SDK for Rust. This enhancement validates that a region used to construct an endpoint URL is a valid host label. The change was released on November 6, 2025. This advisory is informational to help custome",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.89.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "aws_sdk_sso"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-sdk-sso (via aws-config sso feature): Region-value hardening is defense-in-depth; region comes from the operator's environment (aws_config::load_from_env(), server/src/persistence/s3.rs:35) and only when S3 persistence (--s3-bucket-name, builder.rs:211) is configured. No attacker (SDK/browser client) can influence the region; the advisory's actor needs control of the environment."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#10",
+      "facts": {
+        "package": "aws-sdk-ssooidc",
+        "version": "1.65.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g59m-gf8j-gjf5"
+          ],
+          [
+            "aws-sdk-ssooidc"
+          ]
+        ],
+        "advisory_summary": "AWS SDK for Rust v1 adopted defense in depth enhancement for region parameter value \u2014 ## **Summary**\nThis notification is related to the use of specific values for the region input field when calling AWS services. An actor with access to the environment in which the SDK is used could set the region input field to an invalid value.\n\nA defense-in-depth enhancement has been implemented in the AWS SDK for Rust. This enhancement validates that a region used to construct an endpoint URL is a valid host label. The change was released on November 6, 2025. This advisory is informational to help custome",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.91.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.88
+        },
+        "import_name": "aws_sdk_ssooidc"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-sdk-ssooidc (via aws-config sso feature): Region-value hardening is defense-in-depth; region comes from the operator's environment (aws_config::load_from_env(), server/src/persistence/s3.rs:35) and only when S3 persistence (--s3-bucket-name, builder.rs:211) is configured. No attacker (SDK/browser client) can influence the region; the advisory's actor needs control of the environment."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#11",
+      "facts": {
+        "package": "aws-sdk-sts",
+        "version": "1.65.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g59m-gf8j-gjf5"
+          ],
+          [
+            "aws-sdk-sts"
+          ]
+        ],
+        "advisory_summary": "AWS SDK for Rust v1 adopted defense in depth enhancement for region parameter value \u2014 ## **Summary**\nThis notification is related to the use of specific values for the region input field when calling AWS services. An actor with access to the environment in which the SDK is used could set the region input field to an invalid value.\n\nA defense-in-depth enhancement has been implemented in the AWS SDK for Rust. This enhancement validates that a region used to construct an endpoint URL is a valid host label. The change was released on November 6, 2025. This advisory is informational to help custome",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.91.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "aws_sdk_sts"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-sdk-sts (via aws-config): Region-value hardening is defense-in-depth; region comes from the operator's environment (aws_config::load_from_env(), server/src/persistence/s3.rs:35) and only when S3 persistence (--s3-bucket-name, builder.rs:211) is configured. No attacker (SDK/browser client) can influence the region; the advisory's actor needs control of the environment."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#12",
+      "facts": {
+        "package": "aws-smithy-json",
+        "version": "0.61.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-18140",
+            "GHSA-8ffr-xgwf-xj56"
+          ],
+          [
+            "aws-smithy-json"
+          ]
+        ],
+        "advisory_summary": "aws-smithy-json: Uncontrolled recursion in the aws-smithy-json unknown-key skip path allows unauthenticated remote denial of service in smithy-rs generated servers \u2014 ### Summary\nSmithy-RS is a Rust code generation and runtime framework that generates HTTP clients and servers from Smithy interface definitions, powering the AWS SDK for Rust and custom service implementations. An issue exists which allows uncontrolled recursion in the unknown-key skip path of the Amazon aws-smithy-json runtime crate in versions 0.62.6 and earlier.\n\n### Impact\nUncontrolled recursion in the unknown-key skip path of",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.62.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_smithy_json"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Optional-config row: only with S3 persistence (--s3-bucket-name, server/src/builder.rs:211 -> persistence/s3.rs:35 aws_config::load_from_env). Then aws-config's credential chain parses JSON from IMDS/ECS/SSO endpoints with aws_smithy_json skip_value for unknown keys (aws-config src/json_credentials.rs:226, sso/cache.rs:293), and skip_inner in aws-smithy-json 0.61.3 src/deserialize/token.rs:305-312 recurses per nesting level without a depth limit. Attacker = the remote credential endpoint / network path (brief's outbound-connection rule). The advisory's main target (smithy-rs servers) does not apply; S3 itself is restXml. Not reachable in default config."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#13",
+      "facts": {
+        "package": "bytes",
+        "version": "1.10.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25541",
+            "GHSA-434x-w66g-qw3r",
+            "RUSTSEC-2026-0007"
+          ],
+          [
+            "bytes"
+          ]
+        ],
+        "advisory_summary": "bytes has integer overflow in BytesMut::reserve \u2014 # Details\n\nIn the unique reclaim path of `BytesMut::reserve`, the condition\n```rs\nif v_capacity >= new_cap + offset\n```\nuses an unchecked addition. When `new_cap + offset` overflows `usize` in release builds, this condition may incorrectly pass, causing `self.cap` to be set to a value that exceeds the actual allocated capacity. Subsequent APIs such as `spare_capacity_mut()` then trust this corrupted `cap` value and may create out-of-bounds slices, leading to UB.\n\nThis behavior is observable in release builds (integer overflow wraps), whereas de",
+        "vuln_symbols": [
+          "usize",
+          "self.cap",
+          "spare_capacity_mut",
+          "cap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "bytes"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Overflow needs BytesMut::reserve(additional) with new_cap+offset > usize::MAX (64-bit). Network-facing reserve calls on the path use bounded sizes: actix-http h1 (h1/mod.rs:61 HW-cap, dispatcher.rs:989, encoder.rs reserves of header/msg lengths), actix-web extractors use with_capacity(8192)/limit-checked buffers (types/json.rs:370, payload.rs:395), h2 hpack reserve is frame-bounded. No attacker-controlled near-usize::MAX reserve found."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#14",
+      "facts": {
+        "package": "crypto-bigint",
+        "version": "0.4.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0387"
+          ],
+          [
+            "crypto-bigint"
+          ]
+        ],
+        "advisory_summary": "Multiple timing variability issues in operations intended to be constant-time \u2014 ## Summary\n\nSeveral operations intended to be constant-time could execute secret-dependent\nbranches, depending on the compiler and target CPU. These include subtraction,\nzero counting, division, and Montgomery multiplication.\n\nAdditionally, `UintRef` equality could terminate at the first unequal limb,\nand `BoxedMontyForm::invert` branched on whether an inverse exists.\n\n## Impact\n\nApplications using affected operations on secret integers may leak information\nthrough timing or microarchitectural side channels. This i",
+        "vuln_symbols": [
+          "UintRef",
+          "ctutils"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.6"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "crypto_bigint"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crypto-bigint is only used by aws-sigv4's SigV4a signing (aws-sigv4 1.3.0 src/sign/v4a.rs:8; 0.4.9 via p256/ecdsa for the same SigV4a key) and only in the optional S3 persistence client. SigV4a is selected only for S3 Multi-Region Access Point buckets (operator config); normal S3 buckets use HMAC SigV4. The secret is the AWS key, and timing observation of local signing is not available to Edge's attackers; the listed UintRef/BoxedMontyForm APIs are 0.6+/0.7 types."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#15",
+      "facts": {
+        "package": "crypto-bigint",
+        "version": "0.5.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0387"
+          ],
+          [
+            "crypto-bigint"
+          ]
+        ],
+        "advisory_summary": "Multiple timing variability issues in operations intended to be constant-time \u2014 ## Summary\n\nSeveral operations intended to be constant-time could execute secret-dependent\nbranches, depending on the compiler and target CPU. These include subtraction,\nzero counting, division, and Montgomery multiplication.\n\nAdditionally, `UintRef` equality could terminate at the first unequal limb,\nand `BoxedMontyForm::invert` branched on whether an inverse exists.\n\n## Impact\n\nApplications using affected operations on secret integers may leak information\nthrough timing or microarchitectural side channels. This i",
+        "vuln_symbols": [
+          "UintRef",
+          "ctutils"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.6"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "crypto_bigint"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crypto-bigint is only used by aws-sigv4's SigV4a signing (aws-sigv4 1.3.0 src/sign/v4a.rs:8; 0.4.9 via p256/ecdsa for the same SigV4a key) and only in the optional S3 persistence client. SigV4a is selected only for S3 Multi-Region Access Point buckets (operator config); normal S3 buckets use HMAC SigV4. The secret is the AWS key, and timing observation of local signing is not available to Edge's attackers; the listed UintRef/BoxedMontyForm APIs are 0.6+/0.7 types."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#16",
+      "facts": {
+        "package": "git2",
+        "version": "0.20.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-j39j-6gw9-jw6h",
+            "RUSTSEC-2026-0008"
+          ],
+          [
+            "git2"
+          ]
+        ],
+        "advisory_summary": "git2 has potential undefined behavior when dereferencing Buf struct  \u2014 If the Buf struct is dereferenced immediately after calling new() or default() on the Buf struct, a null pointer is passed to the unsafe function slice::from_raw_parts. According to the safety section documentation of the function, data must be non-null and aligned even for zero-length slices or slices of ZSTs. Thus, passing a null pointer will lead to undefined behavior.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.20.4"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "git2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "git2 only enters via shadow-rs default 'git2' feature; it is used solely by ShadowBuilder in build.rs (build time). Runtime code only reads generated consts (server/src/types.rs:468-482). Buf deref never runs in the deployed binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#17",
+      "facts": {
+        "package": "git2",
+        "version": "0.20.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0183"
+          ],
+          [
+            "git2"
+          ]
+        ],
+        "advisory_summary": "Potential undefined behavior when calling Remote::list() \u2014 When calling `Remote::list()` for a remote of a git repository, when that remote does not advertise any references, git2 passes a null pointer to the unsafe function `slice::from_raw_parts()`. Based on the safety section documentation of function, data must be non-null even for slices of length zero. Thus, the use of a null pointer leads to undefined behavior.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.21.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "git2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "git2 via shadow-rs is build-time only (server/build.rs); Remote::list is not called by shadow-rs or Edge at runtime."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#18",
+      "facts": {
+        "package": "git2",
+        "version": "0.20.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0184"
+          ],
+          [
+            "git2"
+          ]
+        ],
+        "advisory_summary": "Potential undefined behavior with Signature from a buffer-created BlameHunk \u2014 When a `Blame` is created via `Blame::blame_buffer()`, and a `BlameHunk` is retrieved, the pointers to the original author, original committer, final author, and final committer may be null if unavailable. The corresponding `BlameHunk` methods then create `Signature`s based on null pointers; attempting to access the data of the `Signature`s leads to dereferencing null pointers.",
+        "vuln_symbols": [
+          "Blame",
+          "BlameHunk",
+          "Signature"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.21.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "git2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "git2 via shadow-rs is build-time only (server/build.rs); Blame::blame_buffer/BlameHunk not used anywhere."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#19",
+      "facts": {
+        "package": "h2",
+        "version": "0.3.26",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.3.26 is actix-http's HTTP/2 server (actix-web default 'http2' feature). HTTP/2 is offered only on the TLS listener via ALPN (main.rs:202-206 bind_rustls_0_23 when --tls-enable/TLS_ENABLE; plain bind uses .tcp() = HTTP/1 only). With Edge TLS enabled, any client can send empty DATA frames; recv.rs:660-666 pushes every DATA frame (incl. zero-length) to pending_recv without limit, and many handlers (GET endpoints) never drain the body. Not reachable in default plain-HTTP config; reachable in the common TLS-on-Edge config."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#20",
+      "facts": {
+        "package": "h2",
+        "version": "0.4.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.4.8 is used only by the AWS SDK hyper-1 client (aws-smithy-http-client client/tls.rs:286-288 enable_http2; default-https-client is selected for BehaviorVersion::latest, aws-smithy-runtime defaults.rs:84-89) for optional S3 persistence (--s3-bucket-name). reqwest has no http2 feature (default-features=false, no h2 in its Cargo.lock deps). Attacker = S3/S3-compatible endpoint or path sending empty DATA frames; client normally drains response bodies, so impact is doubtful; labelled reachable per optional-outbound rule."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#21",
+      "facts": {
+        "package": "lru",
+        "version": "0.12.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rhfx-m35p-ff5j",
+            "RUSTSEC-2026-0002"
+          ],
+          [
+            "lru"
+          ]
+        ],
+        "advisory_summary": "`IterMut` violates Stacked Borrows by invalidating internal pointer \u2014 Affected versions of this crate contain a soundness issue in the `IterMut` iterator implementation. The `IterMut::next` and `IterMut::next_back` methods temporarily create an exclusive reference to the key when dereferencing the internal node pointer.\n\nThis invalidates the shared pointer held by the internal `HashMap`, violating Stacked Borrows rules.",
+        "vuln_symbols": [
+          "IterMut",
+          "HashMap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.16.3"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.85
+        },
+        "import_name": "lru"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "lru 0.12.5 is used only by aws-sdk-s3's S3 Express identity cache (s3_express.rs:76,105,130): only get/get_or_insert_mut, never iter_mut. Also only for S3 Express buckets with optional S3 persistence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#22",
+      "facts": {
+        "package": "lru",
+        "version": "0.12.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0253"
+          ],
+          [
+            "lru"
+          ]
+        ],
+        "advisory_summary": "Potential use-after-free due to lack of panic safety in `LruCache::pop()` \u2014 `LruCache::pop()` in `lru` was not panic-safe. If the `Drop` implementation of a stored key panics during `pop()`, `self.detach()` is never called, leaving dangling pointers in the internal doubly-linked list.\n\nA subsequent cache operation that triggers eviction can then dereference these dangling pointers:\n- The node is freed from the map, but remains linked in the LRU list due to the skipped `detach()` call\n- When a new insertion causes eviction, the LRU traversal encounters the dangling pointer\n- This results in a w",
+        "vuln_symbols": [
+          "Drop",
+          "pop",
+          "self.detach",
+          "detach"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.18.2"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "lru"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "LruCache::pop is never called (aws-sdk-s3 s3_express.rs uses get/get_or_insert_mut); keys are CacheKey(String), whose Drop cannot panic. Condition of the advisory not met."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#23",
+      "facts": {
+        "package": "opentelemetry_sdk",
+        "version": "0.29.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48504",
+            "GHSA-w9wp-h8wv-79jx"
+          ],
+          [
+            "opentelemetry_sdk"
+          ]
+        ],
+        "advisory_summary": "opentelemetry_sdk has unbounded memory allocation in W3C Baggage propagation \u2014 ## Summary\n\n`BaggagePropagator::extract_with_context` in `opentelemetry_sdk` did not enforce the W3C Baggage size limits before parsing an inbound `baggage` header. A large attacker-controlled header could cause unnecessary CPU work and short-lived heap allocations while parsing entries that would later be discarded by the SDK's baggage storage limits.\n\nThe SDK now applies limits aligned with the W3C Baggage limits:\n\n  - 64 list-members\n  - 8192 bytes total\n\n## Impact\n\nServices that accept untrusted inbound propagat",
+        "vuln_symbols": [
+          "baggage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "opentelemetry_sdk"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No BaggagePropagator/TextMapPropagator is installed or used: grep for baggage/propagat in server/src is empty; opentelemetry_sdk is used only for Prometheus metrics export (opentelemetry-prometheus). Inbound 'baggage' headers are never parsed."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#24",
+      "facts": {
+        "package": "protobuf",
+        "version": "2.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-53605",
+            "GHSA-2gh3-rmm4-6rq5",
+            "RUSTSEC-2024-0437"
+          ],
+          [
+            "protobuf"
+          ]
+        ],
+        "advisory_summary": "Crash due to uncontrolled recursion in protobuf crate \u2014 Affected version of this crate did not properly parse unknown fields when parsing a user-supplied input.\n\nThis allows an attacker to cause a stack overflow when parsing the message on untrusted data.",
+        "vuln_symbols": [
+          "protobuf::coded_input_stream::CodedInputStream::skip_group"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "3.7.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "protobuf"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "protobuf 2.28 is pulled in by prometheus/opentelemetry-prometheus only to encode metrics output; no protobuf parsing (parse_from/merge_from/CodedInputStream) in Edge or those crates, so CodedInputStream::skip_group never sees untrusted input. Edge's metrics ingestion is JSON."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#25",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.10",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-31812",
+            "GHSA-6xvm-j4wr-6v98",
+            "RUSTSEC-2026-0037"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Quinn affected by unauthenticated remote DoS via panic in QUIC transport parameter parsing \u2014 ### Summary\nA remote, unauthenticated attacker can trigger a denial of service in applications using vulnerable `quinn` versions by sending a crafted QUIC Initial packet containing malformed `quic_transport_parameters`. `In quinn-proto` parsing logic, attacker-controlled varints are decoded with `unwrap()`, so truncated encodings cause `Err(UnexpectedEnd)` and `panic`. This is reachable over the network with a single packet and no prior trust or authentication.\n\n### Details\nThe issue is panic-on-untrus",
+        "vuln_symbols": [
+          "quinn",
+          "quic_transport_parameters",
+          "unwrap",
+          "panic",
+          "UnexpectedEnd",
+          "Err"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.14"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn-proto (via quinn) only appears in Cargo.lock as an artefact of reqwest's weak feature 'quinn?/ring' (reqwest Cargo.toml __rustls-ring); the http3 feature is off (Edge and prometheus-reqwest-remote-write use default-features=false, features json+rustls-tls; no h3/h3-quinn in Cargo.lock), so quinn is not compiled into the binary and Edge never speaks QUIC."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#26",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.10",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25800",
+            "GHSA-4w2j-m93h-cj5j",
+            "RUSTSEC-2026-0185"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Quinn: Remote memory exhaustion in quinn-proto from unbounded out-of-order stream reassembly \u2014 ## Summary\n\nThe `Assembler` component that assembles unordered stream fragments into consecutive chunks of the stream incurs some overhead for non-contiguous fragments. Readers that read from a `RecvStream` in order (through an `AsyncRead` impl for example) will be sensitive to peers that send fragments while leaving out early parts of the stream, and in particular, fragments with many gaps (because these cannot be defragmented). In such a scenario, the receiving connection suffers from high buffer o",
+        "vuln_symbols": [
+          "Assembler",
+          "RecvStream",
+          "AsyncRead"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.15"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn-proto (via quinn) only appears in Cargo.lock as an artefact of reqwest's weak feature 'quinn?/ring' (reqwest Cargo.toml __rustls-ring); the http3 feature is off (Edge and prometheus-reqwest-remote-write use default-features=false, features json+rustls-tls; no h3/h3-quinn in Cargo.lock), so quinn is not compiled into the binary and Edge never speaks QUIC."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#27",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.10",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-465w-v9q3-7j98",
+            "RUSTSEC-2026-0338"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Remote peer can panic quinn-proto with zero-length STREAM frames during unordered reads \u2014 When a stream is read in unordered mode (for example through `RecvStream::read(false)` in\nquinn-proto or `read_unordered` in `quinn`), quinn-proto proactively deduplicates received data\nby recording received ranges in a `RangeSet` through its `replace` method. When an incoming\nSTREAM frame carried an empty payload, the `Drop` implementation of the iterator returned by\n`replace` inserted an empty range into the set, violating the invariant that stored ranges are\nnon-empty. Subsequent frames overlapping tha",
+        "vuln_symbols": [
+          "read_unordered",
+          "quinn",
+          "RangeSet",
+          "replace",
+          "Drop"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.18"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn-proto (via quinn) only appears in Cargo.lock as an artefact of reqwest's weak feature 'quinn?/ring' (reqwest Cargo.toml __rustls-ring); the http3 feature is off (Edge and prometheus-reqwest-remote-write use default-features=false, features json+rustls-tls; no h3/h3-quinn in Cargo.lock), so quinn is not compiled into the binary and Edge never speaks QUIC."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#28",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.10",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-hmxj-32vh-65vr",
+            "RUSTSEC-2026-0339"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Unbounded growth of pending connection ID retirements in quinn-proto \u2014 When processing a NEW_CONNECTION_ID frame, quinn-proto queues a RETIRE_CONNECTION_ID frame for\neach connection ID that the peer asked it to retire. The normal path bounds this queue and closes\nthe connection with a CONNECTION_ID_LIMIT_ERROR if the bound would be exceeded. However, the path\nhandling a connection ID that had already been retired pushed onto the queue without applying\nthe limit and without deduplicating.\n\nA peer that has completed the handshake can first send a NEW_CONNECTION_ID frame with a large\n`retire_prio",
+        "vuln_symbols": [
+          "retire_prior_to"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn-proto (via quinn) only appears in Cargo.lock as an artefact of reqwest's weak feature 'quinn?/ring' (reqwest Cargo.toml __rustls-ring); the http3 feature is off (Edge and prometheus-reqwest-remote-write use default-features=false, features json+rustls-tls; no h3/h3-quinn in Cargo.lock), so quinn is not compiled into the binary and Edge never speaks QUIC."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#29",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.10",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-3g6h-r5qx-f6hq",
+            "RUSTSEC-2026-0340"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Peer minimum ACK delay can panic quinn-proto when ACK_FREQUENCY transmission is enabled \u2014 When sending ACK_FREQUENCY frames is enabled through\n`TransportConfig::ack_frequency_config(Some(..))`, the peer's transport parameters could cause\n`AckFrequencyState::candidate_max_ack_delay` to call `Duration::clamp` with a minimum greater\nthan its maximum, which panics.\n\nFor example, a peer advertising a `min_ack_delay` of 100,000 microseconds and a `max_ack_delay`\nof 100 milliseconds passes transport parameter validation. At a 5 ms RTT, the lower bound of the\nclamp becomes 100 ms while the upper bound",
+        "vuln_symbols": [
+          "min_ack_delay",
+          "max_ack_delay",
+          "clamp"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.18"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn-proto (via quinn) only appears in Cargo.lock as an artefact of reqwest's weak feature 'quinn?/ring' (reqwest Cargo.toml __rustls-ring); the http3 feature is off (Edge and prometheus-reqwest-remote-write use default-features=false, features json+rustls-tls; no h3/h3-quinn in Cargo.lock), so quinn is not compiled into the binary and Edge never speaks QUIC."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#30",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.10",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2hv7-gw8g-gpq5",
+            "RUSTSEC-2026-0342"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Zero-length DATAGRAM frames bypass the receive buffer limit in quinn-proto \u2014 quinn-proto bounds its queue of received datagrams by charging each queued frame's payload length\nagainst `TransportConfig::datagram_receive_buffer_size`, evicting the oldest datagrams when the\nlimit is exceeded. A DATAGRAM frame with an empty payload was charged zero bytes, so it never\ntriggered eviction and was appended to the queue, which has no other bound.\n\nDATAGRAM frames are not subject to flow control. A peer that has completed the handshake can\ntherefore send a stream of empty DATAGRAM frames and grow the rec",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn-proto (via quinn) only appears in Cargo.lock as an artefact of reqwest's weak feature 'quinn?/ring' (reqwest Cargo.toml __rustls-ring); the http3 feature is off (Edge and prometheus-reqwest-remote-write use default-features=false, features json+rustls-tls; no h3/h3-quinn in Cargo.lock), so quinn is not compiled into the binary and Edge never speaks QUIC."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#31",
+      "facts": {
+        "package": "rand",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rand 0.8.5 (eventsource-client, unleash-yggdrasil): the unsoundness needs rand's 'log' feature plus a custom logger calling rand::rng(); rand 0.8.5 (eventsource-client, unleash-yggdrasil) is built without log (Cargo.lock lists no 'log' dependency for it) and Edge's logger is tracing-subscriber, which does not call rand."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#32",
+      "facts": {
+        "package": "rand",
+        "version": "0.9.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rand 0.9.0: the unsoundness needs rand's 'log' feature plus a custom logger calling rand::rng(); rand 0.9.0 is built without log (Cargo.lock lists no 'log' dependency for it) and Edge's logger is tracing-subscriber, which does not call rand."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#33",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.21.12 is the legacy AWS SDK connector (aws-smithy-http-client legacy-rustls-ring), not selected since behavior-version-latest + default-https-client picks the hyper1/rustls 0.23 client (aws-smithy-runtime defaults.rs:70-89). Regardless, no custom ClientSessionStore that Debug-formats session values exists in Edge or its HTTP crates."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#34",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.21.12 has no X25519MLKEM768 support (no post-quantum hybrid group to downgrade) and its legacy AWS connector is not the selected client (aws-smithy-runtime defaults.rs:70-89)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#35",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.25",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2mjx-qc3c-rqvc",
+            "RUSTSEC-2026-0285"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Rustls: TLS 1.3 handshake messages incorrectly accepted across encryption level boundaries \u2014 Rustls accepted TLS 1.3 handshake messages sent at the wrong encryption level when they followed a key-changing message in the same record. The handshake transcript is still authenticated, so a network-position attacker cannot use this to alter or complete a handshake; the practical effect is that a peer could send handshake messages that should be encrypted in plaintext without rustls rejecting the connection.\n\nThis issue affects rustls versions 0.23.13 through 0.23.44 inclusive.\n\n# Original report\n##",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.45"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Every TLS 1.3 handshake processed by rustls 0.23.25 hits the affected handshake-message/encryption-level handling: Edge in edge mode always fetches from upstream Unleash via reqwest with rustls-tls (server/Cargo.toml reqwest rustls-tls; http/unleash_client.rs), and optionally its own TLS listener (main.rs:202-206). A peer/network attacker can send handshake messages at the wrong level and rustls accepts them; impact is low (transcript still authenticated)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#36",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.25",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only custom ClientSessionStore impls that Debug-format Tls12/Tls13ClientSessionValue leak secrets. No ClientSessionStore impl in Edge, reqwest 0.12.15, hyper-rustls, aws-smithy-http-client, or redis; default ClientSessionMemoryCache (rustls client/handy.rs:101) doesn't log values, and rustls' own debug! calls don't print them (client/hs.rs:86-145)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#37",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.25",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h2v8-394m-p7vv",
+            "RUSTSEC-2026-0348"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Brotli certificate decompression can allocate up to 1 GiB before authentication \u2014 The built-in Brotli certificate decompressor (enabled by the non-default\n`brotli` crate feature) bounded the size of the decompressed output, but\naccepted a peer-selected history window. Brotli's large-window extension was\nenabled, so a five-byte header could cause an allocation of 1 GiB. A peer can\nabort a process whose allocator cannot satisfy that request.\n\nNo trusted certificate is required by the attacker. Affected configurations are:\n\n- clients that enable the `brotli` feature and connect to a malicious ser",
+        "vuln_symbols": [
+          "brotli"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 'brotli' feature is not enabled: rustls 0.23.25 Cargo.lock entry has no brotli/brotli-decompressor dependency (brotli in the lock comes from actix compression). Certificate decompression code is not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#38",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.25",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.25 records the kx hint pre-authentication (client/tls13.rs:191), but the downgrade needs X25519MLKEM768 to be the preferred group. reqwest's upstream client uses the ring provider (no MLKEM); the aws-lc provider used by the optional S3 client lists X25519MLKEM768 last unless 'prefer-post-quantum' is on (crypto/aws_lc_rs/mod.rs:239-247), and no crate enables that feature, so the first key share is already classical X25519 and no PQ downgrade happens."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#39",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "webpki 0.101.7 only via rustls 0.21.12, pulled by eventsource-client 0.15 (hyper-rustls 0.24) and aws-smithy-http-client legacy-rustls-ring (aws-sdk-s3 default 'rustls' feature). eventsource-client is used only in delta_refresher.rs:171 for --streaming, a hidden experimental flag (cli.rs:220-222). S3 client uses aws_config::load_from_env (persistence/s3.rs:35) with behavior-version-latest, so aws-smithy-runtime defaults.rs:70-89 picks default-https-client (rustls 0.23/webpki 0.103), not the legacy rustls 0.21 connector. Default deployment never verifies a cert with 0.101.7."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#40",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 38: rustls-webpki 0.101.7 (rustls 0.21) is reached only through eventsource-client in the experimental hidden --streaming mode (delta_refresher.rs:171, cli.rs:220-222); AWS S3 uses the rustls 0.23 default-https-client under behavior-version-latest (aws-smithy-runtime defaults.rs:84-89)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#41",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CRL parsing needs RevocationOptions/CRLs supplied; nothing in the app or in the rustls 0.21 users (eventsource-client, legacy AWS connector) loads CRLs (no add_crl/crl in server/src). Also 0.101.7 path is experimental-streaming only (see row 38)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#42",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "0.101.7 (rustls 0.21) path only used by experimental hidden --streaming (eventsource-client, delta_refresher.rs:171; cli.rs:220-222) and the legacy AWS connector that behavior-version-latest bypasses (aws-smithy-runtime defaults.rs:70-89). Default deployment does no path building with 0.101.7."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#43",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.103.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93602",
+            "GHSA-pwjx-qhcg-rvj4",
+            "RUSTSEC-2026-0049"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "CRLs not considered authoritative by Distribution Point due to faulty matching logic \u2014 If a certificate had more than one `distributionPoint`, then only the first `distributionPoint` would be considered against each CRL's `IssuingDistributionPoint` `distributionPoint`, and then the certificate's subsequent `distributionPoint`s would be ignored.\n\nThe impact was that correctly provided CRLs would not be consulted to check revocation. With `UnknownStatusPolicy::Deny` (the default) this would lead to incorrect but safe `Error::UnknownRevocationStatus`. With `UnknownStatusPolicy::Allow` this would ",
+        "vuln_symbols": [
+          "distributionPoint",
+          "IssuingDistributionPoint"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.10",
+          "0.104.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CRL distribution-point matching only runs with CRLs/RevocationOptions configured. reqwest client (http/unleash_client.rs:241-285) adds no CRLs (no add_crl anywhere in server/src); rustls ServerConfig uses with_no_client_auth (tls.rs:59-60); redis/AWS clients use default verifiers without CRLs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#44",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.103.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls 0.23.25 -> webpki 0.103.1 verifies the upstream Unleash server cert in the reqwest client (rustls-tls => webpki-roots; unleash_client.rs:241-285) used in default edge mode; check_name_constraints runs in path building (verify_cert.rs:280; URI GeneralName cert.rs:456). Attacker = network MITM with a misissued cert under a name-constrained CA, as the advisory requires."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#45",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.103.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Same path as row 43: upstream HTTPS via reqwest/rustls 0.23/webpki 0.103.1 (unleash_client.rs:241-285); name-constraint check on every chain with constrained intermediates (verify_cert.rs:280). Requires misissued wildcard cert; MITM on upstream link."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#46",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.103.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "bit_string_flags (der.rs:368) on CRL issuingDistributionPoint only when CRLs are parsed; app never loads CRLs (no add_crl in server/src; tls.rs:59 with_no_client_auth). Opt-in feature unused."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#47",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.103.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "reqwest feature rustls-tls = rustls-tls-webpki-roots (reqwest Cargo.toml:146,162) loads webpki_roots::TLS_SERVER_ROOTS (client.rs:528), and webpki-roots 0.26.8 includes 'emSign ECC Root CA - G3' (lib.rs:3066). webpki 0.103.1 path-building for the upstream Unleash connection (unleash_client.rs:241-285, edge mode default) would accept chains through the distrusted emSign intermediates; MITM with those leaked keys."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#48",
+      "facts": {
+        "package": "time",
+        "version": "0.3.41",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25727",
+            "GHSA-r6v5-fh4h-64xc",
+            "RUSTSEC-2026-0009"
+          ],
+          [
+            "time"
+          ]
+        ],
+        "advisory_summary": "time vulnerable to stack exhaustion Denial of Service attack \u2014 ### Impact\n\nWhen user-provided input is provided to any type that parses with the RFC 2822 format, a denial of service attack via stack exhaustion is possible. The attack relies on formally deprecated and rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary, non-malicious input will never encounter this scenario.\n\n### Patches\n\nA limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned rather than exhausting the stack.\n\n### Workarounds\n\nLimiting the ",
+        "vuln_symbols": [
+          "time::Date::parse",
+          "time::OffsetDateTime::parse",
+          "time::PrimitiveDateTime::parse",
+          "time::Time::parse",
+          "time::UtcDateTime::parse",
+          "time::UtcOffset::parse",
+          "time::parsing::Parsed::parse_item"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.47"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "time"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs RFC 2822 parsing of attacker input. time 0.3.41 users in the runtime closure (actix-web/cookie, aws-config, aws-sigv4, aws-smithy-types, asn1-rs, x509-parser, shadow-rs, zip) only parse Rfc3339 or custom formats (aws-config credential_process.rs:210, aws-sigv4 date_time.rs:60-72, aws-smithy-types format.rs:416); Rfc2822 appears only in format() calls (shadow-rs date_time.rs:85, x509-parser time.rs:89). serde_with (has Rfc2822 adapters) is dev-only via testcontainers. App has no Rfc2822 use."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#49",
+      "facts": {
+        "package": "tokio",
+        "version": "1.44.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0386"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "`AsyncFd::new` and related constructors violate I/O safety \u2014 `tokio::io::unix::AsyncFd` provides safe constructors (`new`, `with_interest`, `try_new`, and `try_with_interest`) that accept any `T: AsRawFd` rather than requiring proof of ownership or validity of the file descriptor. Because `RawFd` implements `AsRawFd`, safe code can construct an `AsyncFd` from an arbitrary or closed file descriptor, or close/replace the underlying file descriptor while the `AsyncFd` is still alive.\n\nThis violates I/O safety in two ways:\n\n1. `AsyncFd<T>` implements `AsFd` for all `T: AsRawFd` by calling `Borrowe",
+        "vuln_symbols": [
+          "tokio::io::unix::AsyncFd::new",
+          "tokio::io::unix::AsyncFd::try_new",
+          "tokio::io::unix::AsyncFd::try_with_interest",
+          "tokio::io::unix::AsyncFd::with_interest"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.51.6",
+          "1.53.3"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No call to tokio::io::unix::AsyncFd::{new,with_interest,try_new,try_with_interest} in server/src or any crate source in the Cargo.lock runtime closure (grep 'AsyncFd' outside tokio itself: no hits). App enables tokio features macros/rt-multi-thread/tracing/fs only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#50",
+      "facts": {
+        "package": "tracing-subscriber",
+        "version": "0.3.19",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58160",
+            "GHSA-xwfj-jgwm-7wp5",
+            "RUSTSEC-2025-0055"
+          ],
+          [
+            "tracing-subscriber"
+          ]
+        ],
+        "advisory_summary": " Tracing logging user input may result in poisoning logs with ANSI escape sequences \u2014 ### Impact\n\nPrevious versions of tracing-subscriber were vulnerable to ANSI escape sequence injection attacks. Untrusted user input containing ANSI escape sequences could be injected into terminal output when logged, potentially allowing attackers to:\n\n- Manipulate terminal title bars\n- Clear screens or modify terminal display\n- Potentially mislead users through terminal manipulation\n\nIn isolation, impact is minimal, however security issues have been found in terminal emulators that enabled an attacker to use",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.20"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tracing_subscriber"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tracing-subscriber 0.3.19 fmt layer (default ansi) is the default logger (prom_metrics.rs:17-20, LogFormat::Plain cli.rs:407, EnvFilter default 'info' prom_metrics.rs:13-15). But no info+ event Display-formats attacker data: request-derived values are logged with {e:?}/Debug, which escapes ESC (e.g. unleash_client.rs:446,749); the only raw token log is debug-level (error.rs:288) and enrich_with_client_ip trace!; log-crate records from actix are not bridged (no LogTracer; set_global_default only). Reachable only if operators set RUST_LOG=debug/trace. Low confidence: Debug-vs-escape scope of the fix not fully verified."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#51",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.26.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "reqwest 0.12.15 feature rustls-tls -> rustls-tls-webpki-roots (reqwest Cargo.toml:146,162) puts webpki_roots::TLS_SERVER_ROOTS in the root store (async_impl/client.rs:528); webpki-roots 0.26.8 contains 'emSign ECC Root CA - G3' (lib.rs:3066). Used for the upstream Unleash connection in default edge mode (http/unleash_client.rs:241-285). MITM with distrusted emSign intermediate keys."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#52",
+      "facts": {
+        "package": "xxhash-rust",
+        "version": "0.8.15",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-6g2r-675j-hx59"
+          ],
+          [
+            "xxhash-rust"
+          ]
+        ],
+        "advisory_summary": "xxhash-rust: Safe xxh3 custom-secret API accepts too-short secret in release \u2014 I have a minimized safe Rust witness for xxhash-rust 0.8.15.\n\nSafe public route:\n\nxxhash_rust::xxh3::xxh3_64_with_secret(&[0x41], &[])\n\nThe caller-side harness contains no unsafe code. Under release execution, the internal minimum custom-secret length predicate is enforced only by debug_assert!. Release-Miri reports construction of a fixed-width reference beyond the empty secret allocation.\n\nObserved diagnostic:\n\nUndefined Behavior: constructing invalid value of type &[u8; 4]: encountered a dangling reference\n\nLocal",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.8.16"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "xxhash_rust"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only xxh3_128 (default secret) is used: actix-middleware-etag lib.rs:30 and unleash-types client_features.rs:13. No xxh3_*_with_secret call anywhere in app or deps."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#53",
+      "facts": {
+        "package": "zip",
+        "version": "2.6.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-vv5m-jxxh-4627",
+            "RUSTSEC-2026-0367"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": " Insecure Preservation of SUID/SGID Bits during ZIP Extraction Leading to Potential Privilege Escalation \u2014 The `zip` crate preserves privileged Unix permission bits (SUID, SGID, and sticky bits) from ZIP `external_attributes` during extraction, instead of masking them to safe permission bits. If a privileged process (for example, `root` in an installer, CI/CD pipeline, or container build) extracts an attacker-controlled ZIP archive using `ZipArchive::extract()` or the stream extraction API, files can be created as setuid-root or setgid. This behavior allows the creation of SUID/SGID files duri",
+        "vuln_symbols": [
+          "external_attributes",
+          "root"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zip 2.6.1 is a direct dependency (server/Cargo.toml) but server/src and build.rs never use it (no 'zip::'/ZipArchive); utoipa-swagger-ui only uses zip as a build-dependency (its Cargo.toml:144). No extract() at runtime."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#54",
+      "facts": {
+        "package": "zip",
+        "version": "2.6.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4v9h-p7m9-rh26",
+            "RUSTSEC-2026-0368"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "zip: `ZipArchive::extract` creates symbolic links whose attacker-controlled targets are outside the destination directory \u2014 In `zip` 9.0.0-pre2, `ZipArchive::extract` creates a symbolic link from an archive entry after validating only the output entry path. The link target bytes are passed directly to the platform symlink API, so a malicious archive can create an entry inside the destination that resolves to an attacker-chosen path outside it. This behavior was verified on macOS and Linux. On either platform, a subsequent application read or write through that extracted entry accesses the exte",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 52: zip never called by the app at runtime; utoipa-swagger-ui uses it only in build.rs (build-dependency) on its bundled swagger-ui archive."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#55",
+      "facts": {
+        "package": "zip",
+        "version": "2.6.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4684-h2q9-2vcp",
+            "RUSTSEC-2026-0369"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "ZipStreamReader::extract() and ZipArchive::extract() apply Unix permissions through symlinks without confining the target \u2014 `ZipStreamReader::extract()` applies Unix permissions through extracted symlinks without validating the symlink target stays within the destination\n\nFor further details see: https://github.com/zip-rs/zip2/security/advisories/GHSA-4684-h2q9-2vcp",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 52: no ZipArchive/ZipStreamReader extract at runtime; zip unused in server/src, build-dep only for utoipa-swagger-ui."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#56",
+      "facts": {
+        "package": "zstd",
+        "version": "0.13.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0391"
+          ],
+          [
+            "zstd"
+          ]
+        ],
+        "advisory_summary": "Data from an abandoned stream leaks into the next stream on a reused context \u2014 The `with_context` constructors of the stream encoders and decoders used the\nborrowed context as it was. When a stream was abandoned on a context, for\nexample an encoder dropped before `finish()` after an error, whatever it\nleft there was carried into the next stream: the input buffered by the\nprevious encoder (up to 128 KiB, or all of it with `zstdmt`) became the\nstart of the next frame, and a decoder returned undelivered output of the\nprevious stream.\n\nAn application reusing one context for data that must stay sep",
+        "vuln_symbols": [
+          "zstd::stream::raw::Decoder::with_context",
+          "zstd::stream::raw::Encoder::with_context"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.14.3"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd 0.13.3 used by actix-http compress-zstd via zstd::stream::write::Decoder/Encoder::new (actix-http encoding/decoder.rs:16,59; encoder.rs:20), which own their contexts; no with_context constructor called (with_context only defined at zstd stream/raw.rs:159,294). zip's zstd path unused."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#57",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0395"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free with `CParameter::StableInBuffer` \u2014 With `CParameter::StableInBuffer(true)` (`experimental` feature), the C\nlibrary keeps a pointer to the input of one streaming call and reads from it\nin later calls, including `flush_stream` and `end_stream`, which take no\ninput. An `InBuffer` only borrows its slice for one call, so safe code could\nfree it in between, and freed memory was compressed into the frame. The C\nlibrary behaves this way since zstd 1.5.4, whether bundled or linked from the\nsystem.\n\nThe flaw was corrected by refusing to enable the parameter.",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::set_parameter"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CParameter::StableInBuffer needs zstd-safe 'experimental'; zstd is pulled with default features (legacy, arrays, zdict_builder) by actix-http and default-features=false by zip; experimental never enabled (zstd Cargo.toml features; zstd-safe 7.2.4 features)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#58",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0396"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "`Seekable` reads a NULL or out-of-bounds seek table \u2014 `Seekable` did not record whether it was initialized. On a fresh `Seekable`,\nor one whose `init_buff()` failed, `decompress`, `offset_to_frame_index` and\n`frame_decompressed_size` made the C library read a NULL seek table. After a\nfailed re-initialization, `decompress` returned data from the refused buffer\nusing the previous seek table.\n\nSeparately, `frame_decompressed_size(num_frames())`, on `Seekable` and\n`SeekTable`, read one entry past the end of the seek table.\n\nThe flaw was corrected by refusing to use a `Seekable` until an\ninitializa",
+        "vuln_symbols": [
+          "zstd_safe::seekable::SeekTable::frame_decompressed_size",
+          "zstd_safe::seekable::Seekable::decompress",
+          "zstd_safe::seekable::Seekable::decompress_frame",
+          "zstd_safe::seekable::Seekable::frame_decompressed_size",
+          "zstd_safe::seekable::Seekable::offset_to_frame_index"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "seekable module needs zstd-safe 'seekable' feature; zstd crate does not even expose it and nothing enables it (zstd-safe Cargo.toml features: seekable off)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#59",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0397"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "`OutBuffer::around_pos` exposes uninitialized memory \u2014 `OutBuffer::around_pos` accepted a position past the initialized length of a\n`Vec<u8>`. The next streaming call then marked everything before the\nposition as initialized, so safe code could read stale heap memory between\nthe vector's previous length and that position.\n\nThe flaw was corrected by zero-filling that gap.",
+        "vuln_symbols": [
+          "zstd_safe::OutBuffer::around_pos"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "OutBuffer::around_pos is never called; zstd 0.13.3 uses OutBuffer::around only (stream/raw.rs:40,448,464; zio/writer.rs:146; zio/reader.rs:77,137,177). App doesn't use zstd-safe directly."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#60",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0398"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "`Seekable::decompress` sets a `Vec` length beyond its capacity for offsets past the end \u2014 `ZSTD_seekable_decompress` shortens the requested length to the end of the\ndata without checking that the offset is before it. For an offset past the\nend, it returns a wrapped-around length without writing anything, and\n`Seekable::decompress` passed that length to `Vec::set_len`.\n\nWith the `seekable` feature, whoever supplies the archive, or chooses the\noffset, can leave the caller's `Vec<u8>` with a length far beyond its\ncapacity. Reading it then discloses neighbouring heap memory, and appending\nto it co",
+        "vuln_symbols": [
+          "zstd_safe::seekable::AdvancedSeekable::decompress",
+          "zstd_safe::seekable::Seekable::decompress"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Seekable::decompress requires the 'seekable' feature, which is off (see row 57)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#61",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0399"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free through `init_using_cdict` and `init_using_ddict` \u2014 `CCtx::init_using_cdict` and `DCtx::init_using_ddict` (`experimental`\nfeature, deprecated) took the dictionary as `&CDict<'b>` and `&DDict<'b>`\nwith only `'b: 'a`, so the dictionary itself could be dropped while the\ncontext still pointed at it. The same mistake in other constructors was\nfixed earlier (<https://github.com/gyscos/zstd-rs/issues/365>).\n\nThe flaw was corrected by taking `&'a CDict<'b>` and `&'a DDict<'b>`.",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::init_using_cdict",
+          "zstd_safe::DCtx::init_using_ddict"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "init_using_cdict/init_using_ddict are behind zstd-safe 'experimental', which is not enabled (zstd default features legacy/arrays/zdict_builder only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#62",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0400"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free of a dictionary after a one-shot call on a context with an open stream \u2014 The one-shot `DCtx` and `CCtx` methods assumed the C library resets the\ncontext, but it leaves an open stream as it is. When a stream was left\nunfinished on a context, a one-shot call such as `decompress_using_dict`\ncould leave the context pointing at the dictionary borrowed for that call,\nand the next streaming call resumed the stream against it after it was\nfreed: decompressed output then contained freed heap memory. On the\ncompression side, the stream resumed against the one-shot call's buffers.\n\nThis re",
+        "vuln_symbols": [
+          "zstd_safe::DCtx::decompress",
+          "zstd_safe::DCtx::decompress_using_ddict",
+          "zstd_safe::DCtx::decompress_using_dict"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires a one-shot DCtx/CCtx call (decompress/decompress_using_dict) on a context with an unfinished stream. actix-http only uses streaming write::Decoder/Encoder with private contexts (decoder.rs:16,59); zstd bulk API (bulk/decompressor.rs:92) is not called by actix or the app; zip unused."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#63",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0401"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Out-of-bounds read in `train_from_buffer` when sample sizes overflow \u2014 `ZDICT_trainFromBuffer` is never told the length of the samples buffer, so\n`train_from_buffer` checked that the sample sizes add up to it. With\noverflow checks off, as in release builds, that sum wrapped around: sizes\ntotalling 2^64 plus the buffer length passed the check, and the trainer read\npast the end of the buffer. `zstd::dict::from_continuous` relies on this\ncheck from zstd 0.4.10; older versions of zstd had their own, covered by a\nseparate advisory.\n\nThis requires the sample sizes to come from an untrusted source. T",
+        "vuln_symbols": [
+          "zstd_safe::train_from_buffer"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "train_from_buffer only via zstd::dict (dict.rs:125); no dictionary training anywhere in app or actix-http."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#64",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0402"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Heap buffer overflow in `CCtx::try_clone` on a multithreaded context \u2014 `CCtx::try_clone` (`experimental` feature, deprecated) copies tables sized\nfrom the context's applied parameters. Starting a multithreaded frame\n(`zstdmt` feature) replaces those parameters with the workers' without\nresizing the context's own tables, so after an abandoned single-threaded\nframe, the copy wrote up to 512 KiB past a heap allocation, or read past\none. This became reachable with the bundled zstd 1.5.6.\n\nThe flaw was corrected by refusing `try_clone` (and the unsafe\n`compress_block`) once `NbWorkers` was set on t",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::try_clone"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CCtx::try_clone is 'experimental' and the overflow needs 'zstdmt'; neither feature enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#65",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0403"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Uninitialized memory exposed when streaming decompression of a legacy frame fails \u2014 When decompression fails inside a legacy (zstd v0.4 to v0.7) frame, the\nbundled zstd library reports the output buffer as fully written although\nnothing was written. `DCtx::decompress_stream` committed that position even\non error, and for a `Vec<u8>` destination this extended the vector's length\nover uninitialized memory.\n\nLegacy support is enabled by default. A 5- or 6-byte corrupt legacy frame is\nenough: through `zstd::stream::write::Decoder`, up to 32 KiB of stale heap\nmemory is then passed to the wrapped wr",
+        "vuln_symbols": [
+          "zstd_safe::DCtx::decompress_stream"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "zstd default 'legacy' feature is on (actix-http depends on zstd 0.13 with defaults; zstd Cargo.toml default=[legacy,...]). actix-web compress-zstd (server/Cargo.toml actix-web features) makes Json extractors decode request bodies via Decompress::from_headers (actix-web types/json.rs:359) -> actix-http decoder.rs:59 zstd::stream::write::Decoder, whose zio::Writer uses a Vec<u8> buffer (zio/writer.rs:28,146) and DCtx::decompress_stream commits output pos via wrap() even on error (zstd-safe lib.rs:1174-1188). Attacker POSTs Content-Encoding: zstd with a corrupt legacy frame to /api/client/metrics, /api/client/register or /edge/validate (client_api.rs:311-381, edge_api.rs:24)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#66",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0404"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Double free in `DCtx::try_clone` \u2014 `DCtx::try_clone` (`experimental` feature, deprecated) is a plain copy of the\nC context. A context owning a dictionary (from `load_dictionary`,\n`ref_prefix` or `init_using_dict`) or a dictionary table (`ref_ddict` with\n`RefMultipleDDicts`) ended up with both copies freeing it. A context cloned\nmid-frame resumed on uninitialized stream state. The clone also silently lost\nthe `WindowLogMax` limit.\n\nThe flaw was corrected by refusing to clone such contexts, and by carrying\nover the parameters the copy leaves out.",
+        "vuln_symbols": [
+          "zstd_safe::DCtx::try_clone"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DCtx::try_clone is behind 'experimental', not enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#67",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0405"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Out-of-bounds read with an out-of-range `InBuffer::pos` \u2014 `InBuffer`'s fields are public, so safe code can set `pos` past the end of\n`src`. The position was passed to the C library unchecked, and\n`ZSTD_seekable_compressStream`, unlike the other streaming functions, does\nnot validate it: it read past the end of the input slice, by up to the\nframe size, and compressed that memory into the output.\n\nThe flaw was corrected by checking the position before every call into the\nC library.",
+        "vuln_symbols": [
+          "zstd_safe::seekable::SeekableCStream::compress_stream"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SeekableCStream requires 'seekable' feature, not enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#68",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0406"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free when changing a multithreaded context with an unfinished frame \u2014 When a multithreaded frame (`zstdmt` feature, `CParameter::NbWorkers`) is\nleft unfinished, its jobs may still be running on the worker threads: the C\nlibrary only waits for them when the next frame starts, or when the context\nis freed. A session reset makes the context accept changes again in the\nmeantime, so:\n\n- unloading the dictionary (`load_dictionary`, `ref_cdict`, `ref_prefix`,\n  `disable_dictionary`, `init*`, or `reset` with parameters) freed the\n  dictionary a worker was still compressing against;\n- changin",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::disable_dictionary",
+          "zstd_safe::CCtx::init",
+          "zstd_safe::CCtx::load_dictionary",
+          "zstd_safe::CCtx::ref_cdict",
+          "zstd_safe::CCtx::ref_prefix",
+          "zstd_safe::CCtx::reset",
+          "zstd_safe::CCtx::set_parameter"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires 'zstdmt' multithreaded compression (NbWorkers); feature not enabled (zstd default features only), and actix encoders never set NbWorkers or reuse contexts."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-unleashedge#69",
+      "facts": {
+        "package": "zstd-sys",
+        "version": "2.0.15+zstd.1.5.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0410"
+          ],
+          [
+            "zstd-sys"
+          ]
+        ],
+        "advisory_summary": "[affects only arch=wasm32] WebAssembly allocator shim corrupts memory on allocation failure \u2014 On wasm32, zstd-sys provides `malloc` and `free` to the C library through a\nshim over Rust's allocator. The shim did not check for allocation failure:\nit wrote its size header to address 0 and returned address 4, which the C\nlibrary used as a valid buffer. `free(NULL)` also read below address 0.\n\nWhenever the instance cannot grow its memory by what a frame asks for, a\nsmall crafted frame (a 9-byte header declaring a 128 MiB window is enough)\nmade decompression write decoded data over the bottom of the",
+        "vuln_symbols": [
+          "malloc",
+          "free"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.1.2"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Affects only arch=wasm32 allocator shim; the Docker image builds for linux amd64/arm64 (Dockerfile)."
+      }
+    }
+  ]
+}

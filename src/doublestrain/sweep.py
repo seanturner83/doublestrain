@@ -11,7 +11,7 @@ One record per line, sweep JSONL shape:
 """
 from __future__ import annotations
 
-from .ssvc import Candidate, Reachability
+from .ssvc import Candidate, Reachability, gvc_reachability
 
 _SWEEP_REACH = {"reachable": Reachability.REACHABLE,
                 "unreachable": Reachability.UNREACHABLE,
@@ -47,11 +47,12 @@ def candidate_from_record(r: dict, em=None, *, use_sweep_reachability=True) -> C
     facts = r.get("facts") or {}
     repo, num = parse_pr(r["pr"])
     pkg = facts.get("package", "")
-    # the record's own reachability claim, if asked for; the judges (govulncheck included)
-    # fill it otherwise (reach.resolve_reachability)
-    reach = (_SWEEP_REACH.get(facts.get("reachability", ""), Reachability.UNAVAILABLE)
-             if use_sweep_reachability else Reachability.UNAVAILABLE)
-    source = "sweep" if reach != Reachability.UNAVAILABLE else ""
+    reach, _osvs = gvc_reachability(repo, pkg)
+    source = "govulncheck" if reach != Reachability.UNAVAILABLE else ""
+    if reach == Reachability.UNAVAILABLE and use_sweep_reachability:
+        # non-Go (or a cache miss on Go): the sweep's own verdict carries it
+        reach = _SWEEP_REACH.get(facts.get("reachability", ""), Reachability.UNAVAILABLE)
+        source = "sweep" if reach != Reachability.UNAVAILABLE else ""
     # One advisory per record: [aliases, affected_pkgs] -> one (aliases, affected) tuple.
     advs = facts.get("advisories", [])
     return Candidate(repo=repo, pr_number=num, bumped_package=pkg,

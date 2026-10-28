@@ -1,0 +1,2610 @@
+{
+  "id": "real-py-plane",
+  "description": "Plane v0.25.3 apiserver/ (requirements/base.txt pins): held-out Python app (py8), labelled blind",
+  "repo": "repo/apiserver",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#1",
+      "facts": {
+        "package": "cryptography",
+        "version": "44.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-537c-gmf6-5ccf"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "Vulnerable OpenSSL included in cryptography wheels \u2014 pyca/cryptography's wheels include a statically linked copy of OpenSSL. The versions of OpenSSL included in wheels prior to cryptograph 48.01 are vulnerable to a security issue. More details about the vulnerability itself can be found in https://openssl-library.org/news/secadv/20260609.txt.\n\nIf you are building cryptography source (\"sdist\") then you are responsible for upgrading your copy of OpenSSL. Only users installing from wheels built by the cryptography project (i.e., those distributed on PyPI) need to update their cryptography version",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "48.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "cryptography's bundled OpenSSL is loaded and used at runtime: plane/license/utils/encryption.py:4,19,33 Fernet encrypt/decrypt of instance config (AES-CBC+HMAC via the wheel's libcrypto). OpenSSL advisory 20260609 details not available offline, so cannot exclude the affected primitive; chose reachable per unsure rule. No TLS goes through it (stdlib ssl/libpq use system OpenSSL)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#2",
+      "facts": {
+        "package": "cryptography",
+        "version": "44.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-26007",
+            "GHSA-r6ph-v2qm-q3c2",
+            "PYSEC-2026-2141"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "cryptography Vulnerable to a Subgroup Attack Due to Missing Subgroup Validation for SECT Curves \u2014 ## Vulnerability Summary\n\nThe `public_key_from_numbers` (or `EllipticCurvePublicNumbers.public_key()`), `EllipticCurvePublicNumbers.public_key()`, `load_der_public_key()` and `load_pem_public_key()` functions do not verify that the point belongs to the expected prime-order subgroup of the curve.\n\nThis missing validation allows an attacker to provide a public key point `P` from a small-order subgroup.  This can lead to security issues in various situations, such as the most commonly used signature ",
+        "vuln_symbols": [
+          "public_key_from_numbers",
+          "EllipticCurvePublicNumbers.public_key",
+          "load_der_public_key",
+          "load_pem_public_key",
+          "P"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "46.0.5"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "App never loads EC public keys: only cryptography use is Fernet (plane/license/utils/encryption.py:4); PyJWT only jwt.encode HS256 (plane/app/views/workspace/invite.py:104, project/invite.py:81); no dependency verifies attacker EC keys on SECT curves."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#3",
+      "facts": {
+        "package": "cryptography",
+        "version": "44.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-34073",
+            "GHSA-m959-cc7f-wv43",
+            "PYSEC-2026-35"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "cryptography has incomplete DNS name constraint enforcement on peer names \u2014 ## Summary\n\nIn versions of cryptography prior to 46.0.5, DNS name constraints were only validated against SANs within child certificates, and not the \"peer name\" presented during each validation. Consequently, cryptography would allow a peer named `bar.example.com` to validate against a wildcard leaf certificate for `*.example.com`, even if the leaf's parent certificate (or upwards) contained an excluded subtree constraint for `bar.example.com`.\n\nThis behavior resulted from a gap between RFC 5280 (which defines Name Co",
+        "vuln_symbols": [
+          "bar.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "46.0.6"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "cryptography.x509.verification (PolicyBuilder/ServerVerifier) not used by app or its deps; only Fernet used (plane/license/utils/encryption.py:4)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#4",
+      "facts": {
+        "package": "cryptography",
+        "version": "44.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69247",
+            "GHSA-g6cj-pr64-35w5",
+            "PYSEC-2026-3552"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "cryptography: PKCS#7 EnvelopedData decryption exposes a Bleichenbacher oracle through distinguishable errors and timing \u2014 ### Summary\n\n`pkcs7_decrypt_der`, `pkcs7_decrypt_pem`, and `pkcs7_decrypt_smime` reported the\noutcome of decrypting a `RecipientInfo`'s `encryptedKey` in several\ndistinguishable ways, one of which disclosed the exact length recovered from the\nRSA operation. The same distinction was also observable by timing. An\napplication that decrypts attacker-supplied `EnvelopedData` and reflects the\noutcome gives the attacker a Bleichenbacher oracle against the\ncontent-encryption key.\n\n",
+        "vuln_symbols": [
+          "pkcs7_decrypt_der",
+          "pkcs7_decrypt_pem",
+          "pkcs7_decrypt_smime",
+          "RecipientInfo",
+          "encryptedKey",
+          "EnvelopedData"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "50.0.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "pkcs7_decrypt_* exists in 44.0.1 (src/cryptography/hazmat/primitives/serialization/pkcs7.py:266-268) but nothing in app/deps calls it; only Fernet used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#5",
+      "facts": {
+        "package": "cryptography",
+        "version": "44.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69249",
+            "GHSA-jwv3-5hgf-82ww",
+            "PYSEC-2026-3553"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "python-cryptography: Duplicate self-signed intermediates can cause exponential path-building \u2014 ### Summary\nWhen resolving invalid certificate chains that include duplicate copies of self-signed certificates, the processing recursively invokes the same candidate, leading to an exponential blowup. Although the limitation that the chain depth cannot exceed a specified maximum depth prevents unbounded recursion and guarantees termination, an attacker-controlled certificate chain can lead the processing to easily take more than 5s to reject in testing. This amplification could form the basis for a ",
+        "vuln_symbols": [
+          "build_chain_inner"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "49.0.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "X.509 path building (x509.verification) not used anywhere; only Fernet (plane/license/utils/encryption.py:4)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#6",
+      "facts": {
+        "package": "cryptography",
+        "version": "44.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69248",
+            "GHSA-m2h6-j472-rp4c",
+            "PYSEC-2026-3554"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "python-cryptography verifier accepts wildcard DNS names allowing escape from permittedSubtrees \u2014 ### Summary\nIf an intermediate constrained CA permits the DNS name `foo.example.com`, and the leaf certificate has a wildcard in its DNS SAN of `*.example.com`, python-cryptography's verifier accepts which allows escaping outside of the permitted names.\n\n### PoC\n\n```\n#!/usr/bin/env python3\n\"\"\"Standalone PoC: pyca's DNSConstraint::matches admits a too-broad wildcard SAN.\n\nSetup:\n  Sub-CA permitted constraint: dNSName = foo.example.com\n  Leaf SAN:                    dNSName = *.example.com\nExpected: ",
+        "vuln_symbols": [
+          "foo.example.com",
+          "bar.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "49.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Name-constraint verifier in x509.verification not used; only Fernet."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#7",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48588",
+            "BIT-django-2026-48588",
+            "GHSA-3h9f-r86x-qvjx",
+            "PYSEC-2026-2090"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: cache middleware may expose private responses when unrelated request cookies are present \u2014 An issue was discovered in Django 6.0 before 6.0.7 and 5.2 before 5.2.16.\n`UpdateCacheMiddleware` and the `cache_page()` decorator cache responses that vary on cookies when the incoming request carries unrelated cookies, which allows remote attackers to read private data from the shared cache.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Chris Whyland for reporting this issue.",
+        "vuln_symbols": [
+          "UpdateCacheMiddleware",
+          "cache_page"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.16",
+          "6.0.7"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No cache middleware in MIDDLEWARE (plane/settings/common.py:54-65); only cache_page use is TimezoneEndpoint.get (plane/app/views/timezone/base.py:24), AllowAny static timezone list, sets no cookies -> no private cookie-varying response can be cached. Also advisory scoped to 5.2/6.0."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#8",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-8404",
+            "BIT-django-2026-8404",
+            "GHSA-8cjm-8mp7-r2xf",
+            "PYSEC-2026-201"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: UpdateCacheMiddleware may disclose cached responses due to case-sensitive Cache-Control handling \u2014 An issue was discovered in Django 5.2 before 5.2.15 and 6.0 before 6.0.6.\n`django.middleware.cache.UpdateCacheMiddleware` in Django does not match `Cache-Control` response directives case-insensitively, which allows remote attackers to read responses that were incorrectly cached because their `Cache-Control` directives used uppercase or mixed-case values.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to ",
+        "vuln_symbols": [
+          "django.middleware.cache.UpdateCacheMiddleware"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.15",
+          "6.0.6"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only cache_page use is static public TimezoneEndpoint (plane/app/views/timezone/base.py:24); response has no Cache-Control: private in any case, so case-sensitive check (django/middleware/cache.py:101) never matters; no UpdateCacheMiddleware in MIDDLEWARE."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#9",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-53878",
+            "BIT-django-2026-53878",
+            "GHSA-8qcx-xf44-272x",
+            "PYSEC-2026-2092"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: DomainNameValidator permits newline characters that may enable HTTP header injection \u2014 An issue was discovered in Django 6.0 before 6.0.7 and 5.2 before 5.2.16.\n`DomainNameValidator` does not prohibit newlines in domain names (unless used via a form field, since `CharField` strips newlines). If an application uses values with newlines in an HTTP response, header injection can occur. Django itself is unaffected because `HttpResponse` prohibits newlines in HTTP headers.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjang",
+        "vuln_symbols": [
+          "DomainNameValidator",
+          "CharField",
+          "HttpResponse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.16",
+          "6.0.7"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DomainNameValidator does not exist in Django 4.2.20 (added 5.1; grep finds no class in pkgsrc django/core/validators.py); app does not use it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#10",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48587",
+            "BIT-django-2026-48587",
+            "GHSA-923m-gv2p-w5qp",
+            "PYSEC-2026-198"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: has_vary_header may expose cached responses when Vary values contain whitespace \u2014 An issue was discovered in Django 5.2 before 5.2.15 and 6.0 before 6.0.6.\n`django.utils.cache.has_vary_header()` in Django does not strip leading or trailing whitespace from `Vary` response header values before comparison, which allows remote attackers to read cached responses via requests to URLs whose responses contain whitespace-padded Vary header values.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Navid Re",
+        "vuln_symbols": [
+          "django.utils.cache.has_vary_header",
+          "Vary"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.15",
+          "6.0.6"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "has_vary_header only used by cache middleware (django/middleware/cache.py:96); the only cached view is static public TimezoneEndpoint (plane/app/views/timezone/base.py:24) with no Vary-whitespace header set by app; no private data to leak."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#11",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-53877",
+            "BIT-django-2026-53877",
+            "GHSA-crhf-3pfg-w68w",
+            "PYSEC-2026-2091"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": " Django: GDALRaster may over-read heap memory when constructed from bytes \u2014 An issue was discovered in Django 6.0 before 6.0.7 and 5.2 before 5.2.16.\n`django.contrib.gis.gdal.GDALRaster` over-reads its in-memory buffer when constructed from a bytes object, which can disclose adjacent memory or cause service degradation via a potential segmentation fault when the `vsi_buffer` property is accessed.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Bence Nagy for reporting this issue.",
+        "vuln_symbols": [
+          "django.contrib.gis.gdal.GDALRaster",
+          "vsi_buffer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.16",
+          "6.0.7"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "django.contrib.gis not in INSTALLED_APPS (plane/settings/common.py:32-51); GDALRaster never used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#12",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-6873",
+            "BIT-django-2026-6873",
+            "GHSA-h7pc-vwp9-298g",
+            "PYSEC-2026-199"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: signed cookies are vulnerable to salt namespace collisions \u2014 An issue was discovered in Django 6.0 before 6.0.6 and 5.2 before 5.2.15.\n`django.http.HttpRequest.get_signed_cookie` in Django uses a non-injective salt derivation (concatenating the cookie name and salt argument), which allows a remote attacker to use a cookie in a context different from the one where it was signed, via distinct `(name, salt)` pairs that produce the same concatenation.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank",
+        "vuln_symbols": [
+          "django.http.HttpRequest.get_signed_cookie"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.15",
+          "6.0.6"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "get_signed_cookie/set_signed_cookie never called in app; SESSION_ENGINE is custom DB backend plane.db.models.session (plane/settings/common.py:318)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#13",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-13372",
+            "BIT-django-2025-13372",
+            "GHSA-rqw2-ghq9-44m7",
+            "PYSEC-2025-104"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django is vulnerable to SQL injection in column aliases \u2014 An issue was discovered in 5.2 before 5.2.9, 5.1 before 5.1.15, and 4.2 before 4.2.27.\n`FilteredRelation` is subject to SQL injection in column aliases, using a suitably crafted dictionary, with dictionary expansion, as the `**kwargs` passed to `QuerySet.annotate()` or `QuerySet.alias()` on PostgreSQL.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Stackered for reporting this issue.",
+        "vuln_symbols": [
+          "FilteredRelation",
+          "QuerySet.annotate",
+          "QuerySet.alias"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.27",
+          "5.1.15",
+          "5.2.9"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "FilteredRelation never used in app (grep); annotate/alias kwargs keys are fixed code strings (plane/utils/analytics_plot.py:29,38; plane/utils/grouper.py:54; plane/app/views/analytic/base.py:522)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#14",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-57833",
+            "BIT-django-2025-57833",
+            "GHSA-6w2r-r2m5-xq5w",
+            "PYSEC-2025-105"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django is subject to SQL injection through its column aliases \u2014 An issue was discovered in Django 4.2 before 4.2.24, 5.1 before 5.1.12, and 5.2 before 5.2.6. FilteredRelation is subject to SQL injection in column aliases, using a suitably crafted dictionary, with dictionary expansion, as the **kwargs passed QuerySet.annotate() or QuerySet.alias().",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.24",
+          "5.1.12",
+          "5.2.6"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No FilteredRelation; annotate/alias **kwargs keys never attacker-controlled (plane/utils/analytics_plot.py:29 alias 'dimension'/'segmented'; grouper.py:54 fixed map)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#15",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-59681",
+            "BIT-django-2025-59681",
+            "GHSA-hpr9-3m2g-3j9p",
+            "PYSEC-2025-106"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to SQL injection in column aliases \u2014 An issue was discovered in Django 4.2 before 4.2.25, 5.1 before 5.1.13, and 5.2 before 5.2.7. QuerySet.annotate(), QuerySet.alias(), QuerySet.aggregate(), and QuerySet.extra() are subject to SQL injection in column aliases, when using a suitably crafted dictionary, with dictionary expansion, as the **kwargs passed to these methods (on MySQL and MariaDB).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.25",
+          "5.1.13",
+          "5.2.7"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Affects MySQL/SQLite alias quoting; Plane uses PostgreSQL (plane/settings/common.py DATABASES engine postgresql), and annotate/aggregate/extra kwargs keys are fixed strings in code."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#16",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-64458",
+            "BIT-django-2025-64458",
+            "GHSA-qw25-v68c-qjf3",
+            "PYSEC-2025-107"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has a denial-of-service vulnerability in HttpResponseRedirect and HttpResponsePermanentRedirect on Windows \u2014 An issue was discovered in 5.1 before 5.1.14, 4.2 before 4.2.26, and 5.2 before 5.2.8.\nNFKC normalization in Python is slow on Windows. As a consequence, `django.http.HttpResponseRedirect`, `django.http.HttpResponsePermanentRedirect`, and the shortcut `django.shortcuts.redirect`  were subject to a potential  denial-of-service attack via certain inputs with a very large number of Unicode characters.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not eval",
+        "vuln_symbols": [
+          "django.http.HttpResponseRedirect",
+          "django.http.HttpResponsePermanentRedirect",
+          "django.shortcuts.redirect"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.26",
+          "5.1.14",
+          "5.2.8"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Windows-only NFKC slowness; deployed on Linux Docker (Dockerfile.api, gunicorn/uvicorn)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#17",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-64459",
+            "BIT-django-2025-64459",
+            "GHSA-frmv-pr5f-9mcr",
+            "PYSEC-2025-108"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to SQL injection via _connector keyword argument in QuerySet and Q objects. \u2014 An issue was discovered in 5.1 before 5.1.14, 4.2 before 4.2.26, and 5.2 before 5.2.8.\nThe methods `QuerySet.filter()`, `QuerySet.exclude()`, and `QuerySet.get()`, and the class `Q()`, are subject to SQL injection when using a suitably crafted dictionary, with dictionary expansion, as the `_connector` argument.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank cyberstan for reporting this issue.",
+        "vuln_symbols": [
+          "QuerySet.filter",
+          "QuerySet.exclude",
+          "QuerySet.get",
+          "Q",
+          "_connector"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.26",
+          "5.1.14",
+          "5.2.8"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "All filter(**filters) dicts are built by plane/utils/issue_filters.py with fixed key templates (e.g. :93,:144,:255); saved analytics query is read-only and recomputed via issue_filters (plane/app/serializers/analytic.py:10-26) before filter(**filter) at plane/app/views/analytic/base.py:226. No path lets a user supply a '_connector' key."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#18",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-64460",
+            "BIT-django-2025-64460",
+            "GHSA-vrcr-9hj9-jcg6",
+            "PYSEC-2025-109"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django is vulnerable to DoS via XML serializer text extraction \u2014 An issue was discovered in 5.2 before 5.2.9, 5.1 before 5.1.15, and 4.2 before 4.2.27.\nAlgorithmic complexity in `django.core.serializers.xml_serializer.getInnerText()` allows a remote attacker to cause a potential denial-of-service attack triggering CPU and memory exhaustion via specially crafted XML input processed by the XML `Deserializer`.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Seokchan Yoon for reporting this issue.",
+        "vuln_symbols": [
+          "django.core.serializers.xml_serializer.getInnerText",
+          "Deserializer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.27",
+          "5.1.15",
+          "5.2.9"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "django.core.serializers XML Deserializer never used at runtime (no serializers.deserialize in app; loaddata not part of deploy)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#19",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-32873",
+            "BIT-django-2025-32873",
+            "GHSA-8j24-cjrq-gr2m",
+            "PYSEC-2025-37"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has a denial-of-service possibility in strip_tags() \u2014 An issue was discovered in Django 4.2 before 4.2.21, 5.1 before 5.1.9, and 5.2 before 5.2.1. The django.utils.html.strip_tags() function is vulnerable to a potential denial-of-service (slow performance) when processing inputs containing large sequences of incomplete HTML tags. The template filter striptags is also vulnerable, because it is built on top of strip_tags().",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.21",
+          "5.1.9",
+          "5.2.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "strip_tags/striptags not used in app code or templates (grep over .py/.html); HTML handled by bs4/lxml."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#20",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-48432",
+            "BIT-django-2025-48432",
+            "GHSA-7xr5-9hcq-chf9",
+            "PYSEC-2025-47"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django Improper Output Neutralization for Logs vulnerability \u2014 An issue was discovered in Django 5.2 before 5.2.2, 5.1 before 5.1.10, and 4.2 before 4.2.22. Internal HTTP response logging does not escape request.path, which allows remote attackers to potentially manipulate log output via crafted URLs. This may lead to log injection or forgery when logs are viewed in terminals or processed by external systems.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.22",
+          "5.1.10",
+          "5.2.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "log_response is called for every >=400 response (django/core/handlers/base.py:143,165; exception.py:76+) and logs request.path; production LOGGING routes django.request to console/file at INFO (plane/settings/production.py:62-66). Unauthenticated crafted URLs that 404 reach it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#21",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-59682",
+            "BIT-django-2025-59682",
+            "GHSA-q95w-c7qg-hrff",
+            "PYSEC-2026-1296"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to partial directory traversal via archives \u2014 An issue was discovered in Django 4.2 before 4.2.25, 5.1 before 5.1.13, and 5.2 before 5.2.7. The django.utils.archive.extract() function, used by the \"startapp --template\" and \"startproject --template\" commands, allows partial directory traversal via an archive with file paths sharing a common prefix with the target directory.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.25",
+          "5.1.13",
+          "5.2.7"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "django.utils.archive.extract used only by startapp/startproject --template management commands; never at runtime."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#22",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25673",
+            "BIT-django-2026-25673",
+            "GHSA-8p8v-wh79-9r56",
+            "PYSEC-2026-2448"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to Uncontrolled Resource Consumption \u2014 An issue was discovered in 6.0 before 6.0.3, 5.2 before 5.2.12, and 4.2 before 4.2.29.\n\n`URLField.to_python()` in Django calls `urllib.parse.urlsplit()`, which performs NFKC normalization on Windows that is disproportionately slow for certain Unicode characters, allowing a remote attacker to cause denial of service via large URL inputs containing these characters.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Seokchan Yoon for reporting this i",
+        "vuln_symbols": [
+          "URLField.to_python",
+          "urllib.parse.urlsplit"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.29",
+          "5.2.12",
+          "6.0.3"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Windows-only NFKC slowness in URLField.to_python (webhook URLField plane/app/serializers/webhook.py:16 is DRF and Linux deploy anyway)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#23",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25674",
+            "BIT-django-2026-25674",
+            "GHSA-mjgh-79qc-68w3",
+            "PYSEC-2026-2449"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has a Race Condition vulnerability \u2014 An issue was discovered in 6.0 before 6.0.3, 5.2 before 5.2.12, and 4.2 before 4.2.29.\n\nRace condition in file-system storage and file-based cache backends in Django allows an attacker to cause file system objects to be created with incorrect permissions via concurrent requests, where one thread's temporary `umask` change affects other threads in multi-threaded environments.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Tarek Nakkouch for reporting this is",
+        "vuln_symbols": [
+          "umask"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.29",
+          "5.2.12",
+          "6.0.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Default storage is S3Storage (plane/settings/common.py:219), cache is django_redis (common.py:154-171); FileSystemStorage only via whitenoise static storage at collectstatic build time. File-based storage/cache umask race not exercised by concurrent requests."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#24",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-15830",
+            "BIT-django-2026-15830",
+            "GHSA-q238-5cxm-5c9h",
+            "PYSEC-2026-3717"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django GeoDjango vulnerable to denial of service through deeply nested geometry collections \u2014 An issue was discovered in Django 5.2 before 5.2.17 and 6.0 before 6.0.8.\nGeoDjango's `django.contrib.gis.geos.GEOSGeometry` is subject to a potential denial-of-service when parsing deeply nested `GEOMETRYCOLLECTION` objects supplied as well-known text (WKT), well-known binary (WKB), or hex-encoded WKB, which triggers unbounded recursion and a segmentation fault in the underlying GEOS library. Spatial field lookups and the `django.contrib.gis.forms.GeometryField` form field are also affected.\nEarlier,",
+        "vuln_symbols": [
+          "django.contrib.gis.geos.GEOSGeometry",
+          "GEOMETRYCOLLECTION",
+          "django.contrib.gis.forms.GeometryField"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.17",
+          "6.0.8",
+          "6.1.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "GeoDjango (django.contrib.gis) not installed/used (plane/settings/common.py:32-51); no GEOSGeometry."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#25",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-15307",
+            "BIT-django-2026-15307",
+            "GHSA-wvqv-fj8w-qmhm",
+            "PYSEC-2026-4035"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django GeoDjango spatial lookups allow file writes and outbound requests through GDAL raster parsing \u2014 An issue was discovered in Django 5.2 before 5.2.17 and 6.0 before 6.0.8.\nGeoDjango spatial lookups optimistically parse the right-hand-side value as a raster by passing it to the `django.contrib.gis.gdal.GDALRaster` constructor. Any value used in a spatial lookup against a `GeometryField` or `RasterField` reaches this constructor, including untrusted input, for example a spatial-field filter submitted through the Django admin changelist query string by a staff user with view permission. A `d",
+        "vuln_symbols": [
+          "django.contrib.gis.gdal.GDALRaster",
+          "GeometryField",
+          "RasterField",
+          "dict",
+          "str"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.17",
+          "6.0.8"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No GeometryField/RasterField; contrib.gis not in INSTALLED_APPS."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#26",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-13473",
+            "BIT-django-2025-13473",
+            "GHSA-2mcm-79hx-8fxw",
+            "PYSEC-2026-42"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has Observable Timing Discrepancy \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\nThe `django.contrib.auth.handlers.modwsgi.check_password()` function for authentication via `mod_wsgi` allows remote attackers to enumerate users via a timing attack. Earlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Stackered for reporting this issue.",
+        "vuln_symbols": [
+          "django.contrib.auth.handlers.modwsgi.check_password",
+          "mod_wsgi"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "django.contrib.auth.handlers.modwsgi not used; app served by gunicorn+uvicorn ASGI (bin/docker-entrypoint-api.sh)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#27",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-14550",
+            "BIT-django-2025-14550",
+            "GHSA-33mw-q7rj-mjwj",
+            "PYSEC-2026-43"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has Inefficient Algorithmic Complexity \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\n`ASGIRequest` allows a remote attacker to cause a potential denial-of-service via a crafted request with multiple duplicate headers.\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Jiyong Yang for reporting this issue.",
+        "vuln_symbols": [
+          "ASGIRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "App runs ASGI (plane.asgi via uvicorn workers, bin/docker-entrypoint-api.sh); ASGIRequest.__init__ concatenates duplicate headers (django/core/handlers/asgi.py:84-97 in 4.2.20) on every unauthenticated request."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#28",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1207",
+            "BIT-django-2026-1207",
+            "GHSA-mwm9-4648-f68q",
+            "PYSEC-2026-44"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has an SQL Injection issue \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\nRaster lookups on ``RasterField`` (only implemented on PostGIS) allows remote attackers to inject SQL via the band index parameter. Earlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Tarek Nakkouch for reporting this issue.",
+        "vuln_symbols": [
+          "RasterField"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No RasterField/PostGIS; contrib.gis not installed."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#29",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1285",
+            "BIT-django-2026-1285",
+            "GHSA-4rrr-2h4v-f3j9",
+            "PYSEC-2026-45"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has Inefficient Algorithmic Complexity \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\n`django.utils.text.Truncator.chars()` and `Truncator.words()` methods (with `html=True`) and the `truncatechars_html` and `truncatewords_html` template filters allow a remote attacker to cause a potential denial-of-service via crafted inputs containing a large number of unmatched HTML end tags. Earlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Seokchan Yoon for reportin",
+        "vuln_symbols": [
+          "django.utils.text.Truncator.chars",
+          "Truncator.words",
+          "truncatechars_html",
+          "truncatewords_html"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Truncator(html=True)/truncatechars_html/truncatewords_html not used in app code or templates (grep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#30",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1287",
+            "BIT-django-2026-1287",
+            "GHSA-gvg8-93h5-g6qq",
+            "PYSEC-2026-46"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has an SQL Injection issue \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\n`FilteredRelation` is subject to SQL injection in column aliases via control characters, using a suitably crafted dictionary, with dictionary expansion, as the `**kwargs` passed to `QuerySet` methods `annotate()`, `aggregate()`, `extra()`, `values()`, `values_list()`, and `alias()`. Earlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Solomon Kebede for reporting this issue.",
+        "vuln_symbols": [
+          "FilteredRelation",
+          "QuerySet",
+          "annotate",
+          "aggregate",
+          "extra",
+          "values"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No FilteredRelation; kwargs to annotate/aggregate/alias have fixed keys; values(*fields) uses positional field names (plane/app/views/analytic/base.py:522, plane/app/views/issue/base.py:808), not aliases."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#31",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1312",
+            "BIT-django-2026-1312",
+            "GHSA-6426-9fv3-65x8",
+            "PYSEC-2026-47"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has an SQL Injection issue \u2014 An issue was discovered in 6.0 before 6.0.2, 5.2 before 5.2.11, and 4.2 before 4.2.28.\n\n`.QuerySet.order_by()` is subject to SQL injection in column aliases containing periods when the same alias is, using a suitably crafted dictionary, with dictionary expansion, used in `FilteredRelation`. Earlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\n\nDjango would like to thank Solomon Kebede for reporting this issue.",
+        "vuln_symbols": [
+          "FilteredRelation"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.28",
+          "5.2.11",
+          "6.0.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No FilteredRelation in app; order_by aliases are fixed."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#32",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33033",
+            "BIT-django-2026-33033",
+            "GHSA-5mf9-h53q-7mhq",
+            "PYSEC-2026-48"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django has potential DoS via MultiPartParser through crafted multipart uploads \u2014 An issue was discovered in 6.0 before 6.0.4, 5.2 before 5.2.13, and 4.2 before 4.2.30. `MultiPartParser` allows remote attackers to degrade performance by submitting multipart uploads with `Content-Transfer-Encoding: base64` including excessive whitespace.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Seokchan Yoon for reporting this issue.",
+        "vuln_symbols": [
+          "MultiPartParser"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.30",
+          "5.2.13",
+          "6.0.4"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "MultiPartParser runs on attacker multipart bodies: DRF parser_classes MultiPartParser (plane/app/views/asset/base.py:13,62; plane/app/views/issue/attachment.py:29) and default DRF parsers; Django request.POST also parses multipart (CSRF). Any workspace member can upload."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#33",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33034",
+            "BIT-django-2026-33034",
+            "GHSA-933h-hp56-hf7m",
+            "PYSEC-2026-49"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django: SGI requests with a missing or understated `Content-Length` header could bypass the `DATA_UPLOAD_MAX_MEMORY_SIZE` limit \u2014 An issue was discovered in 6.0 before 6.0.4, 5.2 before 5.2.13, and 4.2 before 4.2.30. ASGI requests with a missing or understated `Content-Length` header could bypass the `DATA_UPLOAD_MAX_MEMORY_SIZE` limit when reading `HttpRequest.body`, allowing remote attackers to load an unbounded request body into memory.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Superior for r",
+        "vuln_symbols": [
+          "DATA_UPLOAD_MAX_MEMORY_SIZE",
+          "HttpRequest.body"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.30",
+          "5.2.13",
+          "6.0.4"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "ASGI deploy; APITokenLogMiddleware reads request.body for every request (plane/middleware/api_log_middleware.py:9), and HttpRequest.body only checks the CONTENT_LENGTH header before self.read() of the full ASGI body_file (django/http/request.py:332-342; asgi.py:101), so understated/missing Content-Length bypasses DATA_UPLOAD_MAX_MEMORY_SIZE (common.py:313). Unauthenticated."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#34",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-3902",
+            "BIT-django-2026-3902",
+            "GHSA-mvfq-ggxm-9mc5",
+            "PYSEC-2026-51"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to ASGI header spoofing via underscore/hyphen conflation \u2014 An issue was discovered in 6.0 before 6.0.4, 5.2 before 5.2.13, and 4.2 before 4.2.30. `ASGIRequest` allows a remote attacker to spoof headers by exploiting an ambiguous mapping of two header variants (with hyphens or with underscores) to a single version with underscores.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Tarek Nakkouch for reporting this issue.",
+        "vuln_symbols": [
+          "ASGIRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.30",
+          "5.2.13",
+          "6.0.4"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "ASGIRequest maps header names with replace('-','_') (django/core/handlers/asgi.py:91), so X_Forwarded_Proto/X_Forwarded_For spoof hyphenated headers that a proxy may strip; app trusts HTTP_X_FORWARDED_PROTO (plane/settings/production.py:11) and HTTP_X_FORWARDED_FOR (plane/utils/ip_address.py:2). Impact depends on proxy config; code runs on every request."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#35",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-4277",
+            "BIT-django-2026-4277",
+            "GHSA-pwjp-ccjc-ghwg",
+            "PYSEC-2026-52"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to privilege abuse in GenericInlineModelAdmin \u2014 An issue was discovered in 6.0 before 6.0.4, 5.2 before 5.2.13, and 4.2 before 4.2.30. Add permissions on inline model instances were not validated on submission of forged `POST` data in `GenericInlineModelAdmin`.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank N05ec@LZU-DSLab for reporting this issue.",
+        "vuln_symbols": [
+          "POST",
+          "GenericInlineModelAdmin"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.30",
+          "5.2.13",
+          "6.0.4"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "django.contrib.admin not in INSTALLED_APPS (plane/settings/common.py:32-51); no GenericInlineModelAdmin."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#36",
+      "facts": {
+        "package": "django",
+        "version": "4.2.20",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-4292",
+            "BIT-django-2026-4292",
+            "GHSA-mmwr-2jhp-mc7j",
+            "PYSEC-2026-53"
+          ],
+          [
+            "django"
+          ]
+        ],
+        "advisory_summary": "Django vulnerable to privilege abuse in ModelAdmin.list_editable \u2014 An issue was discovered in 6.0 before 6.0.4, 5.2 before 5.2.13, and 4.2 before 4.2.30. Admin changelist forms using `ModelAdmin.list_editable` incorrectly allowed new instances to be created via forged `POST` data.\n\nEarlier, unsupported Django series (such as 5.0.x, 4.1.x, and 3.2.x) were not evaluated and may also be affected.\nDjango would like to thank Cantina for reporting this issue.",
+        "vuln_symbols": [
+          "ModelAdmin.list_editable",
+          "POST"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.2.30",
+          "5.2.13",
+          "6.0.4"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "django.contrib.admin not installed; no ModelAdmin.list_editable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#37",
+      "facts": {
+        "package": "djangorestframework",
+        "version": "3.15.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-114138",
+            "GHSA-33wh-fxxf-88vv"
+          ],
+          [
+            "djangorestframework"
+          ]
+        ],
+        "advisory_summary": "Django REST framework: Accept header with many large quoted parameters burns ~19s of CPU per request in content negotiation \u2014 ### Summary\n\nDRF's content negotiation parses each Accept token several times per request and never limits the number of tokens or their total size. Each parse ends up in Django's parse_header_parameters, which takes quadratic time when a quoted parameter value is packed with semicolons. On my machine a single GET with a 780KB Accept header made of 96 such tokens kept one gunicorn worker busy for 18.87 seconds (Django 6.1, djangorestframework 3.18.0, gunicorn 26.0.0, Py",
+        "vuln_symbols": [
+          "_MediaType.__init__"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.18.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "DRF DefaultContentNegotiation parses Accept on every APIView request via _MediaType -> django parse_header_parameters (rest_framework/utils/mediatypes.py:6,47); unauthenticated APIViews exist (e.g. AllowAny TimezoneEndpoint plane/app/views/timezone/base.py:20)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#38",
+      "facts": {
+        "package": "djangorestframework",
+        "version": "3.15.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-114136",
+            "GHSA-3547-9m27-7rxg"
+          ],
+          [
+            "djangorestframework"
+          ]
+        ],
+        "advisory_summary": "Django REST framework: JSONParser applies an attacker-named codec to the request stream \u2014 ### Summary\n\nAn unauthenticated attacker can defeat Django's `DATA_UPLOAD_MAX_MEMORY_SIZE` limit and force a\nworker process to allocate arbitrary memory, by naming a compression codec in the Content-Type\ncharset parameter. A 108-byte request body produces a 50,331,648-character value inside the view, an\namplification factor of 466,033, and grows process peak RSS by about 97 MiB. No application\nconfiguration is required beyond DRF's default parser set; the endpoint only has to accept a JSON\nbody.\n\n### Deta",
+        "vuln_symbols": [
+          "DATA_UPLOAD_MAX_MEMORY_SIZE",
+          "JSONParser.parse",
+          "codecs.lookup",
+          "bz2_codec",
+          "zlib_codec",
+          "base64_codec"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.18.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Django sets request.encoding from Content-Type charset if codecs.lookup succeeds (django/http/request.py:99-110); DRF passes it as parser_context['encoding'] (rest_framework/request.py:174) and JSONParser does codecs.getreader(encoding)(stream) (rest_framework/parsers.py:61-64). JSONParser is in default parsers and asset views (plane/app/views/asset/base.py:13); any request.data access on JSON body triggers it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#39",
+      "facts": {
+        "package": "djangorestframework",
+        "version": "3.15.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-114137",
+            "GHSA-xw6w-gcfp-cf8m"
+          ],
+          [
+            "djangorestframework"
+          ]
+        ],
+        "advisory_summary": "Django REST framework: TokenProxy.delete() reports success and revokes nothing \u2014 ### Summary\n\nDeleting an authentication token through `TokenProxy` silently deletes nothing. The call raises no\nexception and reports success, the database row survives, and the token keeps authenticating. Any\napplication, admin integration or operational script that revokes credentials by calling `.delete()`\non a `TokenProxy` instance believes it has revoked a token that is still live.\n\n### Details\n\n`TokenProxy` overrides `pk` to return the user id (`rest_framework/authtoken/models.py:49-63`):\n\n```python\n@propert",
+        "vuln_symbols": [
+          "TokenProxy",
+          "pk",
+          "Token",
+          "key",
+          "Model.delete",
+          "TokenAdmin.delete_model"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.18.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.92
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rest_framework.authtoken not in INSTALLED_APPS (plane/settings/common.py:32-51); TokenProxy never used (Plane uses its own APIToken model)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#40",
+      "facts": {
+        "package": "djangorestframework",
+        "version": "3.15.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-73228",
+            "GHSA-2m8g-3cmr-wg3w",
+            "PYSEC-2026-3827"
+          ],
+          [
+            "djangorestframework"
+          ]
+        ],
+        "advisory_summary": "Django REST framework: Potential bypass of Django `DATA_UPLOAD_MAX_MEMORY_SIZE` when parsing oversized JSON and urlencoded request bodies via DRF `request.data` \u2014 ## Summary\n\nWhile investigating Django REST Framework's request parsing behavior, I identified that DRF's high-level `request.data` parsing appears to bypass Django's configured `DATA_UPLOAD_MAX_MEMORY_SIZE` protection for `application/json` and `application/x-www-form-urlencoded` request bodies.\n\nIn the tested configurations, Django correctly raises `RequestDataTooBig` when applications access `request.body` or Django's native `requ",
+        "vuln_symbols": [
+          "DATA_UPLOAD_MAX_MEMORY_SIZE",
+          "request.data",
+          "RequestDataTooBig",
+          "request.body",
+          "request.POST",
+          "HttpRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.17.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DRF only bypasses the limit when it reads the raw request stream itself (rest_framework/request.py:310-311). In Plane, APITokenLogMiddleware calls request.body on every request before the view (plane/middleware/api_log_middleware.py:9), and that call enforces DATA_UPLOAD_MAX_MEMORY_SIZE (django/http/request.py:332-339). DRF then takes the BytesIO(self.body) branch (request.py:313). Oversize bodies with an understated Content-Length are the Django bug in row 32, not this one."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#41",
+      "facts": {
+        "package": "djangorestframework",
+        "version": "3.15.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-73229",
+            "GHSA-g47c-3xmw-q6m2",
+            "PYSEC-2026-3828"
+          ],
+          [
+            "djangorestframework"
+          ]
+        ],
+        "advisory_summary": "Django REST framework: AdminRenderer may disclose GET-protected data when rendering invalid write requests \u2014 Summary\n\nAdminRenderer may disclose data that would normally be protected by GET permissions when rendering a 400 Bad Request response for an invalid write request.\n\nIf a view allows POST (or another write method) but denies GET, an invalid request rendered through AdminRenderer can invoke the view's GET handler and include data from the GET representation in the generated HTML response.\n\nThis behavior appears to be specific to AdminRenderer and does not affect the normal JSON rendering",
+        "vuln_symbols": [
+          "cf582fb58e9e5ffcc8ed78a2cb9aaa8f4865666a"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.17.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AdminRenderer never configured; DEFAULT_RENDERER_CLASSES is JSONRenderer only (plane/settings/common.py:72) and no view sets renderer_classes."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#42",
+      "facts": {
+        "package": "lxml",
+        "version": "5.2.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41066",
+            "GHSA-vfmq-68hx-4jfw",
+            "PYSEC-2026-87"
+          ],
+          [
+            "lxml"
+          ]
+        ],
+        "advisory_summary": "lxml: Default configuration of iterparse() and ETCompatXMLParser() allows XXE to local files \u2014 ### Impact\nUsing either of the two parsers in the default configuration (with `resolve_entities=True`) allows untrusted XML input to read local files.\n\n### Patches\nlxml 6.1.0 changes the default to `resolve_entities='internal'`, thus disallowing local file access by default.\n\n### Workarounds\nSetting the `resolve_entities` option explicitly to `resolve_entities='internal'` or `resolve_entities=False` disables the local file access.\n\n### Resources\nOriginal report: https://bugs.launchpad.net/lxml/+bug/2",
+        "vuln_symbols": [
+          "resolve_entities",
+          "iterparse",
+          "ETCompatXMLParser"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.1.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "lxml used only via lxml.html.fromstring/tostring (plane/api/serializers/issue.py:3,71,410) = HTMLParser; no iterparse/ETCompatXMLParser in app; bs4 uses html.parser (plane/bgtasks/*); openpyxl only writes Workbook (plane/bgtasks/export_task.py:16)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#43",
+      "facts": {
+        "package": "opentelemetry-api",
+        "version": "1.28.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-114603",
+            "GHSA-xcq7-p3pf-p88h"
+          ],
+          [
+            "opentelemetry-api"
+          ]
+        ],
+        "advisory_summary": "OpenTelemetry Python: Unbounded tracestate parsing in opentelemetry-api \u2014 ## Summary\n`TraceState.from_header` splits the inbound W3C `tracestate` header with a regular expression that starts with an unbounded optional-whitespace run, and no length limit is applied first. A run of spaces or tabs that is not followed by a comma costs O(N\u00b2) CPU. A single unauthenticated request with a ~100 KB `tracestate` keeps the handling worker busy for ~6 s (spaces) to ~12 s (tabs); under an asyncio server it blocks every other connection for that time.\n\n## Affected component / version\n- Package: `opentelemet",
+        "vuln_symbols": [
+          "TraceState.from_header",
+          "tracestate",
+          "TraceContextTextMapPropagator.extract",
+          "main",
+          "OTEL_PROPAGATORS",
+          "propagate.extract"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.45.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "OTel DjangoInstrumentor/propagation only initialised inside Celery task instance_traces (plane/utils/telemetry.py:40, plane/license/bgtasks/tracer.py:25), invoked only via .delay()/beat (plane/license/management/commands/register_instance.py:70, plane/celery.py:24); the API process never instruments Django, and the worker does not parse inbound HTTP tracestate headers."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#44",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-pxh4-856f-4h89"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: HS256/384/512 verify accepts empty HMAC key via oct JWK (PyJWK/PyJWKClient) enabling token forgery \u2014 ### Summary\n\n`HMACAlgorithm.from_jwk` accepts a symmetric (`kty=oct`) JWK whose `k` value is\nthe empty string and returns a zero-length key without raising. When a token is\nthen verified with that key object (a `PyJWK`, or a `PyJWK` resolved by\n`PyJWKSet` / `PyJWKClient`), the HMAC verifier computes\n`HMAC(key=b\"\", signing_input)` and accepts any token an attacker forged with the\nsame empty key. The attacker needs no secret knowledge: they reproduce the digest\nlocally with an empty key an",
+        "vuln_symbols": [
+          "HMACAlgorithm.from_jwk",
+          "k",
+          "PyJWK",
+          "PyJWKSet",
+          "PyJWKClient",
+          "kid"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#45",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-45768",
+            "PYSEC-2025-183"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "pyjwt v2.10.1 was discovered to contain weak encryption. NOTE: this is disputed by the Supplier because the key length is chosen by the application that uses the library (admittedly, library users may benefit from a minimum value and a mechanism for opting in to strict enforcement).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification. The disputed weak-key issue needs an attacker-guessable HMAC key and a verifier. The key is SECRET_KEY (env, or random get_random_secret_key(), plane/settings/common.py:23) and the tokens are never signature-verified."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#46",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-32597",
+            "GHSA-752w-5fwx-jx9f",
+            "PYSEC-2026-120"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT accepts unknown `crit` header extensions \u2014 ## Summary\n\nPyJWT does not validate the `crit` (Critical) Header Parameter defined in\nRFC 7515 \u00a74.1.11. When a JWS token contains a `crit` array listing\nextensions that PyJWT does not understand, the library accepts the token\ninstead of rejecting it. This violates the **MUST** requirement in the RFC.\n\nThis is the same class of vulnerability as CVE-2025-59420 (Authlib),\nwhich received CVSS 7.5 (HIGH).\n\n---\n\n## RFC Requirement\n\nRFC 7515 \u00a74.1.11:\n\n> The \"crit\" (Critical) Header Parameter indicates that extensions to this\n> specification and/or [JWA",
+        "vuln_symbols": [
+          "crit",
+          "cnf",
+          "_validate_headers",
+          "decode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.12.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#47",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48522",
+            "GHSA-993g-76c3-p5m4",
+            "PYSEC-2026-175"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWKClient: missing scheme allowlist enables CVE-2024-21643-class SSRF + token forgery via file://, ftp://, data: schemes \u2014 > [!NOTE]\n> The library does not directly return non-HTTP(S) URI contents to the attacker; the chained \"plant a JWKS to forge tokens\" scenario described in the original report requires additional application-layer flaws (attacker write access to a filesystem path, untrusted jku derivation) that this fix does not address. Severity is scored for the scheme-acceptance bug in isolation.\n\n## Summary\n\nPyJWKClient passes its `uri` argument directly to `urllib.request.urlopen()`",
+        "vuln_symbols": [
+          "uri",
+          "urllib.request.urlopen",
+          "OpenerDirector",
+          "HTTPHandler",
+          "HTTPSHandler",
+          "FTPHandler"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.13.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#48",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48524",
+            "GHSA-fhv5-28vv-h8m8",
+            "PYSEC-2026-177"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWKClient unbounded JWKS endpoint requests via attacker-controlled kid values (DoS) \u2014 > [!NOTE]\n>  The vulnerability surfaces only when a JWKS fetch fails; an attacker can attempt to provoke that with sustained unknown-kid traffic, but the outcome depends on upstream JWKS-endpoint behavior (rate limiting, transient errors) which is beyond the attacker's control. Impact is reduced auth availability until the next successful fetch, not complete denial of service.\n\n## Summary\nPyJWKClient.get_signing_key() forces a fresh HTTP request to the JWKS endpoint for every JWT with an unknown kid value, ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.13.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#49",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48525",
+            "GHSA-w7vc-732c-9m39",
+            "PYSEC-2026-178"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Unauthenticated DoS via unbounded Base64URL decoding of unused payload segment in b64=false detached JWS \u2014 > [!NOTE]\n> Practical impact depends on whether request body-size limits are enforced upstream (proxy/web-server/framework). Deployments with typical body-size caps (\u22642 MB) bound the amplifier significantly; deployments accepting larger token inputs are more exposed.\n\nWhen verifying detached JWS tokens using the unencoded-payload option (`\"b64\": false`, RFC 7797), PyJWT performs **Base64URL decoding of the compact-serialization payload segment** *before* enforcing the detached-payl",
+        "vuln_symbols": [
+          "detached_payload",
+          "PyJWS.decode",
+          "PyJWS.decode_complete",
+          "_load",
+          "decode_complete",
+          "crit"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.13.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#50",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48526",
+            "GHSA-xgmm-8j9v-c9wx",
+            "PYSEC-2026-179"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Public-key JWK accepted as HMAC secret enables forged HS256 tokens when mixed families are allowed \u2014 > [!NOTE]\n> Exploitation requires a verifier configured with both symmetric and asymmetric algorithms in `algorithms=[\u2026]` and a raw-JSON JWK as the `key=` argument, both contrary to documented usage, hence the High attack-complexity rating.\n\n### Summary\nWhen the verifier is decoding JSON Web Tokens, while supporting both asymmetric and HMAC algorithms, the library does not validate use of JSON Web Keys in HMAC algorithm, allowing attacker to use the issuer public key as the secret key fo",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.13.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#51",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101917",
+            "GHSA-2gx3-rcp4-g85q",
+            "PYSEC-2026-4140"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: PyJWKClient still amplifies unauthenticated JWKS fetches on unknown kid values (incomplete fix of CVE-2026-48524) \u2014 Summary\nCVE-2026-48524 (GHSA-fhv5-28vv-h8m8, \"PyJWKClient unbounded JWKS endpoint requests via attacker-controlled kid values (DoS)\") was fixed in 2.13.0 by stopping fetch_data() from clearing the cache on a fetch error. That closed one amplification path but did not add the mitigation the advisory's title implies: there is still no rate-limit, negative-cache, or minimum-refresh-interval for unknown kids.\n\nAt HEAD, get_signing_key(kid) (jwt/jwks_client.py:185-211), on any ",
+        "vuln_symbols": [
+          "kid",
+          "master",
+          "ba4853a",
+          "PyJWKClient"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#52",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101918",
+            "GHSA-42vr-xj54-vc7v",
+            "PYSEC-2026-4141"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Unauthenticated RecursionError DoS in pre-verification payload parse (PyJWKClient.get_signing_key_from_jwt / verify_signature=False) \u2014 ## Summary\n\n`PyJWKClient.get_signing_key_from_jwt(token)` \u2014 the first step of the JWKS\nverification flow documented in `docs/usage.rst` \u2014 must decode a token's\npayload before its signature can be checked, via\n`jwt.api_jwt.decode_complete(token, options={\"verify_signature\": False})`.\nThat call parses the payload with `json.loads` in `PyJWT._decode_payload`\n(`jwt/api_jwt.py:297-300`), whose `except` clause catches only `ValueError`.\nA payload that is valid",
+        "vuln_symbols": [
+          "json.loads",
+          "PyJWT._decode_payload",
+          "except",
+          "ValueError",
+          "RecursionError",
+          "DecodeError"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.15.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#53",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102267",
+            "GHSA-9v7f-9g4p-ffgj",
+            "PYSEC-2026-4144"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: PyJWKClient follows redirects when fetching JWKS \u2014 ### Summary\n\nPyJWT 2.13.0 `PyJWKClient` followed HTTP redirects while fetching a JWKS,\nwithout validating the redirect destination. A configured trusted endpoint\ncould therefore redirect the client to a different host.\n\n### Impact\n\nWhen an application uses `PyJWKClient` with caller-supplied request headers and\nan attacker can influence the configured endpoint's response, the redirected\nrequest could expose those headers and the redirected response could be used as\nauthoritative key material. This could cause JWKS trust poisoning and, in",
+        "vuln_symbols": [
+          "PyJWKClient",
+          "kid",
+          "master"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#54",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102268",
+            "GHSA-ffc3-869f-jxw9",
+            "PYSEC-2026-4145"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Asymmetric-PEM detection bypass: whitespace/line-ending-mutated public keys skip the HS/asymmetric confusion guard \u2014 **Prerequisites** (both conditions must hold; both are deployment properties, not attacker-controlled at request time):\n\n- The `jwt.decode` allow-list mixes an HMAC algorithm with an asymmetric one, e.g. `algorithms=[\"ES256\", \"HS256\"]` (the RFC 8725 footgun the guard exists to backstop).\n- The verification key is passed as raw PEM text/bytes on the non-`PyJWK` path, in a byte-form that `cryptography`'s loader accepts but PyJWT's `is_pem_format` regex does not recognize (m",
+        "vuln_symbols": [
+          "jwt.decode",
+          "PyJWK",
+          "cryptography",
+          "is_pem_format",
+          "cryptography.load_pem_public_key",
+          "HMACAlgorithm.prepare_key"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#55",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102269",
+            "GHSA-hxm8-2xgr-2p9m",
+            "PYSEC-2026-4147"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Non-canonical signature segments enable raw-token revocation bypass \u2014 ## Summary\n\nPyJWT 2.13.0 accepts compact JWS signature segments containing characters that\nare not in the Base64URL alphabet. Appending `!!!!` to a valid signature does\nnot change the decoded signature bytes or authenticated claims, but it changes\nthe serialized token and its SHA-256 hash. An application that indexes logout\nor revocation state by the raw token therefore rejects the logged-out token and\naccepts its no-key alternate serialization.\n\nThis report separates two issues: permissive compact-JWS decoding is the",
+        "vuln_symbols": [
+          "jti",
+          "master",
+          "e6f48401001609a8f99e71fcaf355fb895d508a8"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#56",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102270",
+            "GHSA-jwrc-g2q2-pq5p",
+            "PYSEC-2026-4148"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: ReDoS vulnerability when calling the `is_pem_format` function. \u2014 ### Summary\nThere is a Re-DoS vulnerability in the `is_pem_format` function which results in a intesive CPU usage if an attacker is been able to provide a custom certificate.\n\n\n### Details\nThe problem is that the lazy quantifier `.+?` will always first try to match as little as possible until it finds a `---- END`. Normally this means the complexity of this should be O(N). However, by providing an input which consists only of `----BEGIN CERTIFICATE-----` lines and no `---- END` line, the regex algorithm will first try to m",
+        "vuln_symbols": [
+          "is_pem_format"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification. is_pem_format runs in HMACAlgorithm.prepare_key on encode, but only on the server's SECRET_KEY, which attackers do not control."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#57",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102271",
+            "GHSA-p4g4-x82p-q773",
+            "PYSEC-2026-4149"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Public keys in DER form are accepted as HMAC secrets, bypassing the CVE-2022-29217 guard \u2014 ### Summary\n\n`HMACAlgorithm.prepare_key` blocks asymmetric keys from being used as HMAC secrets by searching for text markers only. It looks for `-----BEGIN` and for an `ssh-` prefix. The same key in DER form is binary ASN.1 and has neither marker, so it passes the check and is used as an HMAC secret.\n\nAn application that verifies tokens with an RSA or EC public key, and also allows HS256 with that same key, can be given a forged token. The attacker signs it with the public key, which is public. T",
+        "vuln_symbols": [
+          "HMACAlgorithm.prepare_key",
+          "is_pem_format",
+          "is_ssh_key",
+          "startswith",
+          "prepare_key",
+          "PyJWK"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification. prepare_key only ever receives SECRET_KEY, never an attacker-supplied key."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-plane#58",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.8.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102275",
+            "GHSA-x33g-cr3x-6449",
+            "PYSEC-2026-4183"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT accepts inconsistent OKP x/d JWKs, causing public/private key identity confusion \u2014 ### Summary\n\nPyJWT accepts internally inconsistent OKP private JWKs where the declared public key `x` does not correspond to the supplied private key `d`.\n\nWhen `d` is present, `OKPAlgorithm.from_jwk()` constructs the Ed25519/Ed448 private key from `d` without verifying that the public key derived from `d` matches `x`. As a result, the original JWK can contain one public key identity while PyJWT performs cryptographic operations using a different key.\n\nIn affected DPoP integrations, this can allow a stolen",
+        "vuln_symbols": [
+          "x",
+          "d",
+          "OKPAlgorithm.from_jwk",
+          "cnf.jkt",
+          "PyJWK.from_dict",
+          "master"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.15.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWT used only for jwt.encode(..., settings.SECRET_KEY, 'HS256') to make invite tokens (plane/app/views/workspace/invite.py:104, plane/app/views/project/invite.py:81). No jwt.decode, PyJWK or PyJWKClient anywhere in app (grep), and no installed dep uses PyJWT for verification."
+      }
+    }
+  ]
+}

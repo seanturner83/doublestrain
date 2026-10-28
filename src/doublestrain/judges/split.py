@@ -35,6 +35,7 @@ from pathlib import Path
 from .. import pkgsrc
 from .._locks import keylock
 from .base import JudgeResult, ReachQuery, Verdict
+from .. import names
 from .claude_code import SCHEMA as VERDICT_SCHEMA, _bin, check_trace, fallbacks, run_claude
 from .local import OpenAIJudge, _parse, app_excerpts
 from .usage import PREPASS_VERSION, guard_not_reachable, usage_summary
@@ -155,14 +156,37 @@ _PY_SPEC_SYSTEM = SPEC_SYSTEM.replace("third-party npm package's", "third-party 
 _PY_SPEC_ID = hashlib.sha256((SPEC_ID + _PY_SPEC_SYSTEM).encode()).hexdigest()[:8]
 
 
+# Maven artifacts (jv1): the same prompt. On the JVM a library can run without the app
+# importing it: frameworks activate what is on the classpath, so conditions name that.
+_JVM_SPEC_NOTE = """
+Maven artifacts: each listed directory is an artifact's published Java/Kotlin/Scala source
+(`<group>:<artifact>@<version>`); code uses it by Java package, which differs from the
+artifact name (com.fasterxml.jackson.core:jackson-databind -> com.fasterxml.jackson.databind).
+Entry points are public classes and methods an application calls, a servlet/filter or
+Netty/Vert.x handler a server installs, a codec or decoder a protocol stack adds, and
+classes a framework or `ServiceLoader` loads by name (META-INF/services, Spring Boot
+auto-configuration, Quarkus extensions, JDBC drivers chosen by URL). Be precise about
+conditions: a configuration property or builder option and its default, a JVM system
+property, polymorphic typing or a feature flag turned on (Jackson default typing, XML
+external entities), the protocol or format actually handled, and an optional library
+being present on the classpath (code that checks `Class.forName` / `isAvailable()`).
+"""
+_JVM_SPEC_SYSTEM = SPEC_SYSTEM.replace("third-party npm package's", "third-party Maven artifact's") + _JVM_SPEC_NOTE
+_JVM_SPEC_ID = hashlib.sha256((SPEC_ID + _JVM_SPEC_SYSTEM).encode()).hexdigest()[:8]
+
+
 def spec_system(ecosystem: str) -> tuple[str, str]:
     """(system prompt, id) for the trigger spec in this ecosystem."""
     return {"cargo": (_CARGO_SPEC_SYSTEM, _CARGO_SPEC_ID),
             "go": (_GO_SPEC_SYSTEM, _GO_SPEC_ID),
-            "pypi": (_PY_SPEC_SYSTEM, _PY_SPEC_ID)}.get(ecosystem, (SPEC_SYSTEM, SPEC_ID))
+            "pypi": (_PY_SPEC_SYSTEM, _PY_SPEC_ID),
+            "maven": (_JVM_SPEC_SYSTEM, _JVM_SPEC_ID)}.get(ecosystem, (SPEC_SYSTEM, SPEC_ID))
 
 
-_WHAT = {"cargo": "Rust crate", "go": "Go module", "pypi": "Python distribution"}
+# ecosystems split has a spec and match prompt for (and dependency source to derive specs from)
+ECOSYSTEMS = ("npm", "cargo", "go", "pypi", "maven")
+
+_WHAT = {"cargo": "Rust crate", "go": "Go module", "pypi": "Python distribution", "maven": "Maven artifact"}
 
 
 MATCH_SYSTEM = """\
@@ -221,12 +245,27 @@ and form fields, headers, URLs the app fetches because a user supplied them, and
 documents or model files a user can provide are attacker-influenced.
 """
 _PY_MATCH_SYSTEM = MATCH_SYSTEM + _PY_MATCH_NOTE
+_JVM_MATCH_NOTE = """
+JVM: every jar in the deployed classpath shipped in the release, so it is present at run
+time. The app reaches an artifact through its imports (by Java package), through the
+libraries it uses (an HTTP server decoding every request with Netty or Vert.x, a JSON
+binder parsing every body), and WITHOUT any import through what frameworks load from the
+classpath or configuration: Spring Boot auto-configuration, Quarkus extensions,
+ServiceLoader providers, JDBC drivers picked by the connection URL, log appenders and
+codecs named in config files. A feature a library enables when an optional jar is present
+is on when that jar shipped. Request bodies, headers, query and form fields, uploaded
+files, and messages from peers or brokers are attacker-influenced. An import you cannot
+see is not proof of no use: answer unsure, not not_reachable, when classpath activation
+could reach the trigger.
+"""
+_JVM_MATCH_SYSTEM = MATCH_SYSTEM + _JVM_MATCH_NOTE
 # Per-ecosystem prompt ids for the answer cache (`query_salt`): npm's answers stay keyed
 # as before; Rust and Go answers change key when their spec or match prompt changes.
 _SALT = {eco: "-" + hashlib.sha256((sid + mat).encode()).hexdigest()[:8]
          for eco, sid, mat in (("cargo", _CARGO_SPEC_ID, _CARGO_MATCH_SYSTEM),
                                ("go", _GO_SPEC_ID, _GO_MATCH_SYSTEM),
-                               ("pypi", _PY_SPEC_ID, _PY_MATCH_SYSTEM))}
+                               ("pypi", _PY_SPEC_ID, _PY_MATCH_SYSTEM),
+                               ("maven", _JVM_SPEC_ID + "jc1", _JVM_MATCH_SYSTEM))}
 
 
 def _spec_cache() -> Path:
@@ -266,12 +305,16 @@ def _entry_tokens(triggers) -> list[str]:
     return out
 
 
-def _bare(raw: str) -> str:
-    return raw.rsplit("@", 1)[0] if "@" in raw[1:] else raw
+def _bare(raw: str, known=(), ecosystem: str = "") -> str:
+    """The package a model's `name@version` names, as the source dirs spell it (`known`:
+    their names, or a spec's `packages`): `jackson-databind` -> `group:jackson-databind`,
+    `PyYAML` -> `pyyaml` (`names.resolve`). Without `known`, the name as written."""
+    known = [names.bare(k) for k in known]
+    return names.resolve(raw, known, ecosystem) if known else names.bare(raw)
 
 
-def _steps_in(verified: list[str], name: str) -> bool:
-    return any(v.startswith(name + "@") for v in verified)
+def _steps_in(verified: list[str], name: str, ecosystem: str = "") -> bool:
+    return names.steps_in(verified, name, ecosystem)
 
 
 def _spec_path(q: ReachQuery, sources, model: str) -> Path:
@@ -300,7 +343,7 @@ def with_parent_triggers(spec: dict) -> dict:
     cached specs). A trigger only gives the matcher more ways to find reachable; what it
     removes is the guard's blanket hold for that package. Applied when a spec is used, so
     cached specs stay as Claude wrote them."""
-    have = {_bare(str(t.get("package", ""))) for t in spec.get("triggers") or []}
+    have = {_bare(str(t.get("package", "")), spec.get("packages") or ()) for t in spec.get("triggers") or []}
     extra = [{"package": p["package"], "entry": f"{p['package']} (any public API that leads there; see condition)",
               "condition": p.get("how") or "reaches the vulnerable package", "input": "attacker data, as the condition says",
               "verified": p["verified"], "via_parent": True, "from_parent_claim": True}
@@ -339,10 +382,10 @@ def _complete_parents(q, sources, spec, model, timeout, fallback, system, cp) ->
     in (a `reaches` claim needs a checked step, as in the spec itself). Returns the cost."""
     if spec.get("parents_checked"):
         return 0.0
-    names = [s.rsplit("@", 1)[0] for s, _ in sources]
+    names_ = [s.rsplit("@", 1)[0] for s, _ in sources]
     said = {p["package"] for p in spec.get("parents") or []}
-    said |= {_bare(str(t.get("package", ""))) for t in spec.get("triggers") or []}
-    missing = [n for n in names if n != q.dependency and n not in said]
+    said |= {_bare(str(t.get("package", "")), names_, q.ecosystem) for t in spec.get("triggers") or []}
+    missing = [n for n in names_ if n != q.dependency and n not in said]
     cost = 0.0
     binary = _bin()
     target = next(((s, d) for s, d in sources if s.rsplit("@", 1)[0] == q.dependency), None)
@@ -365,10 +408,10 @@ def _complete_parents(q, sources, spec, model, timeout, fallback, system, cp) ->
         so, out, _ = got
         cost += float(out.get("total_cost_usd") or 0.0)
         for pa in so.get("parents") or []:
-            name = _bare(str(pa.get("package", "")))
+            name = _bare(str(pa.get("package", "")), [x for x, _ in sources], q.ecosystem)
             if name not in missing or name in said:
                 continue
-            ok, _ = check_trace(pa.get("trace"), sources, name) if pa.get("reaches") else ([], [])
+            ok, _ = check_trace(pa.get("trace"), sources, name, q.ecosystem) if pa.get("reaches") else ([], [])
             spec.setdefault("parents", []).append({"package": name, "reaches": bool(pa.get("reaches")),
                                                    "how": str(pa.get("how", ""))[:300], "verified": ok,
                                                    "completed": True})
@@ -404,8 +447,8 @@ def _new_spec(q, sources, model, timeout, fallback, cp, specs, system):
         cost += float(out.get("total_cost_usd") or 0.0)
         parents = []
         for pa in so.get("parents") or []:
-            name = _bare(str(pa.get("package", "")))
-            ok, _ = check_trace(pa.get("trace"), sources, name) if pa.get("reaches") else ([], [])
+            name = _bare(str(pa.get("package", "")), [x for x, _ in sources], q.ecosystem)
+            ok, _ = check_trace(pa.get("trace"), sources, name, q.ecosystem) if pa.get("reaches") else ([], [])
             parents.append({"package": name, "reaches": bool(pa.get("reaches")),
                             "how": str(pa.get("how", ""))[:300], "verified": ok})
         # a parent the spec says reaches the vulnerable package, with a checked step of its own
@@ -415,8 +458,8 @@ def _new_spec(q, sources, model, timeout, fallback, cp, specs, system):
         via = {p["package"] for p in parents if p["reaches"] and _steps_in(p["verified"], p["package"])}
         kept, problems = [], []
         for t in so.get("triggers") or []:
-            pkg = _bare(str(t.get("package", "")))
-            ok, bad = check_trace(t.get("trace"), sources, q.dependency)
+            pkg = _bare(str(t.get("package", "")), [x for x, _ in sources], q.ecosystem)
+            ok, bad = check_trace(t.get("trace"), sources, q.dependency, q.ecosystem)
             base = {k: t.get(k, "") for k in ("package", "entry", "condition", "input")}
             if _steps_in(ok, q.dependency):
                 kept.append({**base, "verified": ok})
@@ -443,12 +486,12 @@ def _new_spec(q, sources, model, timeout, fallback, cp, specs, system):
 
 @lru_cache(maxsize=512)
 def _app_imports(repo_path: str, name: str, ecosystem: str = "npm") -> bool:
-    from .usage import _EXTS, _MAX_FILE_BYTES, _import_re, _iter_files, is_test_path
+    from .usage import _EXTS, _MAX_FILE_BYTES, _app_files, _import_re, is_test_path
     root = Path(repo_path).expanduser()
     imp = _import_re(ecosystem, name, "")
-    for f in _iter_files(root, _EXTS[ecosystem]):
+    for f, rel in _app_files(root, _EXTS[ecosystem]):
         try:
-            if f.stat().st_size <= _MAX_FILE_BYTES and not is_test_path(f.relative_to(root)) \
+            if f.stat().st_size <= _MAX_FILE_BYTES and not is_test_path(rel) \
                     and imp.search(f.read_text(errors="replace")):
                 return True
         except OSError:
@@ -496,7 +539,7 @@ def clear_needs(q: ReachQuery, spec: dict, sources) -> dict[str, tuple[str, ...]
     g = depgraph.load(Path(q.repo_path).expanduser(), q.ecosystem)
     tops = {g.nodes[c[0]]["name"] for c in depgraph.chains(g, q.dependency, q.version)} if g else set()
     route = sorted((set(names) | tops) - {q.dependency})
-    triggered = {_bare(str(t.get("package", ""))) for t in spec.get("triggers") or []}
+    triggered = {_bare(str(t.get("package", "")), [x for x, _ in sources], q.ecosystem) for t in spec.get("triggers") or []}
     out = {}
     for p in spec.get("parents") or []:
         n = p["package"]
@@ -533,7 +576,7 @@ def spec_connects(q: ReachQuery, spec: dict, sources) -> str:
     imported = [n for n in route if _app_imports(q.repo_path, n, q.ecosystem)]
     if not imported:
         return ""                                   # nothing on the route is app-called
-    triggered = {_bare(str(t.get("package", ""))) for t in spec.get("triggers") or []}
+    triggered = {_bare(str(t.get("package", "")), [x for x, _ in sources], q.ecosystem) for t in spec.get("triggers") or []}
     needs = clear_needs(q, spec, sources)
     cleared = {p["package"] for p in spec.get("parents") or [] if not p.get("reaches")
                and _backed(spec, p["package"], needs.get(p["package"], ()))}
@@ -592,10 +635,10 @@ def back_clears(q: ReachQuery, spec: dict, sources, model: str, timeout: float, 
     so, out, _ = got
     clears = spec.setdefault("clears", {})
     for pa in so.get("parents") or []:
-        name = _bare(str(pa.get("package", "")))
+        name = _bare(str(pa.get("package", "")), [x for x, _ in sources], q.ecosystem)
         if name not in needs:
             continue
-        ok, _bad = check_trace(pa.get("trace"), sources, name)
+        ok, _bad = check_trace(pa.get("trace"), sources, name, q.ecosystem)
         cited = {v.rsplit(":", 1)[0] for v in ok}
         missing = [f for f in needs[name] if f"{full[name]}/{f}" not in cited]
         reaches = bool(pa.get("reaches"))
@@ -624,13 +667,19 @@ def connects(q: ReachQuery, spec: dict, sources, model: str, timeout: float, fal
     return spec_connects(q, with_parent_triggers(spec), sources), cost
 
 
+def _maven_sources(q: ReachQuery) -> dict:
+    """Maven rows also get the libraries on the bytecode call chains (jvmcallers), so more dirs."""
+    return {"vuln_symbols": q.vuln_symbols, "limit": 8} if q.ecosystem == "maven" else {}
+
+
 def recheck_not_reachable(judge, q: ReachQuery, r: JudgeResult) -> JudgeResult:
     """A cached not_reachable passed the connect guard as it was then. The guard only
     gets stricter (2026-10-19: clearances need evidence), so re-apply it on use instead of
     asking the model again; the matcher's answer stands, the row goes to unsure."""
     if r.verdict != Verdict.NOT_REACHABLE or not connect_guard_on():
         return r
-    sources, _refused = pkgsrc.for_query(q.repo_path, q.dependency, q.version, ecosystem=q.ecosystem)
+    sources, _refused = pkgsrc.for_query(q.repo_path, q.dependency, q.version, ecosystem=q.ecosystem,
+                                         **_maven_sources(q))
     spec, cost = build_spec(q, sources, judge.spec_model, judge.timeout, judge.spec_fallback)
     if spec is None:
         return r
@@ -682,10 +731,11 @@ class SplitJudge:
 
     # --- 2. app match ------------------------------------------------------------
     def judge(self, q: ReachQuery) -> JudgeResult | None:
-        if q.ecosystem not in ("npm", "cargo", "go", "pypi"):
+        if q.ecosystem not in ECOSYSTEMS:
             return None
         t0 = time.monotonic()
-        sources, refused = pkgsrc.for_query(q.repo_path, q.dependency, q.version, ecosystem=q.ecosystem)
+        sources, refused = pkgsrc.for_query(q.repo_path, q.dependency, q.version, ecosystem=q.ecosystem,
+                                            **_maven_sources(q))
         spec, cost = self.trigger_spec(q, sources)
         if spec is None:
             logger.warning("split: no trigger spec for %s %s%s", q.dependency, q.cve,
@@ -693,7 +743,7 @@ class SplitJudge:
             return None
         u = usage_summary(q.repo_path, q.ecosystem, q.dependency,
                           tuple(q.vuln_symbols) + tuple(_entry_tokens(spec["triggers"])),
-                          q.import_name, version=q.version)
+                          q.import_name, version=q.version, callers_symbols=q.vuln_symbols)
         lines = [f"- {t['entry']} [{t['package']}] condition: {t['condition']}; input: {t['input']}"
                  for t in spec["triggers"]]
         spec_text = ("\n".join(lines) if lines else
@@ -714,7 +764,7 @@ class SplitJudge:
                 f"{app_excerpts(q.repo_path, u, self.matcher.budget)}\n\n"
                 "Does the application reach the vulnerable code as the spec describes?")
         d, err = self.matcher.complete({"cargo": _CARGO_MATCH_SYSTEM, "go": _GO_MATCH_SYSTEM,
-                                        "pypi": _PY_MATCH_SYSTEM}.get(q.ecosystem, MATCH_SYSTEM),
+                                        "pypi": _PY_MATCH_SYSTEM, "maven": _JVM_MATCH_SYSTEM}.get(q.ecosystem, MATCH_SYSTEM),
                                        user, VERDICT_SCHEMA, purpose="match")
         if d is None:
             logger.warning("split: matcher %s failed (%s)", self.matcher.name, err)

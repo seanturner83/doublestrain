@@ -194,8 +194,11 @@ def test_fetch_gomodule_verifies_the_go_sum_dirhash(tmp_path, monkeypatch):
 def test_go_hold_is_lifted_for_split_only():
     from doublestrain.judges.usage import Usage, nr_held
     assert nr_held("go") and nr_held("go", "endpoint") and not nr_held("go", "split")
-    assert nr_held("cargo", "split")                      # Rust: still unmeasured everywhere
-    assert nr_held("pypi") and nr_held("pypi", "split") and not nr_held("npm", "endpoint")
+    assert nr_held("cargo") and nr_held("cargo", "endpoint")   # Rust: the workstation alone stays held
+    assert not nr_held("cargo", "split")                  # lifted as a pair with claude (rs1-rs3)
+    assert nr_held("maven") and nr_held("maven", "split")  # JVM (jv1): unmeasured everywhere
+    assert nr_held("pypi") and nr_held("pypi", "endpoint") and not nr_held("npm", "endpoint")
+    assert not nr_held("pypi", "split")                   # lifted as a pair with claude (py8)
     u = Usage(ecosystem="go")
     assert guard_not_reachable(Verdict.NOT_REACHABLE, u, role="split")[0] == Verdict.NOT_REACHABLE
     assert guard_not_reachable(Verdict.NOT_REACHABLE, u)[0] == Verdict.UNSURE

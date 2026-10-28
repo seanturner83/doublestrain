@@ -1,0 +1,4287 @@
+{
+  "id": "real-py-superset",
+  "description": "superset 4.0.2 (requirements/*.txt pip-compile pins): held-out Python app (py5), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#1",
+      "facts": {
+        "package": "brotli",
+        "version": "1.0.9",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-6176",
+            "GHSA-2qfp-q593-8484",
+            "PYSEC-2026-1906",
+            "PYSEC-2026-2401"
+          ],
+          [
+            "brotli"
+          ]
+        ],
+        "advisory_summary": "Scrapy is vulnerable to a denial of service (DoS) attack due to flaws in brotli decompression implementation \u2014 Scrapy versions up to 2.13.3 are vulnerable to a denial of service (DoS) attack due to a flaw in its brotli decompression implementation. The protection mechanism against decompression bombs fails to mitigate the brotli variant, allowing remote servers to crash clients with less than 80GB of available memory. This occurs because brotli can achieve extremely high compression ratios for zero-filled data, leading to excessive memory consumption during decompression. Mitigation for this v",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.2.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "brotli 1.0.9 is in base.txt:35 only 'via flask-compress'; flask_compress.py:235 uses brotli.compress on responses only (no decompression). The only decompressor path is urllib3 1.26.18 response.py:110-117 (BrotliDecoder) for responses fetched via requests; Superset's requests use is the gsheets/shillelagh adapter to Google APIs and google-auth (db_engine_specs/gsheets.py:34), selenium->local webdriver; other fetches use urllib.request (utils/csv.py:19, tasks/cache.py:227, dataset importers utils.py:193) which does not brotli-decode. No attacker-controlled server feeds brotli decompression."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#2",
+      "facts": {
+        "package": "certifi",
+        "version": "2023.7.22",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-39689",
+            "GHSA-248v-346w-9cwc",
+            "PYSEC-2024-230"
+          ],
+          [
+            "certifi"
+          ]
+        ],
+        "advisory_summary": "Certifi is a curated collection of Root Certificates for validating the trustworthiness of SSL certificates while verifying the identity of TLS hosts. Certifi starting in 2021.05.30 and prior to 2024.07.4 recognized root certificates from `GLOBALTRUST`. Certifi 2024.07.04 removes root certificates from `GLOBALTRUST` from the root store. These are in the process of being removed from Mozilla's trust store. `GLOBALTRUST`'s root certificates are being removed pursuant to an investigation which identified \"long-running and unresolved compliance issues.\"",
+        "vuln_symbols": [
+          "GLOBALTRUST"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2024.7.4",
+          "bd8153872e9c6fc98f4023df9c2deaffea2fa463"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.53
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "certifi 2023.7.22 (base.txt:47 via requests) supplies the CA bundle for every HTTPS call made through requests/urllib3: shillelagh gsheets adapter + google-auth token fetches (db_engine_specs/gsheets.py:34, base.txt:316 shillelagh[gsheetsapi]), and other requests users. The bundle including GLOBALTRUST roots is used at runtime; exploitation needs a mis-issued cert + on-path attacker."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#3",
+      "facts": {
+        "package": "certifi",
+        "version": "2023.7.22",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-6q48-6c7w-9gw2",
+            "PYSEC-2026-4320"
+          ],
+          [
+            "certifi"
+          ]
+        ],
+        "advisory_summary": "certifi bundles emSign root CAs with compromised intermediate CA keys \u2014 Certifi versions before 2026.10.18 include the `emSign ECC Root CA - G3` root certificate in their bundled CA store. Eight eMudhra intermediate CA certificates that chain to this root have compromised private keys and the CA has revoked them. \n\nAn attacker with one of the compromised keys can issue valid-looking certificates for any hostname. If the attacker is also on-path, they can intercept or modify TLS traffic from clients that trust the certifi bundle. Examples include `requests`, `urllib3` and `pip`, and the Python.",
+        "vuln_symbols": [
+          "requests",
+          "urllib3"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2026.10.19"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.62
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Same as certifi GLOBALTRUST row: certifi bundle (base.txt:47) is the trust store for requests HTTPS (gsheets/google-auth via shillelagh, db_engine_specs/gsheets.py:34). The emSign ECC Root G3 is trusted at runtime; requires compromised-intermediate cert + on-path attacker."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#4",
+      "facts": {
+        "package": "cryptography",
+        "version": "42.0.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-537c-gmf6-5ccf"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "Vulnerable OpenSSL included in cryptography wheels \u2014 pyca/cryptography's wheels include a statically linked copy of OpenSSL. The versions of OpenSSL included in wheels prior to cryptograph 48.01 are vulnerable to a security issue. More details about the vulnerability itself can be found in https://openssl-library.org/news/secadv/20260609.txt.\n\nIf you are building cryptography source (\"sdist\") then you are responsible for upgrading your copy of OpenSSL. Only users installing from wheels built by the cryptography project (i.e., those distributed on PyPI) need to update their cryptography version",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "48.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "cryptography 42.0.4 wheel (base.txt:81, direct) bundles OpenSSL used at runtime: sqlalchemy-utils EncryptedType for DB credentials, paramiko SSH tunnels (sshtunnel base.txt:349), certificate parsing utils/core.py:1431 (server_cert validator databases/schemas.py:189-195). Advisory text does not name the OpenSSL flaw (secadv 20260609) so its precondition cannot be checked; defaulting to reachable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#5",
+      "facts": {
+        "package": "cryptography",
+        "version": "42.0.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h4gh-qq45-vh27"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "pyca/cryptography has a vulnerable OpenSSL included in cryptography wheels \u2014 pyca/cryptography's wheels include a statically linked copy of OpenSSL. The versions of OpenSSL included in cryptography 37.0.0-43.0.0 are vulnerable to a security issue. More details about the vulnerability itself can be found in https://openssl-library.org/news/secadv/20240903.txt.\n\nIf you are building cryptography source (\"sdist\") then you are responsible for upgrading your copy of OpenSSL. Only users installing from wheels built by the cryptography project (i.e., those distributed on PyPI) need to update their cry",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "43.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "OpenSSL secadv 20240903 is CVE-2024-6119 (DoS in X509_check_host/email name checks with otherName) + low-severity items. Python's ssl module uses the system OpenSSL, not cryptography's bundled one; cryptography 42 does hostname/x509 verification in Rust and no pyOpenSSL is installed (not in base.txt), so the bundled OpenSSL's name-check functions are never called. Superset only parses PEM certs (utils/core.py:1431) and does symmetric/SSH crypto."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#6",
+      "facts": {
+        "package": "cryptography",
+        "version": "42.0.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-12797",
+            "GHSA-79v4-65xg-pq4g",
+            "PYSEC-2026-1284"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "Vulnerable OpenSSL included in cryptography wheels \u2014 pyca/cryptography's wheels include a statically linked copy of OpenSSL. The versions of OpenSSL included in cryptography 42.0.0-44.0.0 are vulnerable to a security issue. More details about the vulnerability itself can be found in https://openssl-library.org/news/secadv/20250211.txt.\n\nIf you are building cryptography source (\"sdist\") then you are responsible for upgrading your copy of OpenSSL. Only users installing from wheels built by the cryptography project (i.e., those distributed on PyPI) need to update their cryptography versions.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "44.0.1"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "OpenSSL secadv 20250211 is CVE-2024-12797: TLS clients using RFC7250 Raw Public Keys fail to abort on server auth failure. Requires TLS via cryptography's bundled OpenSSL with RPK enabled; no pyOpenSSL in base.txt, Python ssl uses system OpenSSL, nothing enables RPK."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#7",
+      "facts": {
+        "package": "cryptography",
+        "version": "42.0.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-26007",
+            "GHSA-r6ph-v2qm-q3c2",
+            "PYSEC-2026-2141"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "cryptography Vulnerable to a Subgroup Attack Due to Missing Subgroup Validation for SECT Curves \u2014 ## Vulnerability Summary\n\nThe `public_key_from_numbers` (or `EllipticCurvePublicNumbers.public_key()`), `EllipticCurvePublicNumbers.public_key()`, `load_der_public_key()` and `load_pem_public_key()` functions do not verify that the point belongs to the expected prime-order subgroup of the curve.\n\nThis missing validation allows an attacker to provide a public key point `P` from a small-order subgroup.  This can lead to security issues in various situations, such as the most commonly used signature ",
+        "vuln_symbols": [
+          "public_key_from_numbers",
+          "EllipticCurvePublicNumbers.public_key",
+          "load_der_public_key",
+          "load_pem_public_key",
+          "P"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "46.0.5"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs attacker-supplied EC public key on a binary SECT curve loaded via load_pem/der_public_key or EllipticCurvePublicNumbers. Superset only loads certs (utils/core.py:1431) and private keys (db_engine_specs/snowflake.py:27-28, snowflake driver not in base). JWTs are HS256 (guest token / async queries / flask-jwt-extended secret). paramiko ECDSA host keys use NIST P-curves only. No SECT public key from attacker reaches these functions."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#8",
+      "facts": {
+        "package": "cryptography",
+        "version": "42.0.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-34073",
+            "GHSA-m959-cc7f-wv43",
+            "PYSEC-2026-35"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "cryptography has incomplete DNS name constraint enforcement on peer names \u2014 ## Summary\n\nIn versions of cryptography prior to 46.0.5, DNS name constraints were only validated against SANs within child certificates, and not the \"peer name\" presented during each validation. Consequently, cryptography would allow a peer named `bar.example.com` to validate against a wildcard leaf certificate for `*.example.com`, even if the leaf's parent certificate (or upwards) contained an excluded subtree constraint for `bar.example.com`.\n\nThis behavior resulted from a gap between RFC 5280 (which defines Name Co",
+        "vuln_symbols": [
+          "bar.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "46.0.6"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bug is in cryptography.x509.verification (PolicyBuilder/Verifier name-constraint checks). Not used by Superset (grep of superset/ finds only load_pem_x509_certificate at utils/core.py:1431) nor by paramiko/pyjwt/google-auth/FAB/sqlalchemy-utils sources (grep for x509.verification/PolicyBuilder: none). TLS uses Python ssl."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#9",
+      "facts": {
+        "package": "cryptography",
+        "version": "42.0.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69249",
+            "GHSA-jwv3-5hgf-82ww",
+            "PYSEC-2026-3553"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "python-cryptography: Duplicate self-signed intermediates can cause exponential path-building \u2014 ### Summary\nWhen resolving invalid certificate chains that include duplicate copies of self-signed certificates, the processing recursively invokes the same candidate, leading to an exponential blowup. Although the limitation that the chain depth cannot exceed a specified maximum depth prevents unbounded recursion and guarantees termination, an attacker-controlled certificate chain can lead the processing to easily take more than 5s to reject in testing. This amplification could form the basis for a ",
+        "vuln_symbols": [
+          "build_chain_inner"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "49.0.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Exponential path building is in cryptography.x509.verification Verifier; no caller in Superset (only load_pem_x509_certificate utils/core.py:1431, which does no chain building) or its deps (no PolicyBuilder/x509.verification usage)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#10",
+      "facts": {
+        "package": "cryptography",
+        "version": "42.0.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69248",
+            "GHSA-m2h6-j472-rp4c",
+            "PYSEC-2026-3554"
+          ],
+          [
+            "cryptography"
+          ]
+        ],
+        "advisory_summary": "python-cryptography verifier accepts wildcard DNS names allowing escape from permittedSubtrees \u2014 ### Summary\nIf an intermediate constrained CA permits the DNS name `foo.example.com`, and the leaf certificate has a wildcard in its DNS SAN of `*.example.com`, python-cryptography's verifier accepts which allows escaping outside of the permitted names.\n\n### PoC\n\n```\n#!/usr/bin/env python3\n\"\"\"Standalone PoC: pyca's DNSConstraint::matches admits a too-broad wildcard SAN.\n\nSetup:\n  Sub-CA permitted constraint: dNSName = foo.example.com\n  Leaf SAN:                    dNSName = *.example.com\nExpected: ",
+        "vuln_symbols": [
+          "foo.example.com",
+          "bar.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "49.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Wildcard/permittedSubtrees bug is in cryptography's X.509 Verifier (DNSConstraint::matches); x509.verification API unused by Superset and dependencies; only cert parsing at utils/core.py:1431."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#11",
+      "facts": {
+        "package": "dnspython",
+        "version": "2.1.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-29483",
+            "GHSA-3rq5-2g8h-59hc",
+            "PYSEC-2026-1307",
+            "PYSEC-2026-2472"
+          ],
+          [
+            "dnspython"
+          ]
+        ],
+        "advisory_summary": "Potential DoS via the Tudoor mechanism in eventlet and dnspython \u2014 eventlet before 0.35.2, as used in dnspython before 2.6.0, allows remote attackers to interfere with DNS name resolution by quickly sending an invalid packet from the expected IP address and source port, aka a \"TuDoor\" attack. In other words, dnspython does not have the preferred behavior in which the DNS name resolution algorithm would proceed, within the full time window, in order to wait for a valid packet. NOTE: dnspython 2.6.0 is unusable for a different reason that was addressed in 2.6.1.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "dnspython 2.1.0 is only 'via email-validator' (base.txt:89-92). email_validator 1.1.3 uses dns.resolver only when check_deliverability=True (__init__.py:281); FAB uses WTForms Email() (security/forms.py:86,125) and WTForms 2.3.3 Email defaults check_deliverability=False (validators.py:327,345). Superset never imports dns. No DNS resolution via dnspython at runtime."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#12",
+      "facts": {
+        "package": "filelock",
+        "version": "3.12.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-22701",
+            "GHSA-qmgc-5h2g-mvrw",
+            "PYSEC-2026-1374"
+          ],
+          [
+            "filelock"
+          ]
+        ],
+        "advisory_summary": "filelock Time-of-Check-Time-of-Use (TOCTOU) Symlink Vulnerability in SoftFileLock \u2014 ## Vulnerability Summary\n\n**Title:** Time-of-Check-Time-of-Use (TOCTOU) Symlink Vulnerability in SoftFileLock\n\n**Affected Component:** `filelock` package - `SoftFileLock` class\n**File:** `src/filelock/_soft.py` lines 17-27\n**CWE:** CWE-362, CWE-367, CWE-59\n\n---\n\n## Description\n\nA TOCTOU race condition vulnerability exists in the `SoftFileLock` implementation of the filelock package. An attacker with local filesystem access and permission to create symlinks can exploit a race condition between the permission val",
+        "vuln_symbols": [
+          "SoftFileLock",
+          "_acquire",
+          "raise_on_not_writable_file",
+          "os.open",
+          "filelock.SoftFileLock",
+          "fcntl"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.20.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "filelock 3.12.2 appears only in requirements/integration.txt:24 (via tox, virtualenv), not in base.txt; never imported by superset/. Dev/CI only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#13",
+      "facts": {
+        "package": "filelock",
+        "version": "3.12.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-68146",
+            "GHSA-w853-jp5j-5j7f",
+            "PYSEC-2026-1375"
+          ],
+          [
+            "filelock"
+          ]
+        ],
+        "advisory_summary": "filelock has a TOCTOU race condition which allows symlink attacks during lock file creation \u2014 ### Impact\n\nA Time-of-Check-Time-of-Use (TOCTOU) race condition allows local attackers to corrupt or truncate arbitrary user files through symlink attacks. The vulnerability exists in both Unix and Windows lock file creation where filelock checks if a file exists before opening it with O_TRUNC. An attacker can create a symlink pointing to a victim file in the time gap between the check and open, causing os.open() to follow the symlink and truncate the target file.\n\n**Who is impacted:**\n\nAll users of f",
+        "vuln_symbols": [
+          "os.open",
+          "O_NOFOLLOW",
+          "filelock_simple_poc.py",
+          "weaponized_virtualenv.py",
+          "weaponized_pytorch.py"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.20.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "filelock 3.12.2 only in requirements/integration.txt:24 (via tox/virtualenv); absent from base.txt and superset/. Dev/CI only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#14",
+      "facts": {
+        "package": "flask",
+        "version": "2.2.5",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-27205",
+            "GHSA-68rp-wp8r-4726",
+            "PYSEC-2026-2151"
+          ],
+          [
+            "flask"
+          ]
+        ],
+        "advisory_summary": "Flask session does not add `Vary: Cookie` header when accessed in some ways \u2014 When the `session` object is accessed, Flask should set the `Vary: Cookie` header. This instructs caches not to cache the response, as it may contain information specific to a logged in user. This is handled in most cases, but some forms of access such as the Python `in` operator were overlooked.\n\nThe severity depends on the application's use of the session, and the cache's behavior regarding cookies. The risk depends on all these conditions being met.\n\n1. The application must be hosted behind a caching proxy that do",
+        "vuln_symbols": [
+          "session",
+          "in"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "flask 2.2.5 SecureCookieSession sets accessed only in __getitem__/get/setdefault (flask/sessions.py:74-87), not __contains__; Vary: Cookie added only if session.accessed (sessions.py:386-387). Flask-Login 0.6.3 checks session with `in` on every response/request (login_manager.py:450-476, utils.py:215-227) and FAB uses `k in session` (views.py:823, security/views.py:606). Code path runs on every request; exploitation additionally needs a caching proxy in front and a response that varies by session without any .get() access (user loading normally calls session.get, so practical impact is limited)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#15",
+      "facts": {
+        "package": "flask-appbuilder",
+        "version": "4.4.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-24023",
+            "GHSA-p8q5-cvwx-wvwp",
+            "PYSEC-2025-15"
+          ],
+          [
+            "flask-appbuilder"
+          ]
+        ],
+        "advisory_summary": "Flask-AppBuilder Observable Response Discrepancy \u2014 ### Impact\nUser enumeration in database authentication in Flask-AppBuilder <= 4.5.3 and werkzeug >= 3.0.0. Allows for a non authenticated user to enumerate existing usernames by timing the response time from the server when brute forcing requests to login.\n\n### Patches\n\nUpgrade to flask-appbuilder>=4.5.3\n\n### Workarounds\nDowngrade werkzeug to <3.0.0\n\n### References\n_Are there any links users can visit to find out more?_",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.5.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Superset config.py:313 AUTH_TYPE = AUTH_DB (default), werkzeug 3.0.1 in base.txt:378 (default hash scrypt, werkzeug/security.py:70). FAB 4.4.1 auth_user_db balances failures with a hard-coded pbkdf2:sha256:150000 hash (security/manager.py:961-967) while real users have scrypt hashes, so unknown vs known usernames differ in timing on the unauthenticated /login/ (AuthDBView security/views.py:519). Superset does not override auth_user_db."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#16",
+      "facts": {
+        "package": "flask-appbuilder",
+        "version": "4.4.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58065",
+            "GHSA-765j-9r45-w2q2",
+            "PYSEC-2026-1378"
+          ],
+          [
+            "flask-appbuilder"
+          ]
+        ],
+        "advisory_summary": "Flask App Builder has an Authentication Bypass vulnerability when using non AUTH_DB methods \u2014 ### Impact\nWhen Flask-AppBuilder is configured to use OAuth, LDAP, or other non-database authentication methods, the password reset endpoint remains registered and accessible, despite not being displayed in the user interface. This allows an enabled user to reset their password and be able to create JWT tokens even after the user is disabled on the authentication provider.\n\n### Patches\nUpgrade to Flask-AppBuilder version 4.8.1 or later\n\n### Workarounds\nIf immediate upgrade is not possible:\n- Manually ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.8.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "FAB 4.4.1 register_views always adds ResetPasswordView and ResetMyPasswordView regardless of auth_type (security/manager.py:786-787); Superset keeps FAB_ADD_SECURITY_VIEWS=True (config.py:1131) and grants 'resetmypassword' to all users (superset/security/manager.py:285). Default AUTH_TYPE is AUTH_DB (config.py:313) where this is intended; the bypass needs AUTH_OAUTH/AUTH_LDAP, which is a common Superset deployment setting."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#17",
+      "facts": {
+        "package": "flask-appbuilder",
+        "version": "4.4.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-32962",
+            "GHSA-99pm-ch96-ccp2",
+            "PYSEC-2026-1379"
+          ],
+          [
+            "flask-appbuilder"
+          ]
+        ],
+        "advisory_summary": "Flask-AppBuilder open redirect vulnerability using HTTP host injection \u2014 ### Impact\nFlask-AppBuilder prior to 4.6.2 would allow for a malicious unauthenticated actor to perform an open redirect by manipulating the Host header in HTTP requests.\n \n### Patches\nFlask-AppBuilder 4.6.2 introduced the `FAB_SAFE_REDIRECT_HOSTS` configuration variable, which allows administrators to explicitly define which domains are considered safe for redirection.\n\nExamples:\n```\nFAB_SAFE_REDIRECT_HOSTS = [\"yourdomain.com\", \"sub.yourdomain.com\", \"*.yourcompany.com\"]\n```\n\n### Workarounds\nUse a Reverse Proxy to Enforce",
+        "vuln_symbols": [
+          "FAB_SAFE_REDIRECT_HOSTS"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.6.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "FAB 4.4.1 is_safe_redirect_url compares the next URL's netloc with urlparse(request.host_url).netloc (utils/base.py:29-33), i.e. the attacker-controlled Host header; used by unauthenticated login views for ?next= (security/views.py:528,551,616,725-747). No FAB_SAFE_REDIRECT_HOSTS in this version. Superset uses FAB's login views unchanged."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#18",
+      "facts": {
+        "package": "flask-appbuilder",
+        "version": "4.4.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-45314",
+            "GHSA-fw5r-6m3x-rh7p",
+            "PYSEC-2026-1382"
+          ],
+          [
+            "flask-appbuilder"
+          ]
+        ],
+        "advisory_summary": "Flask-AppBuilder's login form allows browser to cache sensitive fields  \u2014 ### Impact\nAuth DB login form default cache directives allows browser to locally store sensitive data. This can be an issue on environments using shared computer resources.\n\n### Patches\nUpgrade flask-appbuilder to version 4.5.1\n\n### Workarounds\nIf upgrading is not possible configure your web server to send the following HTTP headers for /login:\n\"Cache-Control\": \"no-store, no-cache, must-revalidate, max-age=0\"\n\"Pragma\": \"no-cache\"\n\"Expires\": \"0\" \n",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.5.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Default AUTH_TYPE=AUTH_DB (superset config.py:313) uses FAB 4.4.1 AuthDBView /login/ (security/views.py:519) which renders the login form without no-store cache headers (fixed in FAB 4.5.1); Superset adds no Cache-Control by default (DEFAULT_HTTP_HEADERS/OVERRIDE_HTTP_HEADERS empty, config.py:953-955; Talisman does not set Cache-Control)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#19",
+      "facts": {
+        "package": "geopy",
+        "version": "2.2.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-77387",
+            "GHSA-mhvh-fq92-pfmr",
+            "PYSEC-2026-4218"
+          ],
+          [
+            "geopy"
+          ]
+        ],
+        "advisory_summary": "geopy: Regular Expression Denial of Service (ReDoS) in geopy.Point \u2014 ### Impact\n\n`geopy.Point` and `Point.from_string()` may take excessive CPU time when parsing long, malformed coordinate strings due to inefficient regular-expression behavior. The numeric Point constructor is not affected.\n\nGeocoders' `reverse` methods called with string inputs exercise the vulnerable path.\n\nApplications are affected when they pass attacker-controlled strings to these APIs without an appropriate length limit. Repeated requests may cause denial of service.\n\n### Patches\n\nFixed in geopy **2.5.0** by rejecting ov",
+        "vuln_symbols": [
+          "geopy.Point",
+          "Point.from_string",
+          "reverse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.5.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "geopy 2.2.0 Point(str) -> Point.from_string using POINT_PATTERN regex (geopy/point.py:14,165-166,388). Superset calls Point(location) on query-result strings in the geodetic_parse post-processing op (utils/pandas_postprocessing/geography.py:103), dispatched by name from chart-data request post_processing (common/query_object.py:437-445), and in deck.gl delimited spatial parsing (viz.py:1900). Authenticated users control both the request and the column values (e.g. SQL Lab virtual dataset), so long malformed strings reach the regex."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#20",
+      "facts": {
+        "package": "gunicorn",
+        "version": "21.2.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-6827",
+            "GHSA-hc5x-x2vx-497g",
+            "PYSEC-2026-1433"
+          ],
+          [
+            "gunicorn"
+          ]
+        ],
+        "advisory_summary": "Gunicorn HTTP Request/Response Smuggling vulnerability \u2014 Gunicorn version 21.2.0 does not properly validate the value of the 'Transfer-Encoding' header as specified in the RFC standards, which leads to the default fallback method of 'Content-Length,' making it vulnerable to TE.CL request smuggling. This vulnerability can lead to cache poisoning, data exposure, session manipulation, SSRF, XSS, DoS, data integrity compromise, security bypass, information leakage, and business logic abuse.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "22.0.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Production server is gunicorn 21.2.0 (base.txt:149; docker/run-server.sh launches gunicorn with gthread workers). Its HTTP parser (gunicorn/http/message.py) handles Transfer-Encoding on every inbound request from internet clients; TE.CL smuggling impact needs a front proxy, which is typical."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#21",
+      "facts": {
+        "package": "gunicorn",
+        "version": "21.2.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-1135",
+            "GHSA-w3h3-4rj7-4ph4",
+            "PYSEC-2026-1434"
+          ],
+          [
+            "gunicorn"
+          ]
+        ],
+        "advisory_summary": "Request smuggling leading to endpoint restriction bypass in Gunicorn \u2014 Gunicorn fails to properly validate Transfer-Encoding headers, leading to HTTP Request Smuggling (HRS) vulnerabilities. By crafting requests with conflicting Transfer-Encoding headers, attackers can bypass security restrictions and access restricted endpoints. This issue is due to Gunicorn's handling of Transfer-Encoding headers, where it incorrectly processes requests with multiple, conflicting Transfer-Encoding headers, treating them as chunked regardless of the final encoding specified. This vulnerability has been shown ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "22.0.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "gunicorn 21.2.0 (base.txt:149) serves the app (docker/run-server.sh); conflicting/multiple Transfer-Encoding header handling in its request parser runs on all attacker requests; endpoint-restriction bypass needs a fronting proxy, a common deployment."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#22",
+      "facts": {
+        "package": "idna",
+        "version": "3.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-3651",
+            "GHSA-jjg7-2v4v-x38h",
+            "PYSEC-2024-60"
+          ],
+          [
+            "idna"
+          ]
+        ],
+        "advisory_summary": "Internationalized Domain Names in Applications (IDNA) vulnerable to denial of service from specially crafted inputs to idna.encode \u2014 ### Impact\nA specially crafted argument to the `idna.encode()` function could consume significant resources. This may lead to a denial-of-service.\n\n### Patches\nThe function has been refined to reject such strings without the associated resource consumption in version 3.7.\n\n### Workarounds\nDomain names cannot exceed 253 characters in length, if this length limit is enforced prior to passing the domain to the `idna.encode()` function it should no longer consume sig",
+        "vuln_symbols": [
+          "idna.encode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1d365e17e10d72d0b7876316fc7b9ca0eebdd38d",
+          "3.7"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "re-review majority (rea/not/not): idna 3.2 (base.txt:157, via email-validator and requests). idna.encode is reached only by (a) email_validator 1.1.3 (__init__.py:368-394) through the wtforms Email() validator, which FAB uses only in the self-registration forms (flask_appbuilder/security/forms.py:86,125); AUTH_USER_REGISTRATION is off by default (superset/config.py:322, commented out); and (b) requests/urllib3 parsing a non-ASCII host (urllib3 util/url.py:305-315), but Superset makes no requests calls to user-chosen hosts. requests is used only by shillelagh gsheets, which talks to fixed Google hosts and needs an admin-created gsheets DB. jsonschema is used without a format_checker (FAB api/__init__.py:179). Becomes reachable only if public self-registration is enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#23",
+      "facts": {
+        "package": "idna",
+        "version": "3.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45409",
+            "GHSA-65pc-fj4g-8rjx",
+            "PYSEC-2026-215"
+          ],
+          [
+            "idna"
+          ]
+        ],
+        "advisory_summary": "Internationalized Domain Names in Applications (IDNA) for Python provides support for Internationalized Domain Names in Applications (IDNA) and Unicode IDNA Compatibility Processing. In versions prior to 3.15, payloads such as `\"\\u0660\" * N` or `\"\\u30fb\" * N + \"\\u6f22\"` utilize the `valid_contexto` function prior to length rejection, and for high values of `N` will take a long time to process. This is the same issue as CVE-2024-3651, however the original remediation in 2024 was not a complete fix. A specially crafted argument to the `idna.encode()` function could consume significant resources.",
+        "vuln_symbols": [
+          "valid_contexto",
+          "N",
+          "idna.encode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.15"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Same path as CVE-2024-3651: idna 3.2 idna.encode/valid_contexto reached from email_validator 1.1.3 (__init__.py:368,394) via WTForms Email() on FAB self-registration forms (security/forms.py:86,125), only when AUTH_USER_REGISTRATION=True (superset/config.py:322, default off). No other attacker-fed idna path found."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#24",
+      "facts": {
+        "package": "jinja2",
+        "version": "3.1.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-27516",
+            "GHSA-cpwx-vrp4-4pq7",
+            "PYSEC-2026-1471"
+          ],
+          [
+            "jinja2"
+          ]
+        ],
+        "advisory_summary": "Jinja2 vulnerable to sandbox breakout through attr filter selecting format method \u2014 An oversight in how the Jinja sandboxed environment interacts with the `|attr` filter allows an attacker that controls the content of a template to execute arbitrary Python code.\n\nTo exploit the vulnerability, an attacker needs to control the content of a template. Whether that is the case depends on the type of application using Jinja. This vulnerability impacts users of applications which execute untrusted templates.\n\nJinja's sandbox does catch calls to `str.format` and ensures they don't escape the sandbox. ",
+        "vuln_symbols": [
+          "str.format"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Superset renders user-written SQL/metric/filter/alert templates in jinja2 SandboxedEnvironment (jinja_context.py:28,465,482; called from sqllab and connectors/sqla/models.py:905-1659, commands/report/alert.py:149) when feature flag ENABLE_TEMPLATE_PROCESSING is on (config.py:409 default False; jinja_context.py:659). This flag is widely enabled; SQL Lab users then control template content, so the |attr/format sandbox escape in jinja2 3.1.3 is reachable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#25",
+      "facts": {
+        "package": "jinja2",
+        "version": "3.1.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-56201",
+            "GHSA-gmj6-6f8f-6699",
+            "PYSEC-2026-1472"
+          ],
+          [
+            "jinja2"
+          ]
+        ],
+        "advisory_summary": "Jinja has a sandbox breakout through malicious filenames \u2014 A bug in the Jinja compiler allows an attacker that controls both the content and filename of a template to execute arbitrary Python code, regardless of if Jinja's sandbox is used.\n\nTo exploit the vulnerability, an attacker needs to control both the filename and the contents of a template. Whether that is the case depends on the type of application using Jinja. This vulnerability impacts users of applications which execute untrusted templates where the template author can also choose the template filename.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Exploit needs attacker control of the template filename. Superset only compiles user templates with env.from_string(sql) (jinja_context.py:482,626; views/tags.py:41, all_entities.py:40) with no attacker-chosen name; Flask/FAB file templates are shipped files. Filename never attacker-influenced."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#26",
+      "facts": {
+        "package": "jinja2",
+        "version": "3.1.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-34064",
+            "GHSA-h75v-3vvj-5mfj",
+            "PYSEC-2026-1474"
+          ],
+          [
+            "jinja2"
+          ]
+        ],
+        "advisory_summary": "Jinja vulnerable to HTML attribute injection when passing user input as keys to xmlattr filter \u2014 The `xmlattr` filter in affected versions of Jinja accepts keys containing non-attribute characters. XML/HTML attributes cannot contain spaces, `/`, `>`, or `=`, as each would then be interpreted as starting a separate attribute. If an application accepts keys (as opposed to only values) as user input, and renders these in pages that other users see as well, an attacker could use this to inject other attributes and perform XSS. The fix for the previous GHSA-h5c8-rqwp-cp95 CVE-2024-22195 only addres",
+        "vuln_symbols": [
+          "xmlattr"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "xmlattr filter is not used anywhere in superset/ or the FAB 4.4.1 templates (grep: no hits). User SQL templates (ENABLE_TEMPLATE_PROCESSING) render SQL, not HTML shown to other users, so the attribute-key injection XSS has no sink."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#27",
+      "facts": {
+        "package": "jinja2",
+        "version": "3.1.3",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-56326",
+            "GHSA-q2x7-8rv6-6q7h",
+            "PYSEC-2026-1475"
+          ],
+          [
+            "jinja2"
+          ]
+        ],
+        "advisory_summary": "Jinja has a sandbox breakout through indirect reference to format method \u2014 An oversight in how the Jinja sandboxed environment detects calls to `str.format` allows an attacker that controls the content of a template to execute arbitrary Python code.\n\nTo exploit the vulnerability, an attacker needs to control the content of a template. Whether that is the case depends on the type of application using Jinja. This vulnerability impacts users of applications which execute untrusted templates.\n\nJinja's sandbox does catch calls to `str.format` and ensures they don't escape the sandbox. However, it's",
+        "vuln_symbols": [
+          "str.format",
+          "format"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Same sink as the |attr row: SandboxedEnvironment.from_string on user-controlled SQL templates (jinja_context.py:465,482) when ENABLE_TEMPLATE_PROCESSING is enabled (config.py:409, default False, commonly turned on). Indirect str.format reference escapes the jinja2 3.1.3 sandbox."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#28",
+      "facts": {
+        "package": "mako",
+        "version": "1.2.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44307",
+            "GHSA-2h4p-vjrc-8xpq",
+            "PYSEC-2026-2617"
+          ],
+          [
+            "mako"
+          ]
+        ],
+        "advisory_summary": "Mako vulnerable to path traversal via backslash URI on Windows in TemplateLookup \u2014 ## Summary\n\nOn Windows, a URI using backslash traversal (e.g. `\\..\\..\\ secret.txt`) bypasses the directory traversal check in `Template.__init__` and the `posixpath`-based normalization in `TemplateLookup.get_template()`, allowing reads of files outside the configured template directory.\n\n\n## Details\n\nThe root cause is a mismatch between `posixpath` (used for URI normalization in `get_template()`) and `os.path` (used for file access via `os.path.isfile()` and validation via `os.path.normpath()` in `Template.__in",
+        "vuln_symbols": [
+          "Template.__init__",
+          "posixpath",
+          "TemplateLookup.get_template",
+          "get_template",
+          "os.path",
+          "os.path.isfile"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.12"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Windows-only path traversal in mako TemplateLookup. mako 1.2.4 is used only by alembic for revision script templates (dev 'alembic revision'); superset/ never imports mako or TemplateLookup, and the deployment runs on Linux containers."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#29",
+      "facts": {
+        "package": "mako",
+        "version": "1.2.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102991",
+            "GHSA-5639-2j2p-m4mx",
+            "PYSEC-2026-4243"
+          ],
+          [
+            "mako"
+          ]
+        ],
+        "advisory_summary": "Mako: Path traversal via drive-letter URI on Windows in TemplateLookup \u2014 ## Summary\n\nOn Windows, a `TemplateLookup` URI beginning with a drive designator (e.g. `C:/../../secret.txt` or `C:\\..\\..\\secret.txt`) bypasses the directory traversal check in `Template.__init__`, allowing reads of files outside the configured template directory.\n\nThis is a third, independent instance of the root cause behind CVE-2026-41205 (the `//` prefix) and CVE-2026-44307 (the backslash form). Both of those fixes normalized a separator *spelling*. Neither addressed the other way `posixpath` and `ntpath` disagree: th",
+        "vuln_symbols": [
+          "TemplateLookup",
+          "Template.__init__",
+          "posixpath",
+          "ntpath",
+          "os.path",
+          "ntpath.normpath"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.4.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Windows drive-letter traversal in mako TemplateLookup; Superset never uses mako TemplateLookup (no import in superset/), alembic uses mako only for generating migration files, and deployment is Linux."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#30",
+      "facts": {
+        "package": "mako",
+        "version": "1.2.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41205",
+            "GHSA-v92g-xgxw-vvmm",
+            "PYSEC-2026-88"
+          ],
+          [
+            "mako"
+          ]
+        ],
+        "advisory_summary": "Mako: Path traversal via double-slash URI prefix in TemplateLookup \u2014 ### Summary\n\n`TemplateLookup.get_template()` is vulnerable to path traversal when a URI starts with `//` (e.g., `//../../../secret.txt`). The root cause is an inconsistency between two slash-stripping implementations:\n\n- `Template.__init__` strips **one** leading `/` using `if`/slice\n- `TemplateLookup.get_template()` strips **all** leading `/` using `re.sub(r\"^\\/+\", \"\")`\n\nWhen a URI like `//../../../../etc/passwd` is passed:\n1. `get_template()` strips all `/` \u2192 `../../../../etc/passwd` \u2192 file found via `posixpath.join(dir_, u",
+        "vuln_symbols": [
+          "TemplateLookup.get_template",
+          "Template.__init__",
+          "if",
+          "get_template",
+          "normpath",
+          "BaseHTTPRequestHandler"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.11"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs attacker-controlled URI passed to mako TemplateLookup.get_template. superset/ never imports mako; alembic (base.txt:10 via flask-migrate) only renders its own script.py.mako when creating revisions (dev). No attacker input reaches it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#31",
+      "facts": {
+        "package": "markdown",
+        "version": "3.3.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-69534",
+            "GHSA-5wmx-573v-2qwq",
+            "PYSEC-2026-89"
+          ],
+          [
+            "markdown"
+          ]
+        ],
+        "advisory_summary": "Python-Markdown has an Uncaught Exception \u2014 Python-Markdown version 3.8 contain a vulnerability where malformed HTML-like sequences can cause html.parser.HTMLParser to raise an unhandled AssertionError during Markdown parsing. Because Python-Markdown does not catch this exception, any application that processes attacker-controlled Markdown may crash. This enables remote, unauthenticated Denial of Service in web applications, documentation systems, CI/CD pipelines, and any service that renders untrusted Markdown. The issue was acknowledged by the vendor and fixed in version 3.8.1. This issue ca",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.8.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "superset/utils/core.py:569-608 calls markdown.markdown on chart and dataset descriptions (models/slice.py:217-218 description_markeddown, returned by chart list API charts/api.py:177; connectors/sqla/models.py:1222). Chart owners (ordinary users) write descriptions, so attacker markdown with malformed HTML reaches Python-Markdown's HTMLParser-based block processor; an uncaught exception 500s those listing requests. Version-range match for 3.3.4 taken from advisory."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#32",
+      "facts": {
+        "package": "marshmallow",
+        "version": "3.19.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-68480",
+            "GHSA-428g-f7cq-pgp5",
+            "PYSEC-2026-1605"
+          ],
+          [
+            "marshmallow"
+          ]
+        ],
+        "advisory_summary": "Marshmallow has DoS in Schema.load(many) \u2014 ### Impact\n\n`Schema.load(data, many=True)` is vulnerable to denial of service attacks. A moderately sized request can consume a disproportionate amount of CPU time.\n\n### Patches\n\n4.1.2, 3.26.2\n\n### Workarounds\n\n```py\n# Fail fast\ndef load_many(schema, data, **kwargs):\n    if not isinstance(data, list):\n        raise ValidationError(['Invalid input type.'])\n    return [schema.load(item, **kwargs) for item in data]\n```",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.2",
+          "4.1.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs Schema.load(data, many=True) on attacker data. Superset has no load(many=True) and its only Nested(many=True) fields (charts/schemas.py:287, dashboards/schemas.py:196) are in response (dump) schemas; FAB 4.4.1 only uses many=True for dump (api/__init__.py:1613); marshmallow-sqlalchemy relationships use List(Related). List(Nested) loads items one at a time."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#33",
+      "facts": {
+        "package": "msgpack",
+        "version": "1.0.2",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-57585",
+            "GHSA-6v7p-g79w-8964",
+            "PYSEC-2026-3625"
+          ],
+          [
+            "msgpack"
+          ]
+        ],
+        "advisory_summary": "MessagePack for Python: Out-of-bounds read / crash on Unpacker reuse after a caught error \u2014 ### Impact\n\nIf the Unpacker is used repeatedly after an error occurs, the process may crash with a SEGV.\n\nIf the Unpacker is used repeatedly to unpack untrusted input from external sources, it may be vulnerable to a DoS attack.\n\n### Patches\n\nv1.2.1\n\n### Workarounds\n\nUsers should create a new Unpacker instead of reusing the same Unpacker after an error occurs.\n\nApplying the above patch can prevent SEGV, but reusing the Streaming Unpacker after it has encountered an error will not yield correct data. If a",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.2.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bug is in streaming msgpack.Unpacker reuse after an error. Superset uses only one-shot msgpack.dumps/loads (sql_lab.py:344, views/utils.py:507) on its own results-backend payloads; no Unpacker usage."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#34",
+      "facts": {
+        "package": "paramiko",
+        "version": "3.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44405",
+            "GHSA-r374-rxx8-8654",
+            "PYSEC-2026-2858"
+          ],
+          [
+            "paramiko"
+          ]
+        ],
+        "advisory_summary": "Paramiko rsakey.py allows the SHA-1 algorithm \u2014 In Paramiko through 4.0.0 before a448945, rsakey.py allows the SHA-1 algorithm.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "paramiko 3.4.0 rsakey.py:41-42 maps ssh-rsa to SHA-1. Superset uses paramiko RSAKey/sshtunnel for DB SSH tunnels (extensions/ssh.py:24,66-73) only when feature flag SSH_TUNNELING is enabled (config.py:470, default False); the SSH server address is user-supplied. Weak-crypto finding, exploitable only by an on-path/malicious SSH server; reachable with optional flag."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#35",
+      "facts": {
+        "package": "pyarrow",
+        "version": "14.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-52338",
+            "PYSEC-2024-161"
+          ],
+          [
+            "pyarrow"
+          ]
+        ],
+        "advisory_summary": "Deserialization of untrusted data in IPC and Parquet readers in the Apache Arrow R package versions\u00a04.0.0 through 16.1.0 allows arbitrary code execution. An application is vulnerable if it \nreads Arrow IPC, Feather or Parquet data from untrusted sources (for \nexample, user-supplied input files). This vulnerability only affects the arrow R package, not other Apache Arrow \nimplementations or bindings unless those bindings are specifically used via the R package (for example, an R application that embeds a Python interpreter and uses PyArrow to read files from untrusted sources is still vulnerabl",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "17.0.0",
+          "801de2fbcf5bcbce0c019ed4b35ff3fc863b141b"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CVE-2024-52338 affects only the Apache Arrow R package; Superset uses pyarrow (Python bindings) and no R runtime."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#36",
+      "facts": {
+        "package": "pyasn1",
+        "version": "0.5.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-30922",
+            "GHSA-jr27-m4p2-rc6r",
+            "PYSEC-2026-2263"
+          ],
+          [
+            "pyasn1"
+          ]
+        ],
+        "advisory_summary": "Denial of Service in pyasn1 via Unbounded Recursion \u2014 ### Summary\nThe `pyasn1` library is vulnerable to a Denial of Service (DoS) attack caused by uncontrolled recursion when decoding ASN.1 data with deeply nested structures. An attacker can supply a crafted payload containing nested `SEQUENCE` (`0x30`) or `SET` (`0x31`) tags with Indefinite Length (`0x80`) markers. This forces the decoder to recursively call itself until the Python interpreter crashes with a `RecursionError` or consumes all available memory (OOM), crashing the host application.\n\n### Details\nThe vulnerability exists because th",
+        "vuln_symbols": [
+          "SEQUENCE",
+          "SET",
+          "RecursionError",
+          "decodeFun",
+          "indefLenValueDecoder",
+          "valueDecoder"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.6.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "pyasn1 0.5.1 is pulled only via rsa and pyasn1-modules for google-auth (base.txt:256-261). google-auth 2.27 imports _python_rsa (the only pyasn1 user) only if cryptography is missing (auth/crypt/rsa.py try/except); cryptography is installed. superset/ never imports pyasn1/rsa; no LDAP/ldap3 in base. No ASN.1 decoding of attacker data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#37",
+      "facts": {
+        "package": "pyasn1",
+        "version": "0.5.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59884",
+            "GHSA-m4p7-r5rc-7g4j",
+            "PYSEC-2026-3455"
+          ],
+          [
+            "pyasn1"
+          ]
+        ],
+        "advisory_summary": "pyasn1 BER/CER/DER decoder denial of service via unbounded long-form tag IDs \u2014 ### Impact\nThe BER decoder (shared by the CER and DER codecs) parses long-form tags by accumulating continuation octets in a loop with no upper bound on the size of the tag ID. A crafted input can force the decoder to build an arbitrarily large integer, with CPU cost growing quadratically in input size \u2014 a ~1 MB input consumes over a minute of CPU. On Python 3.11+, the oversized tag ID can also trigger an unhandled `ValueError` (integer string conversion limit) while the decoder formats error messages, violating the",
+        "vuln_symbols": [
+          "ValueError",
+          "PyAsn1Error",
+          "pyasn1.codec.ber.decoder",
+          "decode",
+          "StreamingDecoder",
+          "pyasn1.codec.cer.decoder"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.6.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "pyasn1 decoder never runs: only consumer is google-auth's _python_rsa fallback, unused because cryptography is present (google/auth/crypt/rsa.py); rsa package not imported elsewhere; superset/ has no pyasn1 use."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#38",
+      "facts": {
+        "package": "pyasn1",
+        "version": "0.5.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59885",
+            "GHSA-8ppf-4f7h-5ppj",
+            "PYSEC-2026-3456"
+          ],
+          [
+            "pyasn1"
+          ]
+        ],
+        "advisory_summary": "pyasn1: Quadratic complexity in OBJECT IDENTIFIER and RELATIVE-OID processing allows denial of service \u2014 ### Impact\nThe BER/CER/DER decoders process OBJECT IDENTIFIER and RELATIVE-OID values in quadratic time relative to the number of arcs. A small crafted payload (tens of kilobytes) containing an OID with many arcs consumes seconds of CPU per decode() call, allowing denial of service in any application that decodes untrusted ASN.1 data (certificates, LDAP, SNMP, Kerberos, etc.). The corresponding encoders have the same quadratic behavior, reachable when an application re-encodes previously de",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.6.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "pyasn1 OID decoding unreachable: pyasn1 used only by google-auth _python_rsa fallback (not loaded, cryptography installed per google/auth/crypt/rsa.py) and rsa; nothing decodes attacker ASN.1."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#39",
+      "facts": {
+        "package": "pyasn1",
+        "version": "0.5.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59886",
+            "GHSA-hm4w-wwcw-mr6r",
+            "PYSEC-2026-3457"
+          ],
+          [
+            "pyasn1"
+          ]
+        ],
+        "advisory_summary": "pyasn1: Uncontrolled resource consumption when converting decoded REAL values \u2014 ### Impact\nThe univ.Real type converted its (mantissa, base, exponent) value to a Python float using exact big-integer exponentiation. A BER/CER/DER-encoded REAL value only a few bytes long can carry a very large exponent, causing this computation to attempt to materialize an astronomically large integer.\n\nAny operation that triggers float conversion on such a decoded value \u2014 prettyPrint(), str(), comparison, arithmetic, or an explicit float() call \u2014 consumes excessive CPU and memory, hanging the process. Applicati",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.6.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "pyasn1 REAL conversion unreachable for same reason: only google-auth _python_rsa fallback (not loaded since cryptography is installed) and rsa use pyasn1; no attacker ASN.1."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#40",
+      "facts": {
+        "package": "pygments",
+        "version": "2.15.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-40896",
+            "GHSA-mrwq-x4v8-fh7p",
+            "PYSEC-2023-117"
+          ],
+          [
+            "pygments"
+          ]
+        ],
+        "advisory_summary": "A ReDoS issue was discovered in pygments/lexers/smithy.py in pygments through 2.15.0 via SmithyLexer.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.15.1"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "pygments 2.15.0 (base.txt:264 via rich) is installed, so Superset's markdown() with markdown.extensions.codehilite + fenced_code (utils/core.py:601-607) highlights fenced code via pygments get_lexer_by_name (markdown/extensions/codehilite.py:23-26,131). An ordinary user's chart description containing ```smithy ...``` selects SmithyLexer (lexers/smithy.py:27) when rendered as description_markeddown in the chart API (models/slice.py:217, charts/api.py:177)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#41",
+      "facts": {
+        "package": "pygments",
+        "version": "2.15.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-4539",
+            "GHSA-5239-wwwm-4pmq",
+            "PYSEC-2026-2987"
+          ],
+          [
+            "pygments"
+          ]
+        ],
+        "advisory_summary": "Pygments has Regular Expression Denial of Service (ReDoS) due to Inefficient Regex for GUID Matching \u2014 A security flaw has been discovered in pygments before 2.20.0. The impacted element is the function AdlLexer of the file pygments/lexers/archetype.py. The manipulation results in inefficient regular expression complexity. The attack is only possible with local access. The exploit has been released to the public and may be used for attacks. The project was informed of the problem early through an issue report but has not responded yet.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.20.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Same chain: user chart/dataset description -> utils/core.py:601 markdown with codehilite -> pygments lexer chosen by fenced-code language; ```adl selects AdlLexer (pygments/lexers/archetype.py:261) whose GUID regex is vulnerable in 2.15.0. Remote via authenticated chart edits, not only local."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#42",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-pxh4-856f-4h89"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: HS256/384/512 verify accepts empty HMAC key via oct JWK (PyJWK/PyJWKClient) enabling token forgery \u2014 ### Summary\n\n`HMACAlgorithm.from_jwk` accepts a symmetric (`kty=oct`) JWK whose `k` value is\nthe empty string and returns a zero-length key without raising. When a token is\nthen verified with that key object (a `PyJWK`, or a `PyJWK` resolved by\n`PyJWKSet` / `PyJWKClient`), the HMAC verifier computes\n`HMAC(key=b\"\", signing_input)` and accepts any token an attacker forged with the\nsame empty key. The attacker needs no secret knowledge: they reproduce the digest\nlocally with an empty key an",
+        "vuln_symbols": [
+          "HMACAlgorithm.from_jwk",
+          "k",
+          "PyJWK",
+          "PyJWKSet",
+          "PyJWKClient",
+          "kid"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs HMAC key from a kty=oct JWK via PyJWK/PyJWKSet/PyJWKClient. No PyJWK/PyJWKClient use in superset/, FAB 4.4.1 or flask-jwt-extended 4.3.1 (grep). Superset verifies HS256 with configured string secrets (async_events/async_query_manager.py:174, security/manager.py:2361+ guest token, flask_jwt_extended/tokens.py:87-90)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#43",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-45768",
+            "PYSEC-2025-183"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "pyjwt v2.10.1 was discovered to contain weak encryption. NOTE: this is disputed by the Supplier because the key length is chosen by the application that uses the library (admittedly, library users may benefit from a minimum value and a mechanism for opting in to strict enforcement).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Disputed 'weak key' issue: pyjwt 2.4.0 accepts short HMAC keys. Superset does HS256 encode/decode with app-chosen secrets: flask-jwt-extended (FAB API bearer tokens, SECRET_KEY), async queries (async_query_manager.py:151,174; default GLOBAL_ASYNC_QUERIES_JWT_SECRET='test-secret-change-me' config.py:1553), guest tokens (GUEST_TOKEN_JWT_SECRET default config.py:1562). HMAC path runs on attacker-supplied tokens; weakness depends on operator key choice."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#44",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-32597",
+            "GHSA-752w-5fwx-jx9f",
+            "PYSEC-2026-120"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT accepts unknown `crit` header extensions \u2014 ## Summary\n\nPyJWT does not validate the `crit` (Critical) Header Parameter defined in\nRFC 7515 \u00a74.1.11. When a JWS token contains a `crit` array listing\nextensions that PyJWT does not understand, the library accepts the token\ninstead of rejecting it. This violates the **MUST** requirement in the RFC.\n\nThis is the same class of vulnerability as CVE-2025-59420 (Authlib),\nwhich received CVSS 7.5 (HIGH).\n\n---\n\n## RFC Requirement\n\nRFC 7515 \u00a74.1.11:\n\n> The \"crit\" (Critical) Header Parameter indicates that extensions to this\n> specification and/or [JWA",
+        "vuln_symbols": [
+          "crit",
+          "cnf",
+          "_validate_headers",
+          "decode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.12.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "re-review majority (not/rea/rea): pyjwt 2.4.0 has no 'crit' handling anywhere in jwt/. Attacker-supplied bearer tokens reach jwt.decode on any FAB-protected API without a session (flask_appbuilder/security/decorators.py:90,100 verify_jwt_in_request -> flask_jwt_extended jwt_manager.py:515+ decode). Guest tokens (security/manager.py) and the async-query cookie (async_events/async_query_manager.py:174) are also decoded. Exploitation needs a validly signed token carrying a crit extension that the app relies on. Superset signs its own HS256 tokens with no crit semantics, so practical impact is minimal. Labelled reachable because the non-validating decode runs on attacker tokens."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#45",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48522",
+            "GHSA-993g-76c3-p5m4",
+            "PYSEC-2026-175"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWKClient: missing scheme allowlist enables CVE-2024-21643-class SSRF + token forgery via file://, ftp://, data: schemes \u2014 > [!NOTE]\n> The library does not directly return non-HTTP(S) URI contents to the attacker; the chained \"plant a JWKS to forge tokens\" scenario described in the original report requires additional application-layer flaws (attacker write access to a filesystem path, untrusted jku derivation) that this fix does not address. Severity is scored for the scheme-acceptance bug in isolation.\n\n## Summary\n\nPyJWKClient passes its `uri` argument directly to `urllib.request.urlopen()`",
+        "vuln_symbols": [
+          "uri",
+          "urllib.request.urlopen",
+          "OpenerDirector",
+          "HTTPHandler",
+          "HTTPSHandler",
+          "FTPHandler"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.13.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWKClient (jwt/jwks_client.py) scheme handling; PyJWKClient never used by superset/, FAB 4.4.1 (it uses authlib + requests for JWKS, security/manager.py:712-740) or flask-jwt-extended."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#46",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48524",
+            "GHSA-fhv5-28vv-h8m8",
+            "PYSEC-2026-177"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWKClient unbounded JWKS endpoint requests via attacker-controlled kid values (DoS) \u2014 > [!NOTE]\n>  The vulnerability surfaces only when a JWKS fetch fails; an attacker can attempt to provoke that with sustained unknown-kid traffic, but the outcome depends on upstream JWKS-endpoint behavior (rate limiting, transient errors) which is beyond the attacker's control. Impact is reduced auth availability until the next successful fetch, not complete denial of service.\n\n## Summary\nPyJWKClient.get_signing_key() forces a fresh HTTP request to the JWKS endpoint for every JWT with an unknown kid value, ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.13.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PyJWKClient kid-driven refetch DoS; PyJWKClient not used anywhere in Superset or its auth libs (FAB fetches JWKS with requests/authlib, security/manager.py:712-740)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#47",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48526",
+            "GHSA-xgmm-8j9v-c9wx",
+            "PYSEC-2026-179"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Public-key JWK accepted as HMAC secret enables forged HS256 tokens when mixed families are allowed \u2014 > [!NOTE]\n> Exploitation requires a verifier configured with both symmetric and asymmetric algorithms in `algorithms=[\u2026]` and a raw-JSON JWK as the `key=` argument, both contrary to documented usage, hence the High attack-complexity rating.\n\n### Summary\nWhen the verifier is decoding JSON Web Tokens, while supporting both asymmetric and HMAC algorithms, the library does not validate use of JSON Web Keys in HMAC algorithm, allowing attacker to use the issuer public key as the secret key fo",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.13.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires verifier allowing both HMAC and asymmetric algorithms with a raw JSON JWK as key. Superset/FAB/flask-jwt-extended decode with algorithms=['HS256'] (or configured single JWT_ALGORITHM) and string secrets (async_query_manager.py:174, flask_jwt_extended/tokens.py:87-90)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#48",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101917",
+            "GHSA-2gx3-rcp4-g85q",
+            "PYSEC-2026-4140"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: PyJWKClient still amplifies unauthenticated JWKS fetches on unknown kid values (incomplete fix of CVE-2026-48524) \u2014 Summary\nCVE-2026-48524 (GHSA-fhv5-28vv-h8m8, \"PyJWKClient unbounded JWKS endpoint requests via attacker-controlled kid values (DoS)\") was fixed in 2.13.0 by stopping fetch_data() from clearing the cache on a fetch error. That closed one amplification path but did not add the mitigation the advisory's title implies: there is still no rate-limit, negative-cache, or minimum-refresh-interval for unknown kids.\n\nAt HEAD, get_signing_key(kid) (jwt/jwks_client.py:185-211), on any ",
+        "vuln_symbols": [
+          "kid",
+          "master",
+          "ba4853a",
+          "PyJWKClient"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Incomplete fix in PyJWKClient.get_signing_key; PyJWKClient is not used by Superset, FAB or flask-jwt-extended."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#49",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-101918",
+            "GHSA-42vr-xj54-vc7v",
+            "PYSEC-2026-4141"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Unauthenticated RecursionError DoS in pre-verification payload parse (PyJWKClient.get_signing_key_from_jwt / verify_signature=False) \u2014 ## Summary\n\n`PyJWKClient.get_signing_key_from_jwt(token)` \u2014 the first step of the JWKS\nverification flow documented in `docs/usage.rst` \u2014 must decode a token's\npayload before its signature can be checked, via\n`jwt.api_jwt.decode_complete(token, options={\"verify_signature\": False})`.\nThat call parses the payload with `json.loads` in `PyJWT._decode_payload`\n(`jwt/api_jwt.py:297-300`), whose `except` clause catches only `ValueError`.\nA payload that is valid",
+        "vuln_symbols": [
+          "json.loads",
+          "PyJWT._decode_payload",
+          "except",
+          "ValueError",
+          "RecursionError",
+          "DecodeError"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.15.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "re-review majority (not/rea/rea): flask-jwt-extended 4.3.1 jwt_manager.py:515-519 calls jwt.decode(token, options={'verify_signature': False}) before verification. In pyjwt 2.4.0 api_jwt.py:109-111 the payload json.loads catches only ValueError, so a deeply nested payload raises an uncaught RecursionError. This runs unauthenticated: any FAB @protect API (Superset REST APIs) called without a session cookie calls verify_jwt_in_request() on the Authorization: Bearer header (flask_appbuilder/security/decorators.py:90,100). Impact is a 500 and CPU per request."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#50",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102267",
+            "GHSA-9v7f-9g4p-ffgj",
+            "PYSEC-2026-4144"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: PyJWKClient follows redirects when fetching JWKS \u2014 ### Summary\n\nPyJWT 2.13.0 `PyJWKClient` followed HTTP redirects while fetching a JWKS,\nwithout validating the redirect destination. A configured trusted endpoint\ncould therefore redirect the client to a different host.\n\n### Impact\n\nWhen an application uses `PyJWKClient` with caller-supplied request headers and\nan attacker can influence the configured endpoint's response, the redirected\nrequest could expose those headers and the redirected response could be used as\nauthoritative key material. This could cause JWKS trust poisoning and, in",
+        "vuln_symbols": [
+          "PyJWKClient",
+          "kid",
+          "master"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Redirect-following in PyJWKClient JWKS fetch; PyJWKClient not used (FAB uses requests.get for Microsoft/authentik JWKS, security/manager.py:712-731, outside pyjwt)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#51",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102268",
+            "GHSA-ffc3-869f-jxw9",
+            "PYSEC-2026-4145"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Asymmetric-PEM detection bypass: whitespace/line-ending-mutated public keys skip the HS/asymmetric confusion guard \u2014 **Prerequisites** (both conditions must hold; both are deployment properties, not attacker-controlled at request time):\n\n- The `jwt.decode` allow-list mixes an HMAC algorithm with an asymmetric one, e.g. `algorithms=[\"ES256\", \"HS256\"]` (the RFC 8725 footgun the guard exists to backstop).\n- The verification key is passed as raw PEM text/bytes on the non-`PyJWK` path, in a byte-form that `cryptography`'s loader accepts but PyJWT's `is_pem_format` regex does not recognize (m",
+        "vuln_symbols": [
+          "jwt.decode",
+          "PyJWK",
+          "cryptography",
+          "is_pem_format",
+          "cryptography.load_pem_public_key",
+          "HMACAlgorithm.prepare_key"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs decode allow-list mixing HMAC and asymmetric algorithms with raw PEM public key. Superset decodes only HS256 with shared secrets (async_query_manager.py:174, guest token GUEST_TOKEN_JWT_ALGO='HS256' config.py:1563, flask-jwt-extended JWT_ALGORITHM default HS256)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#52",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102269",
+            "GHSA-hxm8-2xgr-2p9m",
+            "PYSEC-2026-4147"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Non-canonical signature segments enable raw-token revocation bypass \u2014 ## Summary\n\nPyJWT 2.13.0 accepts compact JWS signature segments containing characters that\nare not in the Base64URL alphabet. Appending `!!!!` to a valid signature does\nnot change the decoded signature bytes or authenticated claims, but it changes\nthe serialized token and its SHA-256 hash. An application that indexes logout\nor revocation state by the raw token therefore rejects the logged-out token and\naccepts its no-key alternate serialization.\n\nThis report separates two issues: permissive compact-JWS decoding is the",
+        "vuln_symbols": [
+          "jti",
+          "master",
+          "e6f48401001609a8f99e71fcaf355fb895d508a8"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Impact requires revocation keyed by raw token string. Superset/FAB keep no token blocklist (no token_in_blocklist_loader in superset/ or FAB 4.4.1); guest/async/API tokens are accepted on signature/exp only, so alternate serializations give no bypass."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#53",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102270",
+            "GHSA-jwrc-g2q2-pq5p",
+            "PYSEC-2026-4148"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: ReDoS vulnerability when calling the `is_pem_format` function. \u2014 ### Summary\nThere is a Re-DoS vulnerability in the `is_pem_format` function which results in a intesive CPU usage if an attacker is been able to provide a custom certificate.\n\n\n### Details\nThe problem is that the lazy quantifier `.+?` will always first try to match as little as possible until it finds a `---- END`. Normally this means the complexity of this should be O(N). However, by providing an input which consists only of `----BEGIN CERTIFICATE-----` lines and no `---- END` line, the regex algorithm will first try to m",
+        "vuln_symbols": [
+          "is_pem_format"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "is_pem_format (jwt/utils.py:123-134) runs on the verification key in HMACAlgorithm.prepare_key (algorithms.py:185), and keys here are server-configured secrets (SECRET_KEY, GUEST_TOKEN_JWT_SECRET, GLOBAL_ASYNC_QUERIES_JWT_SECRET), never attacker-provided certificates."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#54",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102271",
+            "GHSA-p4g4-x82p-q773",
+            "PYSEC-2026-4149"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT: Public keys in DER form are accepted as HMAC secrets, bypassing the CVE-2022-29217 guard \u2014 ### Summary\n\n`HMACAlgorithm.prepare_key` blocks asymmetric keys from being used as HMAC secrets by searching for text markers only. It looks for `-----BEGIN` and for an `ssh-` prefix. The same key in DER form is binary ASN.1 and has neither marker, so it passes the check and is used as an HMAC secret.\n\nAn application that verifies tokens with an RSA or EC public key, and also allows HS256 with that same key, can be given a forged token. The attacker signs it with the public key, which is public. T",
+        "vuln_symbols": [
+          "HMACAlgorithm.prepare_key",
+          "is_pem_format",
+          "is_ssh_key",
+          "startswith",
+          "prepare_key",
+          "PyJWK"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.14.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs app verifying with an RSA/EC public key while also allowing HS256. Superset uses HS256-only with shared secrets everywhere (async_query_manager.py:174, security/manager.py:2361-2375, flask_jwt_extended/tokens.py:87-90); no public-key verification via pyjwt."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#55",
+      "facts": {
+        "package": "pyjwt",
+        "version": "2.4.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102275",
+            "GHSA-x33g-cr3x-6449",
+            "PYSEC-2026-4183"
+          ],
+          [
+            "pyjwt"
+          ]
+        ],
+        "advisory_summary": "PyJWT accepts inconsistent OKP x/d JWKs, causing public/private key identity confusion \u2014 ### Summary\n\nPyJWT accepts internally inconsistent OKP private JWKs where the declared public key `x` does not correspond to the supplied private key `d`.\n\nWhen `d` is present, `OKPAlgorithm.from_jwk()` constructs the Ed25519/Ed448 private key from `d` without verifying that the public key derived from `d` matches `x`. As a result, the original JWK can contain one public key identity while PyJWT performs cryptographic operations using a different key.\n\nIn affected DPoP integrations, this can allow a stolen",
+        "vuln_symbols": [
+          "x",
+          "d",
+          "OKPAlgorithm.from_jwk",
+          "cnf.jkt",
+          "PyJWK.from_dict",
+          "master"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.15.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "OKP JWK from_jwk inconsistency (DPoP scenarios); no PyJWK/from_jwk/OKP usage in Superset, FAB or flask-jwt-extended."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#56",
+      "facts": {
+        "package": "pynacl",
+        "version": "1.5.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-69277",
+            "GHSA-mrfv-m5wm-5w6w",
+            "PYSEC-2026-1448",
+            "PYSEC-2026-3002"
+          ],
+          [
+            "pynacl"
+          ]
+        ],
+        "advisory_summary": "libsodium has Incomplete List of Disallowed Inputs \u2014 libsodium before ad3004e, in atypical use cases involving certain custom cryptography or untrusted data to crypto_core_ed25519_is_valid_point, mishandles checks for whether an elliptic curve point is valid because it sometimes allows points that aren't in the main cryptographic group.\n\nThis advisoory lists packages in the GitHub Advisory Database's [supported ecosystems](https://github.com/github/advisory-database?tab=readme-ov-file#supported-ecosystems) that are affected by this vulnerability due to a vulnerable dependency.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.6.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "pynacl via paramiko (base.txt:271-272) for sshtunnel (SSH_TUNNELING flag off by default). Only use is nacl.signing in paramiko/ed25519key.py:22,57,153; crypto_core_ed25519_is_valid_point is only exported in nacl/bindings/__init__.py:63 and never called by paramiko or superset; signature verification is not the affected API."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#57",
+      "facts": {
+        "package": "python-dotenv",
+        "version": "0.19.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-28684",
+            "GHSA-mf9w-mj56-hr94",
+            "PYSEC-2026-2270"
+          ],
+          [
+            "python-dotenv"
+          ]
+        ],
+        "advisory_summary": "python-dotenv: Symlink following in set_key allows arbitrary file overwrite via cross-device rename fallback \u2014 ### Summary\n\n`set_key()` and `unset_key()` in python-dotenv follow symbolic links when rewriting `.env` files, allowing a local attacker to overwrite arbitrary files via a crafted symlink when a cross-device rename fallback is triggered.\n\n\n### Details\n\nThe `rewrite()` context manager in `dotenv/main.py` is used by both `set_key()` and `unset_key()` to safely modify `.env` files. It works by writing to a temporary file (created in the system's default temp directory, typically `/tmp`) ",
+        "vuln_symbols": [
+          "set_key",
+          "unset_key",
+          "rewrite",
+          "shutil.move",
+          "os.rename",
+          "OSError"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.2.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "python-dotenv (base.txt:287) is never imported by superset/ (grep); only Flask CLI load_dotenv reads .env. set_key()/unset_key()/rewrite() are only used by the dotenv CLI, never in the served app. Local-attacker symlink issue as well."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#58",
+      "facts": {
+        "package": "requests",
+        "version": "2.31.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-47081",
+            "GHSA-9hjg-9r4m-mvj7",
+            "PYSEC-2026-1872"
+          ],
+          [
+            "requests"
+          ]
+        ],
+        "advisory_summary": "Requests vulnerable to .netrc credentials leak via malicious URLs \u2014 ### Impact\n\nDue to a URL parsing issue, Requests releases prior to 2.32.4 may leak .netrc credentials to third parties for specific maliciously-crafted URLs.\n\n### Workarounds\nFor older versions of Requests, use of the .netrc file can be disabled with `trust_env=False` on your Requests Session ([docs](https://requests.readthedocs.io/en/latest/api/#requests.Session.trust_env)).\n\n### References\nhttps://github.com/psf/requests/pull/6965\nhttps://seclists.org/fulldisclosure/2025/Jun/2",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.32.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "requests (base.txt:304, via shillelagh/requests-cache) is used for the gsheets engine (superset/db_engine_specs/gsheets.py:34,325; shillelagh gsheets adapter fixed to docs.google.com). The leak needs a ~/.netrc file with credentials in the server environment; the default image (Dockerfile lean) has none. Would be reachable only if operators mount a .netrc."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#59",
+      "facts": {
+        "package": "requests",
+        "version": "2.31.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-35195",
+            "GHSA-9wx4-h78v-vm56",
+            "PYSEC-2026-1873"
+          ],
+          [
+            "requests"
+          ]
+        ],
+        "advisory_summary": "Requests `Session` object does not verify requests after making first request with verify=False \u2014 When using a `requests.Session`, if the first request to a given origin is made with `verify=False`, TLS certificate verification may remain disabled for all subsequent requests to that origin, even if `verify=True` is explicitly specified later.\n\nThis occurs because the underlying connection is reused from the session's connection pool, causing the initial TLS verification setting to persist for the lifetime of the pooled connection. As a result, applications may unintentionally send requests wit",
+        "vuln_symbols": [
+          "Session",
+          "requests.Session"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.32.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No verify=False anywhere in superset/ or shillelagh/requests-cache (grep); the bug needs a Session first used with verify=False then verify=True to the same origin."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#60",
+      "facts": {
+        "package": "requests",
+        "version": "2.31.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25645",
+            "GHSA-gc5v-m9x4-r6x2",
+            "PYSEC-2026-2275"
+          ],
+          [
+            "requests"
+          ]
+        ],
+        "advisory_summary": "Requests has Insecure Temp File Reuse in its extract_zipped_paths() utility function \u2014 ### Impact\nThe `requests.utils.extract_zipped_paths()` utility function uses a predictable filename when extracting files from zip archives into the system temporary directory. If the target file already exists, it is reused without validation. A local attacker with write access to the temp directory could pre-create a malicious file that would be loaded in place of the legitimate one.\n\n### Affected usages\n**Standard usage of the Requests library is not affected by this vulnerability.** Only applications tha",
+        "vuln_symbols": [
+          "requests.utils.extract_zipped_paths",
+          "extract_zipped_paths",
+          "TMPDIR"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.33.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "extract_zipped_paths only called in requests/adapters.py:258 for DEFAULT_CA_BUNDLE_PATH, which is a normal file (not inside a zip) in a pip install; also needs a local attacker in /tmp. Advisory says standard usage is unaffected."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#61",
+      "facts": {
+        "package": "selenium",
+        "version": "3.141.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-28108",
+            "GHSA-h2rr-m97p-6jq9",
+            "PYSEC-2022-43167"
+          ],
+          [
+            "selenium"
+          ]
+        ],
+        "advisory_summary": "Selenium Server (Grid) before 4 allows CSRF because it permits non-JSON content types such as application/x-www-form-urlencoded, multipart/form-data, and text/plain.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CVE-2022-28108 is in Selenium Server (Grid, Java). Superset only uses the Python client (superset/utils/webdriver.py:27-36) with a local geckodriver/chromedriver; no Grid is shipped."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#62",
+      "facts": {
+        "package": "selenium",
+        "version": "3.141.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-5590",
+            "PYSEC-2023-206"
+          ],
+          [
+            "selenium"
+          ]
+        ],
+        "advisory_summary": "NULL Pointer Dereference in GitHub repository seleniumhq/selenium prior to 4.14.0.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "023a0d52f106321838ab1c0997e76693f4dcbdf6",
+          "4.14.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CVE-2023-5590 NULL deref is in Selenium components (selenium-manager, introduced in 4.x) not in the Python 3.141.0 client wheel; Python client code used by superset/utils/webdriver.py has no such code. Reports/thumbnails are also feature-flagged off (config.py:421,433)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#63",
+      "facts": {
+        "package": "sqlparse",
+        "version": "0.4.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-27jp-wm6q-gp25"
+          ],
+          [
+            "sqlparse"
+          ]
+        ],
+        "advisory_summary": "sqlparse: formatting list of tuples leads to denial of service \u2014 ### Summary\nThe below gist hangs while attempting to format a long list of tuples.\n\nThis was found while [drafting a regression test for Dja\nngo 5.2's composite primary key feature](https://code.djangoproject.com/ticket/36416#comment:3), which allows querying composite fields with tuples.\n\n###",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.5.4"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "sqlparse.format(sql, reindent=True) at superset/connectors/sqla/models.py:1424 and models/helpers.py:910 (get_query_str_extended) runs on every chart-data query; ordinary users control filter value lists (long IN (...) tuple lists) and virtual-dataset SQL, so a long list of tuples reaches the reindent formatter."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#64",
+      "facts": {
+        "package": "sqlparse",
+        "version": "0.4.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-4340",
+            "GHSA-2m57-hf25-phgg",
+            "PYSEC-2026-1940"
+          ],
+          [
+            "sqlparse"
+          ]
+        ],
+        "advisory_summary": "sqlparse parsing heavily nested list leads to Denial of Service \u2014 ### Summary\nPassing a heavily nested list to sqlparse.parse() leads to a Denial of Service due to RecursionError.\n\n### Details + PoC\nRunning the following code will raise Maximum recursion limit exceeded exception:\n```py\nimport sqlparse\nsqlparse.parse('[' * 10000 + ']' * 10000)\n```\nWe expect a traceback of RecursionError:\n```py\nTraceback (most recent call last):\n  File \"trigger_sqlparse_nested_list.py\", line 3, in <module>\n    sqlparse.parse('[' * 10000 + ']' * 10000)\n  File \"/home/uriya/.local/lib/python3.10/site-packages/sqlpa",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.5.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "SQL Lab SQL goes to ParsedQuery (superset/sql_lab.py:202,215,413; sqllab/query_render.py:61) -> sqlparse.parse at superset/sql_parse.py:295; also sql_parse.py:473,539,686,825 (RLS/where clauses). Nested '[' input causes RecursionError in 0.4.4 (fixed 0.5.0)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#65",
+      "facts": {
+        "package": "sqlparse",
+        "version": "0.4.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59894",
+            "GHSA-3496-9g83-7v6x",
+            "PYSEC-2026-3696"
+          ],
+          [
+            "sqlparse"
+          ]
+        ],
+        "advisory_summary": "sqlparse: Generated Python and PHP snippets allow SQL string breakout through unescaped backslashes \u2014 ### Summary\n\nThe documented Python and PHP output modes generate source-code snippets from caller-supplied SQL. Their output filters escape quote characters without first escaping existing backslashes. Crafted SQL can therefore neutralize the generated quote escape, terminate the intended language string, and place attacker-controlled code into the generated snippet. If a downstream consumer executes or imports that generated source, the injected code runs in the consumer's environment.\n\n### D",
+        "vuln_symbols": [
+          "EVOHUNT_OUTPUT_FORMAT_INJECTION_VERIFIED"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.6.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only output_format='python'/'php' is vulnerable; superset never passes output_format (grep), only strip_comments/reindent (sql_parse.py:286,548-578; models/helpers.py:910)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#66",
+      "facts": {
+        "package": "sqlparse",
+        "version": "0.4.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-71491",
+            "GHSA-f2ff-p2ww-7p4p",
+            "PYSEC-2026-3697"
+          ],
+          [
+            "sqlparse"
+          ]
+        ],
+        "advisory_summary": "sqlparse: Quadratic O(n\u00b2) DoS in group_comments \u2014 ### Summary\nA comment-only statement (`-- c\\n`*n) may cause a Denial of Service (DoS).\n\n### Details\nLocation: [sqlparse/engine/grouping.py:331-341](https://github.com/andialbrecht/sqlparse/blob/f80af6a4007f11ada847218df8c29dc859238290/sqlparse/engine/grouping.py#L332) (`group_comments`), invoked first in `group()` at `grouping.py:439`. Reachable via `sqlparse.parse()` and `sqlparse.format(sql, strip_comments=True)`.\n\nA statement made of many single-line comments (`'-- c\\n'` repeated) lexes in O(n) but `group_comments` is O(n\u00b2):\n\n```python\ndef g",
+        "vuln_symbols": [
+          "group_comments",
+          "group",
+          "sqlparse.parse",
+          "while",
+          "token_next_by",
+          "token_not_matching"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.6.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "group_comments (sqlparse/engine/grouping.py:298-307 in 0.4.4) runs from every sqlparse.parse/format(strip_comments=True) call; superset parses user SQL from SQL Lab (sql_parse.py:286,295 via sql_lab.py:202) and chart/virtual dataset SQL (models/helpers.py:1075)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#67",
+      "facts": {
+        "package": "sqlparse",
+        "version": "0.4.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59893",
+            "GHSA-prg7-hcfm-mfcr",
+            "PYSEC-2026-3698"
+          ],
+          [
+            "sqlparse"
+          ]
+        ],
+        "advisory_summary": "sqlparse: Inefficient Regex Handling of Dollar-Quoted SQL Literals Leads to ReDoS (Denial of Service) \u2014 ### Summary\n\nsqlparse contains a Regular Expression Denial of Service (ReDoS) vulnerability in its dollar-quoted SQL literal lexer. The regex pattern at `sqlparse/keywords.py:33` uses a backreference (`\\1`) to match closing dollar-quote delimiters, causing O(n\u00b2) CPU complexity when processing inputs containing many unique, unmatched dollar-quote opening sequences. An attacker who can supply arbitrary SQL text to any application using sqlparse can trigger sustained CPU exhaustion, resulting i",
+        "vuln_symbols": [
+          "SQL_REGEX",
+          "$tag$",
+          "_SQL_REGEX",
+          "c923da9",
+          "$ai$x",
+          "re.finditer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.6.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "0.4.4 keywords.py:33 has the backreferenced dollar-quote regex r'((?<!\\S)\\$(?:[_A-Z..]\\w*)?\\$)[\\s\\S]*?\\1'; user SQL from SQL Lab/chart data is lexed via sqlparse.parse/format (sql_parse.py:286,295)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#68",
+      "facts": {
+        "package": "sqlparse",
+        "version": "0.4.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54284",
+            "GHSA-pwgv-4x5q-6m9f",
+            "PYSEC-2026-3699"
+          ],
+          [
+            "sqlparse"
+          ]
+        ],
+        "advisory_summary": "sqlparse: TokenList.__init__ materializes O(subtree) value per group, causing CPU DoS before depth/token caps trigger \u2014 ### Summary\n\n`sqlparse` ships hard limits (`MAX_GROUPING_DEPTH=100`, `MAX_GROUPING_TOKENS=10000`) intended to bound parsing work on attacker-supplied SQL, but the path that *reaches* those limits is itself `O(n*depth)` per token-group construction. A ~1-2 KB SQL payload (e.g. `SELECT (((((1))))) ...` with 500-2000 nesting levels, or a 200-400-level nested `CASE WHEN` chain) drives the parser to spend multiple seconds of CPU before the depth cap raises `SQLParseError`. Concret",
+        "vuln_symbols": [
+          "SQLParseError",
+          "TokenList.__init__",
+          "TokenList.__str__",
+          "TokenList",
+          "d",
+          "n"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.6.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "TokenList construction cost is in 0.4.4 sql.py:149+ (no MAX_GROUPING caps at all in 0.4.4, so worse); deep nested SQL from SQL Lab/chart queries reaches sqlparse.parse (sql_parse.py:295, sql_lab.py:202)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#69",
+      "facts": {
+        "package": "sqlparse",
+        "version": "0.4.4",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-84305",
+            "GHSA-cfqr-cjx5-5jcm",
+            "PYSEC-2026-3923"
+          ],
+          [
+            "sqlparse"
+          ]
+        ],
+        "advisory_summary": "sqlparse: Reindentation of tuple lists causes near-cap quadratic CPU consumption \u2014 ### Summary\n\nWhen SQL is formatted with reindentation enabled, `ReindentFilter` repeatedly rebuilds prefixes of the current statement to calculate token offsets. An attacker who controls SQL sent to this opt-in formatting path can supply a parenthesized tuple list that remains just below the grouping-token cap. Thousands of offset calculations then traverse an expanding token tree, causing multi-second CPU consumption from an input of roughly 16 KB and degrading service availability.\n\n### Details\n\n`ReindentFilte",
+        "vuln_symbols": [
+          "ReindentFilter",
+          "ReindentFilter._get_offset",
+          "_flatten_up_to_token",
+          "EVOHUNT_REINDENT_DOS_VERIFIED"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.6.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "ReindentFilter path: sqlparse.format(sql, reindent=True) at connectors/sqla/models.py:1424 and models/helpers.py:910 on compiled chart queries, which include user-controlled IN lists / virtual dataset SQL; 0.4.4 has no token cap."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#70",
+      "facts": {
+        "package": "urllib3",
+        "version": "1.26.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44431",
+            "GHSA-qccp-gfcp-xxvc",
+            "PYSEC-2026-141"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3: Sensitive headers forwarded across origins in proxied low-level redirects \u2014 ### Impact\n\nWhen following cross-origin redirects for requests made using urllib3\u2019s high-level APIs, such as `urllib3.request()`, `PoolManager.request()`, and `ProxyManager.request()`, sensitive headers \u2014 `Authorization`, `Cookie`, and `Proxy-Authorization` (defined in `Retry.DEFAULT_REMOVE_HEADERS_ON_REDIRECT`) \u2014 are stripped by default, as expected.\n\nHowever, cross-origin redirects followed from the low-level API via `ProxyManager.connection_from_url().urlopen(..., assert_same_host=False)` still forward thes",
+        "vuln_symbols": [
+          "urllib3.request",
+          "PoolManager.request",
+          "ProxyManager.request",
+          "Authorization",
+          "Cookie",
+          "Retry.DEFAULT_REMOVE_HEADERS_ON_REDIRECT"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.7.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs ProxyManager.connection_from_url().urlopen(assert_same_host=False) low-level API; not used by superset, requests, selenium or google-auth for this pattern (grep superset/: no urllib3 use beyond exceptions in db_engine_specs/clickhouse.py:30)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#71",
+      "facts": {
+        "package": "urllib3",
+        "version": "1.26.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66471",
+            "GHSA-2xpw-w6gg-jr37",
+            "PYSEC-2026-1994"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3 streaming API improperly handles highly compressed data \u2014 ### Impact\n\nurllib3's [streaming API](https://urllib3.readthedocs.io/en/2.5.0/advanced-usage.html#streaming-and-i-o) is designed for the efficient handling of large HTTP responses by reading the content in chunks, rather than loading the entire response body into memory at once.\n\nWhen streaming a compressed response, urllib3 can perform decoding or decompression based on the HTTP `Content-Encoding` header (e.g., `gzip`, `deflate`, `br`, or `zstd`). The library must read compressed data from the network and decompress it until th",
+        "vuln_symbols": [
+          "gzip",
+          "deflate",
+          "br",
+          "zstd",
+          "stream",
+          "urllib3.HTTPResponse"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs streaming a response from an attacker-controlled server. In the default deployment urllib3 only talks to Google (gsheets via shillelagh, google-auth) and the local webdriver (selenium remote_connection); superset's own URL fetches use stdlib urllib (tasks/cache.py:227, commands/dataset/importers/v1/utils.py:193). Shillelagh generic adapters are blocked by PREVENT_UNSAFE_DB_CONNECTIONS (security/analytics_db_safety.py:31-33, config.py:1504). Would become reachable only if an admin adds an HTTP DB driver pointing at a malicious server."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#72",
+      "facts": {
+        "package": "urllib3",
+        "version": "1.26.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-37891",
+            "GHSA-34jh-p97f-mpxf",
+            "PYSEC-2026-1995"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3's Proxy-Authorization request header isn't stripped during cross-origin redirects \u2014 When using urllib3's proxy support with `ProxyManager`, the `Proxy-Authorization` header is only sent to the configured proxy, as expected.\n\nHowever, when sending HTTP requests *without* using urllib3's proxy support, it's possible to accidentally configure the `Proxy-Authorization` header even though it won't have any effect as the request is not using a forwarding proxy or a tunneling proxy. In those cases, urllib3 doesn't treat the `Proxy-Authorization` HTTP header as one carrying authentication mate",
+        "vuln_symbols": [
+          "ProxyManager"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.26.19",
+          "2.2.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires the app to set a Proxy-Authorization header manually without a proxy, then follow a cross-origin redirect; nothing in superset/shillelagh/selenium sets that header."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#73",
+      "facts": {
+        "package": "urllib3",
+        "version": "1.26.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-21441",
+            "GHSA-38jv-5279-wg99",
+            "PYSEC-2026-1996"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "Decompression-bomb safeguards bypassed when following HTTP redirects (streaming API) \u2014 ### Impact\n\nurllib3's [streaming API](https://urllib3.readthedocs.io/en/2.6.2/advanced-usage.html#streaming-and-i-o) is designed for the efficient handling of large HTTP responses by reading the content in chunks, rather than loading the entire response body into memory at once.\n\nurllib3 can perform decoding or decompression based on the HTTP `Content-Encoding` header (e.g., `gzip`, `deflate`, `br`, or `zstd`). When using the streaming API, the library decompresses only the necessary bytes, enabling partial ",
+        "vuln_symbols": [
+          "gzip",
+          "deflate",
+          "br",
+          "zstd"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.3"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Decompression bomb via redirect needs an attacker-controlled HTTP server; default urllib3 traffic goes only to Google APIs and the local webdriver (see row 70; analytics_db_safety.py:31-33 blocks shillelagh URL adapters)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#74",
+      "facts": {
+        "package": "urllib3",
+        "version": "1.26.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66418",
+            "GHSA-gm62-xv2j-4w53",
+            "PYSEC-2026-1998"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3 allows an unbounded number of links in the decompression chain \u2014 ## Impact\n\nurllib3 supports chained HTTP encoding algorithms for response content according to RFC 9110 (e.g., `Content-Encoding: gzip, zstd`).\n\nHowever, the number of links in the decompression chain was unbounded allowing a malicious server to insert a virtually unlimited number of compression steps leading to high CPU usage and massive memory allocation for the decompressed data.\n\n\n## Affected usages\n\nApplications and libraries using urllib3 version 2.5.0 and earlier for HTTP requests to untrusted sources unless they d",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.6.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Chained Content-Encoding bomb needs a malicious server response; no attacker-chosen HTTP endpoints are fetched via urllib3 in the default deployment (gsheets is fixed to Google, webdriver is local; superset uses stdlib urllib for URL fetches)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#75",
+      "facts": {
+        "package": "urllib3",
+        "version": "1.26.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-50181",
+            "GHSA-pq67-6m6q-mj2v",
+            "PYSEC-2026-1999"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3 redirects are not disabled when retries are disabled on PoolManager instantiation \u2014 urllib3 handles redirects and retries using the same mechanism, which is controlled by the `Retry` object. The most common way to disable redirects is at the request level, as follows:\n\n```python\nresp = urllib3.request(\"GET\", \"https://httpbin.org/redirect/1\", redirect=False)\nprint(resp.status)\n# 302\n```\n\nHowever, it is also possible to disable redirects, for all requests, by instantiating a `PoolManager` and specifying `retries` in a way that disable redirects:\n\n```python\nimport urllib3\n\nhttp = urllib3.",
+        "vuln_symbols": [
+          "Retry",
+          "PoolManager",
+          "retries",
+          "request"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.5.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs PoolManager(retries=...) instantiated to disable redirects; no such use in superset; selenium 3.141 remote_connection builds PoolManager(timeout=...) only and talks to the local driver."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#76",
+      "facts": {
+        "package": "urllib3",
+        "version": "1.26.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-97687",
+            "GHSA-8988-9cw3-xx77",
+            "PYSEC-2026-4175"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3: HTTPS proxy TLS configuration may be ignored or overridden \u2014 ## Impact\n\nurllib3 supports configuring TLS independently for an HTTPS proxy and the target server.\n\n`proxy_ssl_context`, `proxy_assert_hostname`, and `proxy_assert_fingerprint` configure the TLS connection to the proxy. `ssl_context` and the other target-specific TLS parameters configure the connection to the target server.\n\nIn urllib3 versions 1.26.0 through 2.7.0, these configurations were not consistently separated. Depending on the proxy mode, urllib3 could:\n\n1. Ignore `proxy_ssl_context` and use the target server's SSL",
+        "vuln_symbols": [
+          "proxy_ssl_context",
+          "proxy_assert_hostname",
+          "proxy_assert_fingerprint",
+          "ssl_context",
+          "verify_mode",
+          "cert_reqs"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.8.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs HTTPS-proxy TLS options (proxy_ssl_context etc.); superset and its HTTP deps never set them; only possible via env HTTPS_PROXY in requests, which passes no proxy TLS context."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#77",
+      "facts": {
+        "package": "urllib3",
+        "version": "1.26.18",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-97689",
+            "GHSA-vxq7-64xx-v4gw",
+            "PYSEC-2026-4177"
+          ],
+          [
+            "urllib3"
+          ]
+        ],
+        "advisory_summary": "urllib3: HTTPResponse.stream()/read_chunked() buffers an unbounded chunk-size line into memory \u2014 ## Impact\n\nurllib3's [streaming API](https://urllib3.readthedocs.io/en/2.7.0/advanced-usage.html#streaming-and-i-o) is designed for efficiently handling large HTTP responses by reading the content in chunks, rather than loading the entire response body into memory at once. When decoding a [chunked-transfer-encoded response](https://httpwg.org/specs/rfc9112.html#chunked.encoding), this API reads each chunk's size field by buffering until it sees `\\n` or EOF.\n\nA malicious HTTP server can return `Tran",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.8.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Unbounded chunk-size line needs a malicious server; urllib3 only reaches Google APIs and the local webdriver in the default deployment (see row 70)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#78",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-113724",
+            "GHSA-43mp-35q3-x3fq"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv: Deletion recovery can change a symlink target's mode \u2014 ## Summary\n\nThe deletion error handler obtains permission bits with lstat() but applies them through chmod(), which follows\nsymlinks. On an eligible unlink failure this can change permissions outside the destination.\n\nAnthropic's OSS Scanner reported this as `ANT-2026-UK90QC27` in `virtualenv-20261015-005`, received on 15 October 2026.\n\n## Affected area\n\nPermission recovery after a filesystem deletion error.\n\n## Attacker-controlled input\n\nA deletion must fail on a symbolic-link entry and enter the permission-recovery branch. Th",
+        "vuln_symbols": [
+          "safe_delete",
+          "shutil.rmtree",
+          "lstat",
+          "chmod",
+          "PermissionError",
+          "venv"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "21.14.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#79",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-113721",
+            "GHSA-558c-9hv2-4prj"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv: Generated files can follow existing destination links \u2014 ## Summary\n\nGenerated activation files and pyvenv.cfg can follow existing links and write outside the requested environment. The\ntemplate writer tests exists() before unlinking, which misses dangling symlinks; the configuration writer opens the\nexisting path directly.\n\nAnthropic's OSS Scanner reported this as `ANT-2026-XBEOCBS1` in `virtualenv-20261015-005`, received on 15 October 2026.\n\n## Affected area\n\nFinal file entries written during environment creation and seeding.\n\n## Attacker-controlled input\n\nAnother account must be ",
+        "vuln_symbols": [
+          "ViaTemplateActivator._generate",
+          "Path.exists",
+          "write_bytes",
+          "PyEnvCfg.write",
+          "pyvenv.cfg",
+          "PATH"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "21.14.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#80",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-113726",
+            "GHSA-5vjq-rrrf-7h2q"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv activate runs commands from the environment name in zsh with PROMPT_SUBST \u2014 ### Impact\n\nzsh users activate an environment with the bash `activate` script, which puts the environment name into `PS1`. Since\n21.13.0 the script escapes backslashes, dollar signs and backticks in that name, but only when `BASH_VERSION` is set, so\nzsh gets the raw value. With the `PROMPT_SUBST` option set, zsh runs parameter expansion, command substitution and\narithmetic expansion on `PS1` each time it draws the prompt. A name that contains `$(...)`, backticks or `${...}` then\nruns as commands in the user'",
+        "vuln_symbols": [
+          "activate",
+          "PS1",
+          "BASH_VERSION",
+          "PROMPT_SUBST",
+          "VIRTUALENV_PROMPT",
+          "PWNED"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "21.14.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#81",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-113732",
+            "GHSA-c947-3pg5-gm8q"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv activate.fish runs commands from a path or prompt with a backslash before a quote \u2014 ### Impact\n\n`FishActivator` defines no `quote()`, so it inherits `ViaTemplateActivator.quote`, which returns `shlex.quote(string)`. That function follows POSIX `sh` rules, where a backslash inside single quotes stays a literal character. fish reads `\\'` inside single quotes as an escaped quote and `\\\\` as an escaped backslash. A value with a backslash before a quote therefore ends the literal somewhere other than where `shlex.quote` put the end, and fish expands the command substitution that follows.",
+        "vuln_symbols": [
+          "FishActivator",
+          "quote",
+          "ViaTemplateActivator.quote",
+          "sh",
+          "shlex.quote",
+          "VIRTUALENV_PROMPT"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "21.14.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#82",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-113722",
+            "GHSA-c978-59m8-c77v"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv: Generated POSIX console launchers interpret destination paths as shell syntax \u2014 ## Summary\n\nA destination path supplied to virtualenv can be interpreted as shell syntax by a generated POSIX console launcher. The\napp-data seeder and pip delegate launcher generation to distlib but supply the interpreter path in a form that does not\npreserve it as literal data in the shell wrapper.\n\n## Affected area\n\nPOSIX console scripts generated by the app-data seeder or pip when the interpreter path requires a shell wrapper.\nWindows executable launchers are not affected by this path.\n\n## Attacker-",
+        "vuln_symbols": [
+          "enquote_executable",
+          "ScriptMaker",
+          "PWNED",
+          "a857a7823c73",
+          "repro",
+          "BUG"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "21.14.9"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#83",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-113716",
+            "GHSA-cw65-gx24-rc82"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv: Builtin creation follows linked environment directories \u2014 ## Summary\n\nThe builtin creator accepts existing directory symlinks through ensure_dir() and writes environment files through those\ndirectories. This permits writes outside the requested destination.\n\nAnthropic's OSS Scanner reported this as `ANT-2026-MUFJEG11` in `virtualenv-20261015-005`, received on 15 October 2026.\n\n## Affected area\n\nDirectory preparation before environment files are created.\n\n## Attacker-controlled input\n\nAnother account must be able to prepare linked entries below the chosen destination before creation",
+        "vuln_symbols": [
+          "ensure_dir",
+          "bin",
+          "lib",
+          "exists",
+          "PATH",
+          "a857a7823c73"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "21.14.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#84",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-113725",
+            "GHSA-vxj4-q4g9-crj7"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv bash activate runs commands from an environment name with a backslash before $ \u2014 ### Summary\n\nThe bash `activate` script escapes the environment name for only one of the two passes bash makes over `PS1`, so a\nbackslash in the name undoes the escaping and a name containing `\\$(...)` runs as commands in the user's shell each\ntime bash draws the prompt.\n\n### Affected area\n\n`src/virtualenv/activation/bash/activate.sh`, the block that prepends the environment name to `PS1`.\n\n### Attacker-controlled input\n\nThe environment name: the environment directory's name, or the `--prompt` or `VIRTU",
+        "vuln_symbols": [
+          "activate",
+          "PS1",
+          "VIRTUALENV_PROMPT",
+          "$"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "21.14.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#85",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-53899",
+            "BIT-virtualenv-2024-53899",
+            "GHSA-rqc4-2hc7-8c8v",
+            "PYSEC-2024-187"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv allows command injection through activation scripts for a virtual environment \u2014 virtualenv before 20.26.6 allows command injection through the activation scripts for a virtual environment. Magic template strings are not quoted correctly when replacing. NOTE: this is not the same as CVE-2024-9287.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "20.26.6"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#86",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-22702",
+            "BIT-virtualenv-2026-22702",
+            "GHSA-597g-3phw-6986",
+            "PYSEC-2026-2009"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv Has TOCTOU Vulnerabilities in Directory Creation \u2014 ## Impact\n\nTOCTOU (Time-of-Check-Time-of-Use) vulnerabilities in `virtualenv` allow local attackers to perform symlink-based attacks on directory creation operations. An attacker with local access can exploit a race condition between directory existence checks and creation to redirect virtualenv's app_data and lock file operations to attacker-controlled locations.\n\n**Affected versions:** All versions up to and including 20.36.1\n\n**Affected users:** Any user running `virtualenv` on multi-user systems where untrusted local users have ",
+        "vuln_symbols": [
+          "VIRTUALENV_OVERRIDE_APP_DATA"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "20.36.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#87",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102930",
+            "BIT-virtualenv-2026-102930",
+            "GHSA-94p9-xgh2-xp45",
+            "PYSEC-2026-4011"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv: Downloaded seed wheels (pip/setuptools) are not integrity-checked before use \u2014 `download_wheel()` runs `pip download` and hands the result straight to the seeder, with nothing checking the bytes it gets back. The embedded pip and setuptools wheels carry a `BUNDLE_SHA256` that virtualenv checks on every load, but a wheel fetched over the network for the periodic-update feature or the `--download` flag had no equivalent verification.\n\nA compromised index, a stale mirror, or a MITM'd download (when TLS is intercepted, e.g. via a misconfigured or malicious CA) could substitute a differ",
+        "vuln_symbols": [
+          "download_wheel",
+          "BUNDLE_SHA256",
+          "PIP_INDEX_URL",
+          "PIP_EXTRA_INDEX_URL",
+          "PIP_INDEX"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "21.7.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.62
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#88",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102938",
+            "BIT-virtualenv-2026-102938",
+            "GHSA-9h9j-4vrj-gf7g",
+            "PYSEC-2026-4012"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv writes prompt values into pyvenv.cfg without sanitizing line boundaries, allowing configuration injection \u2014 ### Summary\n\n`pyvenv.cfg` is a line-based format with no escape syntax. `PyEnvCfg.write()` wrote values verbatim, while `PyEnvCfg._read_values()` parses the file with `str.splitlines()`. A value containing a line boundary therefore became additional configuration lines, and because reading is last-wins, the injected keys replaced any key written earlier in the file.\n\n### Impact\n\nThe `prompt` value is the reachable input: it is set by `--prompt`, by the `VIRTUALENV_PROMPT` envi",
+        "vuln_symbols": [
+          "pyvenv.cfg",
+          "PyEnvCfg.write",
+          "PyEnvCfg._read_values",
+          "str.splitlines",
+          "prompt",
+          "VIRTUALENV_PROMPT"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "21.7.11"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#89",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102925",
+            "BIT-virtualenv-2026-102925",
+            "GHSA-p58f-9548-mpm2",
+            "PYSEC-2026-4013"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv bash and fish activation scripts execute commands embedded in paths \u2014 ### Impact\n\nThe generated `activate` (bash/zsh) and `activate.fish` scripts interpolate a `shlex.quote`-ed value into a position that quotes it a second time. The extra quotes terminate the quoted run early and leave part of the value parsed as shell code, so a path containing shell metacharacters runs commands when a user sources the activation script.\n\n`activate` is affected through the virtual environment's own path, on the branch that reports a relocated environment:\n\n```sh\necho \"Virtual environment directory ",
+        "vuln_symbols": [
+          "activate",
+          "activate.fish",
+          "shlex.quote",
+          "TCL_LIBRARY",
+          "TK_LIBRARY",
+          "activate.bat"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "21.7.13"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#90",
+      "facts": {
+        "package": "virtualenv",
+        "version": "20.23.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102937",
+            "BIT-virtualenv-2026-102937",
+            "GHSA-x78j-v8h9-3j2q",
+            "PYSEC-2026-4014"
+          ],
+          [
+            "virtualenv"
+          ]
+        ],
+        "advisory_summary": "virtualenv: Command injection via --prompt in activate.bat (batch activator) \u2014 `BatchActivator.quote()` returned its input unchanged, the only activator with no escaping at all. `--prompt`, the `VIRTUALENV_PROMPT` environment variable, and the config file all set the prompt, and `activate.bat` writes it straight into `@set \"VAR=value\"`. A prompt containing a double quote closes that string early, and whatever follows runs as live cmd.exe syntax:\n\n```console\n$ virtualenv --prompt 'x\" & calc & \"' venv\n$ venv\\Scripts\\activate.bat\n```\n\nruns `calc` the moment someone activates the environment. Conf",
+        "vuln_symbols": [
+          "BatchActivator.quote",
+          "VIRTUALENV_PROMPT",
+          "activate.bat",
+          "calc"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "21.7.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "virtualenv 20.23.1 is only in requirements/integration.txt:59 (via pre-commit/tox), used by testing.txt for CI; not in base.txt or the lean/dev Docker images (Dockerfile:82-86 installs local.txt->development.txt->base.txt). Never imported by superset."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#91",
+      "facts": {
+        "package": "werkzeug",
+        "version": "3.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-34069",
+            "GHSA-2g68-c3qc-8985",
+            "PYSEC-2026-2043"
+          ],
+          [
+            "werkzeug"
+          ]
+        ],
+        "advisory_summary": "Werkzeug debugger vulnerable to remote execution when interacting with attacker controlled domain \u2014 The debugger in affected versions of Werkzeug can allow an attacker to execute code on a developer's machine under some circumstances. This requires the attacker to get the developer to interact with a domain and subdomain they control, and enter the debugger PIN, but if they are successful it allows access to the debugger even if it is only running on localhost. This also requires the attacker to guess a URL in the developer's application that will trigger the debugger.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.0.3"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Werkzeug debugger only runs with debug mode; production is served by gunicorn (docker/run-server.sh) and the debugger is not enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#92",
+      "facts": {
+        "package": "werkzeug",
+        "version": "3.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-21860",
+            "GHSA-87hc-h4r5-73f7",
+            "PYSEC-2026-2044"
+          ],
+          [
+            "werkzeug"
+          ]
+        ],
+        "advisory_summary": " Werkzeug safe_join() allows Windows special device names with compound extensions \u2014 Werkzeug's `safe_join` function allows path segments with Windows device names that have file extensions or trailing spaces. On Windows, there are special device names such as `CON`, `AUX`, etc that are implicitly present and readable in every directory. Windows still accepts them with any file extension, such as `CON.txt`, or trailing spaces such as `CON `.\n\nThis was previously reported as https://github.com/pallets/werkzeug/security/advisories/GHSA-hgf8-39gv-g3f2, but the fix failed to account for compound e",
+        "vuln_symbols": [
+          "safe_join",
+          "CON",
+          "AUX",
+          "CON.txt",
+          "CON.txt.html",
+          "send_from_directory"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.5"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CVE-2026-21860 is a Windows-only safe_join issue (device names / UNC paths); Superset is deployed on Linux (Dockerfile python:*-slim base, gunicorn), so the bypass cannot occur even though Flask static serving uses send_from_directory."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#93",
+      "facts": {
+        "package": "werkzeug",
+        "version": "3.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-49766",
+            "GHSA-f9vj-2wh5-fj8j",
+            "PYSEC-2026-2045"
+          ],
+          [
+            "werkzeug"
+          ]
+        ],
+        "advisory_summary": "Werkzeug safe_join not safe on Windows \u2014 On Python < 3.11 on Windows, `os.path.isabs()` does not catch UNC paths like `//server/share`. Werkzeug's `safe_join()` relies on this check, and so can produce a path that is not safe, potentially allowing unintended access to data. Applications using Python >= 3.11, or not using Windows, are not vulnerable.",
+        "vuln_symbols": [
+          "os.path.isabs",
+          "safe_join"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.0.6"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CVE-2024-49766 is a Windows-only safe_join issue (device names / UNC paths); Superset is deployed on Linux (Dockerfile python:*-slim base, gunicorn), so the bypass cannot occur even though Flask static serving uses send_from_directory."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#94",
+      "facts": {
+        "package": "werkzeug",
+        "version": "3.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66221",
+            "GHSA-hgf8-39gv-g3f2",
+            "PYSEC-2026-2046"
+          ],
+          [
+            "werkzeug"
+          ]
+        ],
+        "advisory_summary": "Werkzeug safe_join() allows Windows special device names \u2014 Werkzeug's `safe_join` function allows path segments with Windows device names. On Windows, there are special device names such as `CON`, `AUX`, etc that are implicitly present and readable in every directory. `send_from_directory` uses `safe_join` to safely serve files at user-specified paths under a directory. If the application is running on Windows, and the requested path ends with a special device name, the file will be opened successfully, but reading will hang indefinitely.",
+        "vuln_symbols": [
+          "safe_join",
+          "CON",
+          "AUX",
+          "send_from_directory"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CVE-2025-66221 is a Windows-only safe_join issue (device names / UNC paths); Superset is deployed on Linux (Dockerfile python:*-slim base, gunicorn), so the bypass cannot occur even though Flask static serving uses send_from_directory."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#95",
+      "facts": {
+        "package": "werkzeug",
+        "version": "3.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-27199",
+            "GHSA-29vq-49wr-vm6x",
+            "PYSEC-2026-2320"
+          ],
+          [
+            "werkzeug"
+          ]
+        ],
+        "advisory_summary": "Werkzeug is a comprehensive WSGI web application library. Versions 3.1.5 and below, the safe_join function allows Windows device names as filenames if preceded by other path segments. This was previously reported as GHSA-hgf8-39gv-g3f2, but the added filtering failed to account for the fact that safe_join accepts paths with multiple segments, such as example/NUL. The function send_from_directory uses safe_join to safely serve files at user-specified paths under a directory. If the application is running on Windows, and the requested path ends with a special device name, the file will be opened",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CVE-2026-27199 is a Windows-only safe_join issue (device names / UNC paths); Superset is deployed on Linux (Dockerfile python:*-slim base, gunicorn), so the bypass cannot occur even though Flask static serving uses send_from_directory."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#96",
+      "facts": {
+        "package": "werkzeug",
+        "version": "3.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-49767",
+            "GHSA-q34m-jh98-gwm2",
+            "PYSEC-2026-1860",
+            "PYSEC-2026-3417"
+          ],
+          [
+            "werkzeug"
+          ]
+        ],
+        "advisory_summary": "Werkzeug possible resource exhaustion when parsing file data in forms \u2014 Applications using Werkzeug to parse `multipart/form-data` requests are vulnerable to resource exhaustion. A specially crafted form body can bypass the `Request.max_form_memory_size` setting.\n\n\nThe `Request.max_content_length` setting, as well as resource limits provided by deployment software and platforms, are also available to limit the resources used during a request. This vulnerability does not affect those settings. All three types of limits should be considered and set appropriately when deploying an application.",
+        "vuln_symbols": [
+          "Request.max_form_memory_size",
+          "Request.max_content_length"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.0.6"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Any POST with multipart/form-data body is parsed by werkzeug's form parser when Flask-WTF CSRF / Flask-AppBuilder views read request.form (login form is unauthenticated; CSV/zip upload endpoints e.g. superset/databases/api.py:1196, charts/api.py:1083 use request.files). Werkzeug 3.0.1 < 3.0.6."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#97",
+      "facts": {
+        "package": "werkzeug",
+        "version": "3.0.1",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102598",
+            "GHSA-g6x2-hccm-hh4m",
+            "PYSEC-2026-4312"
+          ],
+          [
+            "werkzeug"
+          ]
+        ],
+        "advisory_summary": "Werkzeug safe_join() allows Windows special device names \u2014 Werkzeug's `safe_join` function allows Windows device names as filenames when they have an empty ADS marker on NTFS.\n\nThis was previously reported as https://github.com/pallets/werkzeug/security/advisories/GHSA-hgf8-39gv-g3f2, but the added filtering failed to account for the fact Windows allows special device names with an empty ADS marker, such as `NUL:`.\n\n`send_from_directory` uses `safe_join` to safely serve files at user-specified paths under a directory. If the application is running on Windows and NTFS, and the requested path en",
+        "vuln_symbols": [
+          "safe_join",
+          "send_from_directory"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.9"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CVE-2026-102598 is a Windows-only safe_join issue (device names / UNC paths); Superset is deployed on Linux (Dockerfile python:*-slim base, gunicorn), so the bypass cannot occur even though Flask static serving uses send_from_directory."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#98",
+      "facts": {
+        "package": "wheel",
+        "version": "0.40.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24049",
+            "GHSA-8rrh-rw8j-w5fx",
+            "PYSEC-2026-2047"
+          ],
+          [
+            "wheel"
+          ]
+        ],
+        "advisory_summary": "Wheel Affected by Arbitrary File Permission Modification via Path Traversal in wheel unpack \u2014 ### Summary\n - **Vulnerability Type:** Path Traversal (CWE-22) leading to Arbitrary File Permission Modification.  \n - **Root Cause Component:** wheel.cli.unpack.unpack function.  \n - **Affected Packages:**  \n   1. wheel (Upstream source)  \n   2. setuptools (Downstream, vendors wheel)  \n - **Severity:** High (Allows modifying system file permissions).  \n\n### Details  \nThe vulnerability exists in how the unpack function handles file permissions after extraction. The code blindly trusts the filename fro",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.46.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "wheel 0.40.0 only in requirements/integration.txt:63 (via pip-tools), CI only; vulnerable code is the `wheel unpack` CLI, never used by the app."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-py-superset#99",
+      "facts": {
+        "package": "zipp",
+        "version": "3.15.0",
+        "ecosystem": "pypi",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-5569",
+            "GHSA-jfmj-5v4g-7637",
+            "PYSEC-2026-2074"
+          ],
+          [
+            "zipp"
+          ]
+        ],
+        "advisory_summary": "zipp Denial of Service vulnerability \u2014 A Denial of Service (DoS) vulnerability exists in the jaraco/zipp library, affecting all versions prior to 3.19.1. The vulnerability is triggered when processing a specially crafted zip file that leads to an infinite loop. This issue also impacts the zipfile module of CPython, as features from the third-party zipp library are later merged into CPython, and the affected code is identical in both projects. The infinite loop can be initiated through the use of functions affecting the `Path` module in both zipp and zipfile, such as `joinpath`, the overloaded ",
+        "vuln_symbols": [
+          "Path",
+          "joinpath",
+          "iterdir"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.19.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zipp (base.txt:397) is only pulled in by importlib-metadata, which uses zipp.Path for zip entries on sys.path (trusted). Superset handles uploaded zips with stdlib zipfile.ZipFile (databases/api.py:1198, charts/api.py:1085, importexport/api.py:172), not zipp, and never uses zipfile.Path."
+      }
+    }
+  ]
+}

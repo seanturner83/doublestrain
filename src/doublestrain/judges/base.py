@@ -55,6 +55,7 @@ class JudgeResult:
     cost_usd: float | None = None
     cached: bool = False
     model: str = ""              # the model that answered, when the tier knows it (floors.toml)
+    corroborates: str = ""       # held not_reachable sources this verdict is the second read for
     # Earlier tiers' results that were NOT accepted (cascade escalation trail).
     trail: list[dict] = field(default_factory=list)
 
@@ -82,7 +83,7 @@ class Judge(Protocol):
 # one was measured on, and which models need a second read before their not_reachable
 # settles anything (`corroborate`).
 _FLOORS_FILE = Path(__file__).with_name("floors.toml")
-_ROLES = ("jev", "claude", "split", "shape", "govulncheck", "jelly", "pyimports")
+_ROLES = ("jev", "claude", "split", "shape", "govulncheck", "jelly", "pyimports", "cargofeat")
 
 
 @lru_cache(maxsize=4)
@@ -93,7 +94,7 @@ def _table(path: str) -> tuple[dict, dict]:
 
 
 def role(source: str) -> str:
-    """jev | claude | split | shape | govulncheck | jelly | pyimports | endpoint (any OpenAI-compatible tier)."""
+    """jev | claude | split | shape | govulncheck | jelly | pyimports | cargofeat | endpoint (any OpenAI-compatible tier)."""
     base = source.partition(":")[0]
     return base if base in _ROLES else "endpoint"
 
@@ -135,6 +136,9 @@ def accept(r: JudgeResult | None) -> bool:
     return r.confidence >= p["not_reachable"]
 
 
-def needs_corroboration(r: "JudgeResult") -> bool:
-    """Is this model marked as needing a second read before its not_reachable settles?"""
-    return r.verdict == Verdict.NOT_REACHABLE and bool(policy(r).get("corroborate"))
+def needs_corroboration(r: "JudgeResult", ecosystem: str = "") -> bool:
+    """Is this model marked as needing a second read before its not_reachable settles,
+    everywhere (`corroborate`) or on this ecosystem (`corroborate_ecosystems`)?"""
+    p = policy(r)
+    return r.verdict == Verdict.NOT_REACHABLE and (
+        bool(p.get("corroborate")) or ecosystem in (p.get("corroborate_ecosystems") or ()))

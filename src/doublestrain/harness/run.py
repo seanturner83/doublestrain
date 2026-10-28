@@ -76,6 +76,11 @@ def run_case(case_dir: Path, case: dict, judge, enrich: dict | None = None):
 def judge_row(case_dir: Path, case: dict, rec: dict, judge, enrich: dict | None = None) -> dict:
     """Judge and grade one candidate (and its oracle copy). Safe to run on a thread."""
     repo_path = _repo_path(case_dir, case)
+    if art := case.get("artifact"):
+        # a JVM case: the release artifact is the deployed classpath judges read (jvmjars)
+        from .. import jvmjars
+        jvmjars.register(repo_path, {**art, "paths": [str(p if (p := Path(x).expanduser()).is_absolute() else case_dir / p)
+                                                      for x in art["paths"]]})
     enrich = case.get("enrichment", {}) if enrich is None else enrich
     repo_short = rec["pr"].split("#")[0].split("/")[-1]
     em = ExposureMap({repo_short: case["exposure"]}) if case.get("exposure") else None

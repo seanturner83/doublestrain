@@ -145,6 +145,26 @@ other-pkg==1.0
     assert lock.runtime() == {"flask@3.0.3", "click@8.1.7", "jinja2@3.1.4", "other-pkg@1.0"}
 
 
+def test_pip_compile_via_the_project_itself_is_a_root(tmp_path):
+    """superset 4.0.2: pip-compile-multi writes `-e file:.` and most pins say "via
+    apache-superset", which no line pins. Those are the project's own dependencies."""
+    (tmp_path / "requirements").mkdir()
+    (tmp_path / "requirements" / "base.txt").write_text('''-e file:.
+    # via -r requirements/base.in
+bcrypt==4.0.1
+    # via paramiko
+cryptography==42.0.4
+    # via
+    #   apache-superset
+    #   paramiko
+paramiko==3.4.0
+    # via apache-superset
+''')
+    lock = pylock.load(tmp_path)
+    assert lock.prod_roots == {"cryptography@42.0.4", "paramiko@3.4.0"}
+    assert lock.runtime() == {"bcrypt@4.0.1", "cryptography@42.0.4", "paramiko@3.4.0"}
+
+
 def test_plain_pins_are_all_direct(tmp_path):
     (tmp_path / "requirements.txt").write_text("Flask==3.0.3\nPyYAML[extra]==6.0.1 ; python_version > '3'\nrequests>=2\n")
     lock = pylock.load(tmp_path)

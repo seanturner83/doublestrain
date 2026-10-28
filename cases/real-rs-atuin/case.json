@@ -1,0 +1,1880 @@
+{
+  "id": "real-rs-atuin",
+  "description": "Atuin v18.4.0 (shell-history sync; the server, `atuin server start`): Rust dev set (rs1), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#1",
+      "facts": {
+        "package": "anyhow",
+        "version": "1.0.86",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0190"
+          ],
+          [
+            "anyhow"
+          ]
+        ],
+        "advisory_summary": "Unsoundness in `Error::downcast_mut()` \u2014 Affected versions of this crate violate borrow rules, resulting in undefined behavior, when the user adds context to an error via `Error::context` and then later calls `Error::downcast_mut` on the returned `Error`.\n\nThe flaw was corrected in commit `6e8c000` by revising how the mutable reference is constructed, avoiding inclusion of a shared reference in the resulting borrow chain.\n\n## Example\n\n```rust\nuse anyhow::Error;\nuse std::fmt;\n\n#[derive(Debug)]\nstruct ErrorContext(&'static str);\n\nimpl fmt::Display for ErrorContext {\n    fn fmt(&self, f: &mut fmt",
+        "vuln_symbols": [
+          "anyhow::Error::downcast_mut"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.0.103"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "anyhow"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "anyhow 1.0.86 reached only via prost-derive (proc-macro, build time), sql-builder and tiny-bip39 (atuin-client, client-only). No call to downcast_mut anywhere: grep of atuin crates, sql-builder 3.1.1 and tiny-bip39 1.0.0 src finds no downcast_mut/anyhow context use; server uses eyre."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#2",
+      "facts": {
+        "package": "bytes",
+        "version": "1.6.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25541",
+            "GHSA-434x-w66g-qw3r",
+            "RUSTSEC-2026-0007"
+          ],
+          [
+            "bytes"
+          ]
+        ],
+        "advisory_summary": "bytes has integer overflow in BytesMut::reserve \u2014 # Details\n\nIn the unique reclaim path of `BytesMut::reserve`, the condition\n```rs\nif v_capacity >= new_cap + offset\n```\nuses an unchecked addition. When `new_cap + offset` overflows `usize` in release builds, this condition may incorrectly pass, causing `self.cap` to be set to a value that exceeds the actual allocated capacity. Subsequent APIs such as `spare_capacity_mut()` then trust this corrupted `cap` value and may create out-of-bounds slices, leading to UB.\n\nThis behavior is observable in release builds (integer overflow wraps), whereas de",
+        "vuln_symbols": [
+          "usize",
+          "self.cap",
+          "spare_capacity_mut",
+          "cap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "bytes"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "bytes 1.6.0 is in the server path (axum/hyper/h2/sqlx), but the bug (bytes_mut.rs:657-670 unique-reclaim path) needs new_cap+offset to overflow usize, i.e. reserve(additional) close to usize::MAX on 64-bit. new_cap is already checked_add'ed (bytes_mut.rs:657); hyper/h2/tokio-util/sqlx reserve amounts bounded by buffer/frame sizes (h2 frames 24-bit), so network data cannot drive reserve to ~2^64. Not attacker-triggerable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#3",
+      "facts": {
+        "package": "crossbeam-epoch",
+        "version": "0.9.18",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0204"
+          ],
+          [
+            "crossbeam-epoch"
+          ]
+        ],
+        "advisory_summary": "Invalid pointer dereference in `fmt::Pointer` impl for `Atomic` and `Shared` when the underlying pointer is invalid \u2014 Affected versions of `fmt::Display` dereference the underlying pointer. This causes a invalid pointer dereference e.g., when a pointer created with `Atomic::null` or `Shared::null`. `fmt::Debug` impls and pre-0.9 `fmt::Display` impls, which do not dereference pointers, are not affected by this issue.",
+        "vuln_symbols": [
+          "Atomic",
+          "Shared"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.20"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "crossbeam_epoch"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crossbeam-epoch 0.9.18 via rayon (sysinfo) and metrics-util. Vulnerable impls are fmt::Pointer for Atomic/Shared (src/atomic.rs:942-947, 1663-1666); no {:p}/Pointer formatting of Atomic/Shared in crossbeam-deque 0.8.5, rayon-core 1.12.1, metrics-util 0.15.1 or atuin code."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#4",
+      "facts": {
+        "package": "event-listener",
+        "version": "5.3.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0221"
+          ],
+          [
+            "event-listener"
+          ]
+        ],
+        "advisory_summary": "`event-listener` allows `!Send` tags to cross thread boundaries via `StackSlot` \u2014 Affected versions of `event-listener` unconditionally implement `Send` and\n`Sync` for `StackSlot<'_, T>`, the stack-allocated listener type created\nby the `listener!` macro.\n\nThis allows a `!Send` tag type set via `Event::with_tag` to be moved to\nanother thread and accessed via `StackSlot::wait`, causing a data race in safe\ncode.",
+        "vuln_symbols": [
+          "StackSlot",
+          "Send",
+          "Sync"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.2"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "event_listener"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "event-listener 5.3.1 used only by sqlx-core 0.8.1 (Cargo.lock), which uses event_listener::Event/EventListener with unit tag (sqlx-core pool/inner.rs:32,61; pool/mod.rs:64) - heap listeners, no listener!/StackSlot (event-listener lib.rs:1030-1032, 1485) and no !Send tags."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#5",
+      "facts": {
+        "package": "h2",
+        "version": "0.3.26",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "h2 0.3.26 only via hyper 0.14/reqwest 0.11 (client) and metrics-exporter-prometheus's hyper 0.14 (exporter HTTP listener unused: atuin uses install_recorder + own axum route, atuin-server/src/metrics.rs:10-22, lib.rs:117-133). In the server the h2 0.3 client only talks to the operator-configured register webhook (optional register_webhook_url, handlers/user.rs:41-61,136); the malicious-peer condition (peer sending empty DATA frames) requires the trusted webhook endpoint to be hostile. Client-side sync uses are client-only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#6",
+      "facts": {
+        "package": "h2",
+        "version": "0.4.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.4.5 is the HTTP/2 server for the public API: axum::serve (atuin-server/src/lib.rs:65-77) uses hyper_util::server::conn::auto::Builder (axum serve.rs:21,215), and hyper-util's http2 feature is on via server-auto enabled by axum-server 0.7.1 (Cargo.toml hyper-util features server-auto) and tonic server, so cleartext HTTP/2 prior-knowledge (H2_PREFACE detection, hyper-util auto.rs:38,261) is accepted from any unauthenticated client. Empty DATA frames are queued for streams whose handler does not drain the body (e.g. GET /user/:username, fallback). Reachable on default config; less so behind an HTTP/1.1-only reverse proxy."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#7",
+      "facts": {
+        "package": "idna",
+        "version": "0.5.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-12224",
+            "GHSA-h97m-ww89-6jmq",
+            "RUSTSEC-2024-0421"
+          ],
+          [
+            "idna"
+          ]
+        ],
+        "advisory_summary": "`idna` accepts Punycode labels that do not produce any non-ASCII when decoded \u2014 `idna` 0.5.0 and earlier accepts Punycode labels that do not produce any non-ASCII output, which means that either ASCII labels or the empty root label can be masked such that they appear unequal without IDNA processing or when processed with a different implementation and equal when processed with `idna` 0.5.0 or earlier.\n\nConcretely, `example.org` and `xn--example-.org` become equal after processing by `idna` 0.5.0 or earlier. Also, `example.org.xn--` and `example.org.` become equal after processing by `idna` 0.5",
+        "vuln_symbols": [
+          "example.org",
+          "url"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "idna"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "idna 0.5.0 via url 2.5.2. In the server url parses only operator-controlled strings: db_uri redaction (atuin-server-postgres/src/lib.rs:38), sqlx connect options, postmark base URL constant (user.rs:222), webhook URL from config. No attacker-supplied hostnames/URLs are parsed or compared, so the Punycode masking issue has no attacker input."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#8",
+      "facts": {
+        "package": "lru",
+        "version": "0.12.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rhfx-m35p-ff5j",
+            "RUSTSEC-2026-0002"
+          ],
+          [
+            "lru"
+          ]
+        ],
+        "advisory_summary": "`IterMut` violates Stacked Borrows by invalidating internal pointer \u2014 Affected versions of this crate contain a soundness issue in the `IterMut` iterator implementation. The `IterMut::next` and `IterMut::next_back` methods temporarily create an exclusive reference to the key when dereferencing the internal node pointer.\n\nThis invalidates the shared pointer held by the internal `HashMap`, violating Stacked Borrows rules.",
+        "vuln_symbols": [
+          "IterMut",
+          "HashMap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.16.3"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.85
+        },
+        "import_name": "lru"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "lru 0.12.3 only via ratatui 0.27 (Cargo.lock), used by the client TUI search in crates/atuin; not run by `atuin server start`. IterMut not used by server."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#9",
+      "facts": {
+        "package": "lru",
+        "version": "0.12.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0253"
+          ],
+          [
+            "lru"
+          ]
+        ],
+        "advisory_summary": "Potential use-after-free due to lack of panic safety in `LruCache::pop()` \u2014 `LruCache::pop()` in `lru` was not panic-safe. If the `Drop` implementation of a stored key panics during `pop()`, `self.detach()` is never called, leaving dangling pointers in the internal doubly-linked list.\n\nA subsequent cache operation that triggers eviction can then dereference these dangling pointers:\n- The node is freed from the map, but remains linked in the LRU list due to the skipped `detach()` call\n- When a new insertion causes eviction, the LRU traversal encounters the dangling pointer\n- This results in a w",
+        "vuln_symbols": [
+          "Drop",
+          "pop",
+          "self.detach",
+          "detach"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.18.2"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "lru"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "lru 0.12.3 only via ratatui 0.27 (client TUI); LruCache::pop not reached in server deployment (and keys are ratatui cache keys whose Drop cannot panic)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#10",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.34.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0194"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Quadratic run time when checking a start tag for duplicate attribute names \u2014 `BytesStart::attributes()` returns an `Attributes` iterator which, by default\n(`with_checks(true)`), rejects a start tag that repeats an attribute name. For\neach attribute yielded, the iterator compared the new name against every name\nseen so far in the same tag using a linear scan, so a start tag with `N`\ndistinct attribute names cost `O(N\u00b2)` byte comparisons. There was no bound on\n`N` other than the size of the buffered start tag.\n\n## Impact\n\nAny code that parses untrusted XML and iterates a start tag's attributes w",
+        "vuln_symbols": [
+          "Attributes",
+          "N",
+          "NsReader",
+          "snapshot.xml"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quick-xml 0.34.0 only via wayland-scanner (protocol XML codegen at compile time) <- wayland-client/protocols <- wl-clipboard-rs <- arboard (clipboard feature, client-only). No runtime XML parsing in server."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#11",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.34.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0195"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Unbounded namespace-declaration allocation in `NsReader` enables memory-exhaustion denial of service \u2014 `NsReader` resolves namespaces by calling `NamespaceResolver::push` for every\n`Start`/`Empty` event *before* the event is returned to the caller. `push`\niterated all `xmlns` / `xmlns:*` attributes on the start tag and, for each one,\nappended the prefix bytes to an internal buffer and pushed a `NamespaceBinding`\n(32 bytes on 64-bit) to an internal `Vec`, with no upper bound on the number of\ndeclarations.\n\n## Impact\n\nA start tag with `N` namespace declarations drove roughly `3\u00d7` the tag's byte\n",
+        "vuln_symbols": [
+          "NsReader",
+          "Start",
+          "Empty",
+          "push",
+          "xmlns",
+          "NamespaceBinding"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quick-xml 0.34.0 only via wayland-scanner (compile-time macro codegen of bundled protocol XML) under arboard (client clipboard). NsReader never runs on attacker data in the server."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#12",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-31812",
+            "GHSA-6xvm-j4wr-6v98",
+            "RUSTSEC-2026-0037"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Quinn affected by unauthenticated remote DoS via panic in QUIC transport parameter parsing \u2014 ### Summary\nA remote, unauthenticated attacker can trigger a denial of service in applications using vulnerable `quinn` versions by sending a crafted QUIC Initial packet containing malformed `quic_transport_parameters`. `In quinn-proto` parsing logic, attacker-controlled varints are decoded with `unwrap()`, so truncated encodings cause `Err(UnexpectedEnd)` and `panic`. This is reachable over the network with a single packet and no prior trust or authentication.\n\n### Details\nThe issue is panic-on-untrus",
+        "vuln_symbols": [
+          "quinn",
+          "quic_transport_parameters",
+          "unwrap",
+          "panic",
+          "UnexpectedEnd",
+          "Err"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.14"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn-proto/quinn 0.11 appear in Cargo.lock only because reqwest 0.12.5's weak feature `quinn?/ring` (reqwest Cargo.toml __rustls-ring) lists it; quinn is an optional dep enabled only by reqwest's http3 feature, which postmark (reqwest-rustls-tls => reqwest/rustls-tls) does not enable (no h3/h3-quinn in Cargo.lock). Not compiled; also server never speaks QUIC."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#13",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25800",
+            "GHSA-4w2j-m93h-cj5j",
+            "RUSTSEC-2026-0185"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Quinn: Remote memory exhaustion in quinn-proto from unbounded out-of-order stream reassembly \u2014 ## Summary\n\nThe `Assembler` component that assembles unordered stream fragments into consecutive chunks of the stream incurs some overhead for non-contiguous fragments. Readers that read from a `RecvStream` in order (through an `AsyncRead` impl for example) will be sensitive to peers that send fragments while leaving out early parts of the stream, and in particular, fragments with many gaps (because these cannot be defragmented). In such a scenario, the receiving connection suffers from high buffer o",
+        "vuln_symbols": [
+          "Assembler",
+          "RecvStream",
+          "AsyncRead"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.15"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 11: quinn not compiled (reqwest http3 feature off; lock entry from weak `quinn?/ring`); no QUIC endpoint in server."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#14",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-465w-v9q3-7j98",
+            "RUSTSEC-2026-0338"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Remote peer can panic quinn-proto with zero-length STREAM frames during unordered reads \u2014 When a stream is read in unordered mode (for example through `RecvStream::read(false)` in\nquinn-proto or `read_unordered` in `quinn`), quinn-proto proactively deduplicates received data\nby recording received ranges in a `RangeSet` through its `replace` method. When an incoming\nSTREAM frame carried an empty payload, the `Drop` implementation of the iterator returned by\n`replace` inserted an empty range into the set, violating the invariant that stored ranges are\nnon-empty. Subsequent frames overlapping tha",
+        "vuln_symbols": [
+          "read_unordered",
+          "quinn",
+          "RangeSet",
+          "replace",
+          "Drop"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.18"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 11: quinn-proto not compiled into the binary (reqwest 0.12 http3 off); no QUIC."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#15",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-hmxj-32vh-65vr",
+            "RUSTSEC-2026-0339"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Unbounded growth of pending connection ID retirements in quinn-proto \u2014 When processing a NEW_CONNECTION_ID frame, quinn-proto queues a RETIRE_CONNECTION_ID frame for\neach connection ID that the peer asked it to retire. The normal path bounds this queue and closes\nthe connection with a CONNECTION_ID_LIMIT_ERROR if the bound would be exceeded. However, the path\nhandling a connection ID that had already been retired pushed onto the queue without applying\nthe limit and without deduplicating.\n\nA peer that has completed the handshake can first send a NEW_CONNECTION_ID frame with a large\n`retire_prio",
+        "vuln_symbols": [
+          "retire_prior_to"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 11: quinn-proto not compiled (reqwest 0.12 http3 off)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#16",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-3g6h-r5qx-f6hq",
+            "RUSTSEC-2026-0340"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Peer minimum ACK delay can panic quinn-proto when ACK_FREQUENCY transmission is enabled \u2014 When sending ACK_FREQUENCY frames is enabled through\n`TransportConfig::ack_frequency_config(Some(..))`, the peer's transport parameters could cause\n`AckFrequencyState::candidate_max_ack_delay` to call `Duration::clamp` with a minimum greater\nthan its maximum, which panics.\n\nFor example, a peer advertising a `min_ack_delay` of 100,000 microseconds and a `max_ack_delay`\nof 100 milliseconds passes transport parameter validation. At a 5 ms RTT, the lower bound of the\nclamp becomes 100 ms while the upper bound",
+        "vuln_symbols": [
+          "min_ack_delay",
+          "max_ack_delay",
+          "clamp"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.18"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 11: quinn-proto not compiled; ack_frequency_config never set anyway."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#17",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2hv7-gw8g-gpq5",
+            "RUSTSEC-2026-0342"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Zero-length DATAGRAM frames bypass the receive buffer limit in quinn-proto \u2014 quinn-proto bounds its queue of received datagrams by charging each queued frame's payload length\nagainst `TransportConfig::datagram_receive_buffer_size`, evicting the oldest datagrams when the\nlimit is exceeded. A DATAGRAM frame with an empty payload was charged zero bytes, so it never\ntriggered eviction and was appended to the queue, which has no other bound.\n\nDATAGRAM frames are not subject to flow control. A peer that has completed the handshake can\ntherefore send a stream of empty DATAGRAM frames and grow the rec",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 11: quinn-proto not compiled (reqwest 0.12 http3 off); no QUIC datagrams."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#18",
+      "facts": {
+        "package": "rand",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rand 0.8.5 unsoundness needs rand's `log` feature plus a custom logger that calls thread_rng during reseed logging. rand's warn! is cfg(feature=\"log\") (rand src/lib.rs:81-85); no dependent enables rand/log (workspace rand features [\"std\"]; sqlx-postgres std,std_rng; others small_rng/core). Server logger is tracing-subscriber fmt, which never calls rand."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#19",
+      "facts": {
+        "package": "ring",
+        "version": "0.17.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ring 0.17.8 panics only with overflow-checks enabled; the Docker image builds `cargo build --release` (Dockerfile) and the workspace Cargo.toml sets no overflow-checks for release. The QUIC HeaderProtectionKey path is used only by quinn, which is not compiled (reqwest http3 off). AES-GCM in rustls 0.23 server TLS is therefore not panicking."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#20",
+      "facts": {
+        "package": "rpassword",
+        "version": "7.3.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2p6r-x3vv-xqm2"
+          ],
+          [
+            "rpassword"
+          ]
+        ],
+        "advisory_summary": "rpassword affected by partial password reveal when input is interrupted  \u2014 rpassword maintainers were made aware of a possible issue with a partial password reveal when input is interrupted.\n\nTo quote @squell:\n\n> @conradkleinespel I've confirmed this problem with SequoiaPGP, which I think uses rpassword, e.g.:\n>\n> Suppose we use pkill -9 sq in a different terminal right after the password has been typed in:\n>\n> $ sq key generate --userid \"barf\" --with-password\n> Enter password to protect the key: Killed\n> $ hello^C\n>\n> Where the password I typed in is \"hello\".\n\nThis has been fixed in version v",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "rpassword"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rpassword is a direct dep of the atuin binary used for client password prompts (login/register/key commands); never called by `atuin server start`."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#21",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-21895",
+            "GHSA-9c48-w39g-hm26"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "rsa crate has potential panic on a prime being equal to 1 \u2014 When creating a RSA private key from its components, the construction panics, instead of returning an error, when one of the primes is `1`. \n\nDiscovered by Christian Reitter from [Radically Open Security](https://www.radicallyopensecurity.com/) during a security review for [Proton AG](https://proton.me/).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.10"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rsa 0.9.6 only via sqlx-mysql 0.8.1, which is enabled only by sqlx's `mysql` feature (sqlx Cargo.toml mysql=[\"sqlx-mysql\"]); workspace sqlx features are runtime-tokio-rustls,time,postgres,uuid (+sqlite in client) and the lock entry comes from weak `sqlx-mysql?/...` features. Not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#22",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-49092",
+            "GHSA-4grx-2x9w-596c",
+            "GHSA-c38w-74pg-36hr",
+            "RUSTSEC-2023-0071"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "Marvin Attack: potential key recovery through timing sidechannels \u2014 ### Impact\nDue to a non-constant-time implementation, information about the private key is leaked through timing information which is observable over the network. An attacker may be able to use that information to recover the key.\n\n### Patches\nNo patch is yet available. The crypto-bigint migration ([RustCrypto/RSA#394](https://github.com/RustCrypto/RSA/pull/394)) did not close this. Tracking is [RustCrypto/RSA#626](https://github.com/RustCrypto/RSA/issues/626) (padding still not constant-time). Implicit rejection work is in [R",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rsa 0.9.6 only via sqlx-mysql, not compiled (sqlx mysql feature off); server uses PostgreSQL. No RSA decryption on attacker data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#23",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Debug-formatting a Tls12/Tls13ClientSessionValue (rustls 0.21.12 msgs/persist.rs:69-70,139-140). rustls itself logs no session values (client/hs.rs, tls12.rs debug! lines only print messages/server name) and neither reqwest 0.11 nor atuin debug-prints session stores/configs. rustls 0.21/rustls-webpki 0.101 are only reached via reqwest 0.11 (workspace dep, rustls-tls-native-roots) -> hyper-rustls 0.24/tokio-rustls 0.24 (Cargo.lock rdeps). In the server that client runs only in send_register_hook (crates/atuin-server/src/handlers/user.rs:41-61), called only when optional register_webhook_url is set (user.rs:136; settings.rs:63, no default; not in server.toml/docker-compose). All other reqwest 0.11 use is atuin-client (client-only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#24",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.21 supports only classical key-exchange groups (no PQ hybrids), so recording a kx hint (client/handy.rs:84-96) cannot downgrade from PQ; also reqwest::Client::new() is built per webhook call (user.rs:48), so the hint store is not shared across connections. rustls 0.21/rustls-webpki 0.101 are only reached via reqwest 0.11 (workspace dep, rustls-tls-native-roots) -> hyper-rustls 0.24/tokio-rustls 0.24 (Cargo.lock rdeps). In the server that client runs only in send_register_hook (crates/atuin-server/src/handlers/user.rs:41-61), called only when optional register_webhook_url is set (user.rs:136; settings.rs:63, no default; not in server.toml/docker-compose). All other reqwest 0.11 use is atuin-client (client-only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#25",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.12 derived Debug on Tls12/Tls13ClientSessionValue (msgs/persist.rs:71-72,137-138) is never invoked: rustls only logs fixed strings/server name (client/hs.rs:80,122,138), and reqwest 0.12/sqlx-core/axum-server/atuin never Debug-print session stores. Server-side TLS (axum-server) has no client session values."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#26",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h2v8-394m-p7vv",
+            "RUSTSEC-2026-0348"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Brotli certificate decompression can allocate up to 1 GiB before authentication \u2014 The built-in Brotli certificate decompressor (enabled by the non-default\n`brotli` crate feature) bounded the size of the decompressed output, but\naccepted a peer-selected history window. Brotli's large-window extension was\nenabled, so a five-byte header could cause an allocation of 1 GiB. A peer can\nabort a process whose allocator cannot satisfy that request.\n\nNo trusted certificate is required by the attacker. Affected configurations are:\n\n- clients that enable the `brotli` feature and connect to a malicious ser",
+        "vuln_symbols": [
+          "brotli"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Brotli certificate decompression requires rustls's non-default `brotli` feature; atuin-server sets rustls default-features=false, features=[\"ring\"] and no crate enables brotli (no brotli crate in Cargo.lock)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#27",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.12 is built with the ring provider only (atuin-server/Cargo.toml rustls features [\"ring\"]; no aws-lc-rs in Cargo.lock), whose kx groups are all classical (X25519/P-256/P-384), so a kx_hint (client/handy.rs:105-112) cannot downgrade from post-quantum. Client connections in the server are optional (postmark mail, sqlx Postgres TLS) and PostmarkClient is rebuilt per request (user.rs:221-224). Server-side TLS is unaffected (client-only bug)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#28",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "URI name-constraint bug only matters when verifying a peer cert chain. rustls 0.21/rustls-webpki 0.101 are only reached via reqwest 0.11 (workspace dep, rustls-tls-native-roots) -> hyper-rustls 0.24/tokio-rustls 0.24 (Cargo.lock rdeps). In the server that client runs only in send_register_hook (crates/atuin-server/src/handlers/user.rs:41-61), called only when optional register_webhook_url is set (user.rs:136; settings.rs:63, no default; not in server.toml/docker-compose). All other reqwest 0.11 use is atuin-client (client-only). Default config: no webhook, so webpki 0.101 never verifies attacker-influenced certs; even then requires MITM with a name-constrained CA."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#29",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Wildcard name-constraint bug in webpki 0.101.7 only on server-cert verification by the reqwest 0.11 client. rustls 0.21/rustls-webpki 0.101 are only reached via reqwest 0.11 (workspace dep, rustls-tls-native-roots) -> hyper-rustls 0.24/tokio-rustls 0.24 (Cargo.lock rdeps). In the server that client runs only in send_register_hook (crates/atuin-server/src/handlers/user.rs:41-61), called only when optional register_webhook_url is set (user.rs:136; settings.rs:63, no default; not in server.toml/docker-compose). All other reqwest 0.11 use is atuin-client (client-only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#30",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CRL BIT STRING panic needs CRL checking (RevocationOptions/verify_for_usage with CRLs). rustls 0.21's WebPkiVerifier for server certs passes no CRLs; reqwest 0.11 configures none; atuin-server's TLS server has no client-cert verifier. rustls 0.21/rustls-webpki 0.101 are only reached via reqwest 0.11 (workspace dep, rustls-tls-native-roots) -> hyper-rustls 0.24/tokio-rustls 0.24 (Cargo.lock rdeps). In the server that client runs only in send_register_hook (crates/atuin-server/src/handlers/user.rs:41-61), called only when optional register_webhook_url is set (user.rs:136; settings.rs:63, no default; not in server.toml/docker-compose). All other reqwest 0.11 use is atuin-client (client-only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#31",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Distrusted emSign intermediate acceptance needs server-cert verification against roots containing emSign (reqwest 0.11 uses rustls-native-certs => Debian CA bundle). rustls 0.21/rustls-webpki 0.101 are only reached via reqwest 0.11 (workspace dep, rustls-tls-native-roots) -> hyper-rustls 0.24/tokio-rustls 0.24 (Cargo.lock rdeps). In the server that client runs only in send_register_hook (crates/atuin-server/src/handlers/user.rs:41-61), called only when optional register_webhook_url is set (user.rs:136; settings.rs:63, no default; not in server.toml/docker-compose). All other reqwest 0.11 use is atuin-client (client-only). Default deployment makes no such outbound TLS connection."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#32",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93602",
+            "GHSA-pwjx-qhcg-rvj4",
+            "RUSTSEC-2026-0049"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "CRLs not considered authoritative by Distribution Point due to faulty matching logic \u2014 If a certificate had more than one `distributionPoint`, then only the first `distributionPoint` would be considered against each CRL's `IssuingDistributionPoint` `distributionPoint`, and then the certificate's subsequent `distributionPoint`s would be ignored.\n\nThe impact was that correctly provided CRLs would not be consulted to check revocation. With `UnknownStatusPolicy::Deny` (the default) this would lead to incorrect but safe `Error::UnknownRevocationStatus`. With `UnknownStatusPolicy::Allow` this would ",
+        "vuln_symbols": [
+          "distributionPoint",
+          "IssuingDistributionPoint"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.10",
+          "0.104.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CRL distribution-point matching needs CRLs configured on a verifier; reqwest 0.12 (postmark), sqlx-core (tls_rustls.rs:131-160 builds WebPkiServerVerifier without with_crls) and axum-server (no client auth) configure none."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#33",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "URI name constraints in webpki 0.102.6 only matter on outbound server-cert verification. rustls 0.23/rustls-webpki 0.102 client-side cert verification in the server happens only (a) via postmark->reqwest 0.12 (rustls-tls => webpki-roots) in send_verification, gated by optional mail.enabled + postmark token (user.rs:188-224; settings default mail.enable=false, settings.rs:107), or (b) sqlx-core Postgres TLS only with sslmode verify-ca/verify-full (default prefer uses DummyTlsVerifier: sqlx-core net/tls/tls_rustls.rs:116-126, sqlx-postgres connection/tls.rs:49-52). axum-server TLS (optional tls.enable) is a server without client-cert auth, so no chain verification of peer certs. Default config verifies no peer certs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#34",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Wildcard name-constraint bug in webpki 0.102.6. rustls 0.23/rustls-webpki 0.102 client-side cert verification in the server happens only (a) via postmark->reqwest 0.12 (rustls-tls => webpki-roots) in send_verification, gated by optional mail.enabled + postmark token (user.rs:188-224; settings default mail.enable=false, settings.rs:107), or (b) sqlx-core Postgres TLS only with sslmode verify-ca/verify-full (default prefer uses DummyTlsVerifier: sqlx-core net/tls/tls_rustls.rs:116-126, sqlx-postgres connection/tls.rs:49-52). axum-server TLS (optional tls.enable) is a server without client-cert auth, so no chain verification of peer certs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#35",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CRL BIT STRING parsing only when CRLs are supplied to the verifier; no crate in the server path calls with_crls/RevocationOptions (sqlx-core tls_rustls.rs:131-160, reqwest 0.12 default config); axum-server TLS has no client-cert verifier."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#36",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "emSign distrust bypass needs outbound chain verification with emSign in the trust anchors (webpki-roots 0.26.3 via reqwest 0.12 rustls-tls / sqlx-core). rustls 0.23/rustls-webpki 0.102 client-side cert verification in the server happens only (a) via postmark->reqwest 0.12 (rustls-tls => webpki-roots) in send_verification, gated by optional mail.enabled + postmark token (user.rs:188-224; settings default mail.enable=false, settings.rs:107), or (b) sqlx-core Postgres TLS only with sslmode verify-ca/verify-full (default prefer uses DummyTlsVerifier: sqlx-core net/tls/tls_rustls.rs:116-126, sqlx-postgres connection/tls.rs:49-52). axum-server TLS (optional tls.enable) is a server without client-cert auth, so no chain verification of peer certs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#37",
+      "facts": {
+        "package": "serde_with",
+        "version": "3.8.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-7gcf-g7xr-8hxj"
+          ],
+          [
+            "serde_with"
+          ]
+        ],
+        "advisory_summary": "serde_with: KeyValueMap serialization panics on empty sequence or map entries \u2014 ### Summary\n\nThe public `KeyValueMap` serializer assumes that each mapped element has at least one field or item to use as the map key, but it subtracts `1` from the caller-visible length before validating that assumption. An application that serializes attacker-controlled data through `#[serde_as(as = \"KeyValueMap<_>\")]` can be crashed by an empty inner sequence or map entry.\n\n### Details\n\nThe affected public surface includes:\n\n- Serialization of `#[serde_as(as = \"KeyValueMap<_>\")]` values through `serde_json::to_",
+        "vuln_symbols": [
+          "KeyValueMap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.21.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "serde_with"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "serde_with is used only in atuin-client (DeserializeFromStr, crates/atuin-client/src/settings.rs:16); no KeyValueMap anywhere, and client settings are not loaded by the server."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#38",
+      "facts": {
+        "package": "time",
+        "version": "0.3.36",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25727",
+            "GHSA-r6v5-fh4h-64xc",
+            "RUSTSEC-2026-0009"
+          ],
+          [
+            "time"
+          ]
+        ],
+        "advisory_summary": "time vulnerable to stack exhaustion Denial of Service attack \u2014 ### Impact\n\nWhen user-provided input is provided to any type that parses with the RFC 2822 format, a denial of service attack via stack exhaustion is possible. The attack relies on formally deprecated and rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary, non-malicious input will never encounter this scenario.\n\n### Patches\n\nA limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned rather than exhausting the stack.\n\n### Workarounds\n\nLimiting the ",
+        "vuln_symbols": [
+          "time::Date::parse",
+          "time::OffsetDateTime::parse",
+          "time::PrimitiveDateTime::parse",
+          "time::Time::parse",
+          "time::UtcDateTime::parse",
+          "time::UtcOffset::parse",
+          "time::parsing::Parsed::parse_item"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.47"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "time"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bug is in RFC 2822 parsing. No Rfc2822 use in atuin crates; among locked crates only chrono and serde_with's time_0_3 adapters mention Rfc2822 (serde_with adapters unused). Server time parsing is serde/rfc3339 or sqlx binary decoding."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#39",
+      "facts": {
+        "package": "tokio",
+        "version": "1.38.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rr8g-9fpq-6wmg",
+            "RUSTSEC-2025-0023"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "Tokio broadcast channel calls clone in parallel, but does not require `Sync` \u2014 The broadcast channel internally calls `clone` on the stored value when receiving it, and only requires `T:Send`. This means that using the broadcast channel with values that are `Send` but not `Sync` can trigger unsoundness if the `clone` implementation makes use of the value being `!Sync`.\n\nThank you to Austin Bonander for finding and reporting this issue.",
+        "vuln_symbols": [
+          "Sync",
+          "clone",
+          "Send"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.2",
+          "1.42.1",
+          "1.43.1",
+          "1.44.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.83
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No tokio::sync::broadcast use in atuin or any server-path dependency (grep of all locked crate sources: only hyper-util server/graceful.rs:306 with unit type and feature server-graceful off, and tokio-stream's generic wrapper, unused). No !Sync Clone values sent over broadcast."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#40",
+      "facts": {
+        "package": "tokio",
+        "version": "1.38.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0386"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "`AsyncFd::new` and related constructors violate I/O safety \u2014 `tokio::io::unix::AsyncFd` provides safe constructors (`new`, `with_interest`, `try_new`, and `try_with_interest`) that accept any `T: AsRawFd` rather than requiring proof of ownership or validity of the file descriptor. Because `RawFd` implements `AsRawFd`, safe code can construct an `AsyncFd` from an arbitrary or closed file descriptor, or close/replace the underlying file descriptor while the `AsyncFd` is still alive.\n\nThis violates I/O safety in two ways:\n\n1. `AsyncFd<T>` implements `AsFd` for all `T: AsRawFd` by calling `Borrowe",
+        "vuln_symbols": [
+          "tokio::io::unix::AsyncFd::new",
+          "tokio::io::unix::AsyncFd::try_new",
+          "tokio::io::unix::AsyncFd::try_with_interest",
+          "tokio::io::unix::AsyncFd::with_interest"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.51.6",
+          "1.53.3"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No tokio::io::unix::AsyncFd constructor call in atuin or any locked dependency source (grep across all crates in Cargo.lock outside tokio itself); server I/O uses TcpListener/TcpStream (PollEvented)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#41",
+      "facts": {
+        "package": "tonic",
+        "version": "0.12.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-47609",
+            "GHSA-4jwc-w2hc-78qv",
+            "RUSTSEC-2024-0376"
+          ],
+          [
+            "tonic"
+          ]
+        ],
+        "advisory_summary": "Tonic has remotely exploitable denial of service vulnerability \u2014 ### Impact\n\nWhen using `tonic::transport::Server` there is a remote DoS attack that can cause the server to exit cleanly on accepting a tcp/tls stream. This can be triggered via causing the accept call to error out with errors there were not covered correctly causing the accept loop to exit. \n\nMore information can be found [here](https://github.com/hyperium/tonic/issues/1897)\n\n### Patches\n\nUpgrading to tonic `0.12.3` and above contains the fix. \n\n### Workarounds\n\nA custom accept loop is a possible workaround.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.12.3"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tonic"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tonic transport::Server is used only by atuin-daemon (client-side daemon over a local socket, daemon feature); `atuin server start` (crates/atuin/src/command/server.rs) launches axum via atuin_server::launch and never starts the tonic server."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#42",
+      "facts": {
+        "package": "tracing-subscriber",
+        "version": "0.3.18",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58160",
+            "GHSA-xwfj-jgwm-7wp5",
+            "RUSTSEC-2025-0055"
+          ],
+          [
+            "tracing-subscriber"
+          ]
+        ],
+        "advisory_summary": " Tracing logging user input may result in poisoning logs with ANSI escape sequences \u2014 ### Impact\n\nPrevious versions of tracing-subscriber were vulnerable to ANSI escape sequence injection attacks. Untrusted user input containing ANSI escape sequences could be injected into terminal output when logged, potentially allowing attackers to:\n\n- Manipulate terminal title bars\n- Clear screens or modify terminal display\n- Potentially mislead users through terminal manipulation\n\nIn isolation, impact is minimal, however security issues have been found in terminal emulators that enabled an attacker to use",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.20"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tracing_subscriber"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Server installs tracing_subscriber::fmt::layer() with EnvFilter (crates/atuin/src/command/server.rs:33-36), ansi feature on (workspace tracing-subscriber features). Attacker-controlled strings are logged unescaped: GET /user/:username (unauthenticated) logs debug!(\"user not found: {}\", username) inside an instrument span with the username field (handlers/user.rs:63-74); login logs login.username on DB errors (user.rs:314-327). Depends on RUST_LOG: Dockerfile default RUST_LOG=atuin::api=info would filter these, but the shipped docker-compose.yml sets RUST_LOG=info,atuin_server=debug, a common deployment."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-atuin#43",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.26.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "webpki-roots 0.26.3 (with emSign ECC Root CA - G3) is used as trust anchors only by reqwest 0.12/hyper-rustls 0.27 (postmark mail client) and sqlx-core (tls_rustls.rs:131, only reached for verify-ca/verify-full; default prefer skips verification). rustls 0.23/rustls-webpki 0.102 client-side cert verification in the server happens only (a) via postmark->reqwest 0.12 (rustls-tls => webpki-roots) in send_verification, gated by optional mail.enabled + postmark token (user.rs:188-224; settings default mail.enable=false, settings.rs:107), or (b) sqlx-core Postgres TLS only with sslmode verify-ca/verify-full (default prefer uses DummyTlsVerifier: sqlx-core net/tls/tls_rustls.rs:116-126, sqlx-postgres connection/tls.rs:49-52). axum-server TLS (optional tls.enable) is a server without client-cert auth, so no chain verification of peer certs. Exploitation also needs a MITM holding a cert from a distrusted emSign intermediate."
+      }
+    }
+  ]
+}

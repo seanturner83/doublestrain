@@ -1,0 +1,1240 @@
+{
+  "id": "real-rs-sozu",
+  "description": "Sozu 1.0.3 (HTTP reverse proxy): Rust held-out (rs3), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#1",
+      "facts": {
+        "package": "anyhow",
+        "version": "1.0.86",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0190"
+          ],
+          [
+            "anyhow"
+          ]
+        ],
+        "advisory_summary": "Unsoundness in `Error::downcast_mut()` \u2014 Affected versions of this crate violate borrow rules, resulting in undefined behavior, when the user adds context to an error via `Error::context` and then later calls `Error::downcast_mut` on the returned `Error`.\n\nThe flaw was corrected in commit `6e8c000` by revising how the mutable reference is constructed, avoiding inclusion of a shared reference in the resulting borrow chain.\n\n## Example\n\n```rust\nuse anyhow::Error;\nuse std::fmt;\n\n#[derive(Debug)]\nstruct ErrorContext(&'static str);\n\nimpl fmt::Display for ErrorContext {\n    fn fmt(&self, f: &mut fmt",
+        "vuln_symbols": [
+          "anyhow::Error::downcast_mut"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.0.103"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "anyhow"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "anyhow only used by sozu-lib (prost-derive is a proc-macro, build time). No downcast/downcast_mut anywhere in lib/command/bin src (grep 'downcast' empty)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#2",
+      "facts": {
+        "package": "aws-lc-sys",
+        "version": "0.19.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-3337",
+            "GHSA-65p9-r9h6-22vj",
+            "GHSA-frmv-5gcm-jwxh",
+            "RUSTSEC-2026-0043",
+            "RUSTSEC-2026-0045"
+          ],
+          [
+            "aws-lc-sys"
+          ]
+        ],
+        "advisory_summary": "AWS-LC has Timing Side-Channel in AES-CCM Tag Verification \u2014 ### Summary\nAWS-LC is an open-source, general-purpose cryptographic library.\n\n### Impact\nObservable timing discrepancy in AES-CCM decryption in AWS-LC allows an unauthenticated user to potentially determine authentication tag validity via timing analysis.\n\nThe impacted implementations are through the EVP CIPHER API: EVP_aes_128_ccm, EVP_aes_192_ccm, and EVP_aes_256_ccm.\n\nCustomers of AWS services do not need to take action. aws-lc-sys and aws-lc-fips-sys contain code from AWS-LC. Applications using aws-lc-sys or aws-lc-fips-sys shoul",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.38.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_lc_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-lc-sys enters via aws-lc-rs 1.8.0 from rustls 0.23.11 default aws_lc_rs feature, but sozu builds its provider from ring::default_provider() (lib/src/https.rs:723-726). rustls offers no AES-CCM suites and aws-lc-rs exposes no EVP_aes_*_ccm path; AES-CCM code never runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#3",
+      "facts": {
+        "package": "aws-lc-sys",
+        "version": "0.19.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-4428",
+            "GHSA-9f94-5g5w-gf6r",
+            "RUSTSEC-2026-0042",
+            "RUSTSEC-2026-0048"
+          ],
+          [
+            "aws-lc-sys"
+          ]
+        ],
+        "advisory_summary": "CRL Distribution Point Scope Check Logic Error in AWS-LC \u2014 ### Summary\n\nAWS-LC is an open-source, general-purpose cryptographic library.\n\n### Impact \n\nA logic error in CRL distribution point matching in AWS-LC allows a revoked certificate to bypass revocation checks during certificate validation, when the application enables CRL checking and uses partitioned CRLs with Issuing Distribution Point (IDP) extensions.\n\nCustomers of AWS services do not need to take action. aws-lc-sys and aws-lc-fips-sys contain code from AWS-LC. Applications using aws-lc-sys or aws-lc-fips-sys should upgrade to the m",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.39.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_lc_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-lc-sys via aws-lc-rs (rustls default feature); aws-lc-rs does not expose AWS-LC X509/CRL verification, rustls uses rustls-webpki for certs, and sozu does no cert verification at all (https.rs:731 with_no_client_auth, no client TLS). AWS-LC CRL code unused."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#4",
+      "facts": {
+        "package": "bytes",
+        "version": "1.6.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25541",
+            "GHSA-434x-w66g-qw3r",
+            "RUSTSEC-2026-0007"
+          ],
+          [
+            "bytes"
+          ]
+        ],
+        "advisory_summary": "bytes has integer overflow in BytesMut::reserve \u2014 # Details\n\nIn the unique reclaim path of `BytesMut::reserve`, the condition\n```rs\nif v_capacity >= new_cap + offset\n```\nuses an unchecked addition. When `new_cap + offset` overflows `usize` in release builds, this condition may incorrectly pass, causing `self.cap` to be set to a value that exceeds the actual allocated capacity. Subsequent APIs such as `spare_capacity_mut()` then trust this corrupted `cap` value and may create out-of-bounds slices, leading to UB.\n\nThis behavior is observable in release builds (integer overflow wraps), whereas de",
+        "vuln_symbols": [
+          "usize",
+          "self.cap",
+          "spare_capacity_mut",
+          "cap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "bytes"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "bytes 1.6.1 in runtime only via prost 0.12.6 (http/hyper are e2e-only). prost's BytesMut use is in test module (prost encoding.rs:1431+); sozu protobuf uses encode/decode on Vec/&[u8] (command/build.rs no .bytes()). Even if BytesMut::reserve ran, the bug needs new_cap+offset to overflow usize, not attainable from attacker data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#5",
+      "facts": {
+        "package": "crossbeam-channel",
+        "version": "0.5.13",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4574",
+            "GHSA-pg9f-39pc-qf8g",
+            "RUSTSEC-2025-0024",
+            "TROVE-2025-013"
+          ],
+          [
+            "crossbeam-channel"
+          ]
+        ],
+        "advisory_summary": "crossbeam-channel Vulnerable to Double Free on Drop \u2014 The internal `Channel` type's `Drop` method has a race\nwhich could, in some circumstances, lead to a double-free.\nThis could result in memory corruption.\n\nQuoting from the\n[upstream description in merge request \\#1187](https://github.com/crossbeam-rs/crossbeam/pull/1187#issue-2980761131):\n\n> The problem lies in the fact that `dicard_all_messages` contained two paths that could lead to `head.block` being read but only one of them would swap the value. This meant that `dicard_all_messages` could end up observing a non-null block pointer (and ",
+        "vuln_symbols": [
+          "Channel",
+          "Drop",
+          "dicard_all_messages",
+          "head.block"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.5.15"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "crossbeam_channel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crossbeam-channel compiled via hdrhistogram 7.5.4 default 'sync' feature (hdrhistogram Cargo.toml:84-93), but sozu never uses SyncHistogram/Recorder (grep lib/src empty); channels are only created by hdrhistogram::sync, so Channel Drop race never runs. Sozu's own threading uses mio/unix sockets."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#6",
+      "facts": {
+        "package": "hpack",
+        "version": "0.3.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w7hm-hmxv-pvhf",
+            "RUSTSEC-2023-0085"
+          ],
+          [
+            "hpack"
+          ]
+        ],
+        "advisory_summary": "HPACK decoder panics on invalid input \u2014 Due to insufficient checking of input data, decoding certain data sequences can\nlead to _Decoder::decode_ panicking rather than returning an error.\n\nExample code that triggers this vulnerability looks like this:\n\n```rust\nuse hpack::Decoder;\n\npub fn main() {\n  let input = &[0x3f];\n  let mut decoder = Decoder::new();\n  let _ = decoder.decode(input);\n}\n```\n\nhpack is unmaintained. A crate with the panics fixed has been published as\n[hpack-patched](https://crates.io/crates/hpack-patched).\n\nAlso consider using\n[loona-hpack](https://crates.io/crates/loona-hpack",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "hpack"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "hpack Decoder only used in lib/src/protocol/h2/stream.rs:55-56. H2 is unreachable: SERVER_PROTOS = [\"http/1.1\"] (lib/src/https.rs:76-77, h2 commented out) so rustls can never negotiate ALPN 'h2' (https.rs:277-278 H2 branch needs alpn==h2); Http2 state also todo!() at https.rs:98; plain HTTP listener has no h2 path."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#7",
+      "facts": {
+        "package": "idna",
+        "version": "0.5.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-12224",
+            "GHSA-h97m-ww89-6jmq",
+            "RUSTSEC-2024-0421"
+          ],
+          [
+            "idna"
+          ]
+        ],
+        "advisory_summary": "`idna` accepts Punycode labels that do not produce any non-ASCII when decoded \u2014 `idna` 0.5.0 and earlier accepts Punycode labels that do not produce any non-ASCII output, which means that either ASCII labels or the empty root label can be masked such that they appear unequal without IDNA processing or when processed with a different implementation and equal when processed with `idna` 0.5.0 or earlier.\n\nConcretely, `example.org` and `xn--example-.org` become equal after processing by `idna` 0.5.0 or earlier. Also, `example.org.xn--` and `example.org.` become equal after processing by `idna` 0.5",
+        "vuln_symbols": [
+          "example.org",
+          "url"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "idna"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "idna::domain_to_ascii is only applied to operator-supplied route hostnames when adding/removing rules and parsing DomainRule from config (lib/src/router/mod.rs:216,256,478,486); request Host headers are matched without idna, so attacker input never goes through idna. Config comes from the local operator socket/config file."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#8",
+      "facts": {
+        "package": "rand",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires rand's optional 'log' feature; Cargo.lock rand 0.8.5 deps are only libc/rand_chacha/rand_core (no log), so the feature is off (rand Cargo.toml:33-35,63). thread_rng is used (lib/src/load_balancing.rs:57) but the unsound path is not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#9",
+      "facts": {
+        "package": "ring",
+        "version": "0.17.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ring 0.17.8 is used (ring::default_provider, lib/src/https.rs:725) for AES-GCM, but the panic needs overflow checks; Dockerfile builds `cargo build --release` and workspace [profile.release] (Cargo.toml) doesn't enable overflow-checks. No QUIC (HeaderProtectionKey) use. ~64GB single-chunk record impossible in TLS."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#10",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.21.12 Only in the e2e test member's closure (Cargo.lock: rdeps hyper-rustls 0.24.2/tokio-rustls/sozu-e2e via e2e/Cargo.toml rustls ^0.21.10, hyper-rustls); not in the sozu binary (bin depends on sozu-lib/sozu-command-lib only; lib uses rustls ^0.23.8). Also client-side ClientSessionStore Debug only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#11",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.21.12 Only in the e2e test member's closure (Cargo.lock: rdeps hyper-rustls 0.24.2/tokio-rustls/sozu-e2e via e2e/Cargo.toml rustls ^0.21.10, hyper-rustls); not in the sozu binary (bin depends on sozu-lib/sozu-command-lib only; lib uses rustls ^0.23.8). Also client-only issue."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#12",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.11",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Client-side issue (Tls12/13ClientSessionValue in ClientSessionStore). Sozu only builds rustls ServerConfig (lib/src/https.rs:728-732); no ClientConfig/ClientConnection anywhere in lib/command/bin; backends are plain TCP."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#13",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.11",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h2v8-394m-p7vv",
+            "RUSTSEC-2026-0348"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Brotli certificate decompression can allocate up to 1 GiB before authentication \u2014 The built-in Brotli certificate decompressor (enabled by the non-default\n`brotli` crate feature) bounded the size of the decompressed output, but\naccepted a peer-selected history window. Brotli's large-window extension was\nenabled, so a five-byte header could cause an allocation of 1 GiB. A peer can\nabort a process whose allocator cannot satisfy that request.\n\nNo trusted certificate is required by the attacker. Affected configurations are:\n\n- clients that enable the `brotli` feature and connect to a malicious ser",
+        "vuln_symbols": [
+          "brotli"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs rustls non-default 'brotli' feature; lib/Cargo.toml rustls features=[\"ring\"] and Cargo.lock rustls 0.23.11 has no brotli dependency, so off. Also sozu is server-only with no client-cert auth (https.rs:731)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#14",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.11",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Client-side ServerHello key-share caching; sozu never acts as a TLS client (no ClientConfig in lib/command/bin; https.rs only ServerConfig)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#15",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 Only in the e2e test member's closure (Cargo.lock: rdeps hyper-rustls 0.24.2/tokio-rustls/sozu-e2e via e2e/Cargo.toml rustls ^0.21.10, hyper-rustls); not in the sozu binary (bin depends on sozu-lib/sozu-command-lib only; lib uses rustls ^0.23.8)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#16",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 Only in the e2e test member's closure (Cargo.lock: rdeps hyper-rustls 0.24.2/tokio-rustls/sozu-e2e via e2e/Cargo.toml rustls ^0.21.10, hyper-rustls); not in the sozu binary (bin depends on sozu-lib/sozu-command-lib only; lib uses rustls ^0.23.8)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#17",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 Only in the e2e test member's closure (Cargo.lock: rdeps hyper-rustls 0.24.2/tokio-rustls/sozu-e2e via e2e/Cargo.toml rustls ^0.21.10, hyper-rustls); not in the sozu binary (bin depends on sozu-lib/sozu-command-lib only; lib uses rustls ^0.23.8)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#18",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 Only in the e2e test member's closure (Cargo.lock: rdeps hyper-rustls 0.24.2/tokio-rustls/sozu-e2e via e2e/Cargo.toml rustls ^0.21.10, hyper-rustls); not in the sozu binary (bin depends on sozu-lib/sozu-command-lib only; lib uses rustls ^0.23.8)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#19",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93602",
+            "GHSA-pwjx-qhcg-rvj4",
+            "RUSTSEC-2026-0049"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "CRLs not considered authoritative by Distribution Point due to faulty matching logic \u2014 If a certificate had more than one `distributionPoint`, then only the first `distributionPoint` would be considered against each CRL's `IssuingDistributionPoint` `distributionPoint`, and then the certificate's subsequent `distributionPoint`s would be ignored.\n\nThe impact was that correctly provided CRLs would not be consulted to check revocation. With `UnknownStatusPolicy::Deny` (the default) this would lead to incorrect but safe `Error::UnknownRevocationStatus`. With `UnknownStatusPolicy::Allow` this would ",
+        "vuln_symbols": [
+          "distributionPoint",
+          "IssuingDistributionPoint"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.10",
+          "0.104.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.102.5 is pulled by rustls 0.23.11 (sozu-lib). Sozu is TLS server only: lib/src/https.rs:731 and :1580 use .with_no_client_auth() and no ClientConfig/ServerCertVerifier exists in lib/command/bin, so webpki path/CRL verification never runs on any peer certificate. No CRLs/RevocationOptions configured."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#20",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.102.5 is pulled by rustls 0.23.11 (sozu-lib). Sozu is TLS server only: lib/src/https.rs:731 and :1580 use .with_no_client_auth() and no ClientConfig/ServerCertVerifier exists in lib/command/bin, so webpki path/CRL verification never runs on any peer certificate."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#21",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.102.5 is pulled by rustls 0.23.11 (sozu-lib). Sozu is TLS server only: lib/src/https.rs:731 and :1580 use .with_no_client_auth() and no ClientConfig/ServerCertVerifier exists in lib/command/bin, so webpki path/CRL verification never runs on any peer certificate."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#22",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.102.5 is pulled by rustls 0.23.11 (sozu-lib). Sozu is TLS server only: lib/src/https.rs:731 and :1580 use .with_no_client_auth() and no ClientConfig/ServerCertVerifier exists in lib/command/bin, so webpki path/CRL verification never runs on any peer certificate. CRL parsing never invoked."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#23",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.102.5 is pulled by rustls 0.23.11 (sozu-lib). Sozu is TLS server only: lib/src/https.rs:731 and :1580 use .with_no_client_auth() and no ClientConfig/ServerCertVerifier exists in lib/command/bin, so webpki path/CRL verification never runs on any peer certificate. No trust anchors/verification configured."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#24",
+      "facts": {
+        "package": "time",
+        "version": "0.3.36",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25727",
+            "GHSA-r6v5-fh4h-64xc",
+            "RUSTSEC-2026-0009"
+          ],
+          [
+            "time"
+          ]
+        ],
+        "advisory_summary": "time vulnerable to stack exhaustion Denial of Service attack \u2014 ### Impact\n\nWhen user-provided input is provided to any type that parses with the RFC 2822 format, a denial of service attack via stack exhaustion is possible. The attack relies on formally deprecated and rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary, non-malicious input will never encounter this scenario.\n\n### Patches\n\nA limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned rather than exhausting the stack.\n\n### Workarounds\n\nLimiting the ",
+        "vuln_symbols": [
+          "time::Date::parse",
+          "time::OffsetDateTime::parse",
+          "time::PrimitiveDateTime::parse",
+          "time::Time::parse",
+          "time::UtcDateTime::parse",
+          "time::UtcOffset::parse",
+          "time::parsing::Parsed::parse_item"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.47"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "time"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No time parsing in app: command/src/proto/display.rs:949 only formats Iso8601; x509-parser 0.16.0 time.rs:66 formats Rfc2822 (format, not parse); asn1-rs/rusty_ulid lib don't call parse. RFC 2822 parse path never runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#25",
+      "facts": {
+        "package": "tokio",
+        "version": "1.38.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rr8g-9fpq-6wmg",
+            "RUSTSEC-2025-0023"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "Tokio broadcast channel calls clone in parallel, but does not require `Sync` \u2014 The broadcast channel internally calls `clone` on the stored value when receiving it, and only requires `T:Send`. This means that using the broadcast channel with values that are `Send` but not `Sync` can trigger unsoundness if the `clone` implementation makes use of the value being `!Sync`.\n\nThank you to Austin Bonander for finding and reporting this issue.",
+        "vuln_symbols": [
+          "Sync",
+          "clone",
+          "Send"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.2",
+          "1.42.1",
+          "1.43.1",
+          "1.44.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.83
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tokio 1.38.1 only depended on by hyper/hyper-rustls/tokio-rustls/sozu-e2e (Cargo.lock) \u2014 e2e test member; sozu binary uses mio, no tokio."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#26",
+      "facts": {
+        "package": "tokio",
+        "version": "1.38.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0386"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "`AsyncFd::new` and related constructors violate I/O safety \u2014 `tokio::io::unix::AsyncFd` provides safe constructors (`new`, `with_interest`, `try_new`, and `try_with_interest`) that accept any `T: AsRawFd` rather than requiring proof of ownership or validity of the file descriptor. Because `RawFd` implements `AsRawFd`, safe code can construct an `AsyncFd` from an arbitrary or closed file descriptor, or close/replace the underlying file descriptor while the `AsyncFd` is still alive.\n\nThis violates I/O safety in two ways:\n\n1. `AsyncFd<T>` implements `AsFd` for all `T: AsRawFd` by calling `Borrowe",
+        "vuln_symbols": [
+          "tokio::io::unix::AsyncFd::new",
+          "tokio::io::unix::AsyncFd::try_new",
+          "tokio::io::unix::AsyncFd::try_with_interest",
+          "tokio::io::unix::AsyncFd::with_interest"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.51.6",
+          "1.53.3"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tokio only in e2e test member closure (Cargo.lock rdeps hyper, hyper-rustls, sozu-e2e, tokio-rustls); not in sozu binary. No AsyncFd use."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#27",
+      "facts": {
+        "package": "trailer",
+        "version": "0.1.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-47737",
+            "GHSA-6x45-r4pr-5362",
+            "RUSTSEC-2025-0163"
+          ],
+          [
+            "trailer"
+          ]
+        ],
+        "advisory_summary": "Unsound issue in Trailer \u2014 Our static analyzer find a potential unsound issue\nin the construction of Trailer, where it doesn't\nprovide enough check to ensure the soundness.\n\ntrailer/src/lib.rs, Lines 18 to 25 in d474984:\n```\n pub fn new(capacity: usize) -> Trailer<T> { \n     unsafe { \n         let trailer = Trailer::allocate(capacity); \n         let ptr = trailer.ptr as *mut T; \n         ptr.write(T::default()); \n         trailer \n     } \n } \n```\n\nThe constructor does not check the T is not a ZST in\nrust, and allocating with size 0 is considered\nas undefined behaviors in Rust. A poc code like\n",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.88
+        },
+        "import_name": "trailer"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Advisory condition is T being a ZST. Only use is trailer::Trailer<BufferMetadata> (command/src/buffer/fixed.rs:17,22) where BufferMetadata {position: usize, end: usize} is 16 bytes (fixed.rs:10-13), so the zero-size allocation UB cannot occur."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-sozu#28",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.25.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "webpki-roots 0.25.4 only depended on by hyper-rustls 0.24.2 (e2e member, e2e/Cargo.toml hyper-rustls webpki-tokio); sozu binary has no root store and verifies no certs."
+      }
+    }
+  ]
+}

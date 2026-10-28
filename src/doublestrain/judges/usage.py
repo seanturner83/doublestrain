@@ -20,11 +20,14 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .. import approots
+
 _EXTS = {
     "npm": (".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"),
     "pypi": (".py",),
     "go": (".go",),
     "cargo": (".rs",),
+    "maven": (".java", ".kt", ".kts", ".scala", ".groovy"),
 }
 _SKIP_DIRS = {".git", "node_modules", "vendor", "dist", "build", ".venv", "venv",
               "__pycache__", ".tox", "coverage", ".next"}
@@ -44,6 +47,9 @@ class Usage:
     dynamic_sites: list[str] = field(default_factory=list)  # non-empty => not closed-world
     chains: list[str] = field(default_factory=list)          # lockfile: app -> a@1 -> dep@2
     copies: str = ""                                          # which installed copy this row is about
+    importers: str = ""                                       # pypi: who imports it, when the chain misses a route
+    callers: str = ""                                         # pypi: who calls the advisory's functions (pycallers)
+    dependents: str = ""                                      # pypi: libraries the app uses that call the package
     entry_sites: list[str] = field(default_factory=list)     # where the app imports chain tops
     files_scanned: int = 0
     text: str = ""
@@ -60,8 +66,8 @@ def is_test_path(rel: Path) -> bool:
 
 def _bindings(ecosystem: str, line: str, import_name: str, dep: str) -> list[str]:
     """Local names an import line binds the dependency to (for dynamic-access checks)."""
-    if ecosystem in ("cargo", "go"):
-        return []       # no runtime name lookup to bind: Rust and Go have no dynamic import
+    if ecosystem in ("cargo", "go", "maven"):
+        return []       # no runtime name lookup to bind (JVM reflection is caught by _dynamic_res)
     if ecosystem == "pypi":
         for mod in _py_modules(dep, import_name):
             m = re.match(rf"\s*import\s+{re.escape(mod)}(?:\s+as\s+(\w+))?", line)
@@ -136,6 +142,9 @@ def _dynamic_res(ecosystem: str, names: list[str]) -> list[re.Pattern[str]]:
         pats += [re.compile(r"\bimportlib\.import_module\(|\b__import__\(")]
         if names:
             pats.append(re.compile(rf"\bgetattr\(\s*(?:{'|'.join(map(re.escape, names))})\s*,"))
+    elif ecosystem == "maven":
+        # reflection and service loading pick classes by name at run time
+        pats.append(re.compile(r"\bClass\.forName\(\s*(?!\")|\.loadClass\(\s*(?!\")|\bServiceLoader\.load\("))
     elif ecosystem not in ("go", "cargo"):
         pats.append(re.compile(r"""\b(?:require|import)\(\s*(?!['"`]|\))"""))   # non-literal require()/import()
         if names:
@@ -150,7 +159,18 @@ def _py_modules(dep: str, import_name: str = "") -> list[str]:
     return import_names(dep)
 
 
-def _import_re(ecosystem: str, dep: str, import_name: str) -> re.Pattern[str]:
+def _import_re(ecosystem: str, dep: str, import_name: str, root: Path | None = None) -> re.Pattern[str]:
+    if ecosystem == "maven":
+        # a Maven artifact is imported by its Java packages (from the shipped jar):
+        # `import io.netty.handler.codec.http.HttpObjectDecoder;`, `import static ...`, or a
+        # fully qualified name in code; a Kotlin/Scala `import` without `;` matches too
+        from .. import jvmjars
+        pk = ([p for p in import_name.split("|") if p] if import_name else
+              jvmjars.packages_of(root, dep) if root is not None else [])
+        if not pk:
+            return re.compile(r"(?!x)x")                         # unknown packages: no import sites claimed
+        alt = "|".join(re.escape(p) for p in sorted(pk, key=len, reverse=True))
+        return re.compile(rf"(?<![\w.])(?:{alt})\.(?:[A-Z_*$]|\{{)")
     if ecosystem == "pypi":
         # `import yaml`, `import os, yaml as y`, `import yaml.constructor`, `from yaml import x`,
         # `from yaml.loader import x`; a distribution may provide several modules
@@ -187,13 +207,23 @@ def _iter_files(root: Path, exts):
                 yield Path(dirpath) / fn
 
 
+def _app_files(root: Path, exts):
+    """(file, path relative to root) for the app's source: the root, then the projects its
+    Dockerfile installs beside it (approots: Baserow's premium/), as ../ paths."""
+    def walker(r):
+        for f in _iter_files(r, exts):
+            yield f, f.relative_to(r)
+    return approots.walk(root, walker)
+
+
 def _chain_section(u: Usage, root: Path, ecosystem: str, dependency: str, version: str,
                    exts, max_sites: int) -> list[str]:
     """Lockfile dependency chains + where the app imports each chain's top-level package."""
     from . import depgraph
-    if ecosystem not in ("npm", "cargo", "go", "pypi"):
+    if ecosystem not in ("npm", "cargo", "go", "pypi", "maven"):
         return []
-    lockname = {"cargo": "Cargo.lock", "go": "go.mod", "pypi": "the Python lock"}.get(ecosystem, "package-lock.json")
+    lockname = {"cargo": "Cargo.lock", "go": "go.mod", "pypi": "the Python lock",
+                "maven": "the release classpath (each jar's embedded pom.xml)"}.get(ecosystem, "package-lock.json")
     g = depgraph.load(root, ecosystem)
     if g is None:
         return []
@@ -216,9 +246,9 @@ def _chain_section(u: Usage, root: Path, ecosystem: str, dependency: str, versio
                      if ecosystem != "cargo" else
                      "  every chain enters through a dev- or build-dependency (tests, build.rs).")
     for t in tops[:3]:
-        imp = _import_re(ecosystem, t, "")
+        imp = _import_re(ecosystem, t, "", root)
         sites = []
-        for f in _iter_files(root, exts):
+        for f, rel in _app_files(root, exts):
             try:
                 if f.stat().st_size > _MAX_FILE_BYTES:
                     continue
@@ -226,13 +256,14 @@ def _chain_section(u: Usage, root: Path, ecosystem: str, dependency: str, versio
                 tl = rust_test_lines(flines) if ecosystem == "cargo" else set()
                 for i, ln in enumerate(flines, 1):
                     if imp.search(ln) and not (ecosystem == "cargo" and _is_comment(ecosystem, ln)):
-                        rel = f.relative_to(root)
                         tag = " (test code)" if is_test_path(rel) or i in tl else ""
                         sites.append(f"{rel}:{i}: {ln.strip()[:160]}{tag}")
             except OSError:
                 continue
         u.entry_sites += sites[:max_sites]
         lines.append(f"top-level `{t}` imported at ({len(sites)}):" if sites else
+                     f"top-level `{t}` is NOT imported by app source (on the JVM a framework can still activate "
+                     "it from the classpath: an extension, auto-configuration, ServiceLoader)." if ecosystem == "maven" else
                      f"top-level `{t}` is NOT imported by app source (CLI/build tool, or loaded by another package).")
         lines += [f"  {s}" for s in sites[:8]]
     return lines
@@ -287,16 +318,20 @@ def copies_note(repo_path: str, ecosystem: str, dependency: str, version: str) -
 
 
 def usage_summary(repo_path: str, ecosystem: str, dependency: str, vuln_symbols=(),
-                  import_name: str = "", max_sites: int = 25, *, version: str = "") -> Usage:
+                  import_name: str = "", max_sites: int = 25, *, version: str = "",
+                  callers_symbols=None) -> Usage:
+    """`callers_symbols`: the advisory's own symbols for the pycallers note when
+    `vuln_symbols` carries extra tokens (split's spec entries), so the note matches the one
+    CachedJudge keys on."""
     root = Path(repo_path).expanduser()
     exts = _EXTS.get(ecosystem, sum(_EXTS.values(), ()))
-    imp = _import_re(ecosystem, dependency, import_name)
+    imp = _import_re(ecosystem, dependency, import_name, Path(repo_path).expanduser())
     toks = _symbol_tokens(vuln_symbols)
     sym = re.compile(rf"\b(?:{'|'.join(map(re.escape, toks))})\b") if toks else None
 
     u = Usage(ecosystem=ecosystem)
     importing, other_sym = [], []
-    for f in _iter_files(root, exts):
+    for f, rel in _app_files(root, exts):
         try:
             if f.stat().st_size > _MAX_FILE_BYTES:
                 continue
@@ -304,7 +339,6 @@ def usage_summary(repo_path: str, ecosystem: str, dependency: str, vuln_symbols=
         except OSError:
             continue
         u.files_scanned += 1
-        rel = f.relative_to(root)
         tag = " (test code)" if is_test_path(rel) else ""
         tl = rust_test_lines(lines) if ecosystem == "cargo" and not tag else set()
         site = lambda i, ln: f"{rel}:{i}: {ln.strip()[:160]}{tag or (' (test code)' if i in tl else '')}"  # noqa: E731
@@ -319,7 +353,9 @@ def usage_summary(repo_path: str, ecosystem: str, dependency: str, vuln_symbols=
         for i, ln in enumerate(lines, 1):
             if _is_comment(ecosystem, ln):
                 continue
-            if any(d.search(ln) for d in dyn) and (imports or "require" in ln or "import" in ln):
+            # JVM reflection loads by name from any file, whatever it imports
+            if any(d.search(ln) for d in dyn) and (imports or "require" in ln or "import" in ln
+                                                   or ecosystem == "maven"):
                 if (_LOCAL_LOAD.search(ln) or (local_fn and local_fn.search(ln))) and not any(
                         d.search(ln) for d in dyn[1:]):     # path-built local file load only
                     continue
@@ -332,6 +368,8 @@ def usage_summary(repo_path: str, ecosystem: str, dependency: str, vuln_symbols=
     u.symbol_sites = importing + other_sym
 
     parts = [f"dependency {dependency} ({ecosystem}); scanned {u.files_scanned} source files."]
+    if extra := approots.note(repo_path):
+        parts.append(extra)
     if u.import_sites:
         parts.append(f"direct import sites ({len(u.import_sites)}):")
         parts += [f"  {s}" for s in u.import_sites[:max_sites]]
@@ -345,6 +383,29 @@ def usage_summary(repo_path: str, ecosystem: str, dependency: str, vuln_symbols=
     u.copies = copies_note(repo_path, ecosystem, dependency, version)
     if u.copies:
         parts.append(u.copies)
+    if ecosystem == "pypi":
+        from .pyimports import importers_note
+        u.importers = importers_note(repo_path, ecosystem, dependency, version)
+        if u.importers:
+            parts.append(u.importers)
+        from .pycallers import callers_note
+        u.callers = callers_note(repo_path, ecosystem, dependency, version,
+                                 vuln_symbols if callers_symbols is None else callers_symbols)
+        if u.callers:
+            parts.append(u.callers)
+        from .pyimports import dependents_note
+        u.dependents = dependents_note(repo_path, ecosystem, dependency, version,
+                                       vuln_symbols if callers_symbols is None else callers_symbols)
+        if u.dependents:
+            parts.append(u.dependents)
+    if ecosystem == "maven":
+        # who calls the advisory's code, from the release's bytecode (jvmcallers): the trigger is
+        # often inside a library the app calls (jv2: bcpkix's PEMParser into bcprov's lazy ASN.1).
+        # The full symbol list: split's spec entries name the classes when the advisory names none
+        from ..jvmcallers import callers_note as jvm_callers
+        u.callers = jvm_callers(repo_path, ecosystem, dependency, version, vuln_symbols)
+        if u.callers:
+            parts.append(u.callers)
     parts += _chain_section(u, root, ecosystem, dependency, version, exts, max_sites)
     if u.dynamic_sites:
         parts.append(f"DYNAMIC ACCESS ({len(u.dynamic_sites)} site(s)) — computed member access or "
@@ -361,7 +422,7 @@ def unmeasured_ecosystems() -> set[str]:
     held from 2026-10-19: three small fixtures were its only labels). Override
     with SSVC_NR_UNMEASURED (comma-separated; empty = none). govulncheck isn't held: it is
     a call graph, not a model judging from excerpts (`reach.resolve_reachability`)."""
-    return {e.strip() for e in os.environ.get("SSVC_NR_UNMEASURED", "cargo,go,pypi").split(",") if e.strip()}
+    return {e.strip() for e in os.environ.get("SSVC_NR_UNMEASURED", "cargo,go,pypi,maven").split(",") if e.strip()}
 
 
 def measured_for(role: str) -> set[str]:

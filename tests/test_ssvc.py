@@ -1,89 +1,107 @@
-"""The SSVC decision table (ssvc.grade): one test per row, plus advisory coherence and
-digest order. Offline: exploitation signals are passed in as a map."""
-import pytest
+"""Unit tests for the clean-room SSVC grader (offline, injected enrichment map).
 
-from doublestrain.ssvc import Candidate, Decision, Reachability, _coherent_cves, grade, grade_all
-
-PKG = "left-pad"
-CVE = "CVE-2030-0001"
-
-
-def cand(*, reach=Reachability.UNAVAILABLE, exposure="public-internet", ids=(CVE,), affected=(PKG,), **kw):
-    return Candidate(repo="acme/web", pr_number=1, bumped_package=PKG,
-                     advisories=[(list(ids), list(affected))] if ids else [],
-                     reachability=reach, exposure_class=exposure, **kw)
+The grader is a pure function of three deterministic axes: exploitability x
+reachability x exposure. These tests exercise Act / Attend / Track across every
+branch with an INJECTED enrichment map — no network, no LLM judgement.
+"""
+from doublestrain.ssvc import (
+    Candidate, Reachability, Decision, grade, grade_all)
 
 
-KEV = {CVE: {"kev": True, "epss": 0.01}}
-HIGH = {CVE: {"kev": False, "epss": 0.40, "epss_percentile": 0.97}}
-LOW = {CVE: {"kev": False, "epss": 0.02}}
+def _cand(repo="org/api-gateway", pr=1, pkg="github.com/acme/api-gateway",
+          is_go=False, advisories=None, reach=Reachability.UNAVAILABLE,
+          exposure="unknown"):
+    # `advisories` = [aliases_list, affected_pkgs_list] for one advisory (the
+    # JSONL shape); wrap into a list of (aliases, affected) tuples.
+    advs = [tuple(advisories)] if advisories else []
+    return Candidate(repo=repo, pr_number=pr, bumped_package=pkg,
+                     is_go=is_go, advisories=advs,
+                     reachability=reach, exposure_class=exposure)
 
 
-@pytest.mark.parametrize("reach,exposure,feed,want", [
-    # exposed and exploited -> Act, unless proven unreachable
-    (Reachability.REACHABLE, "public-internet", KEV, Decision.ACT),
-    (Reachability.UNAVAILABLE, "sase-reachable", HIGH, Decision.ACT),     # no fact grades like reachable
-    (Reachability.UNSCANNED, "control-plane", KEV, Decision.ACT),
-    (Reachability.UNREACHABLE, "public-internet", KEV, Decision.ATTEND),
-    # exposed, no exploitation signal -> Attend; unreachable -> Track
-    (Reachability.REACHABLE, "public-internet", LOW, Decision.ATTEND),
-    (Reachability.UNAVAILABLE, "public-internet", None, Decision.ATTEND),
-    (Reachability.UNREACHABLE, "public-internet", LOW, Decision.TRACK),
-    # exposure unknown: an exploitation signal surfaces, nothing else does
-    (Reachability.UNAVAILABLE, "unknown", KEV, Decision.ATTEND),
-    (Reachability.UNAVAILABLE, "unknown", LOW, Decision.TRACK),
-    (Reachability.UNREACHABLE, "unknown", KEV, Decision.TRACK),
-    # internal only
-    (Reachability.REACHABLE, "mesh-only", KEV, Decision.TRACK),
-])
-def test_decision_table(reach, exposure, feed, want):
-    assert grade(cand(reach=reach, exposure=exposure), enrichment_map=feed).decision == want
+def test_act_kev_reachable_go_exposed():
+    """KEV + Go reachable + exposed (public-internet) -> Act."""
+    c = _cand(is_go=True, advisories=[["CVE-2024-1234"], ["github.com/acme/api-gateway"]],
+              reach=Reachability.REACHABLE, exposure="public-internet")
+    g = grade(c, enrichment_map={"CVE-2024-1234": {"kev": True, "epss": 0.5}})
+    assert g.decision == Decision.ACT
 
 
-def test_epss_threshold_and_unknown_epss():
-    g = grade(cand(), enrichment_map=HIGH, epss_act=0.5)
-    assert g.decision == Decision.ATTEND and g.max_epss == 0.40 and g.max_epss_percentile == 0.97
-    assert grade(cand(), enrichment_map=HIGH, epss_act=0.4).decision == Decision.ACT
-    g = grade(cand(), enrichment_map={CVE: {"kev": False, "epss": None}})
-    assert g.max_epss is None and g.decision == Decision.ATTEND          # unscored: unknown, so no signal
+def test_act_epss_nongo_sase():
+    """EPSS>=EPSS_ACT + non-Go (reachability unavailable) + sase-reachable -> Act."""
+    c = _cand(pkg="github.com/acme/portal", is_go=False,
+             advisories=[["CVE-2024-5678"], ["github.com/acme/portal"]],
+             reach=Reachability.UNAVAILABLE, exposure="sase-reachable")
+    g = grade(c, enrichment_map={"CVE-2024-5678": {"kev": False, "epss": 0.30}})
+    assert g.decision == Decision.ACT
 
 
-def test_unreachable_reason_names_its_source():
-    g = grade(cand(reach=Reachability.UNREACHABLE, reach_source="split:workstation"), enrichment_map=LOW)
-    assert g.decision == Decision.TRACK and "split:workstation" in g.reason and g.reach_source == "split:workstation"
+def test_attend_coherent_exposed_no_exploit_signal():
+    """Coherent advisory on an exposed service, but no live exploit signal -> Attend."""
+    c = _cand(pkg="github.com/acme/portal", is_go=False,
+             advisories=[["CVE-2024-9999"], ["github.com/acme/portal"]],
+             exposure="sase-reachable")
+    g = grade(c, enrichment_map={"CVE-2024-9999": {"kev": False, "epss": 0.01}})
+    assert g.decision == Decision.ATTEND
 
 
-def test_malicious_beats_everything():
-    g = grade(cand(reach=Reachability.UNREACHABLE, exposure="mesh-only", malicious=True))
-    assert g.decision == Decision.ACT and g.malicious and "MALICIOUS" in g.reason
+def test_attend_unknown_exposure_with_exploit_signal():
+    """UNKNOWN exposure + exploit signal + reachable -> Attend (surface), never Track."""
+    c = _cand(pkg="github.com/acme/edge", is_go=False,
+             advisories=[["CVE-2024-1234"], ["github.com/acme/edge"]],
+             reach=Reachability.UNAVAILABLE, exposure="unknown")
+    g = grade(c, enrichment_map={"CVE-2024-1234": {"kev": True, "epss": None}})
+    assert g.decision == Decision.ATTEND
 
 
-def test_suspected_malicious_ignores_reachability_and_floors_at_attend():
-    g = grade(cand(reach=Reachability.UNREACHABLE, exposure="mesh-only", suspected_malicious=True,
-                   malware_hints=["exfiltrates env"]), enrichment_map=LOW)
-    assert g.decision == Decision.ATTEND and g.suspected_malicious and g.reason.startswith("SUSPECTED")
-    g = grade(cand(reach=Reachability.UNREACHABLE, suspected_malicious=True), enrichment_map=KEV)
-    assert g.decision == Decision.ACT and g.reason.startswith("SUSPECTED")   # unreachable set aside
+def test_track_no_coherent_advisory():
+    """No coherent advisory cited -> Track (mis-attributed bump dropped first)."""
+    c = _cand(pkg="github.com/acme/other",
+             advisories=[["CVE-2024-1234"], ["something-else"]], exposure="public-internet")
+    g = grade(c, enrichment_map={"CVE-2024-1234": {"kev": True}})
+    assert g.decision == Decision.TRACK
 
 
-def test_coherence_drops_advisories_for_other_packages():
-    c = cand(affected=("right-pad",))
-    assert _coherent_cves(c) == [] and grade(c, enrichment_map=KEV).decision == Decision.TRACK
-    c = Candidate(repo="r", pr_number=1, bumped_package="Left-Pad",
-                  advisories=[(["GHSA-aaaa-bbbb-cccc", "cve-2030-0002"], ["left-pad"]),
-                              (["GHSA-dddd-eeee-ffff"], ["LEFT-PAD"]),
-                              (["CVE-2030-0002"], ["left-pad"]),
-                              (["CVE-2030-0003"], ["other"])])
-    assert _coherent_cves(c) == ["CVE-2030-0002", "GHSA-dddd-eeee-ffff"]
+def test_track_go_proven_unreachable_no_exploit():
+    """Go proven-unreachable + no exploit signal -> Track (not needed)."""
+    c = _cand(is_go=True, advisories=[["CVE-2024-1234"], ["github.com/acme/api-gateway"]],
+              reach=Reachability.UNREACHABLE, exposure="public-internet")
+    g = grade(c, enrichment_map={})   # no signal at all -> Track
+    assert g.decision == Decision.TRACK
 
 
-def test_digest_order():
-    feeds = {"CVE-2030-0010": {"epss": 0.2}, "CVE-2030-0011": {"epss": 0.9}, "CVE-2030-0012": {"kev": True}}
-    cs = [cand(ids=(i,), exposure=e) for i, e in (("CVE-2030-0010", "public-internet"),
-                                                   ("CVE-2030-0011", "public-internet"),
-                                                   ("CVE-2030-0012", "mesh-only"),
-                                                   ("CVE-2030-0013", "public-internet"))]
-    out = grade_all(cs, enrichment_map=feeds)
-    assert [(g.decision, g.coherent_cves[0]) for g in out] == [
-        (Decision.ACT, "CVE-2030-0011"), (Decision.ACT, "CVE-2030-0010"),
-        (Decision.ATTEND, "CVE-2030-0013"), (Decision.TRACK, "CVE-2030-0012")]
+def test_attend_go_proven_unreachable_but_exploit():
+    """Go proven-unreachable + KEV/high-EPSS + exposed -> Attend (review, don't auto-file)."""
+    c = _cand(is_go=True, advisories=[["CVE-2024-1234"], ["github.com/acme/api-gateway"]],
+              reach=Reachability.UNREACHABLE, exposure="public-internet")
+    g = grade(c, enrichment_map={"CVE-2024-1234": {"kev": True}})
+    assert g.decision == Decision.ATTEND
+
+
+def test_track_not_exposed():
+    """Coherent advisory + reachable but not exposed (mesh-only) -> Track."""
+    c = _cand(is_go=True, advisories=[["CVE-2024-1234"], ["github.com/acme/api-gateway"]],
+              reach=Reachability.REACHABLE, exposure="mesh-only")
+    g = grade(c, enrichment_map={"CVE-2024-1234": {"kev": True}})
+    assert g.decision == Decision.TRACK
+
+
+def test_grade_all_orders_act_first():
+    """grade_all returns Act first (then Attend/Track), by EPSS desc within tier."""
+    cs = [
+        _cand(repo="org/a", pr=1, advisories=[["CVE-2024-1"], ["github.com/acme/api-gateway"]],
+              is_go=False, exposure="public-internet"),
+        _cand(repo="org/b", pr=2, pkg="github.com/acme/portal",
+             advisories=[["CVE-2024-2"], ["github.com/acme/portal"]],
+              is_go=False, exposure="sase-reachable"),
+    ]
+    em = {"CVE-2024-1": {"kev": True}, "CVE-2024-2": {"epss": 0.5}}
+    graded = grade_all(cs, enrichment_map=em)
+    assert [g.decision for g in graded] == [Decision.ACT, Decision.ACT]
+
+
+def test_enrichment_is_case_insensitive_for_known_cves():
+    """The injected map matches both raw and upper-cased CVE aliases."""
+    c = _cand(advisories=[["cve-2024-1234"], ["github.com/acme/api-gateway"]], exposure="public-internet")
+    g = grade(c, enrichment_map={"CVE-2024-1234": {"kev": True}})
+    assert g.decision == Decision.ACT

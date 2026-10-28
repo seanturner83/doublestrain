@@ -1,0 +1,1794 @@
+{
+  "id": "real-rs-meilisearch",
+  "description": "real-rs-meilisearch: Rust held-out set (rs2), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#1",
+      "facts": {
+        "package": "actix-http",
+        "version": "3.9.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-73051",
+            "GHSA-xhj4-vrgc-hr34"
+          ],
+          [
+            "actix-http"
+          ]
+        ],
+        "advisory_summary": "actix-http has HTTP/1.1 CL.TE Request Smuggling  \u2014 A vulnerability in `actix-http`'s HTTP/1.1 request parser allows an unauthenticated remote client to smuggle requests in deployments where a front-end HTTP intermediary and the Actix backend disagree about whether `Content-Length` or `Transfer-Encoding: chunked` defines the request body length.\n\n## Severity\n\n**Medium**.\nThis is an HTTP request smuggling vulnerability that can be triggered over the network without application-level credentials. Exploitation requires a specific proxy topology: an upstream proxy, WAF, load balancer, or similar in",
+        "vuln_symbols": [
+          "awc"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "actix_http"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "actix-http 3.9.0 is the server for every request (meilisearch main.rs:182-184) HttpServer bind (HTTP/1.1 via HttpService::tcp). The h1 request decoder (actix-http src/h1/decoder.rs:84-205) accepts both Content-Length and Transfer-Encoding: chunked, letting chunked win without rejecting the request. It runs on every inbound request, no auth needed. Exploitation needs a front proxy that disagrees on CL/TE; Meilisearch is commonly deployed behind nginx/LB, so treat as reachable. (RustSec function 'awc' is the client, not used, but the advisory is the server parser.)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#2",
+      "facts": {
+        "package": "anyhow",
+        "version": "1.0.95",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0190"
+          ],
+          [
+            "anyhow"
+          ]
+        ],
+        "advisory_summary": "Unsoundness in `Error::downcast_mut()` \u2014 Affected versions of this crate violate borrow rules, resulting in undefined behavior, when the user adds context to an error via `Error::context` and then later calls `Error::downcast_mut` on the returned `Error`.\n\nThe flaw was corrected in commit `6e8c000` by revising how the mutable reference is constructed, avoiding inclusion of a shared reference in the resulting borrow chain.\n\n## Example\n\n```rust\nuse anyhow::Error;\nuse std::fmt;\n\n#[derive(Debug)]\nstruct ErrorContext(&'static str);\n\nimpl fmt::Display for ErrorContext {\n    fn fmt(&self, f: &mut fmt",
+        "vuln_symbols": [
+          "anyhow::Error::downcast_mut"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.0.103"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "anyhow"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No call to anyhow::Error::downcast_mut anywhere: grep over crates/ finds only std Any downcast_ref on panic payloads (index-scheduler/src/scheduler/mod.rs:194, process_batch.rs:330) and Box<dyn Any>::downcast (meilisearch/src/analytics/segment_analytics.rs:87); no downcast_mut in anyhow's runtime dependents (lindera-*, tiktoken-rs) either."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#3",
+      "facts": {
+        "package": "bytes",
+        "version": "1.9.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25541",
+            "GHSA-434x-w66g-qw3r",
+            "RUSTSEC-2026-0007"
+          ],
+          [
+            "bytes"
+          ]
+        ],
+        "advisory_summary": "bytes has integer overflow in BytesMut::reserve \u2014 # Details\n\nIn the unique reclaim path of `BytesMut::reserve`, the condition\n```rs\nif v_capacity >= new_cap + offset\n```\nuses an unchecked addition. When `new_cap + offset` overflows `usize` in release builds, this condition may incorrectly pass, causing `self.cap` to be set to a value that exceeds the actual allocated capacity. Subsequent APIs such as `spare_capacity_mut()` then trust this corrupted `cap` value and may create out-of-bounds slices, leading to UB.\n\nThis behavior is observable in release builds (integer overflow wraps), whereas de",
+        "vuln_symbols": [
+          "usize",
+          "self.cap",
+          "spare_capacity_mut",
+          "cap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "bytes"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Overflow needs BytesMut::reserve(additional) with additional near usize::MAX (new_cap+offset wrapping). All reserve calls on the request path use bounded sizes (actix-http h1/dispatcher.rs:989 HW_BUFFER_SIZE, h1/mod.rs:61, encoder.rs:170/269/301/438, helpers.rs fixed 50); meilisearch/src has no BytesMut reserve. No attacker-sized reserve found."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#4",
+      "facts": {
+        "package": "crossbeam-channel",
+        "version": "0.5.14",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4574",
+            "GHSA-pg9f-39pc-qf8g",
+            "RUSTSEC-2025-0024",
+            "TROVE-2025-013"
+          ],
+          [
+            "crossbeam-channel"
+          ]
+        ],
+        "advisory_summary": "crossbeam-channel Vulnerable to Double Free on Drop \u2014 The internal `Channel` type's `Drop` method has a race\nwhich could, in some circumstances, lead to a double-free.\nThis could result in memory corruption.\n\nQuoting from the\n[upstream description in merge request \\#1187](https://github.com/crossbeam-rs/crossbeam/pull/1187#issue-2980761131):\n\n> The problem lies in the fact that `dicard_all_messages` contained two paths that could lead to `head.block` being read but only one of them would swap the value. This meant that `dicard_all_messages` could end up observing a non-null block pointer (and ",
+        "vuln_symbols": [
+          "Channel",
+          "Drop",
+          "dicard_all_messages",
+          "head.block"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.5.15"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "crossbeam_channel"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "crossbeam-channel 0.5.14 list flavor contains the racy discard_all_messages (src/flavors/list.rs:604-614: swap then plain load of head.block). milli uses crossbeam_channel::unbounded() (milli/src/update/index_documents/mod.rs:252; reached from settings updates via milli/src/update/settings.rs:476 and dump import meilisearch/src/lib.rs:550) with a rayon sender thread while the receiver loop can return early (should_abort at :363 on task cancellation, or `?` error at :371) dropping the receiver while senders are still sending - the Drop/disconnect race path. Triggered by document/settings indexing tasks (API key with write rights; open API by default). Race is timing-dependent."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#5",
+      "facts": {
+        "package": "crossbeam-epoch",
+        "version": "0.9.18",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0204"
+          ],
+          [
+            "crossbeam-epoch"
+          ]
+        ],
+        "advisory_summary": "Invalid pointer dereference in `fmt::Pointer` impl for `Atomic` and `Shared` when the underlying pointer is invalid \u2014 Affected versions of `fmt::Display` dereference the underlying pointer. This causes a invalid pointer dereference e.g., when a pointer created with `Atomic::null` or `Shared::null`. `fmt::Debug` impls and pre-0.9 `fmt::Display` impls, which do not dereference pointers, are not affected by this issue.",
+        "vuln_symbols": [
+          "Atomic",
+          "Shared"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.20"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "crossbeam_epoch"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only crossbeam-deque 0.8.5 (via rayon-core) depends on crossbeam-epoch; no fmt::Pointer ({:p}) formatting of epoch Atomic/Shared in crossbeam-deque or rayon-core sources, nor in the app. The vulnerable Pointer impl is never invoked."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#6",
+      "facts": {
+        "package": "h2",
+        "version": "0.3.26",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.3.26 is compiled: meilisearch enables actix-web feature rustls-0_23 (meilisearch/Cargo.toml:23-29), which enables actix-web 'http2' -> actix-http/http2 -> dep:h2. HTTP/2 server is only used when native TLS is configured (MEILI_SSL_CERT_PATH + MEILI_SSL_KEY_PATH -> option.rs:647, main.rs:182 bind_rustls_0_23; actix-http service.rs:418 advertises ALPN h2). Default plain bind (main.rs:184 -> HttpService::tcp, HTTP/1 only) does not reach it. Native TLS is a documented setting, so an unauthenticated client can send empty DATA frames to an undrained request stream; marked reachable conditional on SSL config."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#7",
+      "facts": {
+        "package": "h2",
+        "version": "0.4.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "h2 0.4.5 only via hyper 1.4.1 (reqwest/hyper-util/hyper-rustls client; wiremock is a dev-dep). meilisearch and segment depend on reqwest with default-features=false and no 'http2' feature (meilisearch/Cargo.toml:71-74; segment Cargo.toml reqwest features=[json]); reqwest's hyper/hyper-rustls deps use only http1 (reqwest Cargo.toml:403-416). hyper/http2 and h2 are not compiled into the release binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#8",
+      "facts": {
+        "package": "jsonwebtoken",
+        "version": "9.3.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25537",
+            "GHSA-h395-gr6q-cpjc"
+          ],
+          [
+            "jsonwebtoken"
+          ]
+        ],
+        "advisory_summary": "jsonwebtoken has Type Confusion that leads to potential authorization bypass \u2014 ## Summary:\n\nIt has been discovered that there is a Type Confusion vulnerability in jsonwebtoken, specifically, in its claim validation logic.\n\nWhen a standard claim (such as nbf or exp) is provided with an incorrect JSON type (Like a String instead of a Number), the library\u2019s internal parsing mechanism marks the claim as \u201cFailedToParse\u201d. Crucially, the validation logic treats this \u201cFailedToParse\u201d state identically to \u201cNotPresent\u201d.\n\nThis means that if a check is enabled (like: validate_nbf = true), but the claim is ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.3.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "jsonwebtoken"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jsonwebtoken is used only for tenant tokens (meilisearch/src/extractors/authentication/mod.rs:137-340). tenant_token_validation() (:197-203) sets validate_exp=false and removes 'exp' from required_spec_claims; validate_nbf stays false (jsonwebtoken validation.rs:107) and no aud/iss/sub is configured. No library-enforced claim check exists for the FailedToParse==NotPresent confusion to bypass. Meilisearch checks exp itself from its own Claims struct (exp: Option<i64>, :323-327, :336-340), where a string exp fails serde decoding and the token is rejected. The vulnerable validate() runs on attacker tokens, but the advisory's condition (a library claim check enabled) is not met."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#9",
+      "facts": {
+        "package": "memmap2",
+        "version": "0.9.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0186"
+          ],
+          [
+            "memmap2"
+          ]
+        ],
+        "advisory_summary": "Unchecked pointer offset in crate `memmap2` \u2014 Affected versionf of `memmap2` did not perform enough validation on the `offset` and `len` parameters of\n`Mmap::[unchecked_]advise_range()`,\n`MmapMut::[unchecked_]advise_ranage()`\nand `MmapMut::flush[_async]_range()`.\n\nThis can cause undefined behavior due to invalid values being passed to [`pointer::offset()`] and [`pointer::add()`]\nwhen passing an out-of-bounds range to any of the affected functions.\n\nThe flaw was corrected in commit [`cee7cf0`] and released in version `0.9.11`.\n\nThe invalid pointer is not dereferenced,\nbut it is passed to the `m",
+        "vuln_symbols": [
+          "memmap2::Mmap::advise_range",
+          "memmap2::Mmap::unchecked_advise_range",
+          "memmap2::MmapMut::advise_range",
+          "memmap2::MmapMut::flush_async_range",
+          "memmap2::MmapMut::flush_range",
+          "memmap2::MmapMut::unchecked_advise_range"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.9.11"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "memmap2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No caller of Mmap/MmapMut advise_range, unchecked_advise_range, flush_range or flush_async_range in the workspace (grep crates/) or in candle-core 0.8.2. arroy 0.5.0 source is not in the cache; it maps its own temp files with internally computed ranges, not attacker-chosen out-of-bounds offsets. UB needs an out-of-bounds range passed to these functions, which no path supplies."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#10",
+      "facts": {
+        "package": "protobuf",
+        "version": "2.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-53605",
+            "GHSA-2gh3-rmm4-6rq5",
+            "RUSTSEC-2024-0437"
+          ],
+          [
+            "protobuf"
+          ]
+        ],
+        "advisory_summary": "Crash due to uncontrolled recursion in protobuf crate \u2014 Affected version of this crate did not properly parse unknown fields when parsing a user-supplied input.\n\nThis allows an attacker to cause a stack overflow when parsing the message on untrusted data.",
+        "vuln_symbols": [
+          "protobuf::coded_input_stream::CodedInputStream::skip_group"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "3.7.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "protobuf"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "protobuf 2.28.0 enters only via prometheus 0.13.4 (meilisearch/Cargo.toml prometheus features=[process]); prometheus only encodes metrics (ProtobufEncoder/TextEncoder). It never parses untrusted protobuf, so CodedInputStream::skip_group on attacker input is never called. Meilisearch's /metrics route renders text."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#11",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-31812",
+            "GHSA-6xvm-j4wr-6v98",
+            "RUSTSEC-2026-0037"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Quinn affected by unauthenticated remote DoS via panic in QUIC transport parameter parsing \u2014 ### Summary\nA remote, unauthenticated attacker can trigger a denial of service in applications using vulnerable `quinn` versions by sending a crafted QUIC Initial packet containing malformed `quic_transport_parameters`. `In quinn-proto` parsing logic, attacker-controlled varints are decoded with `unwrap()`, so truncated encodings cause `Err(UnexpectedEnd)` and `panic`. This is reachable over the network with a single packet and no prior trust or authentication.\n\n### Details\nThe issue is panic-on-untrus",
+        "vuln_symbols": [
+          "quinn",
+          "quic_transport_parameters",
+          "unwrap",
+          "panic",
+          "UnexpectedEnd",
+          "Err"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.14"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn/quinn-proto only enter via reqwest's optional 'http3' feature (reqwest Cargo.toml features: http3 = dep:quinn ...). No crate in the meilisearch build enables reqwest http3 (meilisearch/Cargo.toml:71 features rustls-tls,json; segment features json); quinn appears in Cargo.lock only as an optional dependency, so it is not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#12",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25800",
+            "GHSA-4w2j-m93h-cj5j",
+            "RUSTSEC-2026-0185"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Quinn: Remote memory exhaustion in quinn-proto from unbounded out-of-order stream reassembly \u2014 ## Summary\n\nThe `Assembler` component that assembles unordered stream fragments into consecutive chunks of the stream incurs some overhead for non-contiguous fragments. Readers that read from a `RecvStream` in order (through an `AsyncRead` impl for example) will be sensitive to peers that send fragments while leaving out early parts of the stream, and in particular, fragments with many gaps (because these cannot be defragmented). In such a scenario, the receiving connection suffers from high buffer o",
+        "vuln_symbols": [
+          "Assembler",
+          "RecvStream",
+          "AsyncRead"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.15"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn/quinn-proto only enter via reqwest's optional 'http3' feature (reqwest Cargo.toml features: http3 = dep:quinn ...). No crate in the meilisearch build enables reqwest http3 (meilisearch/Cargo.toml:71 features rustls-tls,json; segment features json); quinn appears in Cargo.lock only as an optional dependency, so it is not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#13",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-465w-v9q3-7j98",
+            "RUSTSEC-2026-0338"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Remote peer can panic quinn-proto with zero-length STREAM frames during unordered reads \u2014 When a stream is read in unordered mode (for example through `RecvStream::read(false)` in\nquinn-proto or `read_unordered` in `quinn`), quinn-proto proactively deduplicates received data\nby recording received ranges in a `RangeSet` through its `replace` method. When an incoming\nSTREAM frame carried an empty payload, the `Drop` implementation of the iterator returned by\n`replace` inserted an empty range into the set, violating the invariant that stored ranges are\nnon-empty. Subsequent frames overlapping tha",
+        "vuln_symbols": [
+          "read_unordered",
+          "quinn",
+          "RangeSet",
+          "replace",
+          "Drop"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.18"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn/quinn-proto only enter via reqwest's optional 'http3' feature (reqwest Cargo.toml features: http3 = dep:quinn ...). No crate in the meilisearch build enables reqwest http3 (meilisearch/Cargo.toml:71 features rustls-tls,json; segment features json); quinn appears in Cargo.lock only as an optional dependency, so it is not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#14",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-hmxj-32vh-65vr",
+            "RUSTSEC-2026-0339"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Unbounded growth of pending connection ID retirements in quinn-proto \u2014 When processing a NEW_CONNECTION_ID frame, quinn-proto queues a RETIRE_CONNECTION_ID frame for\neach connection ID that the peer asked it to retire. The normal path bounds this queue and closes\nthe connection with a CONNECTION_ID_LIMIT_ERROR if the bound would be exceeded. However, the path\nhandling a connection ID that had already been retired pushed onto the queue without applying\nthe limit and without deduplicating.\n\nA peer that has completed the handshake can first send a NEW_CONNECTION_ID frame with a large\n`retire_prio",
+        "vuln_symbols": [
+          "retire_prior_to"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn/quinn-proto only enter via reqwest's optional 'http3' feature (reqwest Cargo.toml features: http3 = dep:quinn ...). No crate in the meilisearch build enables reqwest http3 (meilisearch/Cargo.toml:71 features rustls-tls,json; segment features json); quinn appears in Cargo.lock only as an optional dependency, so it is not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#15",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-3g6h-r5qx-f6hq",
+            "RUSTSEC-2026-0340"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Peer minimum ACK delay can panic quinn-proto when ACK_FREQUENCY transmission is enabled \u2014 When sending ACK_FREQUENCY frames is enabled through\n`TransportConfig::ack_frequency_config(Some(..))`, the peer's transport parameters could cause\n`AckFrequencyState::candidate_max_ack_delay` to call `Duration::clamp` with a minimum greater\nthan its maximum, which panics.\n\nFor example, a peer advertising a `min_ack_delay` of 100,000 microseconds and a `max_ack_delay`\nof 100 milliseconds passes transport parameter validation. At a 5 ms RTT, the lower bound of the\nclamp becomes 100 ms while the upper bound",
+        "vuln_symbols": [
+          "min_ack_delay",
+          "max_ack_delay",
+          "clamp"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.18"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn/quinn-proto only enter via reqwest's optional 'http3' feature (reqwest Cargo.toml features: http3 = dep:quinn ...). No crate in the meilisearch build enables reqwest http3 (meilisearch/Cargo.toml:71 features rustls-tls,json; segment features json); quinn appears in Cargo.lock only as an optional dependency, so it is not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#16",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2hv7-gw8g-gpq5",
+            "RUSTSEC-2026-0342"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Zero-length DATAGRAM frames bypass the receive buffer limit in quinn-proto \u2014 quinn-proto bounds its queue of received datagrams by charging each queued frame's payload length\nagainst `TransportConfig::datagram_receive_buffer_size`, evicting the oldest datagrams when the\nlimit is exceeded. A DATAGRAM frame with an empty payload was charged zero bytes, so it never\ntriggered eviction and was appended to the queue, which has no other bound.\n\nDATAGRAM frames are not subject to flow control. A peer that has completed the handshake can\ntherefore send a stream of empty DATAGRAM frames and grow the rec",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn/quinn-proto only enter via reqwest's optional 'http3' feature (reqwest Cargo.toml features: http3 = dep:quinn ...). No crate in the meilisearch build enables reqwest http3 (meilisearch/Cargo.toml:71 features rustls-tls,json; segment features json); quinn appears in Cargo.lock only as an optional dependency, so it is not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#17",
+      "facts": {
+        "package": "rand",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Unsoundness needs rand's 'log' feature plus a custom logger that calls rand::thread_rng. No dependent enables rand/log: meilisearch, milli, meilisearch-auth use plain rand 0.8.5 (default std,std_rng); candle, phf_generator, rand_distr, rust_decimal, half, actix-http use default or no-default features without log. Logging goes through tracing-subscriber, whose loggers don't call thread_rng."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#18",
+      "facts": {
+        "package": "ring",
+        "version": "0.17.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The panics occur only with overflow checks on (or in QUIC header protection). Release profile (Cargo.toml [profile.release]: codegen-units=1 only) has overflow-checks off, and the Docker image builds --release. QUIC is not compiled: reqwest http3/quinn is off."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#19",
+      "facts": {
+        "package": "rkyv",
+        "version": "0.7.44",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0001"
+          ],
+          [
+            "rkyv"
+          ]
+        ],
+        "advisory_summary": "Potential Undefined Behaviors in `Arc<T>`/`Rc<T>` impls of `from_value` on OOM \u2014 The `SharedPointer::alloc` implementation for `sync::Arc<T>` and `rc::Rc<T>` in `rkyv/src/impls/alloc/rc/atomic.rs` (and `rc.rs`) does not check if the allocator returns a null pointer on OOM (Out of Memory).\n\nThis null pointer can flow through to `SharedPointer::from_value`, which calls `Box::from_raw(ptr)` with the null pointer. This triggers undefined behavior when utilizing safe deserialization APIs (such as `rkyv::from_bytes` or `rkyv::deserialize_using`) if an OOM condition occurs during the allocation of th",
+        "vuln_symbols": [
+          "from_value",
+          "rc.rs"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.46",
+          "0.8.13"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.86
+        },
+        "import_name": "rkyv"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rkyv 0.7.44 is an optional dep of rust_decimal 1.35.0 behind the 'rkyv' feature (rust_decimal Cargo.toml:111-118, features rkyv=[dep:rkyv]; default=[serde,std]). byte-unit pulls rust_decimal with default-features=false (byte-unit Cargo.toml:62-65), and nothing enables rust_decimal/rkyv, so rkyv is not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#20",
+      "facts": {
+        "package": "rkyv",
+        "version": "0.7.44",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0235"
+          ],
+          [
+            "rkyv"
+          ]
+        ],
+        "advisory_summary": "Insufficient archive validation can cause out-of-bounds reads in archives containing Rc/Arc \u2014 Shared pointer validation keyed already-validated pointees by their address and\ntype, but did not include pointer metadata. For unsized pointees, an archive\ncould therefore contain multiple `Rc`, `Arc`, or weak pointers that shared a\ndata address but used different metadata, such as different slice lengths.\n\nOnce the first pointer had been validated, later pointers to the same address\nskipped pointee validation. The safe checked `rkyv::access` API could\nconsequently return a slice with a forged length",
+        "vuln_symbols": [
+          "Rc",
+          "Arc"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.8.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rkyv"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rkyv 0.7.44 is not compiled: it is an optional rust_decimal dependency behind the 'rkyv' feature, which nothing enables (byte-unit uses rust_decimal default-features=false; rust_decimal default=[serde,std]). Also no rkyv::access/check_archived of untrusted data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#21",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.20",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2mjx-qc3c-rqvc",
+            "RUSTSEC-2026-0285"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Rustls: TLS 1.3 handshake messages incorrectly accepted across encryption level boundaries \u2014 Rustls accepted TLS 1.3 handshake messages sent at the wrong encryption level when they followed a key-changing message in the same record. The handshake transcript is still authenticated, so a network-position attacker cannot use this to alter or complete a handshake; the practical effect is that a peer could send handshake messages that should be encrypted in plaintext without rustls rejecting the connection.\n\nThis issue affects rustls versions 0.23.13 through 0.23.44 inclusive.\n\n# Original report\n##",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.45"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls 0.23.20 is in the affected range 0.23.13-0.23.44. Outbound rustls 0.23.20 clients in the default build: segment analytics via reqwest rustls-tls (on by default unless MEILI_NO_ANALYTICS, option.rs:211-219,462); ureq 2.12.1 default 'tls' (webpki-roots) for embedders (milli/src/vector/rest.rs:130, OpenAI/Ollama/REST URL from index settings), hf-hub model downloads, and the task webhook (index-scheduler/src/lib.rs:738, MEILI_TASK_WEBHOOK_URL). Native TLS server too when MEILI_SSL_CERT_PATH/KEY are set (option.rs:647-685, main.rs:182). The flawed TLS 1.3 handshake message handling runs on peer data (remote server / network attacker on outbound paths). Practical impact is minimal because the transcript is still authenticated."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#22",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.20",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only exposed when a custom ClientSessionStore Debug-formats Tls12/Tls13ClientSessionValue. No ClientSessionStore impl in the app, reqwest 0.12.12, hyper-rustls 0.27.2 or ureq 2.12.1; they use rustls's default in-memory store (client/handy.rs), which does not log values."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#23",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.20",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h2v8-394m-p7vv",
+            "RUSTSEC-2026-0348"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Brotli certificate decompression can allocate up to 1 GiB before authentication \u2014 The built-in Brotli certificate decompressor (enabled by the non-default\n`brotli` crate feature) bounded the size of the decompressed output, but\naccepted a peer-selected history window. Brotli's large-window extension was\nenabled, so a five-byte header could cause an allocation of 1 GiB. A peer can\nabort a process whose allocator cannot satisfy that request.\n\nNo trusted certificate is required by the attacker. Affected configurations are:\n\n- clients that enable the `brotli` feature and connect to a malicious ser",
+        "vuln_symbols": [
+          "brotli"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The Brotli certificate decompressor needs rustls's non-default 'brotli' feature (rustls Cargo.toml:186). No dependent enables it: meilisearch rustls features=[ring], reqwest [std,tls12]/[ring], hyper-rustls [tls12], tokio-rustls [std], ureq [ring,logging,std,tls12]. The brotli crate in Cargo.lock is actix-http's response compression, not rustls."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#24",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.20",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The downgrade drops a post-quantum hybrid (X25519MLKEM768) to classical. Every rustls user here selects the ring provider (meilisearch Cargo.toml rustls features=[ring]; reqwest __rustls-ring; ureq ring); aws-lc-rs is absent from Cargo.lock. rustls 0.23.20 ring has no ML-KEM group (MLKEM appears only in msgs/enums.rs), so clients offer only classical groups. The kx_hint caching (client/handy.rs:105) runs, but there is no PQ exchange to downgrade."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#25",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93602",
+            "GHSA-pwjx-qhcg-rvj4",
+            "RUSTSEC-2026-0049"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "CRLs not considered authoritative by Distribution Point due to faulty matching logic \u2014 If a certificate had more than one `distributionPoint`, then only the first `distributionPoint` would be considered against each CRL's `IssuingDistributionPoint` `distributionPoint`, and then the certificate's subsequent `distributionPoint`s would be ignored.\n\nThe impact was that correctly provided CRLs would not be consulted to check revocation. With `UnknownStatusPolicy::Deny` (the default) this would lead to incorrect but safe `Error::UnknownRevocationStatus`. With `UnknownStatusPolicy::Allow` this would ",
+        "vuln_symbols": [
+          "distributionPoint",
+          "IssuingDistributionPoint"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.10",
+          "0.104.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CRL distribution-point matching runs only when CRLs are supplied. No CRLs anywhere: the mTLS server verifier is built without with_crls (meilisearch/src/option.rs:658-663), and the app does not use reqwest CertificateRevocationList or ureq/hyper-rustls CRL options. The faulty matching never runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#26",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.102.8 verifies server certificates for the outbound rustls clients (reqwest rustls-tls with webpki-roots for segment analytics, on by default; ureq tls/webpki-roots for embedders milli/src/vector/rest.rs:130, hf-hub and the task webhook index-scheduler/src/lib.rs:738), and client certificates when native TLS mTLS is set (MEILI_SSL_AUTH_PATH, option.rs:651-663). Name-constraint checks run on every presented chain. Exploiting the ignored URI name constraint needs a misissued cert under a name-constrained CA in webpki-roots, used by the remote server or a network MITM on those outbound connections. Marked reachable because the code path runs on attacker-presented certs, though exploitation is impractical."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#27",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.102.8 verifies server certificates for the outbound rustls clients (reqwest rustls-tls with webpki-roots for segment analytics, on by default; ureq tls/webpki-roots for embedders milli/src/vector/rest.rs:130, hf-hub and the task webhook index-scheduler/src/lib.rs:738), and client certificates when native TLS mTLS is set (MEILI_SSL_AUTH_PATH, option.rs:651-663). A wildcard leaf under a DNS-permitted-subtree-constrained intermediate is wrongly accepted during server cert verification on those connections. Needs misissuance by a constrained CA, but runs on attacker-presented chains."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#28",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "bit_string_flags panic is reached only via CRL parsing (BorrowedCertRevocationList::from_der / RevocationOptions). Meilisearch never loads CRLs: option.rs:658-663 WebPkiClientVerifier has no with_crls, and reqwest/ureq are used without CRLs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#29",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.102.8 verifies server certificates for the outbound rustls clients (reqwest rustls-tls with webpki-roots for segment analytics, on by default; ureq tls/webpki-roots for embedders milli/src/vector/rest.rs:130, hf-hub and the task webhook index-scheduler/src/lib.rs:738), and client certificates when native TLS mTLS is set (MEILI_SSL_AUTH_PATH, option.rs:651-663). They trust bundled webpki-roots 0.26.1, which contains emSign roots (webpki-roots src/lib.rs:300, :1300, :2937 'emSign ECC Root CA - G3'). A network attacker with the now-public distrusted emSign intermediate keys can present a chain these clients accept: MITM of analytics/embedder/webhook traffic, including embedder API keys sent to OpenAI/REST."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#30",
+      "facts": {
+        "package": "tar",
+        "version": "0.4.43",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-3pv8-6f4r-ffg2"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "tar has a PAX header desynchronization issue \u2014 ### Summary\n\nWhen a tar stream contains multiple \"header\" entries prior to a file entry, tar-rs applies the PAX header (`x`) to the _next_ entry in the stream, regardless of type. For example, a stream of `x -> L -> file` (PAX, GNU longname, file) would result in `x`'s extensions being applied to `L` rather than to `file`.\n\n[Per POSIX pax](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/pax.html), this is incorrect: a PAX header always applies to a file entry, not any intermediary entries. See the \"pax Header Block\" section for the spec",
+        "vuln_symbols": [
+          "x",
+          "L",
+          "file",
+          "size",
+          "Err"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.46"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tar"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tar 0.4.43 reads archives only for dump import (dump/src/reader/mod.rs:34-38, from meilisearch/src/lib.rs:462 via --import-dump/MEILI_IMPORT_DUMP) and snapshot import (meilisearch-types/src/compression.rs:21-27, lib.rs:247 via --import-snapshot). Both are operator-supplied local files given at startup, normally produced by Meilisearch itself (tar::Builder, dump/src/writer.rs:75, compression.rs:10-18). No HTTP route accepts a tar. The PAX desync is a parser differential, and no second tar parser validates the archive. Attacker data does not reach it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#31",
+      "facts": {
+        "package": "tar",
+        "version": "0.4.43",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33056",
+            "GHSA-j4xf-2g29-59ph",
+            "RUSTSEC-2026-0067"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "tar-rs `unpack_in` can chmod arbitrary directories by following symlinks \u2014 ## Summary\n\nWhen unpacking a tar archive, the `tar` crate's `unpack_dir` function uses `fs::metadata()` to check whether a path that already exists is a directory. Because `fs::metadata()` follows symbolic links, a crafted tarball containing a symlink entry followed by a directory entry with the same name causes the crate to treat the symlink target as a valid existing directory \u2014 and subsequently apply `chmod` to it. This allows an attacker to modify the permissions of arbitrary directories outside the extraction root.",
+        "vuln_symbols": [
+          "tar::Entry::unpack",
+          "tar::Entry::unpack_in"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.4.45"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tar"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Archive::unpack (calls Entry::unpack_in) runs in dump import (dump/src/reader/mod.rs:38) and snapshot import (meilisearch-types/src/compression.rs:26). The archive is a local file the operator names via MEILI_IMPORT_DUMP / MEILI_IMPORT_SNAPSHOT at startup, normally a dump Meilisearch wrote itself. No API path lets a remote attacker supply or shape tar entries (writer uses append_dir_all / internal file names). Exploitable only if an operator imports an untrusted third-party dump; marked not_reachable on that basis (low confidence)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#32",
+      "facts": {
+        "package": "tar",
+        "version": "0.4.43",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33055",
+            "GHSA-gchp-q4r4-x4ff",
+            "RUSTSEC-2026-0068"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "tar-rs incorrectly ignores PAX size headers if header size is nonzero \u2014 ### Summary\n\nAs part of [CVE-2025-62518](https://www.cve.org/CVERecord?id=CVE-2025-62518) the astral-tokio-tar project was changed to correctly honor PAX size headers in the case where it was different from the base header.\n\nHowever, it was missed at the time that this project (the original Rust `tar` crate) had a conditional logic that skipped the PAX size header in the case that the base header size was nonzero - almost the inverse of the astral-tokio-tar issue.\n\nThe problem here is that *any* discrepancy in how tar pars",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.45"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tar"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same tar usage as row 29: unpack of operator-supplied dump/snapshot files at startup (dump/src/reader/mod.rs:38, meilisearch-types/src/compression.rs:26), normally written by Meilisearch itself. Ignoring the PAX size header only matters as a parser differential against another inspector, and none exists here. No remote attacker input reaches it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#33",
+      "facts": {
+        "package": "thin-vec",
+        "version": "0.2.13",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-6654",
+            "GHSA-xphw-cqx3-667j",
+            "RUSTSEC-2026-0103"
+          ],
+          [
+            "thin-vec"
+          ]
+        ],
+        "advisory_summary": "thin-vec: Use-After-Free and Double Free in IntoIter::drop When Element Drop Panics \u2014 ### Summary\n\nA **Double Free / Use-After-Free (UAF)** vulnerability has been identified in the `IntoIter::drop` and `ThinVec::clear` implementations of the `thin_vec` crate.\nBoth vulnerabilities share the same root cause and can trigger memory corruption using only safe Rust code \u2014 no `unsafe` blocks required.\nUndefined Behavior has been confirmed via **Miri** and **AddressSanitizer (ASAN)**.\n\n---\n\n### Details\n\nBoth vulnerabilities share the same root cause. When a **panic occurs** during sequential element d",
+        "vuln_symbols": [
+          "thin_vec",
+          "unsafe",
+          "vec",
+          "clear",
+          "ThinVec",
+          "drop_in_place"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.16"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "thin_vec"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "thin-vec 0.2.13 enters only via rhai 1.20 (milli Cargo.toml:81), used by the experimental document-edition-by-function feature. The UAF/double free needs an element's Drop to panic during IntoIter::drop or ThinVec::clear. rhai's ThinVec elements (AST nodes, idents, Dynamic values of built-in types) have non-panicking Drop, and scripts cannot define native types with panicking Drop. rhai is also only active under an experimental feature flag."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#34",
+      "facts": {
+        "package": "time",
+        "version": "0.3.37",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25727",
+            "GHSA-r6v5-fh4h-64xc",
+            "RUSTSEC-2026-0009"
+          ],
+          [
+            "time"
+          ]
+        ],
+        "advisory_summary": "time vulnerable to stack exhaustion Denial of Service attack \u2014 ### Impact\n\nWhen user-provided input is provided to any type that parses with the RFC 2822 format, a denial of service attack via stack exhaustion is possible. The attack relies on formally deprecated and rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary, non-malicious input will never encounter this scenario.\n\n### Patches\n\nA limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned rather than exhausting the stack.\n\n### Workarounds\n\nLimiting the ",
+        "vuln_symbols": [
+          "time::Date::parse",
+          "time::OffsetDateTime::parse",
+          "time::PrimitiveDateTime::parse",
+          "time::Time::parse",
+          "time::UtcDateTime::parse",
+          "time::UtcOffset::parse",
+          "time::parsing::Parsed::parse_item"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.47"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "time"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The stack-exhaustion lies in RFC 2822 parsing (comment nesting). Nothing parses with well_known::Rfc2822: grep finds no Rfc2822 in crates/ or in time's runtime dependents (actix-web, cookie, segment, simple_asn1, liquid-lib). liquid-core datetime.rs:86 only formats Rfc2822; its parse_date_time (:223-250) uses custom format_description items. Meilisearch parses dates with Rfc3339/custom formats only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#35",
+      "facts": {
+        "package": "tokio",
+        "version": "1.42.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rr8g-9fpq-6wmg",
+            "RUSTSEC-2025-0023"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "Tokio broadcast channel calls clone in parallel, but does not require `Sync` \u2014 The broadcast channel internally calls `clone` on the stored value when receiving it, and only requires `T:Send`. This means that using the broadcast channel with values that are `Send` but not `Sync` can trigger unsoundness if the `clone` implementation makes use of the value being `!Sync`.\n\nThank you to Austin Bonander for finding and reporting this issue.",
+        "vuln_symbols": [
+          "Sync",
+          "clone",
+          "Send"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.2",
+          "1.42.1",
+          "1.43.1",
+          "1.44.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.83
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs tokio::sync::broadcast carrying a Send-but-!Sync type whose Clone relies on !Sync. Meilisearch/milli/index-scheduler never use tokio broadcast (only rayon::broadcast at milli/src/update/new/channel.rs:69). Among tokio dependents only hyper-util src/server/graceful.rs references it, and hyper-util 'server' is not enabled (reqwest client-only features)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#36",
+      "facts": {
+        "package": "tokio",
+        "version": "1.42.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0386"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "`AsyncFd::new` and related constructors violate I/O safety \u2014 `tokio::io::unix::AsyncFd` provides safe constructors (`new`, `with_interest`, `try_new`, and `try_with_interest`) that accept any `T: AsRawFd` rather than requiring proof of ownership or validity of the file descriptor. Because `RawFd` implements `AsRawFd`, safe code can construct an `AsyncFd` from an arbitrary or closed file descriptor, or close/replace the underlying file descriptor while the `AsyncFd` is still alive.\n\nThis violates I/O safety in two ways:\n\n1. `AsyncFd<T>` implements `AsFd` for all `T: AsRawFd` by calling `Borrowe",
+        "vuln_symbols": [
+          "tokio::io::unix::AsyncFd::new",
+          "tokio::io::unix::AsyncFd::try_new",
+          "tokio::io::unix::AsyncFd::try_with_interest",
+          "tokio::io::unix::AsyncFd::with_interest"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.51.6",
+          "1.53.3"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No use of tokio::io::unix::AsyncFd in the workspace or in tokio's runtime dependents (grep over actix-*, hyper-util, reqwest, tokio-util, etc. finds none). The I/O-safety-violating constructors are never called, let alone with foreign or closed fds."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#37",
+      "facts": {
+        "package": "tracing-subscriber",
+        "version": "0.3.19",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58160",
+            "GHSA-xwfj-jgwm-7wp5",
+            "RUSTSEC-2025-0055"
+          ],
+          [
+            "tracing-subscriber"
+          ]
+        ],
+        "advisory_summary": " Tracing logging user input may result in poisoning logs with ANSI escape sequences \u2014 ### Impact\n\nPrevious versions of tracing-subscriber were vulnerable to ANSI escape sequence injection attacks. Untrusted user input containing ANSI escape sequences could be injected into terminal output when logged, potentially allowing attackers to:\n\n- Manipulate terminal title bars\n- Clear screens or modify terminal display\n- Potentially mislead users through terminal manipulation\n\nIn isolation, impact is minimal, however security issues have been found in terminal emulators that enabled an attacker to use",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.20"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tracing_subscriber"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Meilisearch logs every HTTP request with tracing-subscriber's fmt layer to stderr in human mode by default (main.rs:36-46, FmtSpan::CLOSE; tracing-subscriber default features incl. 'ansi', meilisearch/Cargo.toml features=[json]). The request span records attacker-controlled user_agent (String::from_utf8_lossy of the header, keeps ESC bytes), path and query string with Display at INFO (lib.rs:171-181). An unauthenticated client can inject ANSI escapes into logs viewed in a terminal (docker logs)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#38",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.26.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "webpki-roots 0.26.1 includes 'emSign ECC Root CA - G3' (src/lib.rs:2937) and other emSign roots (:300, :1300). It is the trust store for reqwest 0.12.12 rustls-tls (segment analytics, default on unless MEILI_NO_ANALYTICS) and ureq 2.12.1 default tls (embedders milli/src/vector/rest.rs:130 OpenAI/Ollama/REST, hf-hub downloads, task webhook index-scheduler/src/lib.rs:738). A MITM using the leaked distrusted intermediate keys would be accepted on those outbound connections."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#39",
+      "facts": {
+        "package": "zip",
+        "version": "1.1.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-vv5m-jxxh-4627",
+            "RUSTSEC-2026-0367"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": " Insecure Preservation of SUID/SGID Bits during ZIP Extraction Leading to Potential Privilege Escalation \u2014 The `zip` crate preserves privileged Unix permission bits (SUID, SGID, and sticky bits) from ZIP `external_attributes` during extraction, instead of masking them to safe permission bits. If a privileged process (for example, `root` in an installer, CI/CD pipeline, or container build) extracts an attacker-controlled ZIP archive using `ZipArchive::extract()` or the stream extraction API, files can be created as setuid-root or setgid. This behavior allows the creation of SUID/SGID files duri",
+        "vuln_symbols": [
+          "external_attributes",
+          "root"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zip 1.1.4 enters only via candle-core 0.8.2 (default-features=false), which only opens archives with ZipArchive::new and reads entries by name for .npz/.pth loading (candle-core src/npy.rs:259,281,356,384,398; src/pickle.rs:653). It never calls ZipArchive::extract or ZipStreamReader::extract, the only APIs that create files, symlinks or permissions. Meilisearch's own zip (2.2.2) is a build-dependency for the mini-dashboard build script. SUID/SGID preservation happens only on extraction."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#40",
+      "facts": {
+        "package": "zip",
+        "version": "1.1.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4v9h-p7m9-rh26",
+            "RUSTSEC-2026-0368"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "zip: `ZipArchive::extract` creates symbolic links whose attacker-controlled targets are outside the destination directory \u2014 In `zip` 9.0.0-pre2, `ZipArchive::extract` creates a symbolic link from an archive entry after validating only the output entry path. The link target bytes are passed directly to the platform symlink API, so a malicious archive can create an entry inside the destination that resolves to an attacker-chosen path outside it. This behavior was verified on macOS and Linux. On either platform, a subsequent application read or write through that extracted entry accesses the exte",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zip 1.1.4 enters only via candle-core 0.8.2 (default-features=false), which only opens archives with ZipArchive::new and reads entries by name for .npz/.pth loading (candle-core src/npy.rs:259,281,356,384,398; src/pickle.rs:653). It never calls ZipArchive::extract or ZipStreamReader::extract, the only APIs that create files, symlinks or permissions. Meilisearch's own zip (2.2.2) is a build-dependency for the mini-dashboard build script. Symlink creation outside the destination happens only in ZipArchive::extract."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-meilisearch#41",
+      "facts": {
+        "package": "zip",
+        "version": "1.1.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4684-h2q9-2vcp",
+            "RUSTSEC-2026-0369"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "ZipStreamReader::extract() and ZipArchive::extract() apply Unix permissions through symlinks without confining the target \u2014 `ZipStreamReader::extract()` applies Unix permissions through extracted symlinks without validating the symlink target stays within the destination\n\nFor further details see: https://github.com/zip-rs/zip2/security/advisories/GHSA-4684-h2q9-2vcp",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zip 1.1.4 enters only via candle-core 0.8.2 (default-features=false), which only opens archives with ZipArchive::new and reads entries by name for .npz/.pth loading (candle-core src/npy.rs:259,281,356,384,398; src/pickle.rs:653). It never calls ZipArchive::extract or ZipStreamReader::extract, the only APIs that create files, symlinks or permissions. Meilisearch's own zip (2.2.2) is a build-dependency for the mini-dashboard build script. Applying permissions through symlinks happens only in extract()."
+      }
+    }
+  ]
+}

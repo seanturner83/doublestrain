@@ -1,0 +1,3946 @@
+{
+  "id": "real-jv-keycloak",
+  "description": "Keycloak 26.1.4 (identity and access management, Quarkus distribution): JVM dev set (jv1), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "artifact": {
+    "paths": [
+      "artifact/keycloak-26.1.4.tar.gz"
+    ],
+    "include": [],
+    "exclude": [
+      "*/bin/client/*"
+    ],
+    "first_party": [
+      "org.keycloak"
+    ]
+  },
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#1",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-18401",
+            "GHSA-72hv-8253-57qq"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition \u2014 ### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent",
+        "vuln_symbols": [
+          "maxNumberLength",
+          "StreamReadConstraints",
+          "NonBlockingUtf8JsonParserBase",
+          "_finishNumberIntegralPart",
+          "TextBuffer",
+          "_valueComplete"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.6",
+          "2.21.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Async parser only reached via JsonFactory.createNonBlockingByte*Parser; in the classpath only jackson itself and vertx-core parsetools JsonParserImpl.java:61 call it, and parsetools.JsonParser is used only by vertx-web-common BodyCodec.jsonStream (web client) - not by Keycloak (repo grep) or Quarkus REST (resteasy-reactive-jackson reads InputStream, blocking parser)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#2",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89425",
+            "GHSA-7hhh-6rmp-j9qf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: UTF8DataInputJsonParser._reportInvalidToken() missing maxErrorTokenLength limit -> unbounded StringBuilder growth (DoS) \u2014 ## Status\n\n**FULLY REPRODUCED.** A malformed token fed through `createParser(DataInput)` produced a\n20,000,109-character exception message from a 20-million-character attacker payload, while the\nidentical payload fed through `createParser(InputStream)` produced a correctly bounded\n367-character message.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed against:** `jackson-core-2.20.2`\n- **Affected file:** ",
+        "vuln_symbols": [
+          "UTF8DataInputJsonParser._reportInvalidToken",
+          "StringBuilder",
+          "ErrorReportConfiguration.getMaxErrorTokenLength",
+          "UTF8StreamJsonParser",
+          "ReaderBasedJsonParser",
+          "NonBlockingUtf8JsonParserBase"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "UTF8DataInputJsonParser only built by createParser(DataInput)/readValue(DataInput); bytecode scan of all 316 lib/lib/main jars found no non-jackson class referencing both java/io/DataInput and jackson; Keycloak repo DataInput uses are DataInputStream in DerUtils/CertificateValidator, unrelated."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#3",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89407",
+            "GHSA-p6pp-m3f8-5c89"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": " jackson-core: ReDoS: quadratic backtracking in NumberInput.PATTERN_FLOAT via looksLikeValidNumber() \u2014 ## Status\n\n**FULLY REPRODUCED** with a clean, textbook empirical signature: measured runtime grew almost\nexactly 4x for every doubling of input size across five consecutive doublings (5,000 \u2192 160,000\ncharacters), confirming O(n\u00b2) behavior. A single 160,000-character string (smaller than a typical\nHTTP request body) took **74.4 seconds** for one call to `NumberInput.looksLikeValidNumber()`.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed",
+        "vuln_symbols": [
+          "NumberInput.looksLikeValidNumber",
+          "PATTERN_FLOAT",
+          "PATTERN_FLOAT_TRAILING_DOT",
+          "looksLikeValidNumber",
+          "Pattern",
+          "Matcher"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "looksLikeValidNumber (NumberInput.java:593, PATTERN_FLOAT present) is only called by databind when a JSON *string* is coerced into float/Float/Double/Number/BigInteger/BigDecimal targets (NumberDeserializers.java:656,759,867,1050; StdDeserializer.java:1068,1086). Keycloak's Jackson-bound types have no such fields reachable from attacker JSON (Long/Integer/String/Map only); only double field is RecaptchaAssessmentResponse.java:95 (response from Google reCAPTCHA Enterprise, not attacker-controlled). Unsure whether some bundled lib type has a float field bound from user JSON."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#4",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68494",
+            "GHSA-r7wm-3cxj-wff9"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Async parser maxNumberLength bypass via chunked digit accumulation (incomplete fix for GHSA-72hv-8253-57qq) \u2014 ## Summary\n\nThe fix released in jackson-core `2.18.6` and `2.21.1` for [GHSA-72hv-8253-57qq](https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq) (Number Length Constraint Bypass in Async Parser, published 2026-02-28) is incomplete. The fix commit `b0c428e6` (#1555) wired `validateIntegerLength` into a new `_setIntLength` helper and called it at every place where the integer portion of a number is *decided* (terminator byte arrived, `.` / `e/",
+        "vuln_symbols": [
+          "b0c428e6",
+          "validateIntegerLength",
+          "_setIntLength",
+          "MINOR_NUMBER_INTEGER_DIGITS",
+          "NOT_AVAILABLE",
+          "_textBuffer.expandCurrentSegment"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Async parser only reached via JsonFactory.createNonBlockingByte*Parser; in the classpath only jackson itself and vertx-core parsetools JsonParserImpl.java:61 call it, and parsetools.JsonParser is used only by vertx-web-common BodyCodec.jsonStream (web client) - not by Keycloak (repo grep) or Quarkus REST (resteasy-reactive-jackson reads InputStream, blocking parser). (incomplete-fix variant of the same async-parser issue)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#5",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59888",
+            "GHSA-3pjw-73gf-8qr5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonIgnore on a Record property is bypassed with a PropertyNamingStrategy \u2014 ## Summary\nFor Java Records, `POJOPropertiesCollector._removeUnwantedIgnorals()` records a `@JsonIgnore`-annotated component under its original implicit name before `_renameUsing()` applies the `PropertyNamingStrategy`. After the rename, `_ignoredPropertyNames` still holds only the pre-rename name, so `_ignorableProps` is built from the stale key. The renamed JSON key passes `IgnorePropertiesUtil.shouldIgnore()` and is assigned to the Record's constructor parameter, defeating the `@JsonIgnore`.\n\n## I",
+        "vuln_symbols": [
+          "POJOPropertiesCollector._removeUnwantedIgnorals",
+          "_renameUsing",
+          "PropertyNamingStrategy",
+          "_ignoredPropertyNames",
+          "_ignorableProps",
+          "IgnorePropertiesUtil.shouldIgnore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a Java Record with @JsonIgnore deserialized with a PropertyNamingStrategy. Keycloak records (RevokedToken, LockEntry, SessionData, ...) are Infinispan/protostream types, not Jackson-bound; no PropertyNamingStrategy configured (only quarkus-jackson config support, unset)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#6",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59889",
+            "GHSA-5gvw-p9qm-jgwh"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonView bypassed for @JsonUnwrapped container properties on deserialization \u2014 ## Summary\n`UnwrappedPropertyHandler.processUnwrapped()` replays the buffered JSON for a `@JsonUnwrapped` property by iterating its properties and calling `prop.deserializeAndSet()` with **no `prop.visibleInView(ctxt.getActiveView())` guard** \u2014 the exact guard `processUnwrappedCreatorProperties()` received in the #5971 / GHSA-rcqc-6cw3-h962 fix, and the guard `BeanDeserializer.deserializeWithUnwrapped` applies to directly-matched properties. As a result, a property annotated with both `@JsonView(P",
+        "vuln_symbols": [
+          "UnwrappedPropertyHandler.processUnwrapped",
+          "prop.deserializeAndSet",
+          "processUnwrappedCreatorProperties",
+          "BeanDeserializer.deserializeWithUnwrapped",
+          "BeanDeserializer",
+          "PublicView"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonView + @JsonUnwrapped with an active view; no @JsonView anywhere in Keycloak main code (repo grep); only @JsonUnwrapped is ScriptProviderDescriptor.java:38 (deploy-time descriptor, no views)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#7",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54515",
+            "GHSA-5jmj-h7xm-6q6v"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has case-insensitive deserialization bypasses per-property @JsonIgnoreProperties \u2014 ## Summary\nIn `BeanDeserializerBase.createContextual()`, per-property `@JsonIgnoreProperties` exclusions are applied by `_handleByNameInclusion()`, producing a `contextual` deserializer whose `BeanPropertyMap` has the ignored properties removed. The subsequent per-property case-insensitivity block (triggered by `@JsonFormat(ACCEPT_CASE_INSENSITIVE_PROPERTIES)`) rebuilds from `this._beanProperties` (the original, unfiltered map) instead of `contextual._beanProperties`, then overwrites the filtere",
+        "vuln_symbols": [
+          "BeanDeserializerBase.createContextual",
+          "_handleByNameInclusion",
+          "contextual",
+          "BeanPropertyMap",
+          "this._beanProperties",
+          "contextual._beanProperties"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs per-property @JsonFormat(ACCEPT_CASE_INSENSITIVE_PROPERTIES)+@JsonIgnoreProperties; string ACCEPT_CASE_INSENSITIVE_PROPERTIES appears in no classpath jar except jackson-annotations/databind (bytecode scan) and nowhere in Keycloak source."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#8",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91777",
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind quadratic forward-reference completion  \u2014 ### Summary\n\nWhen an `@JsonIdentityInfo` collection or map first creates N unresolved\nobject-ID references and later resolves the same IDs in reverse order,\njackson-databind scans the remaining pending-reference accumulator for each\nresolution. A shallow JSON document whose size grows linearly can therefore\ncause quadratic CPU work during deserialization.\n\n### Details\n\nThe affected path is forward-reference completion in\n`CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference()`\nand the corresponding map implemen",
+        "vuln_symbols": [
+          "CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference",
+          "equals"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonIdentityInfo collections; no class outside jackson references JsonIdentityInfo (bytecode scan) and none in Keycloak source."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#9",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-83557",
+            "GHSA-gx83-3vf8-gh7j"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Comparable missing from DefaultBaseTypeLimitingValidator's unsafe base types (incomplete PolymorphicTypeValidator denylist) \u2014 ### Summary\n`DefaultBaseTypeLimitingValidator` \u2014 the `PolymorphicTypeValidator` used automatically whenever `@JsonTypeInfo` is applied without an explicitly configured custom validator \u2014 denies polymorphic resolution only for nine specific \"unsafe base types\" (`Object`, `Serializable`, `Closeable`, `AutoCloseable`, `Cloneable`, `Runnable`, `java.util.logging.Handler`, `javax.naming.Referenceable`, `javax.sql.DataSource`). Its `isSafeSubType()` returns ",
+        "vuln_symbols": [
+          "DefaultBaseTypeLimitingValidator",
+          "PolymorphicTypeValidator",
+          "Serializable",
+          "Closeable",
+          "AutoCloseable",
+          "Cloneable"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "In 2.17.2 DefaultBaseTypeLimitingValidator is only installed when MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES is enabled (MapperConfig.java:316-318); default is LaissezFaire. No classpath jar references BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES or default typing; Keycloak's only @JsonTypeInfo is Id.NAME (AttestationStatementSerializationContainer.java:29)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#10",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54514",
+            "GHSA-hgj6-7826-r7m5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: InetSocketAddress deserialization triggers eager DNS resolution (SSRF) \u2014 ## Summary\n`JDKFromStringDeserializer` constructed `InetSocketAddress` with `new InetSocketAddress(host, port)`, which performs eager DNS name resolution for hostname inputs at deserialization time. An application that binds untrusted JSON into a type containing an `InetSocketAddress` field issues an attacker-chosen DNS query during `readValue`, before any application-level validation or connect logic. The fix uses `InetSocketAddress.createUnresolved(host, port)`, deferring DNS to an explicit connect.\n\n#",
+        "vuln_symbols": [
+          "JDKFromStringDeserializer",
+          "InetSocketAddress",
+          "readValue"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs an InetSocketAddress-typed property bound from untrusted JSON; no Keycloak representation/Jackson-bound class has InetSocketAddress/InetAddress fields (repo grep of core/services; classpath users are netty/JDBC/http clients, not Jackson types)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#11",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54512",
+            "GHSA-j3rv-43j4-c7qm"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has a PolymorphicTypeValidator bypass via generic type parameters that allows arbitrary class instantiation \u2014 `jackson-databind`'s `PolymorphicTypeValidator` (PTV) is the primary safety mechanism guarding polymorphic deserialization. When polymorphic typing is enabled and a type identifier contains generic parameters (i.e. the type ID string contains `<`), `DatabindContext._resolveAndValidateGeneric()` validates **only the raw container class name** (the substring before `<`) against the configured PTV.\n\nIf the container type is approved, the method parses the full canonical t",
+        "vuln_symbols": [
+          "PolymorphicTypeValidator",
+          "DatabindContext._resolveAndValidateGeneric",
+          "TypeFactory.constructFromCanonical",
+          "java.util.ArrayList",
+          "com.evil.Gadget",
+          "BasicPolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs polymorphic typing with a configured PolymorphicTypeValidator (class-name ids); no jar outside jackson references BasicPolymorphicTypeValidator/activateDefaultTyping (bytecode scan); Keycloak uses only Id.NAME typing."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#12",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68497",
+            "GHSA-q4xh-88c3-wmh7"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Duration XMLGregorianCalendar Unbounded Number Parse DoS \u2014 ### Summary\n`jackson-databind` 3.2.1 deserializes a JSON **string** bound to a `javax.xml.datatype.Duration` or `javax.xml.datatype.XMLGregorianCalendar` field by passing the raw string verbatim to `DatatypeFactory.newDuration(value)` / `newXMLGregorianCalendar(value)`. Per the XML-Schema lexical grammar these factory methods accept numeric components of arbitrary length, which the JDK materializes into `java.math.BigInteger` / `BigDecimal` using the native `BigInteger(String)` constructor (an O(n\u00b2) parser). Because t",
+        "vuln_symbols": [
+          "javax.xml.datatype.Duration",
+          "javax.xml.datatype.XMLGregorianCalendar",
+          "java.math.BigInteger",
+          "BigDecimal",
+          "StreamReadConstraints.maxNumberLength",
+          "maxStringLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs javax.xml.datatype.Duration/XMLGregorianCalendar property bound by Jackson; Keycloak uses XMLGregorianCalendar only in SAML StAX parsers/writers (saml-core ...parsers/saml/*, XMLTimeUtil), never Jackson-bound."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#13",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54513",
+            "GHSA-rmj7-2vxq-3g9f"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has an array subtype allowlist bypass in BasicPolymorphicTypeValidator (allowIfSubTypeIsArray) \u2014 ## Summary\n`BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray()` allowlists any array type based only on `clazz.isArray()`, without validating the array's component (element) type against the configured allowlist. A PTV built with `allowIfSubTypeIsArray()` plus an explicit concrete-type allowlist therefore still permits `EvilType[]` even though `EvilType` is not allowlisted. When Jackson deserializes the elements and no per-element type IDs are present, it instantiates th",
+        "vuln_symbols": [
+          "BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray",
+          "clazz.isArray",
+          "allowIfSubTypeIsArray",
+          "EvilType",
+          "BasicPolymorphicTypeValidator",
+          "PolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray(); not referenced by any classpath jar outside jackson-databind (bytecode scan) nor Keycloak source."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#14",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-77310",
+            "GHSA-vvgp-rfg2-7rr6"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Incomplete fix for CVE-2026-54514: eager DNS resolution (SSRF) still present in InetAddress deserialization \u2014 ### Summary\nCVE-2026-54514 (GHSA-hgj6-7826-r7m5) fixed an eager-DNS-resolution / SSRF issue in jackson-databind's deserialization of `java.net.InetSocketAddress` by switching to `InetSocketAddress.createUnresolved(...)` (PR #5951, commit 1f5a1037, released in 2.18.8 / 2.21.4 / 3.1.4). That fix did not cover the sibling `java.net.InetAddress` branch in the very same `FromStringDeserializer.Std._deserialize()` switch statement, which still calls `InetAddress.getByName(v",
+        "vuln_symbols": [
+          "java.net.InetSocketAddress",
+          "java.net.InetAddress",
+          "FromStringDeserializer.Std._deserialize",
+          "InetAddress",
+          "address.isUnresolved",
+          "InetAddress.getByName"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs an InetAddress-typed property bound from untrusted JSON; none in Keycloak Jackson-bound types (see row 9)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#15",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-19032",
+            "GHSA-wjgm-6hv5-3cvf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Path Deserialization Missing Scheme Allowlist for FileSystemProvider Resolution \u2014 ### Summary\n\nA `java.nio.file.Path` field bound from untrusted JSON reaches `JDKFromStringDeserializer.NioPathHelper.deserialize`. The attacker string flows through `new URI(value)` \u2192 `Path.of(uri)`, then on `FileSystemNotFoundException` into a `ServiceLoader<FileSystemProvider>` enumeration that calls `provider.getPath(uri)` on the first scheme-matching provider. No scheme is rejected, so untrusted JSON can drive an arbitrary registered provider under the default `JsonMapper.builder().build()`.",
+        "vuln_symbols": [
+          "java.nio.file.Path",
+          "JDKFromStringDeserializer.NioPathHelper.deserialize",
+          "FileSystemNotFoundException",
+          "file",
+          "jar",
+          "Path"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a java.nio.file.Path property bound from untrusted JSON; Keycloak Path uses are config/theme/file handling in quarkus runtime and services, no Path fields in representations/JSON-bound types (repo grep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#16",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91776",
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind retains every unknown raw type ID  \u2014 ### Summary\n\nWith `@JsonTypeInfo(use = Id.NAME, defaultImpl = ...)`, every distinct unknown\nraw type ID selects the same fallback deserializer but is retained as a\nseparate key in `TypeDeserializerBase._deserializers`. An attacker who can\nrepeatedly supply new unknown type IDs can grow this process-lifetime cache\nwithout a configured bound.\n\n### Details\n\nThe affected path is `TypeDeserializerBase._findDeserializer()`. After an\nunknown name-based type ID resolves to the configured fallback/default\nimplementation, jackson-databind caches the ",
+        "vuln_symbols": [
+          "TypeDeserializerBase._deserializers",
+          "TypeDeserializerBase._findDeserializer",
+          "typeId",
+          "_deserializers",
+          "defaultImpl"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonTypeInfo(use=NAME, defaultImpl=...); Keycloak's only @JsonTypeInfo (AttestationStatementSerializationContainer.java:29) has no defaultImpl, so an unknown id hits _handleUnknownTypeId / NullifyingDeserializer before caching (TypeDeserializerBase.java:159-168). Not exhaustively checked webauthn4j's own annotations."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#17",
+      "facts": {
+        "package": "com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer",
+        "version": "20240325.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66021",
+            "GHSA-g9gq-3pfx-2gw2"
+          ],
+          [
+            "com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer"
+          ]
+        ],
+        "advisory_summary": "OWASP Java HTML Sanitizer is vulnerable to XSS via noscript tag and improper style tag sanitization  \u2014 ### Summary\nIt is observed that OWASP java html sanitizer is vulnerable to XSS if HtmlPolicyBuilder allows `noscript` and `style` tags with `allowTextIn` inside the style tag. This could lead to XSS if the payload is crafted in such a way that it does not sanitise the CSS and allows tags which is not mentioned in HTML policy. \n\n### Details\n\nThe OWASP java HTML sanitizer is vulnerable to XSS. This only happens when HtmlPolicyBuilder allows `noscript` & `style` tag with `allowTextIn` inside sty",
+        "vuln_symbols": [
+          "noscript",
+          "style",
+          "allowTextIn",
+          "HtmlPolicyBuilder"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "20260101.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Vulnerable only if policy allows both noscript and style *elements* with allowTextIn(style). KeycloakSanitizerPolicy.java:158-163 allows noscript but not the style element (allowStyling() at :91 only permits style attributes) and never calls allowTextIn."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#18",
+      "facts": {
+        "package": "com.microsoft.sqlserver:mssql-jdbc",
+        "version": "12.8.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-59250",
+            "GHSA-m494-w24q-6f7w"
+          ],
+          [
+            "com.microsoft.sqlserver:mssql-jdbc"
+          ]
+        ],
+        "advisory_summary": "JDBC Driver for SQL Server has improper input validation issue \u2014 Improper input validation in JDBC Driver for SQL Server allows an unauthorized attacker to perform spoofing over a network.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.2.4.jre11",
+          "11.2.4.jre11",
+          "12.10.2.jre11",
+          "12.2.1.jre11",
+          "12.6.5.jre11",
+          "12.8.2.jre11",
+          "13.2.1.jre11"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "mssql-jdbc-12.8.1.jre11 shipped in lib/lib/main and loaded by quarkus-jdbc-mssql when db=mssql (documented: docs/guides/server/db.adoc:23; Database.java:204). CVE-2025-59250 is a network spoofing/input-validation flaw in the driver's connection to the server (fixed 12.8.2); attacker = network peer/DB server on that path.",
+        "requires": "db=mssql"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#19",
+      "facts": {
+        "package": "io.micrometer:micrometer-core",
+        "version": "1.13.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40984",
+            "GHSA-g3pr-3p32-fp23"
+          ],
+          [
+            "io.micrometer:micrometer-core"
+          ]
+        ],
+        "advisory_summary": "Micrometer HTTP server instrumentations DoS \u2014 In Micrometer, it is possible for a user to provide specially crafted HTTP requests that may cause a denial-of-service (DoS) condition.\n\nAffected versions:\nmicrometer-core 1.16.0 through 1.16.5; 1.15.0 through 1.15.11; 1.14.0 through 1.14.15; 1.13.0 through 1.13.18; 1.9.0 through 1.9.17.\nmicrometer-jetty11 1.16.0 through 1.16.5; 1.15.0 through 1.15.11; 1.14.0 through 1.14.15; 1.13.0 through 1.13.18.\nmicrometer-jetty12 1.16.0 through 1.16.5; 1.15.0 through 1.15.11; 1.14.0 through 1.14.15; 1.13.0 through 1.13.18.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.15.12",
+          "1.16.6"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Advisory targets micrometer's HTTP server instrumentations (core binder.http servlet/jersey/jetty). Quarkus' Vert.x HTTP server metrics (quarkus-micrometer VertxHttpServerMetrics) only import binder.http.Outcome; bytecode scan shows no use of binder/http request-tag, jetty or jersey instrumentation (grpc interceptors only for an absent gRPC server). Metrics also off by default (metrics-enabled).",
+        "requires": "metrics-enabled=true"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#20",
+      "facts": {
+        "package": "io.netty:netty-codec",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58057",
+            "GHSA-3p8m-j85q-pgmj"
+          ],
+          [
+            "io.netty:netty-codec"
+          ]
+        ],
+        "advisory_summary": "Netty's decoders vulnerable to DoS via zip bomb style attack \u2014 ### Summary\n\nWith specially crafted input, `BrotliDecoder` and some other decompressing decoders will allocate a large number of reachable byte buffers, which can lead to denial of service.\n\n### Details\n\n`BrotliDecoder.decompress` has no limit in how often it calls `pull`, decompressing data 64K bytes at a time. The buffers are saved in the output list, and remain reachable until OOM is hit. This is basically a zip bomb.\n\nTested on 4.1.118, but there were no changes to the decoder since.\n\n### PoC\n\nRun this test case with `-Xmx1G`:\n",
+        "vuln_symbols": [
+          "BrotliDecoder",
+          "BrotliDecoder.decompress",
+          "pull"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.125.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "BrotliDecoder only reached via HttpContentDecompressor with brotli4j present; no brotli4j jar in the artifact (Brotli.isAvailable false). Not used: netty HttpContentDecompressor (and HTTP/2 decompressor) is only added when HttpServerOptions.decompressionSupported (vertx-core 4.5.11 io/vertx/core/http/impl/HttpServerWorker.java:294-296), set from Quarkus build-time quarkus.http.enable-decompression (HttpBuildTimeConfig.java:91, default false, not set by Keycloak application.properties nor documented by Keycloak)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#21",
+      "facts": {
+        "package": "io.netty:netty-codec",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59901",
+            "GHSA-558v-64gr-wgg4"
+          ],
+          [
+            "io.netty:netty-codec"
+          ]
+        ],
+        "advisory_summary": "Netty: [Bzip2Decoder] Infinite Loop in RLE State Machine Leads to Event-Loop Thread Hang \u2014 The `Bzip2Decoder` handler in Netty's compression codec pipeline is vulnerable to a denial-of-service attack through a malformed bzip2 stream that permanently captures the event-loop thread in an infinite loop. The vulnerability exists in the run-length encoding (RLE) state machine within [`Bzip2BlockDecompressor.read()`]",
+        "vuln_symbols": [
+          "Bzip2Decoder",
+          "Bzip2BlockDecompressor.read"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bzip2Decoder is never installed: no classpath jar other than netty-codec references it (bytecode scan); HTTP decompression does not use bzip2."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#22",
+      "facts": {
+        "package": "io.netty:netty-codec",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42583",
+            "GHSA-mj4r-2hfc-f8p6"
+          ],
+          [
+            "io.netty:netty-codec"
+          ]
+        ],
+        "advisory_summary": "Netty Lz4FrameDecoder is vulnerable to resource exhaustion  \u2014 ### Summary\nLz4FrameDecoder allocates a ByteBuf of size `decompressedLength` (up to 32 MB per block) before LZ4 runs. A peer only needs a 21-byte header plus `compressedLength` payload bytes - 22 bytes if `compressedLength == 1` - to force that allocation.\n\n### Details\nio.netty.handler.codec.compression.Lz4FrameDecoder#decode\nHeader fields are trusted for sizing. On the compressed path, after `readableBytes >= compressedLength`, the decoder does `ctx.alloc().buffer(decompressedLength, decompressedLength)` then decompresses.\n\n### PoC",
+        "vuln_symbols": [
+          "decompressedLength",
+          "compressedLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Lz4FrameDecoder is never installed: no classpath jar other than netty-codec references it (bytecode scan)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#23",
+      "facts": {
+        "package": "io.netty:netty-codec-dns",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42579",
+            "GHSA-cm33-6792-r9fm"
+          ],
+          [
+            "io.netty:netty-codec-dns"
+          ]
+        ],
+        "advisory_summary": "Netty has a DNS Codec Input Validation Bypass (Encoder + Decoder) \u2014 # Security Vulnerability Report: DNS Codec Input Validation Bypass in Netty (Encoder + Decoder)\n\n## 1. Vulnerability Summary\n\n| Field | Value |\n|-------|-------|\n| **Product** | Netty |\n| **Version** | 4.2.12.Final (and all prior versions with codec-dns) |\n| **Component** | `io.netty.handler.codec.dns.DnsCodecUtil` |\n| **Vulnerability Type** | CWE-20: Improper Input Validation / CWE-626: Null Byte Interaction Error / CWE-400: Uncontrolled Resource Consumption |\n| **Impact** | DNS Cache Poisoning / Domain Validation Bypass / De",
+        "vuln_symbols": [
+          "io.netty.handler.codec.dns.DnsCodecUtil",
+          "encodeDomainName",
+          "decodeDomainName",
+          "DnsNameResolver"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "DnsCodecUtil.decodeDomainName (DnsCodecUtil.java:53) decodes every response record name. netty DNS codec is used by the Infinispan Hot Rod client: ChannelFactory.java:148-152 builds a DnsNameResolver/RoundRobinDnsAddressResolverGroup for remote cache servers, active when an external Infinispan is configured via cache-remote-host (documented: docs/guides/server/caching.adoc, HA guides). Vert.x's own resolver is disabled by Quarkus (VertxCoreRecorder.java:320-321, use-async-dns default false) and Keycloak proxy-trusted-addresses accepts only IP/CIDR so Quarkus ForwardedProxyHandler DNS lookups don't run. Attacker = DNS server / network attacker answering the Hot Rod client's queries.",
+        "requires": "cache-remote-host (external Infinispan)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#24",
+      "facts": {
+        "package": "io.netty:netty-codec-dns",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-73508",
+            "GHSA-mfg7-5gfp-c4w3"
+          ],
+          [
+            "io.netty:netty-codec-dns"
+          ]
+        ],
+        "advisory_summary": "Netty: Memory Leak in DNS Record Decoder via Malformed Domain Names \u2014 ### Summary\nA memory leak can be caused in Netty's DNS codec by sending malicious DNS packets containing invalid domain names. Because the leak occurs incrementally per packet, sustained malicious requests will cause a gradual Denial of Service.\n\n### Details\nInside `io.netty.handler.codec.dns.AbstractDnsRecord`, the parsed domain name string is passed to `IDN.toASCII(name)`. If the domain name contains characters that violate IDNA rules, `IDN.toASCII` throws an `IllegalArgumentException`.\n\nBecause this exception occurs insid",
+        "vuln_symbols": [
+          "io.netty.handler.codec.dns.AbstractDnsRecord",
+          "IDN.toASCII",
+          "IllegalArgumentException",
+          "DnsRecord",
+          "in.retainedDuplicate",
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "AbstractDnsRecord.java:70-84 IDN.toASCII on decoded names. netty DNS codec is used by the Infinispan Hot Rod client: ChannelFactory.java:148-152 builds a DnsNameResolver/RoundRobinDnsAddressResolverGroup for remote cache servers, active when an external Infinispan is configured via cache-remote-host (documented: docs/guides/server/caching.adoc, HA guides). Vert.x's own resolver is disabled by Quarkus (VertxCoreRecorder.java:320-321, use-async-dns default false) and Keycloak proxy-trusted-addresses accepts only IP/CIDR so Quarkus ForwardedProxyHandler DNS lookups don't run. Attacker = DNS server / network attacker answering the Hot Rod client's queries.",
+        "requires": "cache-remote-host (external Infinispan)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#25",
+      "facts": {
+        "package": "io.netty:netty-codec-haproxy",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44893",
+            "GHSA-cc37-9q2j-3hfv"
+          ],
+          [
+            "io.netty:netty-codec-haproxy"
+          ]
+        ],
+        "advisory_summary": "Netty: HAProxy SSL TLV parsing leaks retained slice on invalid TLV length \u2014 When decoding a PP2_TYPE_SSL TLV, HAProxyMessage.readNextTLV() first calls `header.retainedSlice(header.readerIndex(), length)` and only then reads the 1-byte client field and 4-byte verify field. If the attacker sets the TLV length below 5, the subsequent readByte/readInt throws IndexOutOfBoundsException. HAProxyMessageDecoder only catches HAProxyProtocolException around this call, so the IOOBE propagates and the retained slice on the pooled cumulation buffer is never released.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "HAProxyMessage.readNextTLV PP2_TYPE_SSL retainedSlice before reads (HAProxyMessage.java:278-279). HAProxyMessageDecoder is installed on the HTTP server pipeline when useProxyProtocol (vertx-core 4.5.11 io/vertx/core/http/impl/HttpServerWorker.java:103-106), mapped from Keycloak option proxy-protocol-enabled (ProxyPropertyMappers.java:22-23 -> quarkus.http.proxy.use-proxy-protocol), documented in docs/guides/server/reverseproxy.adoc:149-155. Any client that can connect to the port sends the PROXY header.",
+        "requires": "proxy-protocol-enabled=true"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#26",
+      "facts": {
+        "package": "io.netty:netty-codec-haproxy",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48059",
+            "GHSA-h2qv-fj59-j46j"
+          ],
+          [
+            "io.netty:netty-codec-haproxy"
+          ]
+        ],
+        "advisory_summary": "Netty HAProxy: Unbalanced Reference Count in Nested PP2_TYPE_SSL TLV Parsing Leads to Memory Exhaustion \u2014 ### Impact\nThe HAProxy PROXY protocol v2 codec in netty leaks native or heap memory on every connection when a client sends a syntactically valid header containing nested `PP2_TYPE_SSL` TLVs (type-length-value records) at depth two or greater. The leak occurs on the successful parse path \u2014 no exception is thrown, the message fires downstream, the decoder removes itself, and the application releases the `HAProxyMessage` normally. Yet the underlying cumulation buffer (a pooled, potentially d",
+        "vuln_symbols": [
+          "PP2_TYPE_SSL",
+          "HAProxyMessage",
+          "ByteBuf"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Nested PP2_TYPE_SSL TLV recursion with retainedSlice (HAProxyMessage.java:278-288). HAProxyMessageDecoder is installed on the HTTP server pipeline when useProxyProtocol (vertx-core 4.5.11 io/vertx/core/http/impl/HttpServerWorker.java:103-106), mapped from Keycloak option proxy-protocol-enabled (ProxyPropertyMappers.java:22-23 -> quarkus.http.proxy.use-proxy-protocol), documented in docs/guides/server/reverseproxy.adoc:149-155. Any client that can connect to the port sends the PROXY header.",
+        "requires": "proxy-protocol-enabled=true"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#27",
+      "facts": {
+        "package": "io.netty:netty-codec-haproxy",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55851",
+            "GHSA-q6cq-mhr2-jmr5"
+          ],
+          [
+            "io.netty:netty-codec-haproxy"
+          ]
+        ],
+        "advisory_summary": "Netty: [codec-haproxy] Signed-Byte Sentinel Collision in HAProxyMessageDecoder Leads to Unbounded Memory Exhaustion \u2014 The `HAProxyMessageDecoder` in netty's `codec-haproxy` module performs protocol version detection by reading the 13th byte of the inbound stream as a signed Java `byte` and widening it to `int` without masking. When an attacker sends a PROXY protocol v2 binary prefix (`0D 0A 0D 0A 00 0D 0A 51 55 49 54 0A`) followed by version byte `0xFF`, the sign extension produces `-1`, which collides with the decoder's \"need more data\" sentinel value. This collision traps the decoder in a ve",
+        "vuln_symbols": [
+          "HAProxyMessageDecoder",
+          "byte",
+          "int",
+          "HeaderExtractor",
+          "ByteToMessageDecoder",
+          "cumulation"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "findVersion returns signed buffer.getByte(...) colliding with -1 sentinel (HAProxyMessageDecoder.java:176,238). HAProxyMessageDecoder is installed on the HTTP server pipeline when useProxyProtocol (vertx-core 4.5.11 io/vertx/core/http/impl/HttpServerWorker.java:103-106), mapped from Keycloak option proxy-protocol-enabled (ProxyPropertyMappers.java:22-23 -> quarkus.http.proxy.use-proxy-protocol), documented in docs/guides/server/reverseproxy.adoc:149-155. Any client that can connect to the port sends the PROXY header.",
+        "requires": "proxy-protocol-enabled=true"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#28",
+      "facts": {
+        "package": "io.netty:netty-codec-haproxy",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59919",
+            "GHSA-wh89-7897-x99h"
+          ],
+          [
+            "io.netty:netty-codec-haproxy"
+          ]
+        ],
+        "advisory_summary": "Netty: HAProxy V1 Protocol CRLF Injection via AF_UNIX Address \u2014 # Security Vulnerability Report: HAProxy V1 Protocol CRLF Injection via AF_UNIX Address in Netty\n\n## 1. Vulnerability Summary\n\n| Field | Value |\n|-------|-------|\n| **Product** | Netty |\n| **Version** | 4.2.12.Final (and all prior versions with codec-haproxy) |\n| **Component** | `io.netty.handler.codec.haproxy.HAProxyMessageEncoder` |\n| **Vulnerability Type** | CWE-93: Improper Neutralization of CRLF Sequences |\n| **Impact** | HAProxy PROXY Protocol Injection / Client IP Spoofing |\n| **CVSS 3.1 Score** | **7.5 (High)** |\n| **CVSS ",
+        "vuln_symbols": [
+          "io.netty.handler.codec.haproxy.HAProxyMessageEncoder",
+          "encodeV1",
+          "sourceAddress",
+          "destinationAddress",
+          "io.netty.handler.codec.haproxy.HAProxyMessage",
+          "checkAddress"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HAProxyMessageEncoder (outbound PROXY header) is not used: vertx-core only installs HAProxyMessageDecoder (server side); no classpath jar outside netty-codec-haproxy references the encoder (bytecode scan)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#29",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42585",
+            "GHSA-38f8-5428-x5cv"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty vulnerable to HTTP Request Smuggling due to malformed Transfer-Encoding \u2014 ### Summary\nNetty incorrectly parses malformed Transfer-Encoding, enabling request smuggling attacks.\n\n### Details\nNetty incorrectly marks a request as chunked when malformed \"Transfer-Encoding: chunked, identity\" is present.\nAccording to RFC https://datatracker.ietf.org/doc/html/rfc9112#name-message-body-length\n\n\"\nIf a Transfer-Encoding header field is present in a request and the chunked transfer coding is not the final encoding,\n the message body length cannot be determined reliably; the server MUST respond with",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Transfer-Encoding chunked detection in HttpObjectDecoder (HttpObjectDecoder.java:797 HttpUtil.isTransferEncodingChunked). Keycloak's HTTP server is Vert.x: HttpServerWorker.java:292 installs VertxHttpRequestDecoder extends netty HttpRequestDecoder/HttpObjectDecoder (VertxHttpRequestDecoder.java:21) on every HTTP/1.x connection; any internet client sends raw requests."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#30",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59898",
+            "GHSA-4mp9-239f-g9hg"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: WebSockets V07/V08 handshaker missing Connection/Upgrade validation \u2014 ## Summary\nAn attacker can force WebSocket upgrade via the lax V07 (or V08) handshaker by sending `Sec-WebSocket-Version: 7` and omitting `Connection: Upgrade` / `Upgrade: websocket` headers, completing a protocol switch that a proxy would not recognize as an Upgrade request and enabling HTTP request smuggling / protocol-confusion attacks.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "WebSocketServerHandshakerFactory is used only when a request is upgraded (Http1xServerConnection.java:383) via a server webSocketHandler or request.toWebSocket(); Quarkus prod sets neither (only DevUIWebSocket, dev mode), Keycloak has no WebSocket endpoints (repo grep), no quarkus-websockets jar."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#31",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42584",
+            "GHSA-57rv-r2g8-2cj3"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty has HttpClientCodec response desynchronization \u2014 ### Summary\n If HttpClientCodec is configured, there are use cases when a response body from one request, can be parsed as another's.\n\n### Details\nHttpClientCodec pairs each inbound response with an outbound request by `queue.poll()` once per response, including for `1xx`. If the client pipelines GET then HEAD and the server sends 103, then 200 with GET body, then 200 for HEAD, the queue pairs HEAD with the first 200. The HEAD rule then skips reading that message\u2019s body, so the GET entity bytes stay on the stream and the following 200 is p",
+        "vuln_symbols": [
+          "queue.poll"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HttpClientCodec is only used by outbound Vert.x/netty clients (OTel OTLP http/protobuf exporter when tracing-enabled, HTTP proxy handler). Desync requires client pipelining of GET then HEAD with 1xx responses; Vert.x client pipelining is off by default and the OTel sender only POSTs. Keycloak's own outbound HTTP uses Apache HttpClient."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#32",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-56746",
+            "GHSA-6cqp-g7gg-8hr5"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: Security Control Bypass via CORS Short-Circuit Failure \u2014 ### Summary\nNetty's CorsHandler provides a `shortCircuit()` configuration designed to reject unauthorized cross-origin requests immediately, acting as a security control before requests reach the application. However, due to a logical operator error in the origin evaluation process, this protection can be entirely bypassed. An attacker can bypass the short-circuit mechanism by sending a request with an `Origin: null` header. This failure forwards unauthorized requests to the backend application, bypassing intended access controls.",
+        "vuln_symbols": [
+          "shortCircuit",
+          "getForOrigin",
+          "isNullOriginAllowed"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "netty CorsHandler is not used: Vert.x/Quarkus implement CORS in vertx-web/quarkus-vertx-http; bytecode scan finds codec/http/cors/CorsHandler referenced only inside netty-codec-http."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#33",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55831",
+            "GHSA-6jqx-86gh-f27w"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty SPDY SETTINGS frame count materializes unbounded settings map \u2014 ### Summary\nNetty's SPDY SETTINGS decoder accepts a peer-declared SETTINGS entry count up to the 24-bit frame-length limit and materializes every unique setting ID in `DefaultSpdySettingsFrame` without an implementation-level count cap. A remote SPDY/3.1 peer can send one syntactically valid roughly 2 MiB SETTINGS frame that creates 262144 map entries, amplifying network input into heap growth and ordered-map insertion work.\n\n### Details\nInbound SPDY bytes enter `SpdyFrameCodec.decode()` and are passed directly to the frame ",
+        "vuln_symbols": [
+          "DefaultSpdySettingsFrame",
+          "SpdyFrameCodec.decode",
+          "numSettings",
+          "spdySettingsFrame.setValue",
+          "TreeMap",
+          "Setting"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SPDY codec is never installed: no classpath jar outside netty-codec-http references codec/spdy (bytecode scan); Vert.x speaks HTTP/1.x and HTTP/2 only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#34",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-67735",
+            "GHSA-84h7-rjj3-6jx4"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty has a CRLF Injection vulnerability in io.netty.handler.codec.http.HttpRequestEncoder \u2014 ### Summary\n\nThe `io.netty.handler.codec.http.HttpRequestEncoder` CRLF injection with the request uri when constructing a request. This leads to request smuggling when `HttpRequestEncoder` is used without proper sanitization of the uri.\n\n### Details\n\nThe `HttpRequestEncoder` simply UTF8 encodes the `uri` without sanitization (`buf.writeByte(SP).writeCharSequence(uriCharSequence, CharsetUtil.UTF_8);`)\n\nThe default implementation of HTTP headers guards against such possibility already with a validator ma",
+        "vuln_symbols": [
+          "io.netty.handler.codec.http.HttpRequestEncoder",
+          "HttpRequestEncoder",
+          "uri"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.129.Final",
+          "4.2.8.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CRLF injection requires attacker-controlled request URI passed to netty HttpRequestEncoder (client side). Keycloak's outbound HTTP uses Apache HttpClient; Vert.x client use is limited to the operator-configured OTel exporter endpoint."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#35",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59903",
+            "GHSA-8c42-7qj2-3j46"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty Vulnerable to Cache Poisoning and Information Disclosure via CORS Vary Header Overwrite \u2014 ### Summary\nNetty's `CorsHandler` silently overwrites existing `Vary` headers, enabling cache poisoning and sensitive information disclosure.\n\n### Details\n`io.netty.handler.codec.http.cors.CorsHandler#setVaryHeader` overwrites any existing Vary headers set by backend applications. \n\n```java\n    private static void setVaryHeader(final HttpResponse response) {\n        response.headers().set(HttpHeaderNames.VARY, HttpHeaderNames.ORIGIN);\n    }\n```\n\nBecause `set()` replaces all existing values for the h",
+        "vuln_symbols": [
+          "CorsHandler",
+          "Vary",
+          "set"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.137.Final",
+          "4.2.17.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "netty CorsHandler not used (see row 31): CORS handled by Keycloak/vertx-web code."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#36",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42587",
+            "GHSA-f6hv-jmp6-3vwv"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: HttpContentDecompressor maxAllocation bypass when Content-Encoding set to br/zstd/snappy leads to decompression bomb DoS \u2014 ## Summary\n\n`HttpContentDecompressor` accepts a `maxAllocation` parameter to limit decompression buffer size and prevent decompression bomb attacks. This limit is correctly enforced for gzip and deflate encodings via `ZlibDecoder`, but is silently ignored when the content encoding is `br` (Brotli), `zstd`, or `snappy`. An attacker can bypass the configured decompression limit by sending a compressed payload with `Content-Encoding: br` instead of `Content-Encoding: g",
+        "vuln_symbols": [
+          "HttpContentDecompressor",
+          "maxAllocation",
+          "ZlibDecoder",
+          "br",
+          "zstd",
+          "snappy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Not used: netty HttpContentDecompressor (and HTTP/2 decompressor) is only added when HttpServerOptions.decompressionSupported (vertx-core 4.5.11 io/vertx/core/http/impl/HttpServerWorker.java:294-296), set from Quarkus build-time quarkus.http.enable-decompression (HttpBuildTimeConfig.java:91, default false, not set by Keycloak application.properties nor documented by Keycloak). br/zstd decoders also need brotli4j/zstd-jni, absent from the artifact."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#37",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58056",
+            "GHSA-fghv-69vj-qj49"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty vulnerable to request smuggling due to incorrect parsing of chunk extensions \u2014 ## Summary\nA flaw in netty's parsing of chunk extensions in HTTP/1.1 messages with chunked encoding can lead to request smuggling issues with some reverse proxies.\n\n## Details\nWhen encountering a newline character (LF) while parsing a chunk extension, netty interprets the newline as the end of the chunk-size line regardless of whether a preceding carriage return (CR) was found. This is in violation of the HTTP 1.1 standard which specifies that the chunk extension is terminated by a CRLF sequence (see the [RFC]",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.125.Final",
+          "4.2.5.Final"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Chunk-extension parsing in HttpObjectDecoder READ_CHUNK_SIZE (HttpObjectDecoder.java:460 getChunkSize), fixed in 4.1.125. Keycloak's HTTP server is Vert.x: HttpServerWorker.java:292 installs VertxHttpRequestDecoder extends netty HttpRequestDecoder/HttpObjectDecoder (VertxHttpRequestDecoder.java:21) on every HTTP/1.x connection; any internet client sends raw requests."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#38",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59921",
+            "GHSA-gcjf-9mgh-3p7g"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: CRLF Injection via Multipart Filename in Netty HttpPostRequestEncoder \u2014 # Security Vulnerability Report: CRLF Injection via Multipart Filename in Netty HttpPostRequestEncoder\n\n## 1. Vulnerability Summary\n\n| Field | Value |\n|-------|-------|\n| **Product** | Netty |\n| **Version** | 4.2.12.Final (and all prior versions with codec-http multipart) |\n| **Component** | `io.netty.handler.codec.http.multipart.HttpPostRequestEncoder` |\n| **Vulnerability Type** | CWE-93: Improper Neutralization of CRLF Sequences / CWE-113: HTTP Response Splitting |\n| **Impact** | MIME Header Injection / Content-Ty",
+        "vuln_symbols": [
+          "io.netty.handler.codec.http.multipart.HttpPostRequestEncoder",
+          "io.netty.handler.codec.http.multipart.DiskFileUpload",
+          "setFilename",
+          "io.netty.handler.codec.http.multipart.MemoryFileUpload",
+          "io.netty.handler.codec.http.multipart.MixedFileUpload",
+          "HttpPostRequestEncoder"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HttpPostRequestEncoder (client multipart encoder) is referenced by no classpath jar outside netty-codec-http (bytecode scan) and not by Keycloak source."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#39",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-50020",
+            "GHSA-hvcg-qmg6-jm4c"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: HttpObjectDecoder skips arbitrary initial control characters when only initial CRLF characters are permitted \u2014 ## Summary\n\nBefore reading the first request-line, `HttpObjectDecoder` skips every byte for which\n`Character.isISOControl(b)` is `true` (0x00\u20130x1F and 0x7F) as well as all whitespace.\nRFC 9112 \u00a72.2 only asks servers to ignore **empty CRLF lines** preceding the request-line \u2014\na carefully scoped robustness allowance intended to handle HTTP/1.0 POST workarounds.\nSilently absorbing NUL bytes, SOH, STX, and other non-CRLF control characters goes\nsignificantly beyond this, and can be",
+        "vuln_symbols": [
+          "HttpObjectDecoder",
+          "ISO_CONTROL_OR_WHITESPACE",
+          "SKIP_CONTROL_CHARS_BYTES",
+          "ByteProcessor",
+          "LineParser.skipControlChars",
+          "readerIndex"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "HttpObjectDecoder SKIP_CONTROL_CHARS state skips arbitrary control chars (HttpObjectDecoder.java:1220-1260 SKIP_CONTROL_CHARS_BYTES). Keycloak's HTTP server is Vert.x: HttpServerWorker.java:292 installs VertxHttpRequestDecoder extends netty HttpRequestDecoder/HttpObjectDecoder (VertxHttpRequestDecoder.java:21) on every HTTP/1.x connection; any internet client sends raw requests."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#40",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-56745",
+            "GHSA-jppx-w49h-x2qq"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: [SpdyHttpDecoder] ByteBuf Reference Leak on RST_STREAM Leads to Native Memory Exhaustion \u2014 The `SpdyHttpDecoder` handler in Netty's SPDY-to-HTTP codec allocates a pooled `ByteBuf` when processing a client-initiated `SYN_STREAM` frame with `FLAG_FIN=0`, storing the partially-constructed `FullHttpRequest` in an internal map (`messageMap`) to accumulate subsequent `DATA` frames. When the remote peer sends an `RST_STREAM` for that stream, or when the accumulated content exceeds `maxContentLength`, the decoder removes the entry from the map but **never releases the pooled ByteBuf**, permanen",
+        "vuln_symbols": [
+          "SpdyHttpDecoder",
+          "ByteBuf",
+          "SYN_STREAM",
+          "FullHttpRequest",
+          "messageMap",
+          "DATA"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SPDY codec is never installed: no classpath jar outside netty-codec-http references codec/spdy (bytecode scan); Vert.x speaks HTTP/1.x and HTTP/2 only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#41",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42580",
+            "GHSA-m4cv-j2px-7723"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty vulnerable to HTTP Request Smuggling due to incorrect chunk size parsing \u2014 ### Summary\nNetty's chunk size parser silently overflows int, enabling request smuggling attacks.\n\n### Details\nio.netty.handler.codec.http.HttpObjectDecoder#getChunkSize silently overflows int.\n\nThe size is accumulated as follows:\n\nresult *= 16;\nresult += digit;\n\nThe result is checked only for negative values. However, with a carefully crafted chunk size, the result can be a valid size.\n\n### PoC\nThe test below shows Netty successfully parsing the second request, demonstrating how an attacker can smuggle a second r",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Chunk size parsing HttpObjectDecoder.getChunkSize (HttpObjectDecoder.java:908). Keycloak's HTTP server is Vert.x: HttpServerWorker.java:292 installs VertxHttpRequestDecoder extends netty HttpRequestDecoder/HttpObjectDecoder (VertxHttpRequestDecoder.java:21) on every HTTP/1.x connection; any internet client sends raw requests."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#42",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55833",
+            "GHSA-mvh2-crg5-v77c"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty SPDY zlib header block continues decoded expansion after maxHeaderSize truncation \u2014 ### Summary\nNetty SPDY header decoding continues inflating zlib-compressed header blocks after the raw header parser has already exceeded maxHeaderSize and marked the frame truncated. At commit b2d2137c4404af425bf9d5d601a62576f5c06925, a 12,253-byte compressed SPDY header block can declare and inflate a 12 MiB header-name field with maxHeaderSize=16, forcing compression-amplified decode and skip work in a reachable SpdyFrameCodec pipeline.\n\n### PoC\n[poc.zip](https://github.com/user-attachments/files/28445",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SPDY codec is never installed: no classpath jar outside netty-codec-http references codec/spdy (bytecode scan); Vert.x speaks HTTP/1.x and HTTP/2 only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#43",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33870",
+            "GHSA-pwqr-wmgm-9rr8"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: HTTP Request Smuggling via Chunked Extension Quoted-String Parsing \u2014 ## Summary\n\nNetty incorrectly parses quoted strings in HTTP/1.1 chunked transfer encoding extension values, enabling request smuggling attacks.\n\n## Background\n\nThis vulnerability is a new variant discovered during research into the \"Funky Chunks\" HTTP request smuggling techniques:\n\n- <https://w4ke.info/2025/06/18/funky-chunks.html>\n- <https://w4ke.info/2025/10/29/funky-chunks-2.html>\n\nThe original research tested various chunk extension parsing differentials but did not cover quoted-string handling within extension val",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.132.Final",
+          "4.2.10.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Chunk extension quoted-string parsing in HttpObjectDecoder chunk-size line handling. Keycloak's HTTP server is Vert.x: HttpServerWorker.java:292 installs VertxHttpRequestDecoder extends netty HttpRequestDecoder/HttpObjectDecoder (VertxHttpRequestDecoder.java:21) on every HTTP/1.x connection; any internet client sends raw requests."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#44",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59899",
+            "GHSA-q4f6-jm68-57ww"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: [HttpContentEncoder] Unbounded Per-Connection Queue Growth via HTTP/1.1 Pipelining Leads to Denial of Service \u2014 ### Impact\n`HttpContentEncoder` (the superclass of the production handler `HttpContentCompressor`) maintains a per-channel `ArrayDeque<CharSequence>` named `acceptEncodingQueue` that accumulates attacker-controlled data without any size limit. The queue is filled on the I/O thread for every inbound HTTP request and drained only when the application later writes a non-1xx response. This creates a resource exhaustion vulnerability when an attacker exploits HTTP/1.1 pipelining to",
+        "vuln_symbols": [
+          "HttpContentEncoder",
+          "HttpContentCompressor",
+          "acceptEncodingQueue"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HttpContentEncoder/HttpChunkContentCompressor only added when compressionSupported (HttpServerWorker.java:297-299), from Quarkus build-time quarkus.http.enable-compression (HttpBuildTimeConfig.java:82, default false, not set or documented by Keycloak, which serves its own pre-gzipped theme resources)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#45",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41417",
+            "GHSA-v8h7-rr48-vmmv"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: Start-Line Injection in DefaultHttpRequest.setUri() Allows HTTP Request Smuggling and RTSP Request Injection \u2014 ### Summary\nNetty allows request-line validation to be bypassed when a `DefaultHttpRequest` or `DefaultFullHttpRequest` is created first and its URI is later changed via `setUri()`.\n\nThe constructors reject CRLF and whitespace characters that would break the start-line, but `setUri()` does not apply the same validation. `HttpRequestEncoder` and `RtspEncoder` then write the URI into the request line verbatim. If attacker-controlled input reaches `setUri()`, this enables CRLF inj",
+        "vuln_symbols": [
+          "DefaultHttpRequest",
+          "DefaultFullHttpRequest",
+          "setUri",
+          "HttpRequestEncoder",
+          "RtspEncoder",
+          "io.netty.handler.codec.http.DefaultHttpRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DefaultHttpRequest.setUri start-line injection needs attacker-controlled URI on an outbound netty request; Keycloak outbound HTTP uses Apache HttpClient, Vert.x client only for operator-configured OTel endpoint."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#46",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42581",
+            "GHSA-xxqh-mfjm-7mv9"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty HTTP/1.0 TE+CL Coexistence Bypasses Smuggling Sanitization \u2014 # NETTY HTTP/1.0 TE+CL Coexistence Bypasses Smuggling Sanitization\n\n| Field     | Value |\n|-----------|-------|\n| Library   | `io.netty:netty-codec-http` |\n| Component | `codec-http` \u2014 `HttpObjectDecoder` |\n| Severity  | **HIGH** |\n| Affects   | HEAD, commit `4f3533ae` confirmed |\n\n---\n\n## Summary\n\n`HttpObjectDecoder` strips a conflicting `Content-Length` header when a request carries both `Transfer-Encoding: chunked` and `Content-Length`, but only for HTTP/1.1 messages. The guard is absent for HTTP/1.0. An attacker that sends ",
+        "vuln_symbols": [
+          "HttpObjectDecoder",
+          "HttpMessage",
+          "handleTransferEncodingChunkedWithContentLength",
+          "EmbeddedChannel"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "HttpObjectDecoder TE+CL handling (HttpObjectDecoder.java:797-800,831 handleTransferEncodingChunkedWithContentLength) for HTTP/1.0 requests. Keycloak's HTTP server is Vert.x: HttpServerWorker.java:292 installs VertxHttpRequestDecoder extends netty HttpRequestDecoder/HttpObjectDecoder (VertxHttpRequestDecoder.java:21) on every HTTP/1.x connection; any internet client sends raw requests."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#47",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-50560",
+            "GHSA-563q-j3cm-6jxm"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty susceptible to HTTP/2 Reset Attack with different on-the-wire signature \u2014 ### Summary\n\nNetty HTTP/2 max header size handling produces attack similar to HTTP/2 Rapid Reset.\n\n### Details\n\nThere is a setting in the http2 specification called `SETTINGS_MAX_HEADER_LIST_SIZE`. According to[ the RFC](https://www.rfc-editor.org/rfc/rfc9113.html#name-defined-settings): \u201cThis advisory setting informs a peer of the maximum field section size that the sender is prepared to accept, in units of octets.\u201d\n\nWhen a client sends that setting to Netty, it appears that Netty will behave as follows:\n\n- Read t",
+        "vuln_symbols": [
+          "SETTINGS_MAX_HEADER_LIST_SIZE"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "HTTP/2 is on by default: quarkus-vertx-http HttpConfiguration.java:110-111 http2 default true, HttpServerOptionsUtils.java:79-82 sets ALPN h2 on the HTTPS listener (Keycloak `start` serves HTTPS); Vert.x HttpServerOptions.java:122 h2c also on by default; Vert.x server uses Netty Http2ConnectionHandler (VertxHttp2ConnectionHandlerBuilder.java:27 extends AbstractHttp2ConnectionHandlerBuilder -> DefaultHttp2FrameReader/Encoder). The client-sent SETTINGS_MAX_HEADER_LIST_SIZE is handled by Netty's generic encoder path on every h2 connection; Keycloak responses carry headers (cookies, CSP) an attacker can push over a tiny limit."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#48",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47244",
+            "GHSA-5x3r-wrvg-rp6q"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty HTTP/2: Advertised MAX_CONCURRENT_STREAMS are not enforced \u2014 ### Impact\nDefaultHttp2Connection.DefaultEndpoint initialises maxActiveStreams/maxStreams to Integer.MAX_VALUE, and Http2Settings never inserts SETTINGS_MAX_CONCURRENT_STREAMS by default (Http2Settings.java:305-307 only clamps a user-supplied value). Unless the application explicitly calls initialSettings().maxConcurrentStreams(n), a Netty HTTP/2 server advertises no limit and enforces none locally. Each open stream allocates a DefaultStream object, PropertyMap slots, flow-controller state and IntObjectHashMap entry; with ~2^30",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "HTTP/2 is on by default: quarkus-vertx-http HttpConfiguration.java:110-111 http2 default true, HttpServerOptionsUtils.java:79-82 sets ALPN h2 on the HTTPS listener (Keycloak `start` serves HTTPS); Vert.x HttpServerOptions.java:122 h2c also on by default; Vert.x server uses Netty Http2ConnectionHandler (VertxHttp2ConnectionHandlerBuilder.java:27 extends AbstractHttp2ConnectionHandlerBuilder -> DefaultHttp2FrameReader/Encoder). Vert.x only forwards maxConcurrentStreams when it differs from the default (vertx HttpUtils.java:599-601; default 0xFFFFFFFF, Http2Settings.java:49); Quarkus sets it only if quarkus.http.limits.max-concurrent-streams is present (HttpServerOptionsUtils.java:316-318) and Keycloak does not set it (quarkus/runtime/src/main/resources/application.properties), so no stream limit is advertised or enforced."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#49",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-56819",
+            "GHSA-93wv-jw9v-4972"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty: HTTP/2 decompression leaks ByteBuf reference count when the decompressor channel is already closed (Direct memory leak / OOM DoS) \u2014 ### Summary\n\nA remote, unauthenticated peer can leak one direct `ByteBuf` per HTTP/2 `DATA` frame in\napplications that enable HTTP/2 content decompression via `DelegatingDecompressorFrameListener`.\nWhen a `DATA` frame is processed for a stream whose decompressor has already been closed,\n`Http2Decompressor.decompress(...)` retains the frame buffer but never releases it on the error\npath, so its reference count never returns to zero. Repeating this over a lon",
+        "vuln_symbols": [
+          "ByteBuf",
+          "DATA",
+          "DelegatingDecompressorFrameListener",
+          "OutOfMemoryError",
+          "data.retain",
+          "ensureOpen"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DelegatingDecompressorFrameListener is only installed when server decompression is on: VertxHttp2ConnectionHandler.java:385-389 (useDecompressor <- HttpServerOptions.isDecompressionSupported, default false HttpServerOptions.java:137); Quarkus maps it from build-time quarkus.http.enable-decompression (HttpServerOptionsUtils.java:277, HttpBuildTimeConfig.java:91 default false), which Keycloak never sets or documents.",
+        "requires": "quarkus.http.enable-decompression=true (undocumented by Keycloak, build-time)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#50",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48043",
+            "GHSA-c2gf-v879-257j"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "netty-codec-http2: ByteBuf Reference-Count Leak in DelegatingDecompressorFrameListener Leads to Memory Exhaustion \u2014 ### Impact\n\nThe `DelegatingDecompressorFrameListener` class orchestrates HTTP/2 decompression by embedding a per-stream `EmbeddedChannel` that runs the appropriate decompression codec (gzip, deflate, zstd) and forwards decompressed chunks to a wrapped listener. Each decompressed chunk is a pooled `ByteBuf` handed to an anonymous `ChannelInboundHandlerAdapter` tail handler, which becomes the sole owner responsible for releasing it.\n\nA remote peer could send frames that would resul",
+        "vuln_symbols": [
+          "DelegatingDecompressorFrameListener",
+          "EmbeddedChannel",
+          "ByteBuf",
+          "ChannelInboundHandlerAdapter"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as the other DelegatingDecompressorFrameListener leak: only used when decompression is enabled (VertxHttp2ConnectionHandler.java:385-386, HttpServerOptions.java:137 default false; Quarkus HttpBuildTimeConfig.java:91 enableDecompression default false, not set by Keycloak). No other user of the class in the classpath besides a GraalVM substitution in quarkus-netty.",
+        "requires": "quarkus.http.enable-decompression=true (undocumented by Keycloak)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#51",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59900",
+            "GHSA-c69g-56f8-xwqj"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty: [codec-http2] Lack of Host Header Deduplication in HTTP/2\u2192HTTP/1.x Translation Leads to Request Routing Bypass \u2014 Netty's HTTP/2-to-HTTP/1.x translation layer (`Http2StreamFrameToHttpObjectCodec` and `InboundHttp2ToHttpAdapter`) fails to deduplicate or validate `Host` headers when an HTTP/2 client supplies both the `:authority` pseudo-header and a literal `host` header in a single HEADERS frame. The translator maps `:authority` to `Host` and separately copies the literal `host` header, producing an `HttpRequest` object containing two `Host` headers with attacker-controlled differing valu",
+        "vuln_symbols": [
+          "Http2StreamFrameToHttpObjectCodec",
+          "InboundHttp2ToHttpAdapter",
+          "Host",
+          "host",
+          "HttpRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Http2StreamFrameToHttpObjectCodec / InboundHttp2ToHttpAdapter are not referenced by any jar in lib/lib/main (grep over all deployed library sources: no hits outside netty-codec-http2); Vert.x handles HTTP/2 streams natively in Http2ServerConnection, not via HTTP/2->HTTP/1 translation."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#52",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42587",
+            "GHSA-f6hv-jmp6-3vwv"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty: HttpContentDecompressor maxAllocation bypass when Content-Encoding set to br/zstd/snappy leads to decompression bomb DoS \u2014 ## Summary\n\n`HttpContentDecompressor` accepts a `maxAllocation` parameter to limit decompression buffer size and prevent decompression bomb attacks. This limit is correctly enforced for gzip and deflate encodings via `ZlibDecoder`, but is silently ignored when the content encoding is `br` (Brotli), `zstd`, or `snappy`. An attacker can bypass the configured decompression limit by sending a compressed payload with `Content-Encoding: br` instead of `Content-Encoding: g",
+        "vuln_symbols": [
+          "HttpContentDecompressor",
+          "maxAllocation",
+          "ZlibDecoder",
+          "br",
+          "zstd",
+          "snappy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HttpContentDecompressor / HTTP/2 decompression only added when decompression is enabled: Vert.x HttpServerWorker.java:294-296 and VertxHttp2ConnectionHandler.java:385, gated on isDecompressionSupported (default false, HttpServerOptions.java:137); Quarkus quarkus.http.enable-decompression default false (HttpBuildTimeConfig.java:91), not set by Keycloak.",
+        "requires": "quarkus.http.enable-decompression=true (undocumented by Keycloak)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#53",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-55163",
+            "GHSA-prj3-ccx8-p6x4"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty affected by MadeYouReset HTTP/2 DDoS vulnerability \u2014 Below is a technical explanation of a newly discovered vulnerability in HTTP/2, which we refer to as \u201cMadeYouReset.\u201d\n\n### MadeYouReset Vulnerability Summary\nThe MadeYouReset DDoS vulnerability is a logical vulnerability in the HTTP/2 protocol, that uses malformed HTTP/2 control frames in order to break the max concurrent streams limit - which results in resource exhaustion and distributed denial of service.\n\n### Mechanism\nThe vulnerability uses malformed HTTP/2 control frames, or malformed flow, in order to make the server reset stream",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.124.Final",
+          "4.2.4.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "HTTP/2 is on by default: quarkus-vertx-http HttpConfiguration.java:110-111 http2 default true, HttpServerOptionsUtils.java:79-82 sets ALPN h2 on the HTTPS listener (Keycloak `start` serves HTTPS); Vert.x HttpServerOptions.java:122 h2c also on by default; Vert.x server uses Netty Http2ConnectionHandler (VertxHttp2ConnectionHandlerBuilder.java:27 extends AbstractHttp2ConnectionHandlerBuilder -> DefaultHttp2FrameReader/Encoder). MadeYouReset abuses server-generated stream resets in Netty's Http2ConnectionHandler (fixed 4.1.124); Vert.x's rst-flood option only counts client RST frames."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#54",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33871",
+            "GHSA-w9fj-cfpg-grvv"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty HTTP/2 CONTINUATION Frame Flood DoS via Zero-Byte Frame Bypass \u2014 ### Summary\nA remote user can trigger a Denial of Service (DoS) against a Netty HTTP/2 server by sending a flood of `CONTINUATION` frames. The server's lack of a limit on the number of `CONTINUATION` frames, combined with a bypass of existing size-based mitigations using zero-byte frames, allows an user to cause excessive CPU consumption with minimal bandwidth, rendering the server unresponsive.\n\n### Details\nThe vulnerability exists in Netty's `DefaultHttp2FrameReader`. When an HTTP/2 `HEADERS` frame is received without the",
+        "vuln_symbols": [
+          "CONTINUATION",
+          "DefaultHttp2FrameReader",
+          "HEADERS",
+          "END_HEADERS",
+          "verifyContinuationFrame",
+          "maxHeaderListSize"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.132.Final",
+          "4.2.11.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "HTTP/2 is on by default: quarkus-vertx-http HttpConfiguration.java:110-111 http2 default true, HttpServerOptionsUtils.java:79-82 sets ALPN h2 on the HTTPS listener (Keycloak `start` serves HTTPS); Vert.x HttpServerOptions.java:122 h2c also on by default; Vert.x server uses Netty Http2ConnectionHandler (VertxHttp2ConnectionHandlerBuilder.java:27 extends AbstractHttp2ConnectionHandlerBuilder -> DefaultHttp2FrameReader/Encoder). Inbound HEADERS/CONTINUATION frames are parsed by Netty DefaultHttp2FrameReader in 4.1.118 (before the 4.1.132 fix) for any internet client."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#55",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44249",
+            "GHSA-3qp7-7mw8-wx86"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty has an IPv6 Subnet Filter Bypass via Incorrect Comparator Masking \u2014 ### Summary\nAn attacker can bypass IPv6 subnet rules due to an incorrect masking operation in IpSubnetFilterRule.compareTo(). Valid public IP addresses can bypass the restrictions.\n\n### Details\n`io.netty.handler.ipfilter.IpSubnetFilterRule#compareTo(java.net.InetSocketAddress)` method performs a bitwise AND between the incoming IP address and the configured networkAddress, instead of the subnetMask.\n\n### Impact\nAccess Control Bypass. Attacker can bypass IpSubnetFilter IPv6 access controls.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "IpSubnetFilter/IpSubnetFilterRule is not referenced by any deployed library or Keycloak code (grep over all lib/lib/main library sources and the checkout: no hits); Keycloak does no Netty-level IP filtering."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#56",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-75595",
+            "GHSA-c4c3-7fpv-j4q5"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: SNI Routing Bypass via Fragmented TLS ClientHello Causing Fallback to Default SslContext \u2014 ### Summary\nA fragmented TLS ClientHello whose handshake header spans multiple records makes Netty silently fall back to the default SslContext; where per-SNI selection is the sole mTLS gate, an unauthenticated attacker can bypass the route's mTLS requirement.\n\n### Details\nIn `io.netty.handler.ssl.SslClientHelloHandler#decode` the guard that should wait for the 4-byte handshake header checks the wrong offset - it ignores the 5-byte record header that precedes it - and therefore never fires:\n\n```ja",
+        "vuln_symbols": [
+          "SslContext"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.137.Final",
+          "4.2.17.Final"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SniHandler/SslClientHelloHandler only run when SNI is enabled: Vert.x SslChannelProvider.java:147-151 createServerHandler uses VertxSniHandler only if sni, else a plain SslHandler; Quarkus quarkus.http.ssl.sni defaults false (ServerSslConfig.java:45-46) and Keycloak neither sets nor documents an SNI option (no hits in quarkus/runtime or docs/guides). Keycloak also configures no per-SNI SslContexts/mTLS routes.",
+        "requires": "quarkus.http.ssl.sni=true (undocumented by Keycloak)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#57",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-50010",
+            "GHSA-c653-97m9-rcg9"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: Wrapping plain trust manager silently disables hostname verification \u2014 SimpleTrustManagerFactory.engineGetTrustManagers() and related paths wrap any user-supplied plain X509TrustManager in X509TrustManagerWrapper, which extends X509ExtendedTrustManager but implements the 3-arg checkServerTrusted(chain, authType, SSLEngine) by discarding the SSLEngine and calling the 2-arg delegate. Because the object now IS an X509ExtendedTrustManager, neither SunJSSE's internal AbstractTrustManagerWrapper nor Netty's own OpenSslX509TrustManagerWrapper will re-wrap it to add endpoint-identification. Con",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty X509TrustManagerWrapper is created only by SimpleTrustManagerFactory (SimpleTrustManagerFactory.java:147-151) e.g. via SslContextBuilder.trustManager(TrustManager) (SslContextBuilder.java:315-317). No deployed library calls that with a plain trust manager on a client path: Vert.x uses its own javax TrustManagerFactoryWrapper (vertx TrustManagerFactoryWrapper.java:32), Infinispan Hot Rod's builder path is skipped because Keycloak passes a JDK SSLContext (CacheManagerFactory.java:196-199 .sslContext(createSSLContext())), and Keycloak's outbound HTTP uses Apache HttpClient/JSSE. Server-side trust (client certs) does no hostname verification anyway."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#58",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-75596",
+            "GHSA-fccg-mwvh-qqg4"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: Fragmented ClientHello records trigger quadratic pre-handshake reassembly in default SNI parsing \u2014 ### Summary\n\nNetty's default SNI entrypoint reparses and recopies previously received ClientHello fragments on every additional TLS handshake record. A remote peer can send a small first record that advertises a large ClientHello length and then drip the body in many tiny records, causing **superlinear (quadratic) CPU work** before the handshake completes. With 4095 one-byte fragments, the handler recopies **8,386,560 bytes** from only **24,579 bytes** on the wire \u2014 a **341\u00d7 amplification*",
+        "vuln_symbols": [
+          "io.netty.handler.ssl.SniHandler",
+          "io.netty.handler.ssl.SslClientHelloHandler",
+          "SniHandler"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.137.Final",
+          "4.2.17.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SniHandler/SslClientHelloHandler only run when SNI is enabled: Vert.x SslChannelProvider.java:147-151 createServerHandler uses VertxSniHandler only if sni, else a plain SslHandler; Quarkus quarkus.http.ssl.sni defaults false (ServerSslConfig.java:45-46) and Keycloak neither sets nor documents an SNI option (no hits in quarkus/runtime or docs/guides).",
+        "requires": "quarkus.http.ssl.sni=true (undocumented by Keycloak)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#59",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45416",
+            "GHSA-x4gw-5cx5-pgmh"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: SNI handler pre-allocates up to 16 MiB from nine attacker bytes \u2014 SslClientHelloHandler.decode() reads the 24-bit TLS handshake length and, when the ClientHello does not fit in the first record, eagerly allocates `ctx.alloc().buffer(handshakeLength)` (line 161). The guard at line 140 is `handshakeLength > maxClientHelloLength && maxClientHelloLength != 0`, and the commonly-used SniHandler/AbstractSniHandler constructors (SniHandler(Mapping), SniHandler(AsyncMapping), AbstractSniHandler()) pass maxClientHelloLength=0 and handshakeTimeoutMillis=0, so the length guard is disabled and no ti",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SniHandler/SslClientHelloHandler only run when SNI is enabled: Vert.x SslChannelProvider.java:147-151 createServerHandler uses VertxSniHandler only if sni, else a plain SslHandler; Quarkus quarkus.http.ssl.sni defaults false (ServerSslConfig.java:45-46) and Keycloak neither sets nor documents an SNI option (no hits in quarkus/runtime or docs/guides).",
+        "requires": "quarkus.http.ssl.sni=true (undocumented by Keycloak)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#60",
+      "facts": {
+        "package": "io.netty:netty-handler-proxy",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42578",
+            "GHSA-45q3-82m4-75jr"
+          ],
+          [
+            "io.netty:netty-handler-proxy"
+          ]
+        ],
+        "advisory_summary": "Netty has HTTP Header Injection via HttpProxyHandler Disabled Validation (Incomplete Fix CVE-2025-67735) \u2014 # Security Vulnerability Report: HTTP Header Injection via HttpProxyHandler Disabled Validation in Netty\n\n## 1. Vulnerability Summary\n\n| Field | Value |\n|-------|-------|\n| **Product** | Netty |\n| **Version** | 4.2.12.Final (and all prior versions) |\n| **Component** | `io.netty.handler.proxy.HttpProxyHandler` |\n| **Vulnerability Type** | CWE-113: Improper Neutralization of CRLF Sequences in HTTP Headers |\n| **Impact** | HTTP Header Injection in CONNECT Proxy Requests |\n| **CVSS 3.1 Score*",
+        "vuln_symbols": [
+          "io.netty.handler.proxy.HttpProxyHandler",
+          "newInitialMessage",
+          "HttpProxyHandler",
+          "outboundHeaders",
+          "validateRequestLineTokens",
+          "DefaultHttpRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HttpProxyHandler is only used for outbound proxied client connections (vertx ChannelProvider.java:200 when ProxyOptions set; grpc-netty ProtocolNegotiators). Keycloak's outbound HTTP goes through Apache HttpClient (its own proxy-mappings), and any Vert.x/gRPC proxy target (e.g. OTel collector) is operator-configured; no attacker-controlled host/header reaches the CONNECT request."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#61",
+      "facts": {
+        "package": "io.netty:netty-resolver-dns",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47691",
+            "GHSA-5pvg-856g-cp85"
+          ],
+          [
+            "io.netty:netty-resolver-dns"
+          ]
+        ],
+        "advisory_summary": "Netty has Insufficient Bailiwick Validation for NS Records \u2014 ### Summary\nNetty's `DnsResolveContext` insufficiently validates the bailiwick of NS records, enabling DNS Cache Poisoning. An attacker controlling an authoritative name server for a subdomain can poison the cache for parent domains (like `.co.uk`).\n\n### Details\nIn `io.netty.resolver.dns.DnsResolveContext.AuthoritativeNameServerList#add` method accepts any NS record from the AUTHORITY section as long as the record's name is a suffix of the questionName.\n\nThis means if the resolver queries evil.co.uk., it will accept an NS record clai",
+        "vuln_symbols": [
+          "DnsResolveContext",
+          "handleWithAdditional",
+          "authoritativeDnsServerCache"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): netty-resolver-dns 4.1.118 (lib/lib/main) has the suffix-only NS bailiwick check (DnsResolveContext.java:1282-1300 AuthoritativeNameServerList.add; handleWithAdditional :724). Vert.x's netty DNS resolver is OFF in Keycloak: Quarkus sets vertx.disableDnsResolver unless quarkus.vertx.use-async-dns=true (VertxCoreRecorder.java:320-321, VertxConfiguration.java:106-107, default false; Keycloak never sets or documents it). The only other user is the Infinispan HotRod client: ChannelFactory.java:148-152 builds a netty DnsNameResolver (RoundRobinDnsAddressResolverGroup) to resolve the remote Infinispan hosts and topology addresses. Keycloak starts it only with remote Infinispan: CacheManagerFactory.java:130-132 (isRemoteInfinispan = multi-site feature or clusterless, InfinispanUtils.java:44-45) or cache-remote-host remote stores (CacheManagerFactory.java:497-500). Both are documented (caching.adoc:198-200 and the high-availability multi-site guides), so this documented optional outbound connection counts. The attacker is whoever controls DNS answers or an authoritative server on that resolution path. Weak, but by the off-by-default rule it is reachable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#62",
+      "facts": {
+        "package": "io.netty:netty-resolver-dns",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45674",
+            "GHSA-676x-f7gg-47vc"
+          ],
+          [
+            "io.netty:netty-resolver-dns"
+          ]
+        ],
+        "advisory_summary": "Netty Vulnerable to DNS Cache Poisoning via Missing Bailiwick Checks in CNAME Records \u2014 ### Summary\nNetty's DnsResolveContext fails to validate the origin (bailiwick) of CNAME records in DNS responses.\n\n### Details\nIn `io.netty.resolver.dns.DnsResolveContext#buildAliasMap`, the resolver processes the ANSWER section of a DNS response and blindly caches all CNAME records it finds.\n\nAccording to https://datatracker.ietf.org/doc/html/rfc5452#section-6 \n\n```\nCare must be taken to only accept\n   data if it is known that the originator is authoritative for the\n   QNAME or a parent of the QNAME.\n   On",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Same path as row 60. DnsResolveContext.buildAliasMap (DnsResolveContext.java:994, used at :644 and :835) caches every CNAME in the ANSWER section with no bailiwick check in 4.1.118 (fixed in 4.1.135). The only netty DNS resolver Keycloak runs by default-documented configuration is the Infinispan HotRod client's (ChannelFactory.java:148-152), and that client starts only with remote Infinispan: multi-site or cache-remote-host (CacheManagerFactory.java:130-132, :497-500; caching.adoc:200). Quarkus/Vert.x keeps the netty resolver off unless quarkus.vertx.use-async-dns is set (VertxCoreRecorder.java:320-321), and that setting is undocumented by Keycloak."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#63",
+      "facts": {
+        "package": "io.netty:netty-resolver-dns",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45673",
+            "GHSA-xmv7-r254-6q78"
+          ],
+          [
+            "io.netty:netty-resolver-dns"
+          ]
+        ],
+        "advisory_summary": "Netty: DNS Cache Poisoning due to Predictable PRNG and Default Static Source Port \u2014 ### Summary\nNetty's DNS resolver uses a predictable PRNG for generating DNS transaction IDs and defaults to a static UDP source port. This combination reduces the entropy of DNS queries, enabling DNS Cache Poisoning (Kaminsky attack).\n\n### Details\nTwo factors contribute to this vulnerability in io.netty.resolver.dns:\n- Predictable Query IDs: `DnsQueryIdSpace` manages 16-bit transaction IDs in buckets of 16,384 IDs. It initializes only the first bucket. When an ID is returned, it is pushed back into the bucket a",
+        "vuln_symbols": [
+          "DnsQueryIdSpace",
+          "DnsNameResolverBuilder",
+          "channelStrategy",
+          "ChannelPerResolver"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Vert.x's Netty DNS resolver is disabled: Quarkus VertxCoreRecorder.java:319-321 sets vertx.disableDnsResolver unless quarkus.vertx.resolver use-async-dns is on (default off). The one Netty DnsNameResolver in use is Infinispan Hot Rod's (infinispan-client-hotrod ChannelFactory.java:148-152), started by Keycloak only for an external Infinispan (CacheManagerFactory.java:184-199 / 500-502, option cache-remote-host, documented in docs/guides/server/caching.adoc). It resolves the remote cache hosts, so a DNS spoofer or the upstream DNS on that path is the attacker. ChannelFactory builds DnsNameResolverBuilder with default channel strategy and query IDs (predictable ID/static port per advisory).",
+        "requires": "cache-remote-host (external Infinispan, documented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#64",
+      "facts": {
+        "package": "io.netty:netty-transport-native-epoll",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45536",
+            "GHSA-w573-9ffj-6ff9"
+          ],
+          [
+            "io.netty:netty-transport-native-epoll"
+          ]
+        ],
+        "advisory_summary": "Netty: Unix-socket fd receive leaks descriptors when peer sends two at once \u2014 netty_unix_socket_recvFd sets msg_control to `char control[CMSG_SPACE(sizeof(int))]` (line 940) \u2014 24 bytes on 64-bit Linux. A peer-sent SCM_RIGHTS cmsg carrying two ints has cmsg_len = CMSG_LEN(8) = 24, which fits exactly with no MSG_CTRUNC, so the kernel installs both fds in the receiving process. The subsequent check `cmsg->cmsg_len == CMSG_LEN(sizeof(int))` (line 972, expected 20) fails, the branch that would read the fd is skipped, and neither installed fd is closed. The for(;;) loop calls recvmsg again (non-bloc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "recvFd is only used by EpollDomainSocketChannel in FILE_DESCRIPTORS read mode (netty-transport-classes-epoll EpollDomainSocketChannel.java); nothing in Keycloak/Quarkus/Vert.x opens Unix domain sockets that receive fds, and Quarkus native transport is off by default (quarkus.vertx.prefer-native-transport)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#65",
+      "facts": {
+        "package": "io.opentelemetry:opentelemetry-api",
+        "version": "1.39.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45292",
+            "GHSA-rcgg-9c38-7xpx"
+          ],
+          [
+            "io.opentelemetry:opentelemetry-api"
+          ]
+        ],
+        "advisory_summary": "OpenTelemetry Java SDK has Unbounded Memory Allocation in W3C Baggage Propagation \u2014 ## Overview\n\nA vulnerability affects the baggage propagation implementation in\n`opentelemetry-api` and `opentelemetry-extension-trace-propagators`. Parsing oversized baggage\ncauses unbounded memory allocation and CPU consumption. Because baggage is automatically\nre-injected into every outgoing request, the effect can fan out to downstream services that\nnever received the original malicious request.\n\n## Technical Details\n\n- `W3CBaggagePropagator` did not enforce any limit on the total size or entry count of the\n",
+        "vuln_symbols": [
+          "W3CBaggagePropagator",
+          "baggage",
+          "JaegerPropagator",
+          "OtTracePropagator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.62.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Keycloak tracing: option tracing-enabled (TracingOptions.java:27-32, default false, documented in docs/guides/observability/tracing.adoc) maps to quarkus.otel.enabled (TracingPropertyMappers.java:50-52); feature OPENTELEMETRY is default-on (Profile.java:119). Quarkus OTel propagators default to tracecontext,baggage (OTelBuildConfig.java:64-67), so W3CBaggagePropagator.extract (W3CBaggagePropagator.java:90) parses the attacker's `baggage` request header on every HTTP request.",
+        "requires": "tracing-enabled=true (documented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#66",
+      "facts": {
+        "package": "io.quarkus:quarkus-rest",
+        "version": "3.15.3.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66560",
+            "GHSA-5rfx-cp42-p624"
+          ],
+          [
+            "io.quarkus:quarkus-rest"
+          ]
+        ],
+        "advisory_summary": "Quarkus REST has potential worker thread starvation when HTTP connection is closed while waiting to write \u2014 A vulnerability exists in the HTTP layer of Quarkus REST related to response handling. When a response is being written, the framework waits for previously written response chunks to be fully transmitted before proceeding. If the client connection is dropped during this waiting period, the associated worker thread is never released and becomes permanently blocked. Under sustained or repeated occurrences, this can exhaust the available worker threads, leading to degraded performance, or c",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.20.5",
+          "3.27.2",
+          "3.31.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Keycloak's entire HTTP API (OIDC, login pages, admin REST) is served by quarkus-rest (RESTEasy Reactive) 3.15.3.1 on blocking worker threads; any internet client can drop the connection while a response is being written, the condition in the advisory (fixed 3.20.5)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#67",
+      "facts": {
+        "package": "io.quarkus:quarkus-vertx",
+        "version": "3.15.3.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-49574",
+            "GHSA-9623-mj7j-p9v4"
+          ],
+          [
+            "io.quarkus:quarkus-vertx"
+          ]
+        ],
+        "advisory_summary": "Quarkus potentially leaks data when duplicating a duplicated context \u2014 ### Impact\n\nVert.x 4.5.12 has changed the semantics of the duplication of duplicated context.\n\nDuplicated context is an object used to propagate data through a processing (synchronous or asynchronous). Each \"transaction\" or \"processing\" runs on its own isolated duplicated context.\n\nInitially, duplicating a duplicated context was creating a fresh (empty) new context, meaning that the new duplicated context can be used to managed a separated transaction.\n\nIn Vert.x 4.5.12, this semantics has changed, and since the content of ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.15.6",
+          "3.20.2",
+          "3.24.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The leak only arises with Vert.x >= 4.5.12 semantics where duplicating a duplicated context copies its locals. The deployed vertx-core is 4.5.11, where DuplicatedContext.duplicate() returns a fresh context without locals (vertx DuplicatedContext.java:182-184: `return new DuplicatedContext(delegate);`), so the old isolation holds."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#68",
+      "facts": {
+        "package": "io.quarkus:quarkus-vertx-http",
+        "version": "3.15.3.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-50559",
+            "GHSA-qcxp-gm7m-4j5v"
+          ],
+          [
+            "io.quarkus:quarkus-vertx-http"
+          ]
+        ],
+        "advisory_summary": "Quarkus: Authentication/Authorization Bypass via Advanced Path Normalization Vulnerabilities \u2014 Quarkus HTTP path-based authorization policies can be bypassed using encoded semicolons (%3B) to smuggle matrix\n  parameters past the security layer, and using encoded slashes (%2F) or backslashes (%5C) to access protected static\n  resources. This is a distinct issue from CVE-2026-39852, which addressed only literal semicolon stripping.\n\n  ### Technical Details\n\n  The security layer (AbstractPathMatchingHttpSecurityPolicy) normalizes request paths using Vert.x's normalizedPath(),\n  which only decodes",
+        "vuln_symbols": [
+          "normalizedPath",
+          "removeDots",
+          "pathWithoutMatrixParams",
+          "normalizePath",
+          "quarkus.http.auth.permission"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.20.6.2",
+          "3.27.4.1",
+          "3.33.2.1",
+          "3.36.3",
+          "3.37.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The bypass defeats Quarkus path-based HTTP permission policies (quarkus.http.auth.permission.*, AbstractPathMatchingHttpSecurityPolicy) and static resources they protect. Keycloak defines no quarkus.http.auth.permission/policy config (none in quarkus/runtime/src/main resources or mappers), ships no Quarkus HTTP auth mechanism, and does all authorization itself inside its JAX-RS resources (bearer/session checks), so no Quarkus path policy exists to bypass. No META-INF/resources static content in any deployed jar."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#69",
+      "facts": {
+        "package": "io.quarkus:quarkus-vertx-http",
+        "version": "3.15.3.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-39852",
+            "GHSA-rc95-pcm8-65v9"
+          ],
+          [
+            "io.quarkus:quarkus-vertx-http"
+          ]
+        ],
+        "advisory_summary": "Quarkus has Authentication/Authorization bypasses \u2014 Quarkus version 3.32.4 is vulnerable to an authorization bypass issue (GHSL-2026-099), in which semicolons (matrix parameters) in HTTP requests can be used to bypass security constraints, potentially allowing unauthorized access to protected resources.\n\nUnauthenticated or lower-privileged users can bypass HTTP path-based authorization policies by appending a semicolon (`;`) and arbitrary text to the request URL. The vulnerability arises from a path-normalization inconsistency: Quarkus's [security layer](https://quarkus.io/guides/security-auth",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.20.6.1",
+          "3.27.3.1",
+          "3.33.1.1",
+          "3.35.1.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Semicolon/matrix-parameter bypass of Quarkus path-based HTTP security policies; Keycloak configures no quarkus.http.auth.permission policies (none in quarkus/runtime/src/main) and enforces access in its own JAX-RS code, so the Quarkus policy layer that mis-normalizes is never consulted for authorization."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#70",
+      "facts": {
+        "package": "io.vertx:vertx-core",
+        "version": "4.5.11",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-6860",
+            "GHSA-3g76-f9xq-8vp6"
+          ],
+          [
+            "io.vertx:vertx-core"
+          ]
+        ],
+        "advisory_summary": "Vert.x has a DoS via unbounded server-side SNI SslContext cache growth \u2014 Potential unbounded server-side SNI `SslContext` cache growth in Vert.x TLS handling, with = resource-exhaustion / DoS impact. On affected versions, matching server-side SNI names are cached via `computeIfAbsent(serverName, ...)` in a serverName-keyed `SslContext` cache.\n\nThe implementation differs slightly by branch, but the same sink appears to be present in released versions `4.3.4` through `5.0.11`:\n- `4.3.x`: `SSLHelper`\n- `4.4.x` / `4.5.x`: `SslChannelProvider`\n- `5.0.x` and current `master`: `SslContextProvider`\n\nW",
+        "vuln_symbols": [
+          "SslContext",
+          "SSLHelper",
+          "SslChannelProvider",
+          "master",
+          "SslContextProvider",
+          "origin"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.5.27",
+          "5.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The serverName-keyed SslContext cache in SslChannelProvider is used only by the SNI path (VertxSniHandler via SslChannelProvider.java:147-151, serverNameMapping); Quarkus quarkus.http.ssl.sni defaults false (ServerSslConfig.java:45-46) and Keycloak neither sets nor documents SNI.",
+        "requires": "quarkus.http.ssl.sni=true (undocumented by Keycloak)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#71",
+      "facts": {
+        "package": "io.vertx:vertx-core",
+        "version": "4.5.11",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1002",
+            "GHSA-cphf-4846-3xx9"
+          ],
+          [
+            "io.vertx:vertx-core"
+          ]
+        ],
+        "advisory_summary": "Vert.x Web static handler component cache can be manipulated to deny the access to static files \u2014 The Vert.x Web static handler component cache can be manipulated to deny the access to static files served by the handler using specifically crafted request URI.\n\n\nThe issue comes from an improper implementation of the C. rule of section 5.2.4 of RFC3986 and is fixed in Vert.x Core component (used by Vert.x Web):  https://github.com/eclipse-vertx/vert.x/pull/5895 \n\n\n\nSteps to reproduce\nGiven a file served by the static handler, craft an URI that introduces a string like bar%2F..%2F after the last ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.5.24",
+          "5.0.7"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Impact is on the Vert.x Web StaticHandler cache. Keycloak serves themes/resources through its own JAX-RS ThemeResource, not StaticHandler (no StaticHandler in the checkout); Quarkus only installs its StaticHandler for META-INF/resources content and no jar in lib/lib/main or lib/quarkus contains META-INF/resources entries (archive scan); dev UI/health UI static handlers are not active in prod."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#72",
+      "facts": {
+        "package": "io.vertx:vertx-web",
+        "version": "4.5.11",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-11966",
+            "GHSA-45p5-v273-3qqr"
+          ],
+          [
+            "io.vertx:vertx-web"
+          ]
+        ],
+        "advisory_summary": "Vert.x-Web vulnerable to Stored Cross-site Scripting in directory listings via file names \u2014 # Description\n\n- In the `StaticHandlerImpl#sendDirectoryListing(...)` method under the `text/html` branch, file and directory names are directly embedded into the `href`, `title`, and link text without proper HTML escaping.\n- As a result, in environments where an attacker can control file names, injecting HTML/JavaScript is possible. Simply accessing the directory listing page will trigger an XSS.\n- Affected Code:\n    - File: `vertx-web/src/main/java/io/vertx/ext/web/handler/impl/StaticHandlerImpl.java`",
+        "vuln_symbols": [
+          "href",
+          "title",
+          "normalizedDir",
+          "StaticHandler",
+          "onerror"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.5.22",
+          "5.0.5"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "malware"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Directory-listing XSS in vertx-web StaticHandlerImpl.sendDirectoryListing; no StaticHandler with directory listing is used (Keycloak has no StaticHandler, no META-INF/resources static content in deployed jars; directoryListing is off by default)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#73",
+      "facts": {
+        "package": "io.vertx:vertx-web",
+        "version": "4.5.11",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-11965",
+            "GHSA-h5fg-jpgr-rv9c"
+          ],
+          [
+            "io.vertx:vertx-web"
+          ]
+        ],
+        "advisory_summary": "Vert.x-Web Access Control Flaw in StaticHandler\u2019s Hidden File Protection for Files Under Hidden Directories \u2014 # Description\n\nThere is a flaw in the hidden file protection feature of Vert.x Web\u2019s `StaticHandler` when `setIncludeHidden(false)` is configured.\n\nIn the current implementation, only files whose final path segment (i.e., the file name) begins with a dot (`.`) are treated as \u201chidden\u201d and are blocked from being served. However, this logic fails in the following cases:\n\n- **Files under hidden directories**: For example, `/.secret/config.txt` \u2014 although `.secret` is a hidden directory, th",
+        "vuln_symbols": [
+          "StaticHandler",
+          "config.txt"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.5.22",
+          "5.0.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Hidden-file check flaw in vertx-web StaticHandler; Keycloak serves no filesystem/classpath content through StaticHandler (no usage in the checkout; no META-INF/resources in deployed jars)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#74",
+      "facts": {
+        "package": "org.apache.commons:commons-lang3",
+        "version": "3.14.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-48924",
+            "GHSA-j288-q9x7-2f5v"
+          ],
+          [
+            "org.apache.commons:commons-lang3"
+          ]
+        ],
+        "advisory_summary": "Apache Commons Lang is vulnerable to Uncontrolled Recursion when processing long inputs \u2014 Uncontrolled Recursion vulnerability in Apache Commons Lang.\n\nThis issue affects Apache Commons Lang: Starting with\u00a0commons-lang:commons-lang\u00a02.0 to 2.6, and, from org.apache.commons:commons-lang3 3.0 before\u00a03.18.0.\n\nThe methods ClassUtils.getClass(...) can throw\u00a0StackOverflowError on very long inputs. Because an Error is usually not handled by applications and libraries, a StackOverflowError could\u00a0cause an application to stop.\n\nUsers are recommended to upgrade to version 3.18.0, which fixes the issue.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ClassUtils.getClass(String) is not called by Keycloak (no lang3.ClassUtils in the checkout) or by any deployed library (grep over lib/lib/main library sources: only opencsv ConverterNumber.java:69 uses ClassUtils.primitiveToWrapper; commons-lang3 internals use primitiveToWrapper only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#75",
+      "facts": {
+        "package": "org.bouncycastle:bcpkix-jdk18on",
+        "version": "1.78.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-8916",
+            "GHSA-4cx2-fc23-5wg6"
+          ],
+          [
+            "org.bouncycastle:bcpkix-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle for Java bcpkix, bcprov, bcpkix-fips on All (API modules) allows Excessive Allocation \u2014 Allocation of Resources Without Limits or Throttling vulnerability in Legion of the Bouncy Castle Inc. Bouncy Castle for Java bcpkix, bcprov, bcpkix-fips on All (API modules) allows Excessive Allocation. This vulnerability is associated with program files  https://github.Com/bcgit/bc-java/blob/main/pkix/src/main/java/org/bouncycastle/pkix/jcajce/PKIXCertP... https://github.Com/bcgit/bc-java/blob/main/pkix/src/main/java/org/bouncycastle/pkix/jcajce/PKIXCertPathReviewer.java ,  https://github.Co",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.79"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Advisory points at PKIXCertPathReviewer (bcpkix org/bouncycastle/pkix/jcajce/PKIXCertPathReviewer.java, bcprov org/bouncycastle/x509/PKIXCertPathReviewer.java). Nothing in Keycloak or any deployed library references PKIXCertPathReviewer (grep: only its own files); Keycloak validates X.509 chains via CertPathBuilder (CertificateValidator.java:666) which does not use the reviewer. Low-medium certainty because the advisory file list is truncated."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#76",
+      "facts": {
+        "package": "org.bouncycastle:bcpkix-jdk18on",
+        "version": "1.78.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-5588",
+            "GHSA-wg6q-6289-32hp"
+          ],
+          [
+            "org.bouncycastle:bcpkix-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle Crypto Package For Java: Use of a Broken or Risky Cryptographic Algorithm vulnerability in bcpkix modules \u2014 : Use of a Broken or Risky Cryptographic Algorithm vulnerability in Legion of the Bouncy Castle Inc. BC-JAVA bcpkix on all (pkix modules).\n\n\nPKIX draft CompositeVerifier accepts empty signature sequence as valid.\n\n\nThis issue affects BC-JAVA: from 1.49 before 1.84.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.84"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "CompositeVerifier (bcpkix JcaContentVerifierProviderBuilder.java:201-242, 386+) is chosen when the signed object's algorithm OID is id_alg_composite, even for a plain RSA/EC key (build(PublicKey) path, line 141-143); verify() of an empty signature sequence returns true. Keycloak verifies OCSP responses with exactly this builder: BCOCSPProvider.java:362-366 (default crypto provider), so a network attacker/hostile responder can forge a 'good' OCSP response for a revoked client certificate.",
+        "requires": "X.509 client certificate authenticator with OCSP checking enabled (documented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#77",
+      "facts": {
+        "package": "org.bouncycastle:bcprov-jdk18on",
+        "version": "1.78.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-14813",
+            "GHSA-574f-3g2m-x479"
+          ],
+          [
+            "org.bouncycastle:bcprov-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle for Java GOST 28147 CTR mode reuses keystream after 255 blocks \u2014 The GOST 28147-2015 CTR mode implementation (`G3413CTRBlockCipher`) in the Legion of the Bouncy Castle BC-JAVA `bcprov` core module only increments the final byte of the counter, so the counter wraps after 255 blocks and the keystream is reused. Reusing CTR keystream allows an attacker who can observe two ciphertexts produced with the same key/IV to recover the XOR of the plaintexts, breaking confidentiality. Affects BC-JAVA from 1.59 before 1.84 (with backported fixes in 1.80.2 and 1.81.1).",
+        "vuln_symbols": [
+          "G3413CTRBlockCipher",
+          "bcprov"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.80.2",
+          "1.81.1",
+          "1.84"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "G3413CTRBlockCipher (GOST 28147 CTR) is never used: no GOST usage in the Keycloak checkout; Keycloak's JWE/crypto use AES/RSA/EC only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#78",
+      "facts": {
+        "package": "org.bouncycastle:bcprov-jdk18on",
+        "version": "1.78.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-8763",
+            "GHSA-9pwp-9qqc-pr26"
+          ],
+          [
+            "org.bouncycastle:bcprov-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle: Name Constraints bypass via trailing dot in rfc822Name and URI \u2014 In Bouncy Castle for Java before 1.85, Name Constraints bypass via trailing dot in rfc822Name and URI. This issue also affects Bouncy Castle for Java LTS before 2.73.12, and Bouncy Castle for Java FIPS (BC-FJA) before bc-fips 1.0.2.7 (1.0.X series), 2.0.2 (2.0.X series) and 2.1.3 (2.1.X series).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.85"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Keycloak's X.509 client-cert authenticator builds/validates the chain with BC's PKIX CertPathBuilder: CertificateValidator.java:633-668 -> DefaultCryptoProvider.java:179-180 CertPathBuilder.getInstance(\"PKIX\", BC), which applies name constraints (PKIXNameConstraintValidator) to the attacker-presented chain; also NginxProxySslClientCertificateLookup.java:192. A holder of a cert from a name-constrained CA can use a trailing-dot rfc822Name/URI to escape the constraint.",
+        "requires": "X.509 client certificate authentication (https-client-auth / x509 authenticator, documented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#79",
+      "facts": {
+        "package": "org.bouncycastle:bcprov-jdk18on",
+        "version": "1.78.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-0636",
+            "GHSA-c3fc-8qff-9hwx"
+          ],
+          [
+            "org.bouncycastle:bcprov-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle has an LDAP injection \u2014 Improper neutralization of special elements used in an LDAP query ('LDAP injection') vulnerability in Legion of the Bouncy Castle Inc. BC-JAVA bcprov on all (prov modules). This vulnerability is associated with program files LDAPStoreHelper.\n\nThis issue affects BC-JAVA: from 1.74 before 1.84.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.84"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "LDAPStoreHelper is only used by BC's X509StoreLDAP* (legacy X509Store LDAP API). Keycloak never creates an LDAP CertStore/X509Store (only CertStore 'Collection', DefaultCryptoProvider.java:173) and fetches LDAP CRLs with its own JNDI code (CertificateValidator.java:142-153, 309); its CertPathBuilder disables revocation (CertificateValidator.java:651)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#80",
+      "facts": {
+        "package": "org.bouncycastle:bcprov-jdk18on",
+        "version": "1.78.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-13506",
+            "GHSA-qp49-qgx5-5m26"
+          ],
+          [
+            "org.bouncycastle:bcprov-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle: Lazy ASN.1 sequence forcing resets nesting-depth guard \u2014 In Bouncy Castle for Java before 1.85, Lazy ASN.1 sequence forcing resets nesting-depth guard. This issue also affects Bouncy Castle for Java LTS before 2.73.12, and Bouncy Castle for Java FIPS (BC-FJA) before bc-fips 1.0.2.7 (1.0.X series), 2.0.2 (2.0.X series) and 2.1.3 (2.1.X series).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.85"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): LazyEncodedSequence (the forcing path in LazyEncodedSequence.java:139-143) is created only when ASN1InputStream runs with lazyEvaluate=true (ASN1InputStream.java:168-170). In bcprov/bcpkix/bcutil 1.78.1 the only lazy callers are DER CRL parsing: BC CertificateFactory.java:351 readDERCRL and bcpkix X509CRLHolder.java:60. Certificate parsing is not lazy (CertificateFactory.java:245). Keycloak never parses CRLs through BC. CertificateValidator.java:299 uses CertificateFactory.getInstance(\"X.509\") with the default provider, and DefaultCryptoProvider.java:69 only appends BC with Security.addProvider, so SUN parses CRLs from the file, URL, LDAP and CRLDP paths (CertificateValidator.java:402). BC getX509CertFactory is used only for certificates (DerUtils.java:73). The BC CertPathBuilder runs with revocation disabled (CertificateValidator.java:651, NginxProxySslClientCertificateLookup.java:179). No X509CRLHolder or generateCRL on BC anywhere in server code. Other jars that depend on bcprov (mssql-jdbc, santuario, infinispan-client-hotrod) do not parse attacker CRLs. The bin/client copy of the jar is not the server."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#81",
+      "facts": {
+        "package": "org.eclipse.angus:smtp",
+        "version": "2.0.3",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-7962",
+            "GHSA-9342-92gg-6v29"
+          ],
+          [
+            "org.eclipse.angus:smtp"
+          ]
+        ],
+        "advisory_summary": "Jakarta Mail vulnerable to SMTP Injection \u2014 In Jakarta Mail 2.2 it is possible to preform a SMTP Injection by utilizing the\u00a0\\r and \\n UTF-8 characters to separate different messages.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Keycloak sends mail via Jakarta Mail/Angus SMTP (DefaultEmailSenderProvider.java:158-166). Realm SMTP settings are set by realm admins (in-scope attackers) and passed unvalidated: envelopeFrom -> mail.smtp.from (lines 121,148-149, used verbatim in MAIL FROM), from/replyTo (140-145); recipients are user email addresses (166). CR/LF in these lets an admin inject SMTP commands.",
+        "requires": "realm SMTP server configured (documented email settings)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#82",
+      "facts": {
+        "package": "org.freemarker:freemarker",
+        "version": "2.3.32",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-84939",
+            "GHSA-27j2-h3m2-8237"
+          ],
+          [
+            "org.freemarker:freemarker"
+          ]
+        ],
+        "advisory_summary": "Apache FreeMarker template loading mechanism vulnerable to path traversal \u2014 Path traversal vulnerability in Apache FreeMarker template loading mechanism, if the attacker can specify an arbitrary malformed locale identifier to FreeMarker, and the localized lookup configuration setting is enabled (it's by default enabled).\n\nThis issue affects Apache FreeMarker from 2.2.0 through 2.3.34.\n\nUsers are recommended to upgrade to version 2.3.35. Disabling localized lookup in previous versions also mitigates this.\n\nNote that even in versions affected by this vulnerability, the files that can be loaded r",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.3.35"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Exploit needs the attacker to choose the locale FreeMarker uses for localized template lookup. Keycloak loads templates with cfg.getTemplate(templateName, \"UTF-8\") (DefaultFreeMarkerProvider.java:56-66) and getTemplate(templateFile) (FreemarkerUtils.java:45-47), i.e. the Configuration's default (JVM) locale; the user's kc_locale/ui_locales only selects message bundles, never the template locale."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#83",
+      "facts": {
+        "package": "org.mariadb.jdbc:mariadb-java-client",
+        "version": "3.4.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55856",
+            "GHSA-g9jj-cgmh-9f38"
+          ],
+          [
+            "org.mariadb.jdbc:mariadb-java-client"
+          ]
+        ],
+        "advisory_summary": "MariaDB has cleartext password disclosure to a MITM on the initial-handshake \u2014 ### Summary\n\nWhen a Java application connects with sslMode=verify-full (or verify-ca) and a password but does not pin a server certificate, Connector/J deliberately accepts an untrusted/self-signed certificate at the TLS layer (the \"MITM-proof without a CA\" feature) and proves the server's identity afterwards by binding the certificate fingerprint into the authentication exchange. That fingerprint enforcement is applied to the OK-packet and auth-switch paths but not to the initial-handshake path. An active man-in-th",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.7.14",
+          "3.3.5",
+          "3.4.3",
+          "3.5.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "MariaDB driver is used when db=mariadb ( uses org.mariadb.jdbc.Driver, Database.java:189-192; documented database option). The 'MITM-proof without a CA' fingerprint path (MariaDbX509EphemeralTrustingManager, StandardClient.java) runs when sslMode=verify-full/verify-ca is set via db-url-properties (DB TLS is a documented setup), letting a network MITM get the cleartext password on the initial handshake.",
+        "requires": "db=mariadb with TLS (db-url-properties sslMode=verify-full/verify-ca)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#84",
+      "facts": {
+        "package": "org.mariadb.jdbc:mariadb-java-client",
+        "version": "3.4.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55857",
+            "GHSA-qxvw-fvwx-5cp7"
+          ],
+          [
+            "org.mariadb.jdbc:mariadb-java-client"
+          ]
+        ],
+        "advisory_summary": "org.mariadb.jdbc:mariadb-java-client has Cleartext Transmission of Sensitive Information and Insufficiently Protected Credentials \u2014 ###\u00a0Summary\n\nWhen PAM (dialog) authentication is used, the connector can be coerced into sending the account password in cleartext over an insecure connection. A hostile or man-in-the-middle server can trigger this with the default configuration, disclosing the user's password.\n\n### Details\n\nThe mysql_clear_password plugin is gated behind a secure connection: the driver refuses to transmit the password in cleartext over plain TCP. The sibling PAM plugin handler (S",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.7.14",
+          "3.3.5",
+          "3.4.3",
+          "3.5.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "MariaDB driver is used when db=mariadb ( uses org.mariadb.jdbc.Driver, Database.java:189-192; documented database option). With default settings a hostile/MITM database server can request the PAM dialog plugin (SendPamAuthPacket.java present in 3.4.1) and receive the password in cleartext over a non-TLS connection.",
+        "requires": "db=mariadb (documented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#85",
+      "facts": {
+        "package": "org.mariadb.jdbc:mariadb-java-client",
+        "version": "3.4.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-61700",
+            "GHSA-wxmm-q36w-r9xj"
+          ],
+          [
+            "org.mariadb.jdbc:mariadb-java-client"
+          ]
+        ],
+        "advisory_summary": "MariaDB Connector/J does not enforce allowLocalInfile=false  on server-initiated LOCAL INFILE requests \u2014 ## Summary\n\nMariaDB Connector/J does not enforce `allowLocalInfile=false` when \nprocessing server-initiated LOCAL INFILE requests (protocol packet \ntype `0xfb`). However, exploitation is constrained: the server can \nonly request the exact filename the client already included in its \n`LOAD DATA LOCAL INFILE` query, it cannot redirect to arbitrary paths.\n\n## Details\n\nWhen a client executes `LOAD DATA LOCAL INFILE '/path/to/file'`, the \nconnector sends the filename to the server as part of the",
+        "vuln_symbols": [
+          "allowLocalInfile"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.7.14",
+          "3.3.5",
+          "3.4.3",
+          "3.5.9"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Server-initiated LOCAL INFILE can only target the filename the client itself put in a LOAD DATA LOCAL INFILE statement; Keycloak/Hibernate/Liquibase never issue LOAD DATA LOCAL INFILE, so there is no file to exfiltrate.",
+        "requires": "db=mariadb"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#86",
+      "facts": {
+        "package": "org.mariadb.jdbc:mariadb-java-client",
+        "version": "3.4.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55858",
+            "GHSA-xvr9-35cr-46v9"
+          ],
+          [
+            "org.mariadb.jdbc:mariadb-java-client"
+          ]
+        ],
+        "advisory_summary": "org.mariadb.jdbc:mariadb-java-client has Inappropriate Encoding for Output Context \u2014 ### Summary\n\nThe connector encodes and decodes all character data assuming the connection character set is UTF-8. A server can change character_set_client mid-session to a non-UTF-8 charset, after which the driver and server interpret the same bytes under different encodings, causing silent data corruption and a client/server charset-confusion mismatch.\n\n### Details\n\nThe driver encodes and decodes all character data on the assumption that the connection character set is UTF-8. \nCharset can be changed by comman",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.7.14",
+          "3.3.5",
+          "3.4.3",
+          "3.5.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "MariaDB driver is used when db=mariadb ( uses org.mariadb.jdbc.Driver, Database.java:189-192; documented database option). A hostile or MITM database server can switch character_set_client mid-session; the driver keeps encoding as UTF-8 (3.4.1 < 3.4.3), corrupting/confusing Keycloak's SQL data. Attacker is the DB server or network path.",
+        "requires": "db=mariadb (documented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#87",
+      "facts": {
+        "package": "org.postgresql:postgresql",
+        "version": "42.7.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42198",
+            "BIT-postgresql-jdbc-driver-2026-42198",
+            "GHSA-98qh-xjc8-98pq"
+          ],
+          [
+            "org.postgresql:postgresql"
+          ]
+        ],
+        "advisory_summary": "pgjdbc: Unbounded PBKDF2 iterations in SCRAM authentication allows CPU exhaustion DoS \u2014 ## Summary\npgjdbc is vulnerable to a client-side denial of service during SCRAM-SHA-256 authentication.\n\n### Impact\nA malicious server can instruct the driver to perform SCRAM authentication with a very large iteration count.\nWith a large enough value, the client spends an unbounded amount of CPU time inside PBKDF2 before authentication can fail.\nA single attempt ties up a CPU core. Repeated or concurrent attempts exhaust client CPU and can wedge connection pools.\n\nIn affected versions, `loginTimeout` did n",
+        "vuln_symbols": [
+          "loginTimeout",
+          "sslmode",
+          "scramMaxIterations"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "42.7.11"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "pgjdbc 42.7.4 is the driver for db=postgres (documented database option, quarkus-jdbc-postgresql). A malicious server or MITM (default sslmode is not verify-full) can send a huge SCRAM iteration count; ScramAuthenticator in 42.7.4 has no cap (scramMaxIterations added in 42.7.11), tying up CPU and the Agroal pool.",
+        "requires": "db=postgres (documented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#88",
+      "facts": {
+        "package": "org.postgresql:postgresql",
+        "version": "42.7.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-49146",
+            "BIT-postgresql-jdbc-driver-2025-49146",
+            "GHSA-hq9p-pm7w-8p54"
+          ],
+          [
+            "org.postgresql:postgresql"
+          ]
+        ],
+        "advisory_summary": "pgjdbc Client Allows Fallback to Insecure Authentication Despite channelBinding=require Configuration \u2014 ### Impact\nWhen the PostgreSQL JDBC driver is configured with channel binding set to `required` (default value is `prefer`), the driver would incorrectly allow connections to proceed with authentication methods that do not support channel binding (such as password, MD5, GSS, or SSPI  authentication). This could allow a man-in-the-middle attacker to intercept connections that users believed were protected by channel binding requirements.\n\n### Patches\nTBD\n\n### Workarounds\n\nConfigure `sslMode=v",
+        "vuln_symbols": [
+          "required",
+          "prefer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "42.7.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): The flaw needs channelBinding=require. pgjdbc 42.7.4 defaults to prefer (PGProperty.java:155-160), and the MD5 and password auth branches skip the REQUIRE check (ConnectionFactoryImpl.java:723, :752). With prefer, falling back is the intended behaviour. Keycloak never sets channelBinding: no hit in the checkout outside tests and nothing in the docs (db.adoc only shows a generic db-url). The setting is only a pgjdbc driver property that Keycloak does not document, so the off-by-default rule gives not_reachable. The postgres driver is loaded only with db=postgres."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-keycloak#89",
+      "facts": {
+        "package": "org.postgresql:postgresql",
+        "version": "42.7.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54291",
+            "BIT-postgresql-jdbc-driver-2026-54291",
+            "GHSA-j92g-9f8w-j867"
+          ],
+          [
+            "org.postgresql:postgresql"
+          ]
+        ],
+        "advisory_summary": "PostgreSQL JDBC Driver: Silent channel-binding authentication downgrade via unsupported certificate algorithms \u2014 ### Impact\n\n`channelBinding=require` connections can be silently downgraded from `SCRAM-SHA-256-PLUS` (with channel binding) to plain `SCRAM-SHA-256` (without it), losing the man-in-the-middle protection the setting is meant to guarantee. An attacker who can intercept the TLS connection triggers the downgrade with a certificate whose signature algorithm has no `tls-server-end-point` channel-binding hash. Examples are `Ed25519`, `Ed448`, and post-quantum algorithms.\n\nTwo issues combi",
+        "vuln_symbols": [
+          "Ed25519",
+          "Ed448",
+          "ScramAuthenticator",
+          "prefer",
+          "allow",
+          "disable"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "42.7.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): The downgrade from SCRAM-SHA-256-PLUS to SCRAM-SHA-256 only matters with channelBinding=require. The code is present: ScramAuthenticator.java:85-90 only checks that a -PLUS mechanism is offered, and getChannelBindingData :95-125 returns empty for certificates without a tls-server-end-point hash. Keycloak never configures or documents channelBinding (no hit in the repo or docs; default prefer, PGProperty.java:155-160). Under prefer, falling back without channel binding is the designed behaviour, not this flaw."
+      }
+    }
+  ]
+}

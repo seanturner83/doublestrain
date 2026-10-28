@@ -1,0 +1,2221 @@
+{
+  "id": "real-rs-vaultwarden",
+  "description": "Vaultwarden 1.32.4 (Bitwarden-compatible password server, Rust/Rocket): held-out Rust dev set (rs1), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#1",
+      "facts": {
+        "package": "bytes",
+        "version": "1.8.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25541",
+            "GHSA-434x-w66g-qw3r",
+            "RUSTSEC-2026-0007"
+          ],
+          [
+            "bytes"
+          ]
+        ],
+        "advisory_summary": "bytes has integer overflow in BytesMut::reserve \u2014 # Details\n\nIn the unique reclaim path of `BytesMut::reserve`, the condition\n```rs\nif v_capacity >= new_cap + offset\n```\nuses an unchecked addition. When `new_cap + offset` overflows `usize` in release builds, this condition may incorrectly pass, causing `self.cap` to be set to a value that exceeds the actual allocated capacity. Subsequent APIs such as `spare_capacity_mut()` then trust this corrupted `cap` value and may create out-of-bounds slices, leading to UB.\n\nThis behavior is observable in release builds (integer overflow wraps), whereas de",
+        "vuln_symbols": [
+          "usize",
+          "self.cap",
+          "spare_capacity_mut",
+          "cap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "bytes"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "bytes 1.8.0 BytesMut::reserve unique-reclaim overflow needs new_cap+offset to wrap usize (additional ~2^64). All reserve callers on the request paths size from in-memory/bounded lengths (hyper h1 role.rs:410/io.rs:266, h2 hpack huffman/mod.rs:24 src.len()<<1, tungstenite frame/mod.rs:221 frame.len(), tokio-util length_delimited saturating_sub); no caller passes an attacker-chosen near-usize::MAX value. The function runs constantly, but the overflow condition cannot be met."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#2",
+      "facts": {
+        "package": "diesel",
+        "version": "2.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h5x4-m2qf-r4f2",
+            "RUSTSEC-2026-0111"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Diesel's SQLite backend has possible UTF-8 corruption \u2014 Diesel uses the `sqlite3_value_text` function to receive strings from SQLite while deserializing query results. We misinterpreted the corresponding [SQLite](https://sqlite.org/c3ref/value_blob.html) documentation that this function always returns a UTF-8 encoded string values as `*const c_char`. Based on that we used `str::from_utf8_unchecked` to construct a Rust string slice without any additional UTF-8 checks in place. It turned out that this function doesn't always return correct UTF-8 strings. For field of the SQLite side storage type",
+        "vuln_symbols": [
+          "diesel::deserialize::FromSql::<Text,Sqlite>::from_sql",
+          "diesel::sqlite::SqliteValue::read_str"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.8"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SQLite is the image's default backend and SqliteValue::read_str runs on every Text column read. The UB needs a non-UTF-8 TEXT value in the DB, but the app writes only Rust Strings via bound Text params (always valid UTF-8). Blob columns (sends.password_hash/salt, users password_hash/salt) are typed Binary in src/db/schemas/sqlite/schema.rs:142-143,200-201, so read_str is never called on blobs. Attacker data cannot produce invalid UTF-8 in a Text column."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#3",
+      "facts": {
+        "package": "diesel",
+        "version": "2.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0134"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Unsound access to padding bytes while serializing date/time values using the Mysql backend \u2014 Diesel relies on libmysqlclient for interacting with Mysql compatible databases. This library requires to provide date/time values according to the byte layout of their `MYSQL_TIME` type.\n\nDiesel replicated this type as `#[repr(C)]` struct, populated all the fields of this struct and then casted this value to an array of bytes. As this cast exposes padding bytes contained in this struct, this is undefined behaviour.\n\nThis vulnerability affects any user serializing date/time values using the Mysql backe",
+        "vuln_symbols": [
+          "diesel::serialize::ToSql<Date,Mysql>",
+          "diesel::serialize::ToSql<DateTime,Mysql>",
+          "diesel::serialize::ToSql<Time,Mysql>",
+          "diesel::serialize::ToSql<Timestamp,Mysql>"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.8"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.92
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Needs the MySQL backend: the Docker build has --features mysql (Cargo.toml:21, docker/Dockerfile.debian:123) and a DATABASE_URL=mysql:// deployment is common. Every insert/update of NaiveDateTime columns (schemas/mysql/schema.rs:14 created_at -> Datetime, etc.) goes through diesel mysql/types/date_and_time/chrono.rs:26 ToSql<Timestamp,Mysql>, which builds a MysqlTime and casts it to bytes (mod.rs:121-122), the padding-byte UB. Not reached on the default SQLite config."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#4",
+      "facts": {
+        "package": "diesel",
+        "version": "2.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0135"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Unsound transmute while debug/display printing batch Insert statements in Diesel's SQLite backend \u2014 Diesel allows users to output the generated SQL for any query DSL construct via th `diesel::debug_query` function as `Display` and `Debug` output.\n\nFor the particular implementation used by batch Insert statements in the SQLite backend Diesel relied on an unspecified transmute between types with a `#[repr(rust)]` layout. This is formally undefined behaviour as the compiler is free to change the layout of these types at any time. \n\nThis vulnerability affects users that print out batch insert stat",
+        "vuln_symbols": [
+          "diesel::debug_query"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.8"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "diesel::debug_query is never called in src/. The query_logger feature (diesel_logger) is not in the Docker features (Cargo.toml:31, Dockerfile DB=sqlite,mysql,postgresql). Nothing prints batch-insert SQL."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#5",
+      "facts": {
+        "package": "diesel",
+        "version": "2.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-m9p2-fxp5-v3fp",
+            "RUSTSEC-2026-0136"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Diesel: Command injection in Diesel's implementation of `COPY FROM`/`COPY TO` \u2014 Diesel allows users to configure various options for PostgreSQL's `COPY FROM` and `COPY TO` statements. These configurations are partially provided as strings or characters. \n\nDiesel did not check if any these user-provided options contain a quote character `'`, which can lead to the injection of additional options in the current `COPY FROM`/`COPY TO` statement. \n\nThis vulnerability affects any user of `COPY FROM`/`COPY TO` that passes user-provided input to any of the affected functions. It can result in modificat",
+        "vuln_symbols": [
+          "diesel::pg::CopyFromQuery::with_default",
+          "diesel::pg::CopyFromQuery::with_delimiter",
+          "diesel::pg::CopyFromQuery::with_escape",
+          "diesel::pg::CopyFromQuery::with_null",
+          "diesel::pg::CopyFromQuery::with_quote",
+          "diesel::pg::CopyToQuery::with_delimiter",
+          "diesel::pg::CopyToQuery::with_escape",
+          "diesel::pg::CopyToQuery::with_null",
+          "diesel::pg::CopyToQuery::with_quote"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.8"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "COPY FROM/TO (diesel::pg::CopyFromQuery/CopyToQuery with_* options) is not used anywhere in src/ or diesel_migrations. The only 'copy_to' hits are Rocket TempFile::move_copy_to (ciphers.rs:1257, sends.rs:264)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#6",
+      "facts": {
+        "package": "diesel",
+        "version": "2.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q8x8-jrhj-fh9p",
+            "RUSTSEC-2026-0137"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Diesel: Possible unaligned data access for implementations of `SqliteAggregate` \u2014 Diesel allows to register custom aggregate SQL functions for SQLite via the `SqliteAggregate` interface.\n\nTo store an instance of the custom aggregate processor Diesel relied on the `sqlite3_aggregate_context` function provided by sqlite. This function doesn't provide any guarantees about alignment of the returned allocation, which in turn can lead to problems if the type implementing requires a special alignment, e.g. via a custom `#[align(x)]` attribute on the type implementing this trait. This affects any user",
+        "vuln_symbols": [
+          "diesel::sqlite::SqliteAggregate"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.8"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No SqliteAggregate implementation or registration in src/ (grep for SqliteAggregate/register_aggregate finds nothing). The only custom SQL functions are define_sql_function sqlite_version/version (db/mod.rs:398-406), which are not aggregates."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#7",
+      "facts": {
+        "package": "diesel",
+        "version": "2.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-ggxf-9f6j-w742",
+            "RUSTSEC-2026-0172"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Diesel has possible use after free when deserializing a SQLite database via `SqliteConnection::deserialize_readonly_database` \u2014 Diesel allows loading a SQLite database from a byte buffer, represented as `&[u8]`, at runtime via the `SqliteConnection::deserialize_readonly_database` function. In previous versions of Diesel, this buffer was passed directly to libsqlite3. Since libsqlite3 requires the buffer to remain alive for as long as the database connection is open and Diesel did not ensure this as part of its safe API, callers of `SqliteConnection::deserialize_readonly_database` could drop th",
+        "vuln_symbols": [
+          "diesel::sqlite::SqliteConnection::deserialize_readonly_database"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.10"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SqliteConnection::deserialize_readonly_database is never called by vaultwarden or its dependencies (grep in src/, diesel_migrations, r2d2)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#8",
+      "facts": {
+        "package": "event-listener",
+        "version": "5.3.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0221"
+          ],
+          [
+            "event-listener"
+          ]
+        ],
+        "advisory_summary": "`event-listener` allows `!Send` tags to cross thread boundaries via `StackSlot` \u2014 Affected versions of `event-listener` unconditionally implement `Send` and\n`Sync` for `StackSlot<'_, T>`, the stack-allocated listener type created\nby the `listener!` macro.\n\nThis allows a `!Send` tag type set via `Event::with_tag` to be moved to\nanother thread and accessed via `StackSlot::wait`, causing a data race in safe\ncode.",
+        "vuln_symbols": [
+          "StackSlot",
+          "Send",
+          "Sync"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.2"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "event_listener"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "event-listener 5.3.1 comes in only through async-lock/async-process/event-listener-strategy/async-channel, all under async-std. async-std is pulled in only by lettre's optional async-std1 feature (lettre Cargo.toml:186-188, appearing in the lock through the weak 'async-std?/unstable' in sendmail-transport). Vaultwarden enables tokio1 lettre features only (Cargo.toml lettre line), so async-std/event-listener is not compiled. No with_tag/listener! with !Send tags either."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#9",
+      "facts": {
+        "package": "h2",
+        "version": "0.3.26",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.3.26 is used by hyper 0.14.31, which is Rocket's HTTP server (rocket_http). Rocket is built without http2, but reqwest 0.11 (via yubico) turns on hyper 0.14 'http2' (reqwest-0.11.27 Cargo.toml:271-279). With http1+http2 both compiled, hyper's server ConnectionMode::default() is Fallback (hyper server/conn.rs:972-976), so the internet-facing port 80 Rocket server (rocket server.rs:509) accepts h2c prior-knowledge connections. An unauthenticated client can stream empty DATA frames to the h2 server. Inferred from feature unification."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#10",
+      "facts": {
+        "package": "h2",
+        "version": "0.4.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.4.6 is the HTTP/2 client of reqwest 0.12.9, with default features so 'http2' is on, plus native-tls-alpn which advertises h2. The icon service (on by default) fetches https://<user-given domain> (icons.rs:53-60, http_client.rs:35), so an attacker-run favicon server can negotiate h2 and send unbounded empty DATA frames to the client. Bounded somewhat by icon_download_timeout."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#11",
+      "facts": {
+        "package": "hickory-proto",
+        "version": "0.24.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-25188",
+            "GHSA-37wc-h8xc-5hc4"
+          ],
+          [
+            "hickory-proto"
+          ]
+        ],
+        "advisory_summary": "Hickory DNS's DNSSEC validation may accept broken authentication chains \u2014 ### Summary\nThe DNSSEC validation routines treat entire RRsets of DNSKEY records as trusted once they have established trust in only one of the DNSKEYs. As a result, if a zone includes a DNSKEY with a public key that matches a configured trust anchor, all keys in that zone will be trusted to authenticate other records in the zone. There is a second variant of this vulnerability involving DS records, where an authenticated DS record covering one DNSKEY leads to trust in signatures made by an unrelated DNSKEY in the same z",
+        "vuln_symbols": [
+          "verify_dnskey_rrset",
+          "verify_rrset",
+          "Secure",
+          "verify_default_rrset",
+          "handle.lookup",
+          "verify_rrset_with_dnskey"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.24.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "hickory_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DNSSEC validation is not compiled. hickory-proto 0.24.1's lock deps have no ring/openssl (dnssec-ring/dnssec-openssl off), and hickory-resolver is used with default features via TokioAsyncResolver::tokio(read_system_conf) (http_client.rs:186-190). verify_rrset/DnssecDnsHandle do not exist in the build."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#12",
+      "facts": {
+        "package": "hickory-proto",
+        "version": "0.24.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-v7pc-74h8-xq2h",
+            "RUSTSEC-2025-0006"
+          ],
+          [
+            "hickory-proto"
+          ]
+        ],
+        "advisory_summary": "Hickory DNS failure to verify self-signed RRSIG for DNSKEYs \u2014 Summary\n\nThe DNSSEC validation routines treat entire RRsets of DNSKEY records as trusted once they have established trust in only one of the DNSKEYs. As a result, if a zone includes a DNSKEY with a public key that matches a configured trust anchor, all keys in that zone will be trusted to authenticate other records in the zone. There is a second variant of this vulnerability involving DS records, where an authenticated DS record covering one DNSKEY leads to trust in signatures made by an unrelated DNSKEY in the same zone.\n\nDetails\n\n",
+        "vuln_symbols": [
+          "hickory_proto::dnssec::DnssecDnsHandle::send",
+          "hickory_proto::xfer::DnssecDnsHandle::send"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.24.3",
+          "0.25.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "hickory_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as the other DNSSEC row: hickory's dnssec feature is off (no ring/openssl in hickory-proto deps in Cargo.lock), so DnssecDnsHandle::send is not compiled. The resolver at http_client.rs:189 is a plain system-config resolver."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#13",
+      "facts": {
+        "package": "hickory-proto",
+        "version": "0.24.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q2qq-hmj6-3wpp",
+            "RUSTSEC-2026-0119"
+          ],
+          [
+            "hickory-proto"
+          ]
+        ],
+        "advisory_summary": "CPU exhaustion during message encoding due to O(n\u00b2) name compression \u2014 During message encoding, `hickory-proto`'s `BinEncoder` stores pointers to\nlabels that are candidates for name compression in a `Vec<(usize, Vec<u8>)>`.\nThe name compression logic then searches for matches with a linear scan.\n\nA malicious message with many records can both introduce many candidate labels,\nand invoke this linear scan many times. This can amplify CPU exhaustion in DoS\nattacks.\n\nThis is similar to\n[CVE-2024-8508](https://www.nlnetlabs.nl/downloads/unbound/CVE-2024-8508.txt).\n\nWe recommend all affected users up",
+        "vuln_symbols": [
+          "BinEncoder"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "hickory_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "BinEncoder name compression is O(n^2) in the number of records being encoded. As a stub resolver, vaultwarden only encodes outgoing single-question queries. Received responses are decoded, not re-encoded; DnsResponse::from_message (dns_response.rs:147-149, which calls to_vec) is called only from tests (lookup.rs:576, caching_client.rs:628, retry_dns_handle.rs:174). An attacker cannot make the app encode a message with many records."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#14",
+      "facts": {
+        "package": "hickory-resolver",
+        "version": "0.24.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93657",
+            "GHSA-5j98-2g5x-46v6"
+          ],
+          [
+            "hickory-resolver"
+          ]
+        ],
+        "advisory_summary": "hickory-resolver: Resolver::lookup() and Resolver::lookup_ip() APIs obscure DNSSEC validation failures \u2014 When calling `Resolver::lookup()` or `Resolver::lookup_ip()` on a resolver with DNSSEC validation enabled, both methods return `Ok(...)` if DNSSEC validation fails. It is possible but very inconvenient to check the validation status of individual records. These methods should instead return an error when DNSSEC validation determines a response is bogus.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "hickory_resolver"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The advisory applies only when the resolver has DNSSEC validation enabled. hickory dnssec features are not compiled (no ring/openssl deps of hickory-proto in Cargo.lock), and ResolverOpts come from read_system_conf (http_client.rs:186-190), which has validate=false."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#15",
+      "facts": {
+        "package": "idna",
+        "version": "0.3.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-12224",
+            "GHSA-h97m-ww89-6jmq",
+            "RUSTSEC-2024-0421"
+          ],
+          [
+            "idna"
+          ]
+        ],
+        "advisory_summary": "`idna` accepts Punycode labels that do not produce any non-ASCII when decoded \u2014 `idna` 0.5.0 and earlier accepts Punycode labels that do not produce any non-ASCII output, which means that either ASCII labels or the empty root label can be masked such that they appear unequal without IDNA processing or when processed with a different implementation and equal when processed with `idna` 0.5.0 or earlier.\n\nConcretely, `example.org` and `xn--example-.org` become equal after processing by `idna` 0.5.0 or earlier. Also, `example.org.xn--` and `example.org.` become equal after processing by `idna` 0.5",
+        "vuln_symbols": [
+          "example.org",
+          "url"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "idna"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "idna 0.3.0 is only a dep of publicsuffix 2.2.3, which is used by cookie_store only when a public suffix list is configured (cookie_store.rs:267-272, 'if let Some(ref psl) = self.public_suffix_list'). Vaultwarden's icon Jar is CookieStore::default() (icons.rs:621-623, #[derive(Default)]) with public_suffix_list None, so idna 0.3 code never runs. url uses idna 1.0.3."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#16",
+      "facts": {
+        "package": "idna",
+        "version": "0.4.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-12224",
+            "GHSA-h97m-ww89-6jmq",
+            "RUSTSEC-2024-0421"
+          ],
+          [
+            "idna"
+          ]
+        ],
+        "advisory_summary": "`idna` accepts Punycode labels that do not produce any non-ASCII when decoded \u2014 `idna` 0.5.0 and earlier accepts Punycode labels that do not produce any non-ASCII output, which means that either ASCII labels or the empty root label can be masked such that they appear unequal without IDNA processing or when processed with a different implementation and equal when processed with `idna` 0.5.0 or earlier.\n\nConcretely, `example.org` and `xn--example-.org` become equal after processing by `idna` 0.5.0 or earlier. Also, `example.org.xn--` and `example.org.` become equal after processing by `idna` 0.5",
+        "vuln_symbols": [
+          "example.org",
+          "url"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "idna"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): idna 0.4.0 is pulled in only by hickory-proto 0.24.1 (Cargo.lock:1341, a non-optional dep), via hickory-resolver 0.24.1 (Cargo.toml:127). Vaultwarden's CustomDnsResolver calls r.lookup_ip(name) (src/http_client.rs:205) -> async_resolver.rs:377 into_name -> Name::from_utf8 (name.rs:1301-1304) -> Label::from_utf8 -> idna::Config::to_ascii (label.rs:63-70). So idna 0.4 does run on attacker-chosen icon hostnames. But the advisory needs Punycode labels that decode to ASCII only (a 'xn--...-' label ending in '-', or a bare 'xn--' label). Every name hickory sees here comes from a reqwest URL host that url 2.5.3 has already put through idna 1.0.3 (url host.rs:147 domain_to_ascii_cow). idna 1.0.3 rejects exactly these labels (uts46.rs:1257-1270, trailing '-' after xn-- is an error), so the URL fails to parse. icons.rs:128 is_valid_domain also runs Url::parse first, and redirects and HTML-derived icon URLs also go through url. So the masking input cannot reach idna 0.4. Even if it did, it would only change which host gets resolved, and post_resolve still blocks non-global IPs (http_client.rs:226)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#17",
+      "facts": {
+        "package": "jsonwebtoken",
+        "version": "9.3.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25537",
+            "GHSA-h395-gr6q-cpjc"
+          ],
+          [
+            "jsonwebtoken"
+          ]
+        ],
+        "advisory_summary": "jsonwebtoken has Type Confusion that leads to potential authorization bypass \u2014 ## Summary:\n\nIt has been discovered that there is a Type Confusion vulnerability in jsonwebtoken, specifically, in its claim validation logic.\n\nWhen a standard claim (such as nbf or exp) is provided with an incorrect JSON type (Like a String instead of a Number), the library\u2019s internal parsing mechanism marks the claim as \u201cFailedToParse\u201d. Crucially, the validation logic treats this \u201cFailedToParse\u201d state identically to \u201cNotPresent\u201d.\n\nThis means that if a check is enabled (like: validate_nbf = true), but the claim is ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.3.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "jsonwebtoken"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jsonwebtoken::decode (auth.rs:97) runs on attacker tokens with validate_nbf/exp. The type-confusion bypass needs a token whose signature verifies but whose nbf/exp has the wrong JSON type. Tokens are RS256-signed with the server's private key (auth.rs:83, 90), and signatures are checked before claims, so an attacker cannot mint such a token. Claims also deserialize into i64 nbf/exp fields (auth.rs:147-149), which would fail anyway."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#18",
+      "facts": {
+        "package": "lettre",
+        "version": "0.11.10",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46428",
+            "GHSA-4pj9-g833-qx53",
+            "RUSTSEC-2026-0141"
+          ],
+          [
+            "lettre"
+          ]
+        ],
+        "advisory_summary": "lettre has TLS hostname verification disabled when using Boring TLS backend \u2014 ### Summary\nAn inverted-boolean bug in lettre's `boring-tls` integration silently\ndisables TLS hostname verification for callers using the default (strict)\nconfiguration. An on-path attacker presenting any chain-valid certificate\nfor any domain can intercept SMTP submission, including PLAIN/LOGIN\ncredentials and message contents, against any lettre user built with the\n`boring-tls` feature. Other TLS backends (`native-tls`, `rustls`) are\nunaffected.\n\n### Details\nboring's `SslConnectorBuilder::set_verify_hostname(bool)",
+        "vuln_symbols": [
+          "rustls",
+          "TlsParametersBuilder",
+          "set_verify_hostname",
+          "accept_invalid_hostnames",
+          "attacker.example",
+          "mail.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.22"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "lettre"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The bug is only in lettre's boring-tls integration. Vaultwarden enables 'tokio1-native-tls' (Cargo.toml lettre features), not boring-tls/tokio1-boring-tls, and boring is not in Cargo.lock."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#19",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41678",
+            "GHSA-8c75-8mhr-p7r9"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has incorrect bounds assertion in aes key wrap \u2014 ### Summary\n``aes::unwrap_key()`` has an incorrect bounds assertion on the out buffer size, which can lead to out-of-bounds write.\n\n### Details\n``aes::unwrap_key()`` contains an incorrect assertion: it checks that `out.len() + 8 <= in_.len()`, but this condition is reversed. The intended invariant is `out.len() >= in_.len() - 8`, ensuring the output buffer is large enough.\n\nBecause of the inverted check, the function only accepts buffers at or below the minimum required size and rejects larger ones. If a smaller buffer is provided t",
+        "vuln_symbols": [
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl::aes::unwrap_key (aes.rs:235) is not called by vaultwarden (only Rsa in auth.rs:7, 53-58), native-tls 0.2.12 or webauthn-rs 0.3.2 (grep). The Debian bookworm image also links OpenSSL 3."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#20",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41681",
+            "GHSA-ghm9-cr32-g9qj"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: rustMdCtxRef::digest_final() writes past caller buffer with no length check \u2014 `EVP_DigestFinal()` always writes `EVP_MD_CTX_size(ctx)` to the `out` buffer. If `out` is smaller than that, `MdCtxRef::digest_final()` writes past its end, usually corrupting the stack. This is reachable from safe Rust.",
+        "vuln_symbols": [
+          "EVP_DigestFinal",
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "MdCtxRef::digest_final (md_ctx.rs:242) is not called by vaultwarden, native-tls or webauthn-rs (webauthn uses openssl::hash/sign/x509). The only callers are md_ctx tests."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#21",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41898",
+            "GHSA-hppc-g8h3-xhp3"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Unchecked callback length in PSK/cookie trampolines leaks adjacent memory to peer \u2014 The FFI trampolines behind `SslContextBuilder::set_psk_client_callback`, `set_psk_server_callback`, `set_cookie_generate_cb`,  and `set_stateless_cookie_generate_cb` forwarded the user closure's returned usize directly to OpenSSL without checking it against the `&mut [u8]` that was handed to the closure. This can lead to buffer overflows and other unintended consequences.",
+        "vuln_symbols": [
+          "set_psk_server_callback",
+          "set_cookie_generate_cb",
+          "set_stateless_cookie_generate_cb"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "set_psk_*_callback / set_cookie_generate_cb / set_stateless_cookie_generate_cb are not used by native-tls (imp/openssl.rs), webauthn-rs or vaultwarden. No PSK or DTLS cookies."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#22",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45784",
+            "GHSA-phqj-4mhp-q6mq"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Potential out-of-bounds write in `CipherCtxRef::cipher_update_inplace` for AES-KW-PAD ciphers \u2014 `CipherCtxRef::cipher_update_inplace` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (EVP_aes_{128,192,256}_wrap_pad). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.\n\nThis method was missed in the fix for GHSA-xv59-967r-8726",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.80"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No AES key-wrap-with-padding cipher (aes_*_wrap_pad) or CipherCtxRef::cipher_update_inplace use in vaultwarden, native-tls or webauthn-rs (grep symm/cipher_ctx/wrap_pad finds nothing)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#23",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41676",
+            "GHSA-pqf5-4pqq-29f5"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Deriver::derive and PkeyCtxRef::derive can overflow short buffers on OpenSSL 1.1.1 \u2014 `Deriver::derive` (and `PkeyCtxRef::derive`) sets `len = buf.len()` and passes it as the in/out length to `EVP_PKEY_derive`, relying on OpenSSL to honor it. On OpenSSL 1.1.x, X25519, X448, DH and HKDF-extract  ignore the incoming `*keylen`, unconditionally writing the full shared secret (32/56/prime-size bytes). A caller passing a short slice gets a heap/stack overflow from safe code. OpenSSL 3.x providers do check, so this only impacts older OpenSSL.",
+        "vuln_symbols": [
+          "EVP_PKEY_derive"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Deriver::derive/PkeyCtxRef::derive are not called by vaultwarden, native-tls or webauthn-rs. The issue also only affects OpenSSL 1.1.x, and the image is debian:bookworm-slim (OpenSSL 3, Dockerfile.debian). The ring::pbkdf2::derive in crypto.rs:16 is unrelated."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#24",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41677",
+            "GHSA-xmgf-hq76-4vx2"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-opennssl has an Out-of-bounds read in PEM password callback when returning an oversized length \u2014 The `*_from_pem_callback` APIs did not validate the length returned by the user's callback. A password callback that returns a value larger than the buffer it was given can cause some versions of OpenSSL to over-read this buffer. OpenSSL 3.x is not affected by this.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No *_from_pem_callback use: auth.rs:53 uses Rsa::private_key_from_pem (no callback) on the server's own key file. Only OpenSSL < 3 is affected anyway, and the bookworm image has OpenSSL 3."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#25",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42327",
+            "GHSA-xp3w-r5p5-63rr"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has undefined behavior in X509Ref::ocsp_responders for certificates with non-UTF-8 OCSP URLs \u2014 `X509Ref::ocsp_responders` returns OCSP responder URLs from a certificate's AIA extension as `OpensslString`, whose `Deref<Target = str>` wraps the raw bytes with `str::from_utf8_unchecked`. OpenSSL does not enforce that the underlying IA5String is ASCII, so a certificate with non-UTF-8 bytes in its OCSP accessLocation causes safe Rust code to construct a `&str` that violates the UTF-8 invariant \u2014 resulting in undefined behavior.",
+        "vuln_symbols": [
+          "OpensslString"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "X509Ref::ocsp_responders (x509/mod.rs:604) is not called by vaultwarden, native-tls or webauthn-rs (grep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#26",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44662",
+            "GHSA-xv59-967r-8726"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl vulnerable to heap buffer overflow when encrypting with AES key-wrap-with-padding \u2014 `CipherCtxRef::cipher_update`, `CipherCtxRef::cipher_update_vec`, and `symm::Crypter::update` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (`EVP_aes_{128,192,256}_wrap_pad`). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "cipher_update/Crypter with AES wrap_pad ciphers is not used by vaultwarden, native-tls or webauthn-rs. No symm/cipher_ctx usage anywhere on the path."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#27",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-24898",
+            "GHSA-rpmj-rpgj-qmpm",
+            "RUSTSEC-2025-0004"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl ssl::select_next_proto use after free \u2014 ### Impact\n`ssl::select_next_proto` can return a slice pointing into the `server` argument's buffer but with a lifetime bound to the `client` argument. In situations where the `server` buffer's lifetime is shorter than the `client` buffer's, this can cause a use after free. This could cause the server to crash or to return arbitrary memory contents to the client.\n\n### Patches\n`openssl` 0.10.70 fixes the signature of `ssl::select_next_proto` to properly constrain the output buffer's lifetime to that of both input buffers.\n\n### Workarounds\nIn ",
+        "vuln_symbols": [
+          "openssl::ssl::select_next_proto"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.70"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ssl::select_next_proto (ssl/mod.rs:698) is only called in openssl's own tests. native-tls uses set_alpn_protos client-side (imp/openssl.rs:300-316), and there is no server-side ALPN select callback."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#28",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4fcv-w3qc-ppgg",
+            "RUSTSEC-2025-0022"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl Use-After-Free in `Md::fetch` and `Cipher::fetch` \u2014 When a `Some(...)` value was passed to the `properties` argument of either of these functions, a use-after-free would result.\n\nIn practice this would nearly always result in OpenSSL treating the properties as an empty string (due to `CString::drop`'s behavior).\n\nThe maintainers thank [quitbug](https://github.com/quitbug/) for reporting this vulnerability to us.",
+        "vuln_symbols": [
+          "openssl::cipher::Cipher::fetch",
+          "openssl::md::Md::fetch"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.72"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Md::fetch/Cipher::fetch with properties are not called by vaultwarden, native-tls or webauthn-rs (only in an openssl test at cipher_ctx.rs:802)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#29",
+      "facts": {
+        "package": "rand",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires a custom logger that calls rand::thread_rng() inside logging. Vaultwarden's logger is fern (main.rs), and rand::thread_rng is used only in crypto.rs:59/util.rs:863 for random values, never from a log implementation."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#30",
+      "facts": {
+        "package": "ring",
+        "version": "0.17.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The panic needs overflow-checks, but Cargo.toml [profile.release] (used by the image, CARGO_PROFILE=release) does not enable overflow-checks. There is no QUIC HeaderProtectionKey use, and no 64 GB single-chunk AES-GCM operation (ring is used for pbkdf2/hmac/digest in crypto.rs:7 and by rustls 0.21 only if ROCKET_TLS is set)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#31",
+      "facts": {
+        "package": "rpassword",
+        "version": "7.3.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2p6r-x3vv-xqm2"
+          ],
+          [
+            "rpassword"
+          ]
+        ],
+        "advisory_summary": "rpassword affected by partial password reveal when input is interrupted  \u2014 rpassword maintainers were made aware of a possible issue with a partial password reveal when input is interrupted.\n\nTo quote @squell:\n\n> @conradkleinespel I've confirmed this problem with SequoiaPGP, which I think uses rpassword, e.g.:\n>\n> Suppose we use pkill -9 sq in a different terminal right after the password has been typed in:\n>\n> $ sq key generate --userid \"barf\" --with-password\n> Enter password to protect the key: Killed\n> $ hello^C\n>\n> Where the password I typed in is \"hello\".\n\nThis has been fixed in version v",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "rpassword"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rpassword::prompt_password is in the deployed binary: the `vaultwarden hash` CLI subcommand (main.rs:161,167) prompts for the admin password, a documented admin workflow (docker exec ... /vaultwarden hash). The partial reveal needs that process to be killed during input. This is local-operator only, with no network-attacker data. Labelled reachable because the vulnerable function is called."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#32",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.21.12 is only used by rocket_http's TLS listener (server side, and only if ROCKET_TLS is configured; the image serves plain HTTP on :80). Tls12/Tls13ClientSessionValue and ClientSessionStore are client-side. No rustls client exists in the build (reqwest uses native-tls)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#33",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "This is a client-side issue (the client records the server-selected kx group). rustls 0.21.12 is only Rocket's TLS server (rocket_http tls/listener.rs), and 0.21 has no X25519MLKEM768 anyway."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#34",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.16",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-11738",
+            "GHSA-qg5g-gv98-5ffh",
+            "RUSTSEC-2024-0399"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "rustls network-reachable panic in `Acceptor::accept` \u2014 A bug introduced in rustls 0.23.13 leads to a panic if the received TLS ClientHello is fragmented.  Only servers that use `rustls::server::Acceptor::accept()` are affected.\n\nServers that use `tokio-rustls`'s `LazyConfigAcceptor` API are affected.\n\nServers that use `tokio-rustls`'s `TlsAcceptor` API are not affected.\n\nServers that use `rustls-ffi`'s `rustls_acceptor_accept` API are affected.\n",
+        "vuln_symbols": [
+          "LazyConfigAcceptor",
+          "TlsAcceptor",
+          "rustls_acceptor_accept"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.0",
+          "0.23.18"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.16 is not compiled. It is reached only via hyper-rustls 0.27.3/tokio-rustls 0.26, which reqwest 0.12.9 pulls only with __rustls/rustls-tls* features. Vaultwarden enables native-tls-alpn etc. (Cargo.toml reqwest line), and hyper-rustls is in the lock only through the weak 'hyper-rustls?/http2'. Rocket's server uses rustls 0.21 with TlsAcceptor, not LazyConfigAcceptor/Acceptor."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#35",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.16",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2mjx-qc3c-rqvc",
+            "RUSTSEC-2026-0285"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Rustls: TLS 1.3 handshake messages incorrectly accepted across encryption level boundaries \u2014 Rustls accepted TLS 1.3 handshake messages sent at the wrong encryption level when they followed a key-changing message in the same record. The handshake transcript is still authenticated, so a network-position attacker cannot use this to alter or complete a handshake; the practical effect is that a peer could send handshake messages that should be encrypted in plaintext without rustls rejecting the connection.\n\nThis issue affects rustls versions 0.23.13 through 0.23.44 inclusive.\n\n# Original report\n##",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.45"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.16 is not in the built binary: only via hyper-rustls/tokio-rustls 0.26 behind reqwest's rustls-tls features, which vaultwarden does not enable (it uses native-tls-alpn). Its presence in Cargo.lock comes from the weak 'hyper-rustls?/http2' feature."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#36",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.16",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.16 is not compiled (reqwest rustls features off, native-tls used). Even if it were, this is a client-session Debug leak needing a custom ClientSessionStore that logs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#37",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.16",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h2v8-394m-p7vv",
+            "RUSTSEC-2026-0348"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Brotli certificate decompression can allocate up to 1 GiB before authentication \u2014 The built-in Brotli certificate decompressor (enabled by the non-default\n`brotli` crate feature) bounded the size of the decompressed output, but\naccepted a peer-selected history window. Brotli's large-window extension was\nenabled, so a five-byte header could cause an allocation of 1 GiB. A peer can\nabort a process whose allocator cannot satisfy that request.\n\nNo trusted certificate is required by the attacker. Affected configurations are:\n\n- clients that enable the `brotli` feature and connect to a malicious ser",
+        "vuln_symbols": [
+          "brotli"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.16 is not compiled (reqwest rustls features off), and its non-default 'brotli' cert-compression feature is not enabled either (reqwest's brotli feature is async-compression, not rustls)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#38",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.16",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.16 is not compiled into the binary (reqwest uses native-tls; hyper-rustls is only a lockfile artefact of the weak 'hyper-rustls?/http2' feature)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#39",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 is only used by rustls 0.21 inside Rocket's TLS server. Without the rocket 'mtls' feature (rocket features = tls,json), ca_certs is None (rocket config/tls.rs:666-669) and the listener uses NoClientAuth (rocket_http tls/listener.rs:87-94), so webpki never verifies any certificate. TLS is also off unless ROCKET_TLS is set."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#40",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 does no certificate verification in this binary: Rocket's rustls server uses NoClientAuth because mtls is off (rocket_http tls/listener.rs:87-94), and there is no rustls client. Name-constraint checks never run."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#41",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CRL parsing/RevocationOptions is never used: the only rustls (0.21 server) has NoClientAuth (rocket_http tls/listener.rs:94), and nothing loads CRLs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#42",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No path building/verification happens with rustls-webpki 0.101.7. It is a dependency of Rocket's rustls 0.21 server, which uses NoClientAuth without the mtls feature (tls/listener.rs:87-94). Outbound TLS uses native-tls/OpenSSL."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#43",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93602",
+            "GHSA-pwjx-qhcg-rvj4",
+            "RUSTSEC-2026-0049"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "CRLs not considered authoritative by Distribution Point due to faulty matching logic \u2014 If a certificate had more than one `distributionPoint`, then only the first `distributionPoint` would be considered against each CRL's `IssuingDistributionPoint` `distributionPoint`, and then the certificate's subsequent `distributionPoint`s would be ignored.\n\nThe impact was that correctly provided CRLs would not be consulted to check revocation. With `UnknownStatusPolicy::Deny` (the default) this would lead to incorrect but safe `Error::UnknownRevocationStatus`. With `UnknownStatusPolicy::Allow` this would ",
+        "vuln_symbols": [
+          "distributionPoint",
+          "IssuingDistributionPoint"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.10",
+          "0.104.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.102.8 is only a dep of rustls 0.23.16, which is not compiled (reqwest rustls features off; hyper-rustls is in the lock only through the weak 'hyper-rustls?/http2'). Also no CRL use."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#44",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.102.8 is not compiled (only via rustls 0.23.16/hyper-rustls, which reqwest does not enable; vaultwarden uses native-tls-alpn)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#45",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.102.8 is not compiled (only via rustls 0.23.16/hyper-rustls, which reqwest does not enable)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#46",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.102.8 is not compiled, and nothing uses CRL RevocationOptions."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#47",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.102.8 is not compiled (only via rustls 0.23.16, which the reqwest native-tls-only feature set excludes)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#48",
+      "facts": {
+        "package": "time",
+        "version": "0.3.36",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25727",
+            "GHSA-r6v5-fh4h-64xc",
+            "RUSTSEC-2026-0009"
+          ],
+          [
+            "time"
+          ]
+        ],
+        "advisory_summary": "time vulnerable to stack exhaustion Denial of Service attack \u2014 ### Impact\n\nWhen user-provided input is provided to any type that parses with the RFC 2822 format, a denial of service attack via stack exhaustion is possible. The attack relies on formally deprecated and rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary, non-malicious input will never encounter this scenario.\n\n### Patches\n\nA limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned rather than exhausting the stack.\n\n### Workarounds\n\nLimiting the ",
+        "vuln_symbols": [
+          "time::Date::parse",
+          "time::OffsetDateTime::parse",
+          "time::PrimitiveDateTime::parse",
+          "time::Time::parse",
+          "time::UtcDateTime::parse",
+          "time::UtcOffset::parse",
+          "time::parsing::Parsed::parse_item"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.47"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "time"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No RFC 2822 parsing anywhere: no Rfc2822 in vaultwarden src, cookie, cookie_store (only .format with Rfc2822 at cookie.rs:829, and parsing uses Rfc3339), rocket, diesel or syslog. Cookie Expires from icon sites is parsed with custom format_description FMT1-4 (cookie parse.rs:19-22, 193-196), which do not use the recursive cfws/fws RFC 2822 combinators."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#49",
+      "facts": {
+        "package": "tokio",
+        "version": "1.41.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rr8g-9fpq-6wmg",
+            "RUSTSEC-2025-0023"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "Tokio broadcast channel calls clone in parallel, but does not require `Sync` \u2014 The broadcast channel internally calls `clone` on the stored value when receiving it, and only requires `T:Send`. This means that using the broadcast channel with values that are `Send` but not `Sync` can trigger unsoundness if the `clone` implementation makes use of the value being `!Sync`.\n\nThank you to Austin Bonander for finding and reporting this issue.",
+        "vuln_symbols": [
+          "Sync",
+          "clone",
+          "Send"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.2",
+          "1.42.1",
+          "1.43.1",
+          "1.44.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.83
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No tokio::sync::broadcast use in vaultwarden src or the tokio-using deps (rocket, hyper, reqwest, h2, hickory, lettre, tokio-tungstenite, tokio-util). The only hits are hyper-util server/graceful.rs:306 (server-graceful feature, unused) and the tokio-stream BroadcastStream wrapper (unused). No Send-but-!Sync clone in a broadcast channel."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#50",
+      "facts": {
+        "package": "tokio",
+        "version": "1.41.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0386"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "`AsyncFd::new` and related constructors violate I/O safety \u2014 `tokio::io::unix::AsyncFd` provides safe constructors (`new`, `with_interest`, `try_new`, and `try_with_interest`) that accept any `T: AsRawFd` rather than requiring proof of ownership or validity of the file descriptor. Because `RawFd` implements `AsRawFd`, safe code can construct an `AsyncFd` from an arbitrary or closed file descriptor, or close/replace the underlying file descriptor while the `AsyncFd` is still alive.\n\nThis violates I/O safety in two ways:\n\n1. `AsyncFd<T>` implements `AsFd` for all `T: AsRawFd` by calling `Borrowe",
+        "vuln_symbols": [
+          "tokio::io::unix::AsyncFd::new",
+          "tokio::io::unix::AsyncFd::try_new",
+          "tokio::io::unix::AsyncFd::try_with_interest",
+          "tokio::io::unix::AsyncFd::with_interest"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.51.6",
+          "1.53.3"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tokio::io::unix::AsyncFd constructors are not called by vaultwarden or any tokio-using dependency (grep AsyncFd across rocket, hyper, reqwest, hickory, lettre, tokio-tungstenite, tokio-util, tokio-socks: no hits)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-vaultwarden#51",
+      "facts": {
+        "package": "tracing-subscriber",
+        "version": "0.3.18",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58160",
+            "GHSA-xwfj-jgwm-7wp5",
+            "RUSTSEC-2025-0055"
+          ],
+          [
+            "tracing-subscriber"
+          ]
+        ],
+        "advisory_summary": " Tracing logging user input may result in poisoning logs with ANSI escape sequences \u2014 ### Impact\n\nPrevious versions of tracing-subscriber were vulnerable to ANSI escape sequence injection attacks. Untrusted user input containing ANSI escape sequences could be injected into terminal output when logged, potentially allowing attackers to:\n\n- Manipulate terminal title bars\n- Clear screens or modify terminal display\n- Potentially mislead users through terminal manipulation\n\nIn isolation, impact is minimal, however security issues have been found in terminal emulators that enabled an attacker to use",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.20"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tracing_subscriber"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tracing-subscriber 0.3.18 is only a dep of loom 0.5.6, which is a [target.\"cfg(loom)\"] dependency of state 0.6.0 (state Cargo.toml:51-53). That cfg is off in normal builds, so it is not in the binary. Vaultwarden logs via fern/log."
+      }
+    }
+  ]
+}

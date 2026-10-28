@@ -5,6 +5,7 @@
 "null", "jev", "local", "claude", "govulncheck" (Go call graph; no claim for other ecosystems),
 "jelly" (npm packages the app can load; needs SSVC_PKGSRC),
 "pyimports" (Python distributions the app can import; needs SSVC_PKGSRC),
+"cargofeat" (crates compiled into the deployed Rust binary; needs SSVC_PKGSRC),
 "cascade" (== "cascade:jev,claude"), or "cascade:a,b,..."
 (e.g. "cascade:jev,local,claude" puts local inference between Jev and claude-code).
 Any other name is an OpenAI-compatible endpoint configured by SSVC_<NAME>_BASE_URL etc.
@@ -18,8 +19,10 @@ import os
 import threading
 from pathlib import Path
 
+from .. import approots
 from .._locks import keylock
 from .base import Judge, JudgeResult, ReachQuery, Verdict, accept, needs_corroboration, policy, role
+from .cargofeat import CargoFeatJudge
 from .claude_code import ClaudeCodeJudge
 from .govulncheck import GovulncheckJudge
 from .jelly import JellyJudge
@@ -91,7 +94,7 @@ class CascadeJudge:
 
     def judge(self, q: ReachQuery) -> JudgeResult | None:
         trail, last = [], None
-        held: JudgeResult | None = None      # a not_reachable waiting for its second read
+        held: list[JudgeResult] = []          # not_reachables waiting for their second read
         for i, t in enumerate(self.tiers):
             r = t.judge(q)
             if r is None:
@@ -102,19 +105,22 @@ class CascadeJudge:
                     and any(e.get("verdict") == Verdict.REACHABLE.value for e in trail)):
                 trail.append(_strip(r, "not_reachable escalated: an earlier tier said reachable"))
                 continue        # never `last`: a returned last must not pass accept()
-            if nr and held is not None:
+            if nr and held:
                 # a second read that itself needs one counts only if each lists the other
                 # (jelly and an endpoint model: a static analysis and a model fail differently)
-                if role(r.source) in policy(held)["corroborate_by"] and (
-                        not needs_corroboration(r) or role(held.source) in policy(r)["corroborate_by"]):
+                ok = [h for h in held if role(r.source) in policy(h)["corroborate_by"] and (
+                    not needs_corroboration(r, q.ecosystem) or role(h.source) in policy(r)["corroborate_by"])]
+                if ok:
                     r.trail = trail + r.trail
-                    r.rationale = (f"corroborates {held.source}"
-                                   f"{' (' + held.model + ')' if held.model else ''}; " + r.rationale)[:1200]
+                    r.corroborates = ",".join(h.source for h in ok)
+                    r.rationale = (f"corroborates {', '.join(h.source for h in ok)}"
+                                   f"{' (' + ok[0].model + ')' if ok[0].model else ''}; " + r.rationale)[:1200]
                     return r
-                trail.append(_strip(r, f"not_reachable held: not a second read for {held.source}"))
-                continue
-            if nr and corroborate_on() and needs_corroboration(r):
-                held = r
+                if not (corroborate_on() and needs_corroboration(r, q.ecosystem)):
+                    trail.append(_strip(r, f"not_reachable held: not a second read for {held[0].source}"))
+                    continue
+            if nr and corroborate_on() and needs_corroboration(r, q.ecosystem):
+                held.append(r)
                 trail.append(_strip(r, f"not_reachable held: {r.model or r.source} needs a second read "
                                        f"({', '.join(policy(r)['corroborate_by']) or 'none allowed'})"))
                 continue
@@ -125,9 +131,9 @@ class CascadeJudge:
             last, last_at = r, len(trail) - 1
         if last is not None:
             last.trail = trail[:last_at] + trail[last_at + 1:]   # everything but its own entry
-        if last is None and held is not None:
+        if last is None and held:
             # every answer was a held not_reachable: report it, below any floor
-            last = JudgeResult(Verdict.UNSURE, 0.0, held.source, model=held.model, trail=trail,
+            last = JudgeResult(Verdict.UNSURE, 0.0, held[0].source, model=held[0].model, trail=trail,
                                rationale="not_reachable not corroborated: no later tier agreed")
         return last
 
@@ -146,7 +152,9 @@ class CachedJudge:
         return self.inner.fingerprint()
 
     def _path(self, q: ReachQuery) -> Path:
-        fp = self.fingerprint().replace("/", "_").replace(":", "_")
+        # a judge that picks its model per row (claude: opus for pypi) keys on that model
+        fp = getattr(self.inner, "fingerprint_for", lambda q: self.fingerprint())(q)
+        fp = fp.replace("/", "_").replace(":", "_")
         # a judge whose prompt differs by ecosystem keys those answers on it too
         salt = getattr(self.inner, "query_salt", lambda q: "")(q)
         if "@prepass" in fp:
@@ -155,6 +163,30 @@ class CachedJudge:
             # again; the others' prompts are unchanged and keep their answers
             note = copies_note(q.repo_path, q.ecosystem, q.dependency, q.version)
             salt += "-c" + hashlib.sha256(note.encode()).hexdigest()[:8] if note else ""
+            # and a pypi row whose package is imported by a distribution the lock doesn't show
+            # as its parent gets an importers note (pyimports.importers_note): re-keyed the same way
+            if q.ecosystem == "pypi":
+                from .pyimports import importers_note
+                imp = importers_note(q.repo_path, q.ecosystem, q.dependency, q.version)
+                salt += "-i" + hashlib.sha256(imp.encode()).hexdigest()[:8] if imp else ""
+                # and one whose advisory functions are called from installed code (pycallers)
+                from .pycallers import callers_note
+                cal = callers_note(q.repo_path, q.ecosystem, q.dependency, q.version, q.vuln_symbols)
+                salt += "-k" + hashlib.sha256(cal.encode()).hexdigest()[:8] if cal else ""
+                # and one whose package is called by libraries the app uses (dependents_note)
+                from .pyimports import dependents_note
+                dpn = dependents_note(q.repo_path, q.ecosystem, q.dependency, q.version, q.vuln_symbols)
+                salt += "-d" + hashlib.sha256(dpn.encode()).hexdigest()[:8] if dpn else ""
+            if q.ecosystem == "maven":
+                # and a maven row whose advisory code is called from the release's bytecode (jvmcallers)
+                from ..jvmcallers import callers_note as jvm_callers
+                cal = jvm_callers(q.repo_path, q.ecosystem, q.dependency, q.version, q.vuln_symbols)
+                salt += "-j" + hashlib.sha256(cal.encode()).hexdigest()[:8] if cal else ""
+        # an app whose Dockerfile installs local projects from outside its root (approots:
+        # Baserow's premium/) is searched and read with them: only those apps' rows are asked again
+        if extra := approots.extra_roots(q.repo_path):
+            rels = [os.path.relpath(d, Path(q.repo_path).expanduser().resolve()) for d in extra]
+            salt += "-x" + hashlib.sha256("\0".join(rels).encode()).hexdigest()[:8]
         if getattr(self.inner, "devserver_notes", False):
             # a dev-server tool's server-mode advisory gets the entry-point note
             # (devserver.devserver_note): only those rows are asked again
@@ -236,6 +268,8 @@ def _build(spec: str, *, cache: bool = True):
         j = JellyJudge()
     elif spec == "pyimports":
         j = PyImportsJudge()
+    elif spec == "cargofeat":
+        j = CargoFeatJudge()
     elif spec == "local":
         j = LocalJudge()
     elif spec == "claude":
@@ -247,7 +281,7 @@ def _build(spec: str, *, cache: bool = True):
     elif configured(spec):
         j = OpenAIJudge(spec)
     else:
-        raise ValueError(f"unknown judge spec {spec!r} (null|jev|local|claude|govulncheck|jelly|pyimports|split[:endpoint]|shape|<endpoint>|cascade[:a,b]; "
+        raise ValueError(f"unknown judge spec {spec!r} (null|jev|local|claude|govulncheck|jelly|pyimports|cargofeat|split[:endpoint]|shape|<endpoint>|cascade[:a,b]; "
                          "an endpoint tier needs SSVC_<NAME>_BASE_URL)")
     return CachedJudge(j) if cache else j
 

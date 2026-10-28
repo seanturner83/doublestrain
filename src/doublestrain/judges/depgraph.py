@@ -14,6 +14,7 @@ nested tree.
 from __future__ import annotations
 
 from collections import deque
+import re
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -141,6 +142,36 @@ def _from_go(repo: Path) -> Graph | None:
     return Graph(nodes, edges, frozenset(direct), frozenset())
 
 
+def _from_maven(repo: Path) -> Graph | None:
+    """The Graph over a JVM release's classpath (`jvmjars.index`): edges are the runtime
+    dependencies each jar's embedded pom.xml declares, among the jars that shipped; ROOT's
+    are the app's own jars' declared dependencies, plus anything nothing else reaches (a
+    classpath has no lockfile: a jar that shipped is in the build)."""
+    from .. import jvmjars
+    ix = jvmjars.index(repo)
+    if ix is None:
+        return None
+    app = ix.get("__app__") or {}
+    nodes = {n: {"name": n, "version": v["version"], "dev": False,
+                 "integrity": f"sha1:{v['sha1']}" if v.get("sha1") else "shaded" if v.get("shaded_in") else ""}
+             for n, v in ix.items() if n != "__app__"}
+    edges = {n: tuple(d for d in ix[n].get("deps") or () if d in nodes and d != n) for n in nodes}
+    direct = {d for d in app.get("deps") or () if d in nodes}
+    if not direct:
+        # no first-party pom (a Gradle-built app): the roots are what nothing else depends on
+        has_parent = {k for kids in edges.values() for k in kids}
+        direct = {n for n in nodes if n not in has_parent}
+    edges[ROOT] = tuple(sorted(direct))
+    seen, todo = set(), [ROOT]
+    while todo:
+        for d in edges.get(todo.pop(), ()):
+            if d not in seen:
+                seen.add(d)
+                todo.append(d)
+    edges[ROOT] += tuple(sorted(set(nodes) - seen))
+    return Graph(nodes, edges, frozenset(direct), frozenset())
+
+
 def _from_pypi(repo: Path) -> Graph | None:
     """The Graph over a Python lock (`pylock`): ROOT's edges are the direct dependencies
     (every package when the lock has no roots, e.g. a plain pin list)."""
@@ -159,6 +190,33 @@ def _from_pypi(repo: Path) -> Graph | None:
     return Graph(nodes, edges, frozenset(prod), frozenset(dev - prod))
 
 
+_REQ_NAME = re.compile(r"\s*([A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?)")
+
+
+def with_pypi_metadata(g: Graph) -> Graph:
+    """A Python graph whose lock records no edges (Pipfile.lock, plain pins), with edges from
+    each release's PyPI `requires_dist`: every extra and marker counted, so it can only show
+    more routes than install did. A node whose metadata is unknown is marked
+    `requires_unknown` (it could require anything). Unchanged when the lock has edges or
+    pkgsrc is off (then every node is unknown to callers that check)."""
+    from .. import pkgsrc, pylock
+    if any(cs for p, cs in g.edges.items() if p != ROOT) or not pkgsrc.enabled():
+        return g
+    by_name: dict[str, list[str]] = {}
+    for p, n in g.nodes.items():
+        by_name.setdefault(n["name"], []).append(p)
+    nodes, edges = {}, {ROOT: g.edges.get(ROOT, ())}
+    for p, n in g.nodes.items():
+        reqs = None if n["dev"] else pkgsrc.pypi_requires(n["name"], n["version"])
+        nodes[p] = {**n, "requires_unknown": reqs is None and not n["dev"]}
+        kids = set()
+        for r in reqs or ():
+            if m := _REQ_NAME.match(r):
+                kids.update(c for c in by_name.get(pylock.normalize(m.group(1)), ()) if c != p)
+        edges[p] = tuple(sorted(kids))
+    return Graph(nodes, edges, g.direct, g.dev_direct)
+
+
 def load(repo: Path, ecosystem: str = "npm") -> Graph | None:
     if ecosystem == "pypi":
         return _from_pypi(Path(repo))
@@ -166,6 +224,8 @@ def load(repo: Path, ecosystem: str = "npm") -> Graph | None:
         return _from_cargo(Path(repo))
     if ecosystem == "go":
         return _from_go(Path(repo))
+    if ecosystem == "maven":
+        return _from_maven(Path(repo))
     from .. import npmlock
     lock = npmlock.find(Path(repo))
     return _load(str(lock), lock.stat().st_mtime) if lock is not None else None

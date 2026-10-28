@@ -1,0 +1,3678 @@
+{
+  "id": "real-rs-kellnr",
+  "description": "real-rs-kellnr: Rust held-out set (rs2), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#1",
+      "facts": {
+        "package": "anyhow",
+        "version": "1.0.93",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0190"
+          ],
+          [
+            "anyhow"
+          ]
+        ],
+        "advisory_summary": "Unsoundness in `Error::downcast_mut()` \u2014 Affected versions of this crate violate borrow rules, resulting in undefined behavior, when the user adds context to an error via `Error::context` and then later calls `Error::downcast_mut` on the returned `Error`.\n\nThe flaw was corrected in commit `6e8c000` by revising how the mutable reference is constructed, avoiding inclusion of a shared reference in the resulting borrow chain.\n\n## Example\n\n```rust\nuse anyhow::Error;\nuse std::fmt;\n\n#[derive(Debug)]\nstruct ErrorContext(&'static str);\n\nimpl fmt::Display for ErrorContext {\n    fn fmt(&self, f: &mut fmt",
+        "vuln_symbols": [
+          "anyhow::Error::downcast_mut"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.0.103"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "anyhow"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Error::downcast_mut is never called: no hits in kellnr crates/* nor in anyhow dependents cargo 0.83, cargo-util, cargo-credential(-libsecret) (grep downcast_mut empty)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#2",
+      "facts": {
+        "package": "aws-lc-sys",
+        "version": "0.20.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-3337",
+            "GHSA-65p9-r9h6-22vj",
+            "GHSA-frmv-5gcm-jwxh",
+            "RUSTSEC-2026-0043",
+            "RUSTSEC-2026-0045"
+          ],
+          [
+            "aws-lc-sys"
+          ]
+        ],
+        "advisory_summary": "AWS-LC has Timing Side-Channel in AES-CCM Tag Verification \u2014 ### Summary\nAWS-LC is an open-source, general-purpose cryptographic library.\n\n### Impact\nObservable timing discrepancy in AES-CCM decryption in AWS-LC allows an unauthenticated user to potentially determine authentication tag validity via timing analysis.\n\nThe impacted implementations are through the EVP CIPHER API: EVP_aes_128_ccm, EVP_aes_192_ccm, and EVP_aes_256_ccm.\n\nCustomers of AWS services do not need to take action. aws-lc-sys and aws-lc-fips-sys contain code from AWS-LC. Applications using aws-lc-sys or aws-lc-fips-sys shoul",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.38.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_lc_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AES-CCM EVP API is not used: aws-lc-sys only reachable via aws-lc-rs <- rustls 0.23.12/rustls-webpki (hyper-rustls default aws-lc-rs feature); rustls cipher suites are AES-GCM/ChaCha20 only, never CCM."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#3",
+      "facts": {
+        "package": "aws-lc-sys",
+        "version": "0.20.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-4428",
+            "GHSA-9f94-5g5w-gf6r",
+            "RUSTSEC-2026-0042",
+            "RUSTSEC-2026-0048"
+          ],
+          [
+            "aws-lc-sys"
+          ]
+        ],
+        "advisory_summary": "CRL Distribution Point Scope Check Logic Error in AWS-LC \u2014 ### Summary\n\nAWS-LC is an open-source, general-purpose cryptographic library.\n\n### Impact \n\nA logic error in CRL distribution point matching in AWS-LC allows a revoked certificate to bypass revocation checks during certificate validation, when the application enables CRL checking and uses partitioned CRLs with Issuing Distribution Point (IDP) extensions.\n\nCustomers of AWS services do not need to take action. aws-lc-sys and aws-lc-fips-sys contain code from AWS-LC. Applications using aws-lc-sys or aws-lc-fips-sys should upgrade to the m",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.39.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_lc_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AWS-LC X.509/CRL verification is not used: rustls uses rustls-webpki for path/CRL checks and aws-lc-rs only for primitives; kellnr configures no CRL checking."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#4",
+      "facts": {
+        "package": "bytes",
+        "version": "1.7.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25541",
+            "GHSA-434x-w66g-qw3r",
+            "RUSTSEC-2026-0007"
+          ],
+          [
+            "bytes"
+          ]
+        ],
+        "advisory_summary": "bytes has integer overflow in BytesMut::reserve \u2014 # Details\n\nIn the unique reclaim path of `BytesMut::reserve`, the condition\n```rs\nif v_capacity >= new_cap + offset\n```\nuses an unchecked addition. When `new_cap + offset` overflows `usize` in release builds, this condition may incorrectly pass, causing `self.cap` to be set to a value that exceeds the actual allocated capacity. Subsequent APIs such as `spare_capacity_mut()` then trust this corrupted `cap` value and may create out-of-bounds slices, leading to UB.\n\nThis behavior is observable in release builds (integer overflow wraps), whereas de",
+        "vuln_symbols": [
+          "usize",
+          "self.cap",
+          "spare_capacity_mut",
+          "cap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "bytes"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Overflow needs BytesMut::reserve(additional) with new_cap+offset near usize::MAX; kellnr has no BytesMut/reserve use (grep crates/), and hyper/h2/axum reserve with frame/buffer-bounded sizes (bodies capped by DefaultBodyLimit), so the wrap can't be driven by request data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#5",
+      "facts": {
+        "package": "cargo",
+        "version": "0.83.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-5223",
+            "GHSA-jq42-7mfv-hm57"
+          ],
+          [
+            "cargo"
+          ]
+        ],
+        "advisory_summary": "Cargo crates in third party registries can override the cached source of other crates \u2014 The Rust Security Response Team was notified that Cargo incorrectly handled symlinks inside of crate tarballs downloaded from third-party registries, allowing a malicious crate to override the source code of another crate from the same registry.\n\nThis vulnerability is tracked as CVE-2026-5223. The severity of the vulnerability is **medium** for users of third-party registries. Users of crates.io are **not affected**, as crates.io forbids uploading crates containing any symlink.\n\n## Overview\n\nWhen building a",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.97.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "cargo"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "cargo 0.83 is linked only via crates/docs (Cargo.lock: cargo <- docs) and runs only when docs.enabled=true (off by default, config/default.toml; crates/settings/src/docs.rs:12; main.rs:223 init_docs_hosting; registry/src/kellnr_api.rs:182 queues each published crate) -> docs/src/doc_queue.rs:110-130 GlobalContext::default + Workspace::new + ops::doc on the attacker's unpacked .crate. Attacker-published Cargo.toml can depend on a crate from a third-party registry (e.g. the kellnr registry itself via registry-index, index readable without auth by default); cargo downloads and unpacks it with RegistrySource::unpack_package (cargo src/cargo/sources/registry/mod.rs:599-680) which calls entry.unpack_in with no symlink rejection -> symlinked tarball can overwrite cached sources of other crates used in later doc builds. Requires docs.enabled (commonly turned on; image ships Rust toolchain for it)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#6",
+      "facts": {
+        "package": "cargo",
+        "version": "0.83.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-5222",
+            "GHSA-p688-r7jv-fm6f"
+          ],
+          [
+            "cargo"
+          ]
+        ],
+        "advisory_summary": "Cargo can be coerced to share credentials between registries \u2014 The Rust Security Response Team was notified that Cargo incorrectly normalized the URLs of third-party registries using the [sparse index protocol][1]. If a hosting provider allowed multiple registries to be hosted with arbitrary names within the same domain, an attacker able to publish crates in a registry could obtain the credentials of others users of the same registry.\n\nThis vulnerability is tracked as CVE-2026-5222. The severity of the vulnerability is **low**, due to the extremely niche requirements needed to achieve the atta",
+        "vuln_symbols": [
+          "foo",
+          "bar"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.97.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "cargo"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "cargo 0.83 is linked only via crates/docs (Cargo.lock: cargo <- docs) and runs only when docs.enabled=true (off by default, config/default.toml; crates/settings/src/docs.rs:12; main.rs:223 init_docs_hosting; registry/src/kellnr_api.rs:182 queues each published crate) -> docs/src/doc_queue.rs:110-130 GlobalContext::default + Workspace::new + ops::doc on the attacker's unpacked .crate. Credential leak needs cargo to hold registry tokens for multiple sparse registries hosted under one domain with arbitrary names; the kellnr process's cargo GlobalContext has no registry credentials configured by default and kellnr hosts a single registry, so no credentials can be redirected."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#7",
+      "facts": {
+        "package": "crossbeam-channel",
+        "version": "0.5.13",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4574",
+            "GHSA-pg9f-39pc-qf8g",
+            "RUSTSEC-2025-0024",
+            "TROVE-2025-013"
+          ],
+          [
+            "crossbeam-channel"
+          ]
+        ],
+        "advisory_summary": "crossbeam-channel Vulnerable to Double Free on Drop \u2014 The internal `Channel` type's `Drop` method has a race\nwhich could, in some circumstances, lead to a double-free.\nThis could result in memory corruption.\n\nQuoting from the\n[upstream description in merge request \\#1187](https://github.com/crossbeam-rs/crossbeam/pull/1187#issue-2980761131):\n\n> The problem lies in the fact that `dicard_all_messages` contained two paths that could lead to `head.block` being read but only one of them would swap the value. This meant that `dicard_all_messages` could end up observing a non-null block pointer (and ",
+        "vuln_symbols": [
+          "Channel",
+          "Drop",
+          "dicard_all_messages",
+          "head.block"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.5.15"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "crossbeam_channel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crossbeam-channel used by moka 0.12.8 (future/base_cache.rs:183-185; caches in storage/src/cached_crate_storage.rs:27, index/src/cratesio_prefetch_api.rs:72) and gix-features parallel. Double free needs receivers dropped while senders concurrently send on a list channel; moka keeps sender+receiver in the long-lived cache Inner and drops them together (only at shutdown); gix parallel code only on the optional docs path and not in this pattern."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#8",
+      "facts": {
+        "package": "crossbeam-epoch",
+        "version": "0.9.18",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0204"
+          ],
+          [
+            "crossbeam-epoch"
+          ]
+        ],
+        "advisory_summary": "Invalid pointer dereference in `fmt::Pointer` impl for `Atomic` and `Shared` when the underlying pointer is invalid \u2014 Affected versions of `fmt::Display` dereference the underlying pointer. This causes a invalid pointer dereference e.g., when a pointer created with `Atomic::null` or `Shared::null`. `fmt::Debug` impls and pre-0.9 `fmt::Display` impls, which do not dereference pointers, are not affected by this issue.",
+        "vuln_symbols": [
+          "Atomic",
+          "Shared"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.20"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "crossbeam_epoch"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bug is in fmt::Pointer for Atomic/Shared ({:p} formatting of an invalid pointer); users moka 0.12.8 and crossbeam-deque (ignore) never format Atomic/Shared with {:p} (grep ':p}'/fmt::Pointer empty)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#9",
+      "facts": {
+        "package": "crypto-bigint",
+        "version": "0.5.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0387"
+          ],
+          [
+            "crypto-bigint"
+          ]
+        ],
+        "advisory_summary": "Multiple timing variability issues in operations intended to be constant-time \u2014 ## Summary\n\nSeveral operations intended to be constant-time could execute secret-dependent\nbranches, depending on the compiler and target CPU. These include subtraction,\nzero counting, division, and Montgomery multiplication.\n\nAdditionally, `UintRef` equality could terminate at the first unequal limb,\nand `BoxedMontyForm::invert` branched on whether an inverse exists.\n\n## Impact\n\nApplications using affected operations on secret integers may leak information\nthrough timing or microarchitectural side channels. This i",
+        "vuln_symbols": [
+          "UintRef",
+          "ctutils"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.6"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "crypto_bigint"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crypto-bigint 0.5.5 only via elliptic-curve <- p384 <- pasetors <- cargo's cargo:paseto asymmetric-token credential provider (cargo src/cargo/util/credential/paseto.rs), used only when a registry is configured with an asymmetric secret key; kellnr's docs build never configures that, and no secret-key ops occur otherwise."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#10",
+      "facts": {
+        "package": "event-listener",
+        "version": "5.3.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0221"
+          ],
+          [
+            "event-listener"
+          ]
+        ],
+        "advisory_summary": "`event-listener` allows `!Send` tags to cross thread boundaries via `StackSlot` \u2014 Affected versions of `event-listener` unconditionally implement `Send` and\n`Sync` for `StackSlot<'_, T>`, the stack-allocated listener type created\nby the `listener!` macro.\n\nThis allows a `!Send` tag type set via `Event::with_tag` to be moved to\nanother thread and accessed via `StackSlot::wait`, causing a data race in safe\ncode.",
+        "vuln_symbols": [
+          "StackSlot",
+          "Send",
+          "Sync"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.2"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "event_listener"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a !Send tag set via Event::with_tag plus listener! StackSlot; dependents async-lock 3.4.0, event-listener-strategy, sqlx-core, moka use the default () tag (moka's with_tag hits are crossbeam-epoch Shared::with_tag, cht/map/bucket.rs:154)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#11",
+      "facts": {
+        "package": "faster-hex",
+        "version": "0.9.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0306"
+          ],
+          [
+            "faster-hex"
+          ]
+        ],
+        "advisory_summary": "[affects only arch=x86, arch=x86_64] `hex_decode_unchecked` AVX2 path reads past `src` \u2014 `faster_hex::hex_decode_unchecked` is a safe function. On x86 and x86_64, when AVX2 is enabled, `hex_decode_avx2` keeps decoding while `dst.len() >= 32` and then loads 32 bytes from `src` and 32 bytes from `src[32..]`. Nothing in that loop requires `src` to contain 64 bytes.\n\nA safe caller can pass a short `src` and a `dst` of at least 32 bytes. The AVX2 load then reads outside `src`.\n\nThe function has had this shape since 0.3.0. 0.10.0 is the last release with the unbounded AVX2 read. The maintainer agree",
+        "vuln_symbols": [
+          "faster_hex::hex_decode_unchecked"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "faster_hex"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "hex_decode_unchecked never called: gix-hash (object_id.rs:56, prefix.rs:108/116) and gix-packetline(-blocking) decode.rs:76 call checked faster_hex::hex_decode, which validates src.len() >= 2*dst.len() (faster-hex decode.rs:230-233) before the AVX2 path."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#12",
+      "facts": {
+        "package": "git2",
+        "version": "0.19.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-j39j-6gw9-jw6h",
+            "RUSTSEC-2026-0008"
+          ],
+          [
+            "git2"
+          ]
+        ],
+        "advisory_summary": "git2 has potential undefined behavior when dereferencing Buf struct  \u2014 If the Buf struct is dereferenced immediately after calling new() or default() on the Buf struct, a null pointer is passed to the unsafe function slice::from_raw_parts. According to the safety section documentation of the function, data must be non-null and aligned even for zero-length slices or slices of ZSTs. Thus, passing a null pointer will lead to undefined behavior.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.20.4"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "git2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "UB only when a git2::Buf is dereferenced right after Buf::new()/default(); cargo 0.83's only Buf use is GitShortID(git2::Buf) (sources/git/utils.rs:43) filled by libgit2 short_id before deref; no direct deref of an empty Buf."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#13",
+      "facts": {
+        "package": "git2",
+        "version": "0.19.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0183"
+          ],
+          [
+            "git2"
+          ]
+        ],
+        "advisory_summary": "Potential undefined behavior when calling Remote::list() \u2014 When calling `Remote::list()` for a remote of a git repository, when that remote does not advertise any references, git2 passes a null pointer to the unsafe function `slice::from_raw_parts()`. Based on the safety section documentation of function, data must be non-null even for slices of length zero. Thus, the use of a null pointer leads to undefined behavior.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.21.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "git2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Remote::list() is never called by cargo 0.83 or git2-curl (grep '.list()' empty); cargo fetches with Remote::fetch."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#14",
+      "facts": {
+        "package": "git2",
+        "version": "0.19.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0184"
+          ],
+          [
+            "git2"
+          ]
+        ],
+        "advisory_summary": "Potential undefined behavior with Signature from a buffer-created BlameHunk \u2014 When a `Blame` is created via `Blame::blame_buffer()`, and a `BlameHunk` is retrieved, the pointers to the original author, original committer, final author, and final committer may be null if unavailable. The corresponding `BlameHunk` methods then create `Signature`s based on null pointers; attempting to access the data of the `Signature`s leads to dereferencing null pointers.",
+        "vuln_symbols": [
+          "Blame",
+          "BlameHunk",
+          "Signature"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.21.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "git2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Blame/blame_buffer/BlameHunk not used anywhere in cargo 0.83 or kellnr (grep empty)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#15",
+      "facts": {
+        "package": "gix",
+        "version": "0.64.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.71.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. repo.index_or_empty() reads the attacker index and verifies its SHA-1 trailer via gix_features::hash::bytes (gix-index src/file/init.rs:67-78) with no collision detection. Docs.enabled required; collision gives attacker little since they control the whole repo - chose reachable per unsure rule."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#16",
+      "facts": {
+        "package": "gix",
+        "version": "0.64.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40034",
+            "GHSA-f26g-jm89-4g65"
+          ],
+          [
+            "gix"
+          ]
+        ],
+        "advisory_summary": "gitoxide: CommandForbiddenInModulesConfiguration Bypass in gix_submodule::File::update() Enables Arbitrary Command Execution via .gitmodules \u2014 ### Summary\n\n[`gix_submodule::File::update()`](https://github.com/GitoxideLabs/gitoxide/blob/main/gix-submodule/src/access.rs#L168) is the API that gates whether an attacker-supplied `.gitmodules` file may set `update = !<shell command>`. The function is designed to return `Err(CommandForbiddenInModulesConfiguration)` unless the `!command` value came from a trusted local source (`.git/config`). Git CVE [CVE-2019-19604](https://nvd.nist.gov/vuln/detail/c",
+        "vuln_symbols": [
+          "update",
+          "submodule.$name.url",
+          "init_submodule",
+          "git",
+          "init",
+          "append_submodule_overrides"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.83.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "malicious update"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "File::update/append_submodule_overrides never called. gix submodule APIs (Repository::submodules/modules, gix_submodule::File, Submodule::state/open) are never called by cargo 0.83: list_files_gix uses dirwalk + gix::open on sub-dirs (cargo path.rs:579-700), and gix dirwalk (gix src/dirwalk, repository/dirwalk.rs) has no submodule handling; cargo checks out git deps with git2."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#17",
+      "facts": {
+        "package": "gix",
+        "version": "0.64.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82251",
+            "GHSA-fr8x-3vfx-f45h"
+          ],
+          [
+            "gix"
+          ]
+        ],
+        "advisory_summary": "gix and gitoxide: unvalidated submodule name traverses out of .git/modules and redirects state() / open() to another repository \u2014 ## **Summary**\nattachments:\n[pocs.zip](https://github.com/user-attachments/files/26431422/pocs.zip)\n\nSubmodule names coming from `.gitmodules` are exposed as unvalidated names and are later reused to derive the submodule git directory as:\n\n```\n<superproject common_dir>/modules/<submodule name>\n```\n\nBecause the submodule name is joined directly as a filesystem path component, a name such as `../../../escaped-target.git` escapes `.git/modules` after normalization. The",
+        "vuln_symbols": [
+          "state",
+          "open",
+          "common_dir"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.83.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Submodule::state()/open() never called. gix submodule APIs (Repository::submodules/modules, gix_submodule::File, Submodule::state/open) are never called by cargo 0.83: list_files_gix uses dirwalk + gix::open on sub-dirs (cargo path.rs:579-700), and gix dirwalk (gix src/dirwalk, repository/dirwalk.rs) has no submodule handling; cargo checks out git deps with git2."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#18",
+      "facts": {
+        "package": "gix",
+        "version": "0.64.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82253",
+            "GHSA-p3hw-mv63-rf9w"
+          ],
+          [
+            "gix"
+          ]
+        ],
+        "advisory_summary": "gix's submodule name validation bypass + trust inheritance flaw enables path traversal and credential disclosure \u2014 ### Summary\n\nSubmodule name validation bypass plus missing validation in production code paths allows path traversal via crafted `.gitmodules`. Combined with a trust inheritance flaw in `Submodule::open()`, this enables reading arbitrary git repository configs (including credentials) from traversed paths with full trust (CWE-22, CWE-200).\n\n### Details\n\n**Bug 1: Validation bypass in `gix-validate/src/submodule.rs` (lines 27-42)**\n\nThe `name()` function uses `name.find(b\"..\")` which",
+        "vuln_symbols": [
+          "name",
+          "Ok",
+          "names",
+          "git_dir",
+          "open",
+          "options.git_dir_trust"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.83.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Submodule name/names()/open() with trust inheritance never called. gix submodule APIs (Repository::submodules/modules, gix_submodule::File, Submodule::state/open) are never called by cargo 0.83: list_files_gix uses dirwalk + gix::open on sub-dirs (cargo path.rs:579-700), and gix dirwalk (gix src/dirwalk, repository/dirwalk.rs) has no submodule handling; cargo checks out git deps with git2."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#19",
+      "facts": {
+        "package": "gix",
+        "version": "0.64.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82252",
+            "GHSA-pg4w-g64p-qwhj"
+          ],
+          [
+            "gix"
+          ]
+        ],
+        "advisory_summary": "gix and gitoxide's symlinked .gitmodules are followed and parsed from outside of the repository \u2014 ## Summary\nattachments:\n[pocs.zip](https://github.com/user-attachments/files/26431422/pocs.zip)\n\n\nWhen `Repository::submodules()` loads submodule metadata, it prefers the worktree `.gitmodules` file if that path exists. In the current implementation, the path is read with `std::fs::read()`, which follows symlinks. As a result, a repository can present a symlinked `.gitmodules` that points outside the repository, and gitoxide will parse the out-of-repository bytes as submodule configuration.\n\nThis ",
+        "vuln_symbols": [
+          "Submodule",
+          "name",
+          "path",
+          "url",
+          "symlink_metadata",
+          "lstat"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.83.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": ".gitmodules is never parsed. gix submodule APIs (Repository::submodules/modules, gix_submodule::File, Submodule::state/open) are never called by cargo 0.83: list_files_gix uses dirwalk + gix::open on sub-dirs (cargo path.rs:579-700), and gix dirwalk (gix src/dirwalk, repository/dirwalk.rs) has no submodule handling; cargo checks out git deps with git2."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#20",
+      "facts": {
+        "package": "gix-commitgraph",
+        "version": "0.24.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-commitgraph"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.27.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_commitgraph"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-commitgraph: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#21",
+      "facts": {
+        "package": "gix-config",
+        "version": "0.38.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-config"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.44.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_config"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-config: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#22",
+      "facts": {
+        "package": "gix-date",
+        "version": "0.8.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-0810",
+            "GHSA-6mw6-mj76-grwc",
+            "RUSTSEC-2025-0140"
+          ],
+          [
+            "gix-date"
+          ]
+        ],
+        "advisory_summary": "gix-date can create non-utf8 string with `TimeBuf::as_str` \u2014 The function `gix_date::parse::TimeBuf::as_str` can create an illegal string containing non-utf8 characters. This violates the safety invariant of `TimeBuf` and can lead to undefined behavior when consuming the string.\n\nThe bug can be prevented by adding `str::from_utf8` to the function `TimeBuf::write`.",
+        "vuln_symbols": [
+          "gix_date::parse::TimeBuf::as_str"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.12.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "gix_date"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-date 0.8.7 has no TimeBuf/as_str (grep empty in src); vulnerable code introduced later."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#23",
+      "facts": {
+        "package": "gix-diff",
+        "version": "0.44.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-diff"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.51.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_diff"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-diff: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#24",
+      "facts": {
+        "package": "gix-dir",
+        "version": "0.6.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-dir"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.13.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_dir"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-dir: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#25",
+      "facts": {
+        "package": "gix-discover",
+        "version": "0.33.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-discover"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.39.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_discover"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-discover: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#26",
+      "facts": {
+        "package": "gix-features",
+        "version": "0.38.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-features"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "gix_features::hash::Hasher::digest",
+          "gix_features::hash::Hasher::update",
+          "gix_features::hash::Write::flush",
+          "gix_features::hash::Write::new",
+          "gix_features::hash::Write::write",
+          "gix_features::hash::bytes",
+          "gix_features::hash::bytes_of_file",
+          "gix_features::hash::bytes_with_hasher",
+          "gix_features::hash::hasher"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_features"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. gix_features::hash::bytes (listed function) is run on the attacker-supplied index file by gix-index src/file/init.rs:78 (skip_hash false by default, gix src/repository/index.rs:19-31). Docs.enabled required; collision has little value since attacker controls the repo - reachable per unsure rule."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#27",
+      "facts": {
+        "package": "gix-filter",
+        "version": "0.11.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-filter"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_filter"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-filter: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#28",
+      "facts": {
+        "package": "gix-fs",
+        "version": "0.11.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44471",
+            "GHSA-f89h-2fjh-2r9q"
+          ],
+          [
+            "gix-fs"
+          ]
+        ],
+        "advisory_summary": "gix-fs: Symlink prefix-reuse allows worktree escape during checkout \u2014 ### Summary\n\nA malicious tree can be constructed that will, when checked out with gitoxide, permit writing an attacker-controlled symlink into any existing directory the user has write access to.\n\n### Details\n\nDuring checkout, all symlink index entries are deferred and created after regular files using a single shared `gix_worktree::Stack`. Internally, this uses a `gix_fs::Stack`.\n\n`gix_fs::Stack::make_relative_path_current()` caches validated path prefixes: when the previously-processed leaf component exactly matches the le",
+        "vuln_symbols": [
+          "delegate.push_directory",
+          "delegate.push",
+          "symlink_metadata",
+          "create_leading_directory",
+          "a",
+          "payload"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.21.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_fs"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bug is in checkout (gix-worktree-state checkout creating symlinks via gix_fs::Stack); gix-worktree-state is not in Cargo.lock and cargo 0.83 checks out git deps with git2; docs path only does dirwalk/read-only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#29",
+      "facts": {
+        "package": "gix-index",
+        "version": "0.33.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-index"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.39.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_index"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. gix-index File::at verifies the attacker index SHA-1 checksum (gix-index src/file/init.rs:67-78) without collision detection. Docs.enabled required; low impact - reachable per unsure rule."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#30",
+      "facts": {
+        "package": "gix-negotiate",
+        "version": "0.13.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-negotiate"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.19.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_negotiate"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-negotiate: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#31",
+      "facts": {
+        "package": "gix-object",
+        "version": "0.42.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-object"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.48.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_object"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-object: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#32",
+      "facts": {
+        "package": "gix-odb",
+        "version": "0.61.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-odb"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.68.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_odb"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-odb: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#33",
+      "facts": {
+        "package": "gix-pack",
+        "version": "0.51.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-pack"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.58.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_pack"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-pack: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#34",
+      "facts": {
+        "package": "gix-pack",
+        "version": "0.51.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82254",
+            "GHSA-x494-mj8g-cj27"
+          ],
+          [
+            "gix-pack"
+          ]
+        ],
+        "advisory_summary": "gix-pack has multiple DoS vectors: unchecked indexing panics and uncapped OOM allocations from crafted pack data \u2014 ### Summary\n\nMultiple denial-of-service vectors in `gix-pack`: unchecked array indexing causes panics on crafted delta data, and uncapped attacker-controlled size headers enable OOM process kills. Both are triggered by malicious pack data received during clone/fetch.\n\n### Details\n\n**Bug 1: Unchecked array indexing in delta application (CWE-248)**\n\nThe `apply()` function in `gix-pack/src/data/delta.rs` (lines 33-87) reads delta instructions using unchecked `data[i]` indexing at 7 l",
+        "vuln_symbols": [
+          "apply",
+          "parse_header_info",
+          "MAX_SIZE",
+          "max_object_size",
+          "decompressed_size",
+          "usize"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.69.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_pack"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Crafted pack data during clone/fetch: gix fetch only with -Zgitoxide (cargo sources/git/utils.rs:1013, not enabled); cargo's list_files path (path.rs:531-700) never decodes pack objects/deltas."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#35",
+      "facts": {
+        "package": "gix-packetline",
+        "version": "0.17.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82250",
+            "GHSA-2vh6-hw4j-32ww"
+          ],
+          [
+            "gix-packetline"
+          ]
+        ],
+        "advisory_summary": "gix-packetline: reachable panic on empty side-band packet (pre-auth network DoS) \u2014 ### Summary\n`gix-packetline` panics when it receives a side-band packet line that contains only the band-id byte with an empty payload. A malicious Git server - or any remote a victim clones/fetches from - can abort the `gix` client process during a normal fetch. This is a pre-authentication, network-triggered denial of service.\n\n### Details\nIn `gix-packetline/src/lib.rs`, `impl From<&[u8]> for TextRef` strips a trailing newline with `d[d.len() - 1]`:\nhttps://github.com/GitoxideLabs/gitoxide/blob/eac50e1207e2549",
+        "vuln_symbols": [
+          "gix",
+          "d",
+          "usize",
+          "split_at_mut",
+          "main"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.21.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_packetline"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-packetline only via gix-transport for gitoxide fetch, gated by -Zgitoxide (cargo sources/git/utils.rs:1013), off; cargo fetches with git2/git2-curl."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#36",
+      "facts": {
+        "package": "gix-path",
+        "version": "0.10.10",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-45405",
+            "GHSA-m8rp-vv92-46c7",
+            "RUSTSEC-2024-0371"
+          ],
+          [
+            "gix-path"
+          ]
+        ],
+        "advisory_summary": "gix-path improperly resolves configuration path reported by Git \u2014 ### Summary\n\n`gix-path` runs `git` to find the path of a configuration file associated with the `git` installation, but improperly resolves paths containing unusual or non-ASCII characters, in rare cases enabling a local attacker to inject configuration leading to code execution.\n\n### Details\n\nIn `gix_path::env`, the underlying implementation of the `installation_config` and `installation_config_prefix` functions calls `git config -l --show-origin` to find the path of a file to treat as belonging to the `git` installation.\n\nAffe",
+        "vuln_symbols": [
+          "gix_path::env::installation_config",
+          "gix_path::env::installation_config_prefix"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.11"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_path"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "installation_config is reachable when gix loads config (gix-config source.rs:78) on the docs path, but the mis-resolution needs a git installation config path with unusual/non-ASCII chars that git quotes; in the Debian image it is /etc/gitconfig (plain), and a crate publisher can't influence it (local-attacker advisory)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#37",
+      "facts": {
+        "package": "gix-protocol",
+        "version": "0.45.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-protocol"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.49.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_protocol"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-protocol: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#38",
+      "facts": {
+        "package": "gix-ref",
+        "version": "0.45.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-ref"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.51.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_ref"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-ref: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#39",
+      "facts": {
+        "package": "gix-revision",
+        "version": "0.27.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-revision"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.33.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_revision"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-revision: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#40",
+      "facts": {
+        "package": "gix-revwalk",
+        "version": "0.13.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-revwalk"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.19.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_revwalk"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-revwalk: no SHA-1 hashing of git objects by this crate is reached. gix runs only on the optional docs path (docs.enabled): cargo PathSource::list_files -> discover_gix_repo/list_files_gix (cargo src/cargo/sources/path.rs:461-462,531-720) on the attacker's unpacked crate dir, which may contain an attacker .git. Network fetch via gix (gix-protocol/transport/pack) requires -Zgitoxide (cargo sources/git/utils.rs:1013), off by default; cargo uses git2 for git deps. No object hashing/negotiation/diff/revwalk/commitgraph runs in list_files (only discover, config, index, dirwalk)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#41",
+      "facts": {
+        "package": "gix-sec",
+        "version": "0.10.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-24890",
+            "GHSA-7rhf-42qf-vrvc"
+          ],
+          [
+            "gix-sec"
+          ]
+        ],
+        "advisory_summary": "gix-sec safe.directory protections absent for elevated administrators \u2014 ### Summary\n\nIn a process run with full administrative rights on Windows, `gix-sec` wrongly treats all locations as trusted, leading to the execution of commands configured in repositories controlled by limited user accounts.\n\n### Details\n\nIn a similar way to Git, gitoxide tries to avoid operating in local repositories that it neither considers to be owned by the current user nor finds to match any value of `safe.directory`. [This is because](https://git-scm.com/docs/git.html#_security) of the numerous commands that can be",
+        "vuln_symbols": [
+          "safe.directory",
+          "Administrators",
+          "is_path_owned_by_current_user",
+          "folder_owner",
+          "token_owner",
+          "IsWellKnownSid"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.13.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "gix_sec"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Windows-only (elevated administrator token/SID logic); Docker image is Linux."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#42",
+      "facts": {
+        "package": "gix-transport",
+        "version": "0.42.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82255",
+            "GHSA-9857-6mw7-fq2m"
+          ],
+          [
+            "gix-transport"
+          ]
+        ],
+        "advisory_summary": "gix-transport: HTTP credentials leaked to redirected host in curl backend \u2014 ## Summary\n\nThe curl-based HTTP transport in `gix-transport` sends user credentials (passwords, tokens) to an attacker-controlled server after an HTTP redirect. When a server responds with a 302 redirect during the initial `GET /info/refs`, gitoxide records the redirected base URL and rewrites all subsequent requests to point at the redirected host. The `Authorization` header is still attached because `add_basic_auth_if_present()` only checks `self.url` (the original, never-updated URL).\n\nThe reqwest backend is not aff",
+        "vuln_symbols": [
+          "Authorization",
+          "add_basic_auth_if_present",
+          "self.url",
+          "prev_url.host_str",
+          "curr_url.host_str",
+          "attempt.stop"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.56.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_transport"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-transport curl HTTP backend only used for gitoxide fetch, gated by -Zgitoxide (cargo sources/git/utils.rs:1013), off; cargo uses git2-curl; no credentials configured."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#43",
+      "facts": {
+        "package": "gix-traverse",
+        "version": "0.39.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-traverse"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.45.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_traverse"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix 0.64 is only in the binary via cargo 0.83 (docs crate). cargo's gix use is PathSource::list_files (cargo src/cargo/sources/path.rs:462,531-691: discover/index/dirwalk) plus -Zgitoxide fetch (sources/git/utils.rs:1013, unstable, off). Runs only in rustdoc generation (docs/src/doc_queue.rs:110-130), gated by docs.enabled=false default (kellnr/src/main.rs:223). gix-traverse (tree/commit traversal) is not used by index loading or dirwalk; and even if an attacker ships a .git in a .crate, the attacker owns the whole repo, so no trust-by-SHA-1 that a collision could subvert."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#44",
+      "facts": {
+        "package": "gix-validate",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-82253",
+            "GHSA-p3hw-mv63-rf9w"
+          ],
+          [
+            "gix-validate"
+          ]
+        ],
+        "advisory_summary": "gix's submodule name validation bypass + trust inheritance flaw enables path traversal and credential disclosure \u2014 ### Summary\n\nSubmodule name validation bypass plus missing validation in production code paths allows path traversal via crafted `.gitmodules`. Combined with a trust inheritance flaw in `Submodule::open()`, this enables reading arbitrary git repository configs (including credentials) from traversed paths with full trust (CWE-22, CWE-200).\n\n### Details\n\n**Bug 1: Validation bypass in `gix-validate/src/submodule.rs` (lines 27-42)**\n\nThe `name()` function uses `name.find(b\"..\")` which",
+        "vuln_symbols": [
+          "name",
+          "Ok",
+          "names",
+          "git_dir",
+          "open",
+          "options.git_dir_trust"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_validate"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "gix-validate::submodule::name / Submodule::open are only reached via gix Repository::submodules(), used in gix status (gix src/status/index_worktree.rs:200,248); cargo 0.83's gix paths (sources/path.rs:531-691 discover/index/dirwalk, gix::open of subdirs) never enumerate .gitmodules; git dep fetch uses libgit2 unless -Zgitoxide. And all of it runs only with docs.enabled (default false, kellnr/src/main.rs:223)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#45",
+      "facts": {
+        "package": "gix-worktree",
+        "version": "0.34.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-31130",
+            "GHSA-2frx-2596-x5r6",
+            "RUSTSEC-2025-0021"
+          ],
+          [
+            "gix-worktree"
+          ]
+        ],
+        "advisory_summary": "gitoxide does not detect SHA-1 collision attacks \u2014 ### Summary\ngitoxide uses SHA-1 hash implementations without any collision detection, leaving it vulnerable to hash collision attacks.\n\n### Details\ngitoxide uses the `sha1_smol` or `sha1` crate, both of which implement standard SHA-1 without any mitigations for collision attacks. This means that two distinct Git objects with colliding SHA-1 hashes would break the Git object model and integrity checks when used with gitoxide.\n\nThe SHA-1 function is considered cryptographically insecure. However, in the wake of the SHAttered attacks, this issue ",
+        "vuln_symbols": [
+          "sha1_smol",
+          "sha1"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.40.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "gix_worktree"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Only path: Cargo.lock gix-worktree 0.34.1 <- gix 0.64.0 / gix-dir <- cargo 0.83.0 <- crates/docs (Cargo.toml:25) <- kellnr. Needs [docs] enabled=true (config/default.toml:43 default false; documented rustdoc feature, assumed common). crates/docs/src/doc_queue.rs:63-73,101-121 unpacks the attacker's .crate and calls cargo::ops::doc; doc units take pkg_fingerprint (cargo fingerprint/mod.rs ~1390 'rustdoc does not have dep-info') -> PathSource::last_modified_file -> list_files -> discover_gix_repo (cargo sources/path.rs:462,531, not gated by -Zgitoxide) and, if the attacker tarball ships a .git with Cargo.toml tracked, list_files_gix dirwalk (path.rs:520,579) using gix-worktree's exclude Stack and SHA-1 (no collision detection) over attacker git data. cargo git fetch via gix is -Zgitoxide only (sources/git/utils.rs:1013). Practical impact is nil: the attacker already controls the whole repo, so a collision gains nothing. Labelled reachable on the code path under a documented non-default option."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#46",
+      "facts": {
+        "package": "h2",
+        "version": "0.4.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.4.5 is the HTTP/2 server under hyper 1.5.1; axum is built with features [\"macros\",\"http2\"] (Cargo.toml workspace axum) and axum::serve uses hyper_util auto::Builder (axum 0.7.9 src/serve.rs:19,256), which accepts h2c prior-knowledge on the public port 8000 (kellnr/src/main.rs axum::serve). Unauthenticated clients can send unbounded empty DATA frames to a stream the handler doesn't drain."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#47",
+      "facts": {
+        "package": "memmap2",
+        "version": "0.9.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0186"
+          ],
+          [
+            "memmap2"
+          ]
+        ],
+        "advisory_summary": "Unchecked pointer offset in crate `memmap2` \u2014 Affected versionf of `memmap2` did not perform enough validation on the `offset` and `len` parameters of\n`Mmap::[unchecked_]advise_range()`,\n`MmapMut::[unchecked_]advise_ranage()`\nand `MmapMut::flush[_async]_range()`.\n\nThis can cause undefined behavior due to invalid values being passed to [`pointer::offset()`] and [`pointer::add()`]\nwhen passing an out-of-bounds range to any of the affected functions.\n\nThe flaw was corrected in commit [`cee7cf0`] and released in version `0.9.11`.\n\nThe invalid pointer is not dereferenced,\nbut it is passed to the `m",
+        "vuln_symbols": [
+          "memmap2::Mmap::advise_range",
+          "memmap2::Mmap::unchecked_advise_range",
+          "memmap2::MmapMut::advise_range",
+          "memmap2::MmapMut::flush_async_range",
+          "memmap2::MmapMut::flush_range",
+          "memmap2::MmapMut::unchecked_advise_range"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.9.11"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "memmap2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "memmap2 0.9.4 is only used by gix-commitgraph/gix-index/gix-pack/gix-ref (Cargo.lock), reached only via cargo during rustdoc generation (docs.enabled default false). grep finds no caller of advise_range/unchecked_advise_range/flush_range/flush_async_range in gix-* or cargo sources; they only use plain Mmap::map."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#48",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41678",
+            "GHSA-8c75-8mhr-p7r9"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has incorrect bounds assertion in aes key wrap \u2014 ### Summary\n``aes::unwrap_key()`` has an incorrect bounds assertion on the out buffer size, which can lead to out-of-bounds write.\n\n### Details\n``aes::unwrap_key()`` contains an incorrect assertion: it checks that `out.len() + 8 <= in_.len()`, but this condition is reversed. The intended invariant is `out.len() >= in_.len() - 8`, ensuring the output buffer is large enough.\n\nBecause of the inverted check, the function only accepts buffers at or below the minimum required size and rejects larger ones. If a smaller buffer is provided t",
+        "vuln_symbols": [
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl crate is only pulled by native-tls 0.2.12 (via reqwest default-tls for the off-by-default crates.io proxy) and kellnr's optional vendored-openssl feature (off). native-tls src/imp/openssl.rs uses only ssl/x509/pkcs12/pkey; aes::unwrap_key is never called by the app or any dependency."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#49",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41681",
+            "GHSA-ghm9-cr32-g9qj"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: rustMdCtxRef::digest_final() writes past caller buffer with no length check \u2014 `EVP_DigestFinal()` always writes `EVP_MD_CTX_size(ctx)` to the `out` buffer. If `out` is smaller than that, `MdCtxRef::digest_final()` writes past its end, usually corrupting the stack. This is reachable from safe Rust.",
+        "vuln_symbols": [
+          "EVP_DigestFinal",
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "MdCtxRef::digest_final not called: openssl's only user is native-tls 0.2.12 (src/imp/openssl.rs uses ssl/x509/pkcs12/pkey/MessageDigest for cert hash only via X509::digest), app code never uses openssl."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#50",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41898",
+            "GHSA-hppc-g8h3-xhp3"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Unchecked callback length in PSK/cookie trampolines leaks adjacent memory to peer \u2014 The FFI trampolines behind `SslContextBuilder::set_psk_client_callback`, `set_psk_server_callback`, `set_cookie_generate_cb`,  and `set_stateless_cookie_generate_cb` forwarded the user closure's returned usize directly to OpenSSL without checking it against the `&mut [u8]` that was handed to the closure. This can lead to buffer overflows and other unintended consequences.",
+        "vuln_symbols": [
+          "set_psk_server_callback",
+          "set_cookie_generate_cb",
+          "set_stateless_cookie_generate_cb"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PSK/cookie callbacks (set_psk_*_callback, set_cookie_generate_cb) are never set: native-tls 0.2.12 src/imp/openssl.rs builds plain SslConnector/SslAcceptor without PSK/DTLS cookies; no other openssl user."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#51",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45784",
+            "GHSA-phqj-4mhp-q6mq"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Potential out-of-bounds write in `CipherCtxRef::cipher_update_inplace` for AES-KW-PAD ciphers \u2014 `CipherCtxRef::cipher_update_inplace` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (EVP_aes_{128,192,256}_wrap_pad). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.\n\nThis method was missed in the fix for GHSA-xv59-967r-8726",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.80"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CipherCtxRef::cipher_update_inplace with AES-KW-PAD not used: no symmetric cipher usage of openssl crate anywhere (native-tls only does TLS; app never imports openssl)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#52",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41676",
+            "GHSA-pqf5-4pqq-29f5"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Deriver::derive and PkeyCtxRef::derive can overflow short buffers on OpenSSL 1.1.1 \u2014 `Deriver::derive` (and `PkeyCtxRef::derive`) sets `len = buf.len()` and passes it as the in/out length to `EVP_PKEY_derive`, relying on OpenSSL to honor it. On OpenSSL 1.1.x, X25519, X448, DH and HKDF-extract  ignore the incoming `*keylen`, unconditionally writing the full shared secret (32/56/prime-size bytes). A caller passing a short slice gets a heap/stack overflow from safe code. OpenSSL 3.x providers do check, so this only impacts older OpenSSL.",
+        "vuln_symbols": [
+          "EVP_PKEY_derive"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Deriver::derive / PkeyCtxRef::derive not called by native-tls 0.2.12 or the app; Debian bookworm image also ships OpenSSL 3, not 1.1.1."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#53",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41677",
+            "GHSA-xmgf-hq76-4vx2"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-opennssl has an Out-of-bounds read in PEM password callback when returning an oversized length \u2014 The `*_from_pem_callback` APIs did not validate the length returned by the user's callback. A password callback that returns a value larger than the buffer it was given can cause some versions of OpenSSL to over-read this buffer. OpenSSL 3.x is not affected by this.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "*_from_pem_callback not used: native-tls uses PKey::private_key_from_pem / X509::from_pem without password callbacks (src/imp/openssl.rs:101,178-196); app never calls openssl."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#54",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42327",
+            "GHSA-xp3w-r5p5-63rr"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has undefined behavior in X509Ref::ocsp_responders for certificates with non-UTF-8 OCSP URLs \u2014 `X509Ref::ocsp_responders` returns OCSP responder URLs from a certificate's AIA extension as `OpensslString`, whose `Deref<Target = str>` wraps the raw bytes with `str::from_utf8_unchecked`. OpenSSL does not enforce that the underlying IA5String is ASCII, so a certificate with non-UTF-8 bytes in its OCSP accessLocation causes safe Rust code to construct a `&str` that violates the UTF-8 invariant \u2014 resulting in undefined behavior.",
+        "vuln_symbols": [
+          "OpensslString"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "X509Ref::ocsp_responders never called (native-tls 0.2.12 src/imp/openssl.rs has no OCSP code; no other openssl user)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#55",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44662",
+            "GHSA-xv59-967r-8726"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl vulnerable to heap buffer overflow when encrypting with AES key-wrap-with-padding \u2014 `CipherCtxRef::cipher_update`, `CipherCtxRef::cipher_update_vec`, and `symm::Crypter::update` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (`EVP_aes_{128,192,256}_wrap_pad`). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "cipher_update/Crypter::update with AES-KW-PAD unused: no symmetric cipher calls to the openssl crate anywhere in the dependency closure (only native-tls TLS use)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#56",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-24898",
+            "GHSA-rpmj-rpgj-qmpm",
+            "RUSTSEC-2025-0004"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl ssl::select_next_proto use after free \u2014 ### Impact\n`ssl::select_next_proto` can return a slice pointing into the `server` argument's buffer but with a lifetime bound to the `client` argument. In situations where the `server` buffer's lifetime is shorter than the `client` buffer's, this can cause a use after free. This could cause the server to crash or to return arbitrary memory contents to the client.\n\n### Patches\n`openssl` 0.10.70 fixes the signature of `ssl::select_next_proto` to properly constrain the output buffer's lifetime to that of both input buffers.\n\n### Workarounds\nIn ",
+        "vuln_symbols": [
+          "openssl::ssl::select_next_proto"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.70"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ssl::select_next_proto not called: native-tls 0.2.12 only sets client ALPN protos (src/imp/openssl.rs:300-316) and reads selected_alpn_protocol; select_next_proto (server-side NPN/ALPN helper) has no caller."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#57",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4fcv-w3qc-ppgg",
+            "RUSTSEC-2025-0022"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl Use-After-Free in `Md::fetch` and `Cipher::fetch` \u2014 When a `Some(...)` value was passed to the `properties` argument of either of these functions, a use-after-free would result.\n\nIn practice this would nearly always result in OpenSSL treating the properties as an empty string (due to `CString::drop`'s behavior).\n\nThe maintainers thank [quitbug](https://github.com/quitbug/) for reporting this vulnerability to us.",
+        "vuln_symbols": [
+          "openssl::cipher::Cipher::fetch",
+          "openssl::md::Md::fetch"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.72"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Md::fetch / Cipher::fetch (OpenSSL 3 provider fetch with properties) never called by native-tls or app code."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#58",
+      "facts": {
+        "package": "rand",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Unsoundness needs rand's optional `log` feature (rand 0.8.5 src/lib.rs:63-91 log macros are #[cfg(feature=\"log\")], reseeding.rs:246-254) plus a logger that calls thread_rng. rand 0.8.5 in Cargo.lock depends only on libc/rand_chacha/rand_core (no log), so the feature is off; app's thread_rng use (auth/common) is unaffected."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#59",
+      "facts": {
+        "package": "ring",
+        "version": "0.17.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ring AES panic only occurs with overflow checks enabled; kellnr ships a release build ([profile.release] lto/strip only, ci-release inherits release; no overflow-checks) and uses no QUIC (ring reached via rustls for sqlx Postgres TLS only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#60",
+      "facts": {
+        "package": "rkyv",
+        "version": "0.7.44",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0001"
+          ],
+          [
+            "rkyv"
+          ]
+        ],
+        "advisory_summary": "Potential Undefined Behaviors in `Arc<T>`/`Rc<T>` impls of `from_value` on OOM \u2014 The `SharedPointer::alloc` implementation for `sync::Arc<T>` and `rc::Rc<T>` in `rkyv/src/impls/alloc/rc/atomic.rs` (and `rc.rs`) does not check if the allocator returns a null pointer on OOM (Out of Memory).\n\nThis null pointer can flow through to `SharedPointer::from_value`, which calls `Box::from_raw(ptr)` with the null pointer. This triggers undefined behavior when utilizing safe deserialization APIs (such as `rkyv::from_bytes` or `rkyv::deserialize_using`) if an OOM condition occurs during the allocation of th",
+        "vuln_symbols": [
+          "from_value",
+          "rc.rs"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.46",
+          "0.8.13"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.86
+        },
+        "import_name": "rkyv"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rkyv 0.7.44 is only an optional dep of rust_decimal (Cargo.lock); nothing in kellnr or its DB stack deserializes rkyv archives or calls from_value for Arc/Rc; requires OOM besides."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#61",
+      "facts": {
+        "package": "rkyv",
+        "version": "0.7.44",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0235"
+          ],
+          [
+            "rkyv"
+          ]
+        ],
+        "advisory_summary": "Insufficient archive validation can cause out-of-bounds reads in archives containing Rc/Arc \u2014 Shared pointer validation keyed already-validated pointees by their address and\ntype, but did not include pointer metadata. For unsized pointees, an archive\ncould therefore contain multiple `Rc`, `Arc`, or weak pointers that shared a\ndata address but used different metadata, such as different slice lengths.\n\nOnce the first pointer had been validated, later pointers to the same address\nskipped pointee validation. The safe checked `rkyv::access` API could\nconsequently return a slice with a forged length",
+        "vuln_symbols": [
+          "Rc",
+          "Arc"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.8.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rkyv"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No code validates/accesses rkyv archives (rkyv only via rust_decimal's optional rkyv impls); no attacker-supplied archives with Rc/Arc are ever checked."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#62",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-21895",
+            "GHSA-9c48-w39g-hm26"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "rsa crate has potential panic on a prime being equal to 1 \u2014 When creating a RSA private key from its components, the construction panics, instead of returning an error, when one of the primes is `1`. \n\nDiscovered by Christian Reitter from [Radically Open Security](https://www.radicallyopensecurity.com/) during a security review for [Proton AG](https://proton.me/).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.10"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rsa only via sqlx-mysql; kellnr connects only to SQLite or Postgres (db/src con_string.rs, kellnr/src/main.rs get_connect_string), and even MySQL auth uses RSA public-key encrypt, never builds a private key from components."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#63",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-49092",
+            "GHSA-4grx-2x9w-596c",
+            "GHSA-c38w-74pg-36hr",
+            "RUSTSEC-2023-0071"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "Marvin Attack: potential key recovery through timing sidechannels \u2014 ### Impact\nDue to a non-constant-time implementation, information about the private key is leaked through timing information which is observable over the network. An attacker may be able to use that information to recover the key.\n\n### Patches\nNo patch is yet available. The crypto-bigint migration ([RustCrypto/RSA#394](https://github.com/RustCrypto/RSA/pull/394)) did not close this. Tracking is [RustCrypto/RSA#626](https://github.com/RustCrypto/RSA/issues/626) (padding still not constant-time). Implicit rejection work is in [R",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Marvin needs RSA private-key decryption/signing timing; rsa only reachable via sqlx-mysql (unused: Postgres/SQLite only), which only does public-key encryption of the password."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#64",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.12 is used only by sqlx-core (sea-orm runtime-tokio-rustls) for optional Postgres TLS; it uses the default in-memory session cache, no custom ClientSessionStore, and rustls's own logs (client/hs.rs:80,122,138) never Debug-format Tls12/Tls13ClientSessionValue."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#65",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h2v8-394m-p7vv",
+            "RUSTSEC-2026-0348"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Brotli certificate decompression can allocate up to 1 GiB before authentication \u2014 The built-in Brotli certificate decompressor (enabled by the non-default\n`brotli` crate feature) bounded the size of the decompressed output, but\naccepted a peer-selected history window. Brotli's large-window extension was\nenabled, so a five-byte header could cause an allocation of 1 GiB. A peer can\nabort a process whose allocator cannot satisfy that request.\n\nNo trusted certificate is required by the attacker. Affected configurations are:\n\n- clients that enable the `brotli` feature and connect to a malicious ser",
+        "vuln_symbols": [
+          "brotli"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Non-default `brotli` feature is off: sqlx-core declares rustls with default-features=false, features [std,tls12] (+ring), and rustls 0.23.12's Cargo.lock deps have no brotli."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#66",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls client only used by sqlx for Postgres TLS (postgresql.enabled, default off), with the ring provider (sqlx tls-rustls-ring, sqlx-core tls_rustls.rs:93-94) which offers no post-quantum hybrid groups in 0.23.12, so there is no PQ key exchange to downgrade from."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#67",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93602",
+            "GHSA-pwjx-qhcg-rvj4",
+            "RUSTSEC-2026-0049"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "CRLs not considered authoritative by Distribution Point due to faulty matching logic \u2014 If a certificate had more than one `distributionPoint`, then only the first `distributionPoint` would be considered against each CRL's `IssuingDistributionPoint` `distributionPoint`, and then the certificate's subsequent `distributionPoint`s would be ignored.\n\nThe impact was that correctly provided CRLs would not be consulted to check revocation. With `UnknownStatusPolicy::Deny` (the default) this would lead to incorrect but safe `Error::UnknownRevocationStatus`. With `UnknownStatusPolicy::Allow` this would ",
+        "vuln_symbols": [
+          "distributionPoint",
+          "IssuingDistributionPoint"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.10",
+          "0.104.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CRL distribution-point matching only runs when CRLs are configured; sqlx-core tls_rustls.rs:116-170 builds WebPkiServerVerifier/with_root_certificates with no CRLs (and only in PGSSLMODE verify modes)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#68",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): rustls-webpki 0.102.6 is only reached via rustls 0.23.12 <- sqlx-core 0.8.2 (_tls-rustls from sea-orm runtime-tokio-rustls, Cargo.toml:49). reqwest uses default native-tls/OpenSSL; its hyper-rustls lock entry comes from the weak 'hyper-rustls?/http2' feature (reqwest Cargo.toml:277) and is not compiled; bollard/hyper-rustls is under testcontainers (dev). SQLite is the default. With postgresql.enabled the URL has no sslmode (crates/db/src/con_string.rs:103), so the default is Prefer -> accept_invalid_certs (sqlx-postgres connection/tls.rs:50) -> DummyTlsVerifier, and webpki never runs. Verification (and check_name_constraints, subject_name/verify.rs:109-160, URI constraints fall to '_ => continue') only runs with the PGSSLMODE=verify-ca/verify-full env var (sqlx-postgres options/mod.rs:163), which Kellnr does not expose or document; treated as a rare setting. Also needs a misissued certificate."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#69",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Same path as row 67: rustls-webpki is used only by sqlx Postgres TLS. Kellnr's PG URL (con_string.rs:103) has no sslmode, so the default Prefer uses DummyTlsVerifier (sqlx-postgres connection/tls.rs:50-53; sqlx-core net/tls/tls_rustls.rs) and webpki path/name-constraint checks never run. DNS name-constraint matching (subject_name/verify.rs:109) is reached only with the PGSSLMODE=verify-ca/verify-full env var, which Kellnr does not expose. Also needs misissuance."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#70",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "bit_string_flags panic is in CRL parsing via RevocationOptions/IssuingDistributionPoint; no CRLs are ever configured (sqlx-core tls_rustls.rs:116-170), and no other rustls user in the deployed binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#71",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Same path as row 67: webpki chain building runs only for sqlx Postgres TLS with sslmode verify-ca/verify-full (sqlx-postgres connection/tls.rs:50; tls_rustls.rs uses WebPkiServerVerifier with webpki_roots). Kellnr's default is SQLite, and with Postgres the URL (con_string.rs:103) has no sslmode, so Prefer means no certificate verification at all. Only the undocumented PGSSLMODE env var turns verification on; a MITM on the DB path would not need a distrusted emSign intermediate under the default anyway."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#72",
+      "facts": {
+        "package": "sized-chunks",
+        "version": "0.6.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0255"
+          ],
+          [
+            "sized-chunks"
+          ]
+        ],
+        "advisory_summary": "Panic-safety unsoundness in `Chunk`, `RingBuffer`, and `InlineArray` (use-after-free / double-free) \u2014 Several methods in `sized-chunks` drop elements before updating the length/boundary metadata. If an element's `Drop` panics during the drop, the metadata update is skipped, so the container still treats the already-dropped elements as live. When the container's own `Drop` runs, those elements are visited again \u2014 a use-after-free / double-free reachable from safe Rust.\n\nThe `RingBuffer` methods require the `ringbuffer` feature. This is distinct from RUSTSEC-2020-0041 (`Chunk::clone` / `insert_f",
+        "vuln_symbols": [
+          "sized_chunks::Chunk::clear",
+          "sized_chunks::Chunk::drop_left",
+          "sized_chunks::Chunk::drop_right",
+          "sized_chunks::InlineArray::clear",
+          "sized_chunks::RingBuffer::clear",
+          "sized_chunks::RingBuffer::drop_left",
+          "sized_chunks::RingBuffer::drop_right"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "sized_chunks"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "sized-chunks only via im-rc used by cargo's resolver (docs generation, docs.enabled default false). The unsoundness needs an element whose Drop panics; cargo's im-rc contents (InternedString, PackageId, Rc'd summaries) have non-panicking drops."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#73",
+      "facts": {
+        "package": "tar",
+        "version": "0.4.43",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-3pv8-6f4r-ffg2"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "tar has a PAX header desynchronization issue \u2014 ### Summary\n\nWhen a tar stream contains multiple \"header\" entries prior to a file entry, tar-rs applies the PAX header (`x`) to the _next_ entry in the stream, regardless of type. For example, a stream of `x -> L -> file` (PAX, GNU longname, file) would result in `x`'s extensions being applied to `L` rather than to `file`.\n\n[Per POSIX pax](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/pax.html), this is incorrect: a PAX header always applies to a file entry, not any intermediary entries. See the \"pax Header Block\" section for the spec",
+        "vuln_symbols": [
+          "x",
+          "L",
+          "file",
+          "size",
+          "Err"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.46"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tar"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "tar 0.4.43 Archive::unpack runs on the attacker-uploaded .crate in docs/src/doc_queue.rs:65-71 (and cargo unpacks dependency .crates during ops::doc, doc_queue.rs:110-130). Requires docs.enabled=true (default false, kellnr/src/main.rs:223, registry kellnr_api.rs:182) \u2014 automatic rustdoc is a headline Kellnr feature, so counted as common. PAX header applied across x->L->file entries during this unpack."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#74",
+      "facts": {
+        "package": "tar",
+        "version": "0.4.43",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33056",
+            "GHSA-j4xf-2g29-59ph",
+            "RUSTSEC-2026-0067"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "tar-rs `unpack_in` can chmod arbitrary directories by following symlinks \u2014 ## Summary\n\nWhen unpacking a tar archive, the `tar` crate's `unpack_dir` function uses `fs::metadata()` to check whether a path that already exists is a directory. Because `fs::metadata()` follows symbolic links, a crafted tarball containing a symlink entry followed by a directory entry with the same name causes the crate to treat the symlink target as a valid existing directory \u2014 and subsequently apply `chmod` to it. This allows an attacker to modify the permissions of arbitrary directories outside the extraction root.",
+        "vuln_symbols": [
+          "tar::Entry::unpack",
+          "tar::Entry::unpack_in"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.4.45"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tar"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "docs/src/doc_queue.rs:70-71 calls Archive::unpack (-> Entry::unpack_in / unpack_dir) on the publisher-controlled .crate when docs.enabled=true (off by default; common for Kellnr's rustdoc feature). A crafted tar with a symlink then a dir entry gets chmod applied through the symlink."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#75",
+      "facts": {
+        "package": "tar",
+        "version": "0.4.43",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33055",
+            "GHSA-gchp-q4r4-x4ff",
+            "RUSTSEC-2026-0068"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "tar-rs incorrectly ignores PAX size headers if header size is nonzero \u2014 ### Summary\n\nAs part of [CVE-2025-62518](https://www.cve.org/CVERecord?id=CVE-2025-62518) the astral-tokio-tar project was changed to correctly honor PAX size headers in the case where it was different from the base header.\n\nHowever, it was missed at the time that this project (the original Rust `tar` crate) had a conditional logic that skipped the PAX size header in the case that the base header size was nonzero - almost the inverse of the astral-tokio-tar issue.\n\nThe problem here is that *any* discrepancy in how tar pars",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.45"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tar"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Same unpack of attacker .crate in docs/src/doc_queue.rs:65-71 with docs.enabled=true (default off). PAX size header ignored when the ustar size is nonzero, giving a parser differential on attacker archives."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#76",
+      "facts": {
+        "package": "time",
+        "version": "0.3.37",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25727",
+            "GHSA-r6v5-fh4h-64xc",
+            "RUSTSEC-2026-0009"
+          ],
+          [
+            "time"
+          ]
+        ],
+        "advisory_summary": "time vulnerable to stack exhaustion Denial of Service attack \u2014 ### Impact\n\nWhen user-provided input is provided to any type that parses with the RFC 2822 format, a denial of service attack via stack exhaustion is possible. The attack relies on formally deprecated and rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary, non-malicious input will never encounter this scenario.\n\n### Patches\n\nA limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned rather than exhausting the stack.\n\n### Workarounds\n\nLimiting the ",
+        "vuln_symbols": [
+          "time::Date::parse",
+          "time::OffsetDateTime::parse",
+          "time::PrimitiveDateTime::parse",
+          "time::Time::parse",
+          "time::UtcDateTime::parse",
+          "time::UtcOffset::parse",
+          "time::parsing::Parsed::parse_item"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.47"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "time"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs RFC 2822 parsing of attacker input. Kellnr uses time only for cookie Duration (web_ui/src/user.rs:134); cookie 0.18 does not use Rfc2822; serde_with Rfc2822 is only under testcontainers (dev). The only Rfc2822 parse in the binary is gix-date parse.rs:38, reached via gix Personas/config time keys (gix identity.rs:128-147, lazily on committer()/author()), which cargo's list_files path never calls."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#77",
+      "facts": {
+        "package": "tokio",
+        "version": "1.42.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rr8g-9fpq-6wmg",
+            "RUSTSEC-2025-0023"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "Tokio broadcast channel calls clone in parallel, but does not require `Sync` \u2014 The broadcast channel internally calls `clone` on the stored value when receiving it, and only requires `T:Send`. This means that using the broadcast channel with values that are `Send` but not `Sync` can trigger unsoundness if the `clone` implementation makes use of the value being `!Sync`.\n\nThank you to Austin Bonander for finding and reporting this issue.",
+        "vuln_symbols": [
+          "Sync",
+          "clone",
+          "Send"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.2",
+          "1.42.1",
+          "1.43.1",
+          "1.44.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.83
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No tokio::sync::broadcast usage in kellnr crates; among runtime deps only hyper-util graceful.rs:306 creates one (unit dummy), not with Send-but-!Sync values; axum::serve doesn't use it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#78",
+      "facts": {
+        "package": "tokio",
+        "version": "1.42.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0386"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "`AsyncFd::new` and related constructors violate I/O safety \u2014 `tokio::io::unix::AsyncFd` provides safe constructors (`new`, `with_interest`, `try_new`, and `try_with_interest`) that accept any `T: AsRawFd` rather than requiring proof of ownership or validity of the file descriptor. Because `RawFd` implements `AsRawFd`, safe code can construct an `AsyncFd` from an arbitrary or closed file descriptor, or close/replace the underlying file descriptor while the `AsyncFd` is still alive.\n\nThis violates I/O safety in two ways:\n\n1. `AsyncFd<T>` implements `AsFd` for all `T: AsRawFd` by calling `Borrowe",
+        "vuln_symbols": [
+          "tokio::io::unix::AsyncFd::new",
+          "tokio::io::unix::AsyncFd::try_new",
+          "tokio::io::unix::AsyncFd::try_with_interest",
+          "tokio::io::unix::AsyncFd::with_interest"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.51.6",
+          "1.53.3"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No caller of tokio::io::unix::AsyncFd::new/try_new/with_interest/try_with_interest in kellnr or its runtime dependency sources (grep over all Cargo.lock crates; only dev-only crates like bollard/hyperlocal missing)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#79",
+      "facts": {
+        "package": "tracing-subscriber",
+        "version": "0.3.18",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58160",
+            "GHSA-xwfj-jgwm-7wp5",
+            "RUSTSEC-2025-0055"
+          ],
+          [
+            "tracing-subscriber"
+          ]
+        ],
+        "advisory_summary": " Tracing logging user input may result in poisoning logs with ANSI escape sequences \u2014 ### Impact\n\nPrevious versions of tracing-subscriber were vulnerable to ANSI escape sequence injection attacks. Untrusted user input containing ANSI escape sequences could be injected into terminal output when logged, potentially allowing attackers to:\n\n- Manipulate terminal title bars\n- Clear screens or modify terminal display\n- Potentially mislead users through terminal manipulation\n\nIn isolation, impact is minimal, however security issues have been found in terminal emulators that enabled an attacker to use",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.20"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tracing_subscriber"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "kellnr/src/main.rs:200-208 uses tracing_subscriber::fmt() with default ansi feature on (workspace features [json,fmt], defaults kept), Compact format to stdout by default. Attacker strings reach Display-formatted logs e.g. docs/src/doc_queue.rs:41 (cargo errors quoting the publisher's Cargo.toml, docs.enabled) and other error!/warn! paths; no escaping before 0.3.20. Default-config paths mostly log Debug ({:?}) or non-attacker text, hence low confidence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#80",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.26.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): webpki-roots 0.26.6 (contains emSign ECC Root CA - G3, lib.rs:3065) is used only by sqlx-core 0.8.2 net/tls/tls_rustls.rs (cert_store.extend(webpki_roots::TLS_SERVER_ROOTS)) in the !accept_invalid_certs branch. That branch needs Postgres sslmode verify-ca/verify-full (sqlx-postgres connection/tls.rs:50). Kellnr's PG URL (crates/db/src/con_string.rs:103) sets no sslmode and the default is Prefer, so the roots are never used. reqwest uses native-tls (OpenSSL) and has no webpki-roots in the lock. Only the PGSSLMODE env var, which Kellnr does not expose, reaches it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#81",
+      "facts": {
+        "package": "zip",
+        "version": "2.2.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-29787",
+            "GHSA-94vh-gphv-8pm8",
+            "RUSTSEC-2025-0168"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "zip Incorrectly Canonicalizes Paths during Archive Extraction Leading to Arbitrary File Write \u2014 ### Summary\n\n\nIn the archive extraction routine of affected versions of the `zip` crate, symbolic links earlier in the archive are allowed to be used for later files in the archive without validation of the final canonicalized path, allowing maliciously crafted archives to overwrite arbitrary files in the file system when extracted.\n\n### Details\n\nThis is a variant of the [zip-slip](https://github.com/snyk/zip-slip-vulnerability) vulnerability, we can make the extraction logic step outside of the tar",
+        "vuln_symbols": [
+          "zip::read::ZipArchive::extract",
+          "zip::unstable::stream::ZipStreamReader::extract"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "PUT /api/v1/docs/:package/:version (kellnr/src/main.rs:105-107, mounted regardless of docs.enabled) -> docs/src/api.rs:69 DocArchive::extract -> zip 2.2.1 ZipArchive::extract (docs/src/doc_archive.rs:17). Body is attacker zip (doc_archive.rs:44); any token holder who owns a crate (they publish their own). zip read.rs:943-959 creates symlinks with unvalidated target, later entries written via File::create through them (read.rs:986) -> arbitrary file write."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#82",
+      "facts": {
+        "package": "zip",
+        "version": "2.2.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-vv5m-jxxh-4627",
+            "RUSTSEC-2026-0367"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": " Insecure Preservation of SUID/SGID Bits during ZIP Extraction Leading to Potential Privilege Escalation \u2014 The `zip` crate preserves privileged Unix permission bits (SUID, SGID, and sticky bits) from ZIP `external_attributes` during extraction, instead of masking them to safe permission bits. If a privileged process (for example, `root` in an installer, CI/CD pipeline, or container build) extracts an attacker-controlled ZIP archive using `ZipArchive::extract()` or the stream extraction API, files can be created as setuid-root or setgid. This behavior allows the creation of SUID/SGID files duri",
+        "vuln_symbols": [
+          "external_attributes",
+          "root"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Same docs upload path (docs/src/api.rs:69 -> ZipArchive::extract). zip 2.2.1 read.rs:991-1006 sets fs::Permissions::from_mode(unix_mode()) unmasked, so SUID/SGID/sticky bits from attacker external_attributes are preserved in the docs dir (served data dir, image runs as root)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#83",
+      "facts": {
+        "package": "zip",
+        "version": "2.2.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4v9h-p7m9-rh26",
+            "RUSTSEC-2026-0368"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "zip: `ZipArchive::extract` creates symbolic links whose attacker-controlled targets are outside the destination directory \u2014 In `zip` 9.0.0-pre2, `ZipArchive::extract` creates a symbolic link from an archive entry after validating only the output entry path. The link target bytes are passed directly to the platform symlink API, so a malicious archive can create an entry inside the destination that resolves to an attacker-chosen path outside it. This behavior was verified on macOS and Linux. On either platform, a subsequent application read or write through that extracted entry accesses the exte",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "ZipArchive::extract reached from docs upload (docs/src/api.rs:69, docs/src/doc_archive.rs:17); zip 2.2.1 read.rs:954-959 calls std::os::unix::fs::symlink(target, outpath) with raw attacker target bytes, no confinement to destination."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-kellnr#84",
+      "facts": {
+        "package": "zip",
+        "version": "2.2.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4684-h2q9-2vcp",
+            "RUSTSEC-2026-0369"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "ZipStreamReader::extract() and ZipArchive::extract() apply Unix permissions through symlinks without confining the target \u2014 `ZipStreamReader::extract()` applies Unix permissions through extracted symlinks without validating the symlink target stays within the destination\n\nFor further details see: https://github.com/zip-rs/zip2/security/advisories/GHSA-4684-h2q9-2vcp",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "ZipArchive::extract reached from docs upload (docs/src/api.rs:69); zip 2.2.1 read.rs:1005-1006 fs::set_permissions follows symlinks, and outpaths can traverse symlinks created earlier in the same archive (read.rs:954-959), so perms applied outside destination."
+      }
+    }
+  ]
+}

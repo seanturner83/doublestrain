@@ -1,0 +1,3950 @@
+{
+  "id": "real-rs-quickwit",
+  "description": "Quickwit v0.8.2 (log/trace search engine, quickwit run): Rust held-out (rs3), labelled blind",
+  "repo": "repo/quickwit",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#1",
+      "facts": {
+        "package": "anyhow",
+        "version": "1.0.81",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0190"
+          ],
+          [
+            "anyhow"
+          ]
+        ],
+        "advisory_summary": "Unsoundness in `Error::downcast_mut()` \u2014 Affected versions of this crate violate borrow rules, resulting in undefined behavior, when the user adds context to an error via `Error::context` and then later calls `Error::downcast_mut` on the returned `Error`.\n\nThe flaw was corrected in commit `6e8c000` by revising how the mutable reference is constructed, avoiding inclusion of a shared reference in the resulting borrow chain.\n\n## Example\n\n```rust\nuse anyhow::Error;\nuse std::fmt;\n\n#[derive(Debug)]\nstruct ErrorContext(&'static str);\n\nimpl fmt::Display for ErrorContext {\n    fn fmt(&self, f: &mut fmt",
+        "vuln_symbols": [
+          "anyhow::Error::downcast_mut"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.0.103"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "anyhow"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "anyhow is everywhere, but the condition is calling anyhow::Error::downcast_mut on an error that has context added. Quickwit never calls it: its only downcast_mut is on Box<dyn Any> (quickwit-common/src/type_map.rs:46). Grepping the crates.io crates in Cargo.lock finds no anyhow downcast_mut caller. http-types' Error::downcast_mut wrapper (http-types-2.12.0/src/error.rs:153) is never called. I could not inspect the git deps tantivy and chitchat (no source available)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#2",
+      "facts": {
+        "package": "aws-sdk-kinesis",
+        "version": "0.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g59m-gf8j-gjf5"
+          ],
+          [
+            "aws-sdk-kinesis"
+          ]
+        ],
+        "advisory_summary": "AWS SDK for Rust v1 adopted defense in depth enhancement for region parameter value \u2014 ## **Summary**\nThis notification is related to the use of specific values for the region input field when calling AWS services. An actor with access to the environment in which the SDK is used could set the region input field to an invalid value.\n\nA defense-in-depth enhancement has been implemented in the AWS SDK for Rust. This enhancement validates that a region used to construct an endpoint URL is a valid host label. The change was released on November 6, 2025. This advisory is informational to help custome",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.95.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.88
+        },
+        "import_name": "aws_sdk_kinesis"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "An unauthenticated REST source-create request (POST /api/v1/indexes/{id}/sources) accepts Kinesis source params `region` (quickwit-config/src/source_config/mod.rs:346). That value goes straight to aws_sdk_kinesis Region::new (quickwit-indexing/src/source/kinesis/helpers.rs:39-40). The 0.28 endpoint resolver then splices the region into the host without host-label validation (aws-sdk-kinesis-0.28.0/src/endpoint/internals.rs:84 out.push_str(&region)). The kinesis feature is in release-feature-set. Impact is limited because `endpoint` is already user-settable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#3",
+      "facts": {
+        "package": "aws-sdk-s3",
+        "version": "0.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g59m-gf8j-gjf5"
+          ],
+          [
+            "aws-sdk-s3"
+          ]
+        ],
+        "advisory_summary": "AWS SDK for Rust v1 adopted defense in depth enhancement for region parameter value \u2014 ## **Summary**\nThis notification is related to the use of specific values for the region input field when calling AWS services. An actor with access to the environment in which the SDK is used could set the region input field to an invalid value.\n\nA defense-in-depth enhancement has been implemented in the AWS SDK for Rust. This enhancement validates that a region used to construct an endpoint URL is a valid host label. The change was released on November 6, 2025. This advisory is informational to help custome",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.112.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "aws_sdk_s3"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The S3 region comes only from the node storage config or AWS env/profile (quickwit-storage/src/object_storage/s3_compatible_storage.rs:125-137, quickwit-config/src/storage_config.rs:325). Both are operator-controlled, and index URIs do not carry a region. The advisory needs an actor who controls the region value; a remote attacker cannot set it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#4",
+      "facts": {
+        "package": "aws-sdk-sso",
+        "version": "0.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g59m-gf8j-gjf5"
+          ],
+          [
+            "aws-sdk-sso"
+          ]
+        ],
+        "advisory_summary": "AWS SDK for Rust v1 adopted defense in depth enhancement for region parameter value \u2014 ## **Summary**\nThis notification is related to the use of specific values for the region input field when calling AWS services. An actor with access to the environment in which the SDK is used could set the region input field to an invalid value.\n\nA defense-in-depth enhancement has been implemented in the AWS SDK for Rust. This enhancement validates that a region used to construct an endpoint URL is a valid host label. The change was released on November 6, 2025. This advisory is informational to help custome",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.89.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "aws_sdk_sso"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-sdk-sso is used only inside the aws-config 0.55.3 credential chain. Its region comes from the SSO profile or env, which the operator controls. Quickwit passes no attacker-supplied region into SSO; the Kinesis REST `region` only reaches the kinesis client config (quickwit-indexing/src/source/kinesis/helpers.rs:27-45)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#5",
+      "facts": {
+        "package": "aws-sdk-sts",
+        "version": "0.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g59m-gf8j-gjf5"
+          ],
+          [
+            "aws-sdk-sts"
+          ]
+        ],
+        "advisory_summary": "AWS SDK for Rust v1 adopted defense in depth enhancement for region parameter value \u2014 ## **Summary**\nThis notification is related to the use of specific values for the region input field when calling AWS services. An actor with access to the environment in which the SDK is used could set the region input field to an invalid value.\n\nA defense-in-depth enhancement has been implemented in the AWS SDK for Rust. This enhancement validates that a region used to construct an endpoint URL is a valid host label. The change was released on November 6, 2025. This advisory is informational to help custome",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.91.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "aws_sdk_sts"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-sdk-sts is used only by the aws-config credential providers (assume-role, web identity). Its region comes from env or profile; the attacker-settable Kinesis region only goes into the kinesis Config builder (helpers.rs:39-40), not the shared credentials provider's STS client."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#6",
+      "facts": {
+        "package": "aws-smithy-json",
+        "version": "0.55.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-18140",
+            "GHSA-8ffr-xgwf-xj56"
+          ],
+          [
+            "aws-smithy-json"
+          ]
+        ],
+        "advisory_summary": "aws-smithy-json: Uncontrolled recursion in the aws-smithy-json unknown-key skip path allows unauthenticated remote denial of service in smithy-rs generated servers \u2014 ### Summary\nSmithy-RS is a Rust code generation and runtime framework that generates HTTP clients and servers from Smithy interface definitions, powering the AWS SDK for Rust and custom service implementations. An issue exists which allows uncontrolled recursion in the unknown-key skip path of the Amazon aws-smithy-json runtime crate in versions 0.62.6 and earlier.\n\n### Impact\nUncontrolled recursion in the unknown-key skip path of",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.62.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_smithy_json"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "In aws-smithy-json 0.55.3, skip_inner recurses with no depth limit (src/deserialize/token.rs:305-313). Generated client deserializers call skip_value on unknown keys; aws-sdk-kinesis 0.28 has 51 call sites. The advisory is framed around servers, but client response parsing uses the same code. An unauthenticated attacker can create a Kinesis source with `endpoint` pointing at their own server (source_config/mod.rs:336-361; helpers.rs:42-43). That server can return deeply nested unknown-key JSON and overflow the stack. STS/IMDS JSON parsing also uses it with a network attacker."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#7",
+      "facts": {
+        "package": "azure_core",
+        "version": "0.13.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0275"
+          ],
+          [
+            "azure_core"
+          ]
+        ],
+        "advisory_summary": "Legacy `azure_core` writes the `authorization` header value to logs \u2014 Applications built on the legacy Azure SDK for Rust (`azure_core` 0.21.0 and\nearlier) write the value of the outgoing `authorization` header to their logs\nwhenever debug-level logging is enabled, and in every affected version also at\ntrace level. The leaked values are live credentials \u2014 Microsoft Entra\nID bearer tokens, Azure Storage SharedKey signatures, and SAS tokens \u2014 and\nanyone with read access to the logs can replay them until they expire\n(CWE-532).\n\nVersions 0.22.0 and later, which are the rewritten and currently supp",
+        "vuln_symbols": [
+          "authorization",
+          "legacy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.0",
+          "0.22.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "azure_core"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Requires the Azure storage backend (quickwit-storage/azure is in release-feature-set; an azure:// index URI plus account/key config is a documented setting). azure_core 0.13 logs the full Request via derived Debug at debug level (src/policies/transport.rs:30). HeaderValue derives Debug (src/headers/mod.rs:223), so the shared-key Authorization header is printed. The default filter is quickwit=info (quickwit-cli/src/logger.rs:53), but RUST_LOG=debug is common. An unauthenticated GET/POST /api/v1/log_level?filter=debug can also switch it on at runtime (quickwit-serve/src/log_level_handler.rs:33-43, rest.rs:175). log records reach tracing via tracing-log."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#8",
+      "facts": {
+        "package": "bytes",
+        "version": "1.5.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25541",
+            "GHSA-434x-w66g-qw3r",
+            "RUSTSEC-2026-0007"
+          ],
+          [
+            "bytes"
+          ]
+        ],
+        "advisory_summary": "bytes has integer overflow in BytesMut::reserve \u2014 # Details\n\nIn the unique reclaim path of `BytesMut::reserve`, the condition\n```rs\nif v_capacity >= new_cap + offset\n```\nuses an unchecked addition. When `new_cap + offset` overflows `usize` in release builds, this condition may incorrectly pass, causing `self.cap` to be set to a value that exceeds the actual allocated capacity. Subsequent APIs such as `spare_capacity_mut()` then trust this corrupted `cap` value and may create out-of-bounds slices, leading to UB.\n\nThis behavior is observable in release builds (integer overflow wraps), whereas de",
+        "vuln_symbols": [
+          "usize",
+          "self.cap",
+          "spare_capacity_mut",
+          "cap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "bytes"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "bytes 1.5.0 is used everywhere (hyper, tonic, tokio-util, quickwit-ingest doc_batch.rs:100), but the bug needs a BytesMut::reserve(additional) where len+additional+offset overflows usize, so additional must be close to usize::MAX. No path reserves an attacker-declared 64-bit length unchecked: tonic and h2 lengths are u32 or capped by max frame size, and Quickwit only uses with_capacity and put_slice on in-memory docs (quickwit-ingest/src/doc_batch.rs:119, ingest_v2/fetch.rs:131). The overflowing reserve cannot happen on real data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#9",
+      "facts": {
+        "package": "crossbeam-channel",
+        "version": "0.5.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4574",
+            "GHSA-pg9f-39pc-qf8g",
+            "RUSTSEC-2025-0024",
+            "TROVE-2025-013"
+          ],
+          [
+            "crossbeam-channel"
+          ]
+        ],
+        "advisory_summary": "crossbeam-channel Vulnerable to Double Free on Drop \u2014 The internal `Channel` type's `Drop` method has a race\nwhich could, in some circumstances, lead to a double-free.\nThis could result in memory corruption.\n\nQuoting from the\n[upstream description in merge request \\#1187](https://github.com/crossbeam-rs/crossbeam/pull/1187#issue-2980761131):\n\n> The problem lies in the fact that `dicard_all_messages` contained two paths that could lead to `head.block` being read but only one of them would swap the value. This meant that `dicard_all_messages` could end up observing a non-null block pointer (and ",
+        "vuln_symbols": [
+          "Channel",
+          "Drop",
+          "dicard_all_messages",
+          "head.block"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.5.15"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "crossbeam_channel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Bug is in the list (unbounded) flavor: discard_all_messages reloads head.block without swap (crossbeam-channel-0.5.12 src/flavors/list.rs:594-597), so a race between dropping the last receiver and a sender initialising the first block can double-free. Only 3 dependents in Cargo.lock: console-subscriber (behind quickwit-cli feature tokio-console, quickwit-cli/Cargo.toml:31,92, not in release-feature-set); opentelemetry_sdk 0.20 uses crossbeam unbounded only in SimpleSpanProcessor/SimpleLogProcessor (span_processor.rs:104, logs/log_processor.rs:51), but quickwit installs the batch exporter on the Tokio runtime (quickwit-cli/src/logger.rs:86) and only when the OTLP exporter env flag is set; tantivy (git rev 67ebba3, source not available to read) uses crossbeam bounded channels for its indexing pipeline as far as I know, and quickwit drives it with zstd/single-segment writers. Even where an unbounded channel exists, triggering needs an internal drop-vs-first-send timing race that no attacker input controls. Not fully verified because tantivy's git source wasn't available."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#10",
+      "facts": {
+        "package": "crossbeam-epoch",
+        "version": "0.9.18",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0204"
+          ],
+          [
+            "crossbeam-epoch"
+          ]
+        ],
+        "advisory_summary": "Invalid pointer dereference in `fmt::Pointer` impl for `Atomic` and `Shared` when the underlying pointer is invalid \u2014 Affected versions of `fmt::Display` dereference the underlying pointer. This causes a invalid pointer dereference e.g., when a pointer created with `Atomic::null` or `Shared::null`. `fmt::Debug` impls and pre-0.9 `fmt::Display` impls, which do not dereference pointers, are not affected by this issue.",
+        "vuln_symbols": [
+          "Atomic",
+          "Shared"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.20"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "crossbeam_epoch"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crossbeam-epoch is only in the tree via crossbeam-deque <- rayon-core (rayon <- tantivy, quickwit-search). The vulnerable code is the fmt::Pointer impl for Atomic/Shared, which runs only when something formats an epoch pointer with {:p}. crossbeam-deque and rayon never do; they use epoch internally without formatting pointers."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#11",
+      "facts": {
+        "package": "h2",
+        "version": "0.3.24",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q6cp-qfwq-4gcv",
+            "RUSTSEC-2024-0332"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 servers vulnerable to degradation of service with CONTINUATION Flood \u2014 An attacker can send a flood of CONTINUATION frames, causing `h2` to process them indefinitely. This results in an increase in CPU usage.\n\nTokio task budget helps prevent this from a complete denial-of-service, as the server can still respond to legitimate requests, albeit with increased latency.\n\nMore details at https://seanmonstar.com/blog/hyper-http2-continuation-flood/.\n\nPatches available for 0.4.x and 0.3.x versions.\n",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.26",
+          "0.4.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.3.24 (fix is 0.3.26) serves HTTP/2 for both the tonic 0.9.2 gRPC server on 7281 (quickwit-serve/src/grpc.rs:49 Server::builder) and the hyper 0.14 server with the http2 and server features (workspace Cargo.toml:127-134) behind warp REST on 7280. Both accept unauthenticated connections. framed_read.rs:265-280 has no CONTINUATION-flood guard in this version."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#12",
+      "facts": {
+        "package": "h2",
+        "version": "0.3.24",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.3.24 is the HTTP/2 implementation for the unauthenticated tonic gRPC server (7281) and the hyper/warp REST server (7280, http2 feature on). The fix only shipped in 0.4.16, so 0.3.x accepts and queues empty DATA frames without limit. An attacker can open streams and send empty DATA frames to slowly-drained handlers (streaming gRPC such as ingest/fetch streams) and cause memory growth."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#13",
+      "facts": {
+        "package": "idna",
+        "version": "0.5.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-12224",
+            "GHSA-h97m-ww89-6jmq",
+            "RUSTSEC-2024-0421"
+          ],
+          [
+            "idna"
+          ]
+        ],
+        "advisory_summary": "`idna` accepts Punycode labels that do not produce any non-ASCII when decoded \u2014 `idna` 0.5.0 and earlier accepts Punycode labels that do not produce any non-ASCII output, which means that either ASCII labels or the empty root label can be masked such that they appear unequal without IDNA processing or when processed with a different implementation and equal when processed with `idna` 0.5.0 or earlier.\n\nConcretely, `example.org` and `xn--example-.org` become equal after processing by `idna` 0.5.0 or earlier. Also, `example.org.xn--` and `example.org.` become equal after processing by `idna` 0.5",
+        "vuln_symbols": [
+          "example.org",
+          "url"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "idna"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "idna 0.5.0 comes in through url 2.5.0. Attacker-influenced hostnames reach url::Url::parse through the VRL stdlib parse_url function (vrl-0.8.1/src/stdlib/parse_url.rs). The stdlib feature is on (workspace Cargo.toml:262-266) and quickwit-indexing/vrl is in release-feature-set. A VRL transform in a REST-created source config runs over ingested docs. Impact is only spoofing/inconsistency; Quickwit makes no host-based security decision with it, hence low confidence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#14",
+      "facts": {
+        "package": "jsonwebtoken",
+        "version": "8.3.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25537",
+            "GHSA-h395-gr6q-cpjc"
+          ],
+          [
+            "jsonwebtoken"
+          ]
+        ],
+        "advisory_summary": "jsonwebtoken has Type Confusion that leads to potential authorization bypass \u2014 ## Summary:\n\nIt has been discovered that there is a Type Confusion vulnerability in jsonwebtoken, specifically, in its claim validation logic.\n\nWhen a standard claim (such as nbf or exp) is provided with an incorrect JSON type (Like a String instead of a Number), the library\u2019s internal parsing mechanism marks the claim as \u201cFailedToParse\u201d. Crucially, the validation logic treats this \u201cFailedToParse\u201d state identically to \u201cNotPresent\u201d.\n\nThis means that if a check is enabled (like: validate_nbf = true), but the claim is ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.3.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "jsonwebtoken"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jsonwebtoken 8.3.0 is pulled only by google-cloud-auth 0.10/0.12, which are optional deps behind quickwit-indexing's gcp-pubsub feature (quickwit-indexing/Cargo.toml:70-76). release-feature-set does not enable gcp-pubsub (quickwit-cli/Cargo.toml release-feature-set), so the crate is not in the deployed binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#15",
+      "facts": {
+        "package": "jsonwebtoken",
+        "version": "9.2.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25537",
+            "GHSA-h395-gr6q-cpjc"
+          ],
+          [
+            "jsonwebtoken"
+          ]
+        ],
+        "advisory_summary": "jsonwebtoken has Type Confusion that leads to potential authorization bypass \u2014 ## Summary:\n\nIt has been discovered that there is a Type Confusion vulnerability in jsonwebtoken, specifically, in its claim validation logic.\n\nWhen a standard claim (such as nbf or exp) is provided with an incorrect JSON type (Like a String instead of a Number), the library\u2019s internal parsing mechanism marks the claim as \u201cFailedToParse\u201d. Crucially, the validation logic treats this \u201cFailedToParse\u201d state identically to \u201cNotPresent\u201d.\n\nThis means that if a check is enabled (like: validate_nbf = true), but the claim is ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.3.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "jsonwebtoken"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jsonwebtoken 9.2.0 is in the binary via reqsign 0.14.9 (services-google, enabled by the quickwit-storage gcs feature, quickwit-storage/Cargo.toml:78-86). reqsign only calls jsonwebtoken::encode to sign the service-account JWT (reqsign-0.14.9/src/google/token/service_account.rs:26). The type-confusion bug is in decode/claim validation, which nothing in the binary calls."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#16",
+      "facts": {
+        "package": "keccak",
+        "version": "0.1.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-3288-p39f-rqpv",
+            "RUSTSEC-2026-0012"
+          ],
+          [
+            "keccak"
+          ]
+        ],
+        "advisory_summary": "Unsoundness in opt-in ARMv8 assembly backend for `keccak` \u2014 ### Summary\n\nThe `asm!` block enabled by the off-by-default `asm` feature, when enabled on ARMv8 targets, misspecified the operand\ntype for all of its operands, using `in` for pointers and values which were subsequently mutated by operations performed\nwithin the assembly block.\n\n### Impact\n\nIt's unclear what practical impact, if any, this actually had. Incorrect operand types are technically undefined\nbehavior, however changing them had no actual impact on the generated assembly for these targets. The possibility still\nexists that it ",
+        "vuln_symbols": [
+          "asm",
+          "in",
+          "inout"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.1.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.7
+        },
+        "import_name": "keccak"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "keccak 0.1.5 comes in via sha3 0.10.8 <- vrl 0.8.1 (sha-3 optional dep without features, vrl-0.8.1/Cargo.toml:325-328). The unsound code is the off-by-default `asm` feature on ARMv8. No crate in the workspace enables sha3/asm or keccak/asm, and the image is built for x86_64."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#17",
+      "facts": {
+        "package": "lru",
+        "version": "0.12.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rhfx-m35p-ff5j",
+            "RUSTSEC-2026-0002"
+          ],
+          [
+            "lru"
+          ]
+        ],
+        "advisory_summary": "`IterMut` violates Stacked Borrows by invalidating internal pointer \u2014 Affected versions of this crate contain a soundness issue in the `IterMut` iterator implementation. The `IterMut::next` and `IterMut::next_back` methods temporarily create an exclusive reference to the key when dereferencing the internal node pointer.\n\nThis invalidates the shared pointer held by the internal `HashMap`, violating Stacked Borrows rules.",
+        "vuln_symbols": [
+          "IterMut",
+          "HashMap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.16.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.85
+        },
+        "import_name": "lru"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "lru 0.12.3 is used by quickwit-storage (memory_sized_cache.rs:68, file_descriptor_cache.rs:34) and tantivy. The unsoundness is in LruCache::iter_mut / IterMut. Quickwit only uses get/put/pop/push and never iter_mut on an LruCache (grep of quickwit-search, quickwit-storage and the whole workspace). tantivy's doc-store block cache only does get/put; tantivy is a git dep with no source available here, hence medium confidence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#18",
+      "facts": {
+        "package": "lru",
+        "version": "0.12.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0253"
+          ],
+          [
+            "lru"
+          ]
+        ],
+        "advisory_summary": "Potential use-after-free due to lack of panic safety in `LruCache::pop()` \u2014 `LruCache::pop()` in `lru` was not panic-safe. If the `Drop` implementation of a stored key panics during `pop()`, `self.detach()` is never called, leaving dangling pointers in the internal doubly-linked list.\n\nA subsequent cache operation that triggers eviction can then dereference these dangling pointers:\n- The node is freed from the map, but remains linked in the LRU list due to the skipped `detach()` call\n- When a new insertion causes eviction, the LRU traversal encounters the dangling pointer\n- This results in a w",
+        "vuln_symbols": [
+          "Drop",
+          "pop",
+          "self.detach",
+          "detach"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.18.2"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "lru"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The bug needs a key type whose Drop panics during LruCache::pop. Quickwit's keys are Ulid (file_descriptor_cache.rs:34,117) and SliceAddress/PathBuf-like keys (memory_sized_cache.rs:68,146), none of which panic on drop. tantivy's cache keys are plain integers/offsets."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#19",
+      "facts": {
+        "package": "lz4_flex",
+        "version": "0.11.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-32829",
+            "GHSA-vvp9-7p8x-rfvv",
+            "RUSTSEC-2026-0041"
+          ],
+          [
+            "lz4_flex"
+          ]
+        ],
+        "advisory_summary": "lz4_flex's decompression can leak information from uninitialized memory or reused output buffer \u2014 ### Summary\nDecompressing invalid LZ4 data can leak data from uninitialized memory, or can leak content from previous decompression operations when reusing an output buffer.\n\n### Details\nThe LZ4 block format defines a \"match copy operation\" which duplicates previously written data or data from the user-supplied dict. The position of that data is defined by an _offset_. The data is copied within the output buffer from the _offset_ to the current output position.\nHowever, lz4_flex did not properly d",
+        "vuln_symbols": [
+          "lz4_flex::block::decompress",
+          "lz4_flex::block::decompress_into",
+          "lz4_flex::block::decompress_into_with_dict",
+          "lz4_flex::block::decompress_size_prepended",
+          "lz4_flex::block::decompress_size_prepended_with_dict",
+          "lz4_flex::block::decompress_with_dict"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.11.6",
+          "0.12.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "lz4_flex"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): lz4_flex is pulled in only by tantivy (Cargo.lock), through the tantivy feature lz4-compression (workspace Cargo.toml:329-334). Tantivy uses it only as a doc-store block compressor. Quickwit always writes splits with Compressor::Zstd (quickwit-indexing/src/actors/indexer.rs:546-551), so the lz4 decompress functions run only if a split's store footer names lz4. That would take attacker-written split files in the metastore's object storage, which is outside the threat model. HTTP, gRPC and source data never reach lz4_flex::block::decompress*. Tantivy's git source wasn't available to confirm it has no other lz4 users."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#20",
+      "facts": {
+        "package": "memmap2",
+        "version": "0.9.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0186"
+          ],
+          [
+            "memmap2"
+          ]
+        ],
+        "advisory_summary": "Unchecked pointer offset in crate `memmap2` \u2014 Affected versionf of `memmap2` did not perform enough validation on the `offset` and `len` parameters of\n`Mmap::[unchecked_]advise_range()`,\n`MmapMut::[unchecked_]advise_ranage()`\nand `MmapMut::flush[_async]_range()`.\n\nThis can cause undefined behavior due to invalid values being passed to [`pointer::offset()`] and [`pointer::add()`]\nwhen passing an out-of-bounds range to any of the affected functions.\n\nThe flaw was corrected in commit [`cee7cf0`] and released in version `0.9.11`.\n\nThe invalid pointer is not dereferenced,\nbut it is passed to the `m",
+        "vuln_symbols": [
+          "memmap2::Mmap::advise_range",
+          "memmap2::Mmap::unchecked_advise_range",
+          "memmap2::MmapMut::advise_range",
+          "memmap2::MmapMut::flush_async_range",
+          "memmap2::MmapMut::flush_range",
+          "memmap2::MmapMut::unchecked_advise_range"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.9.11"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "memmap2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "memmap2 0.9.4 comes only via tantivy (git dep, source not available). Quickwit has no direct memmap2 use (grep). tantivy's MmapDirectory uses Mmap::map and whole-map advise(); none of the affected advise_range / unchecked_advise_range / flush_range / flush_async_range calls are made with out-of-range arguments on any known path. Quickwit search reads splits through its own storage/BundleDirectory, not MmapDirectory."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#21",
+      "facts": {
+        "package": "oneshot",
+        "version": "0.1.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rvr2-r3pv-5m4p",
+            "RUSTSEC-2026-0005"
+          ],
+          [
+            "oneshot"
+          ]
+        ],
+        "advisory_summary": "Potential use-after-free in `oneshot` when used asynchronously \u2014 There is a race condition that can lead to a use-after-free if a `oneshot::Receiver` is polled but then dropped instead of polled to completion. This could happen if the receiver future was cancelled while receiving, for example by being wrapped in a timeout future or similar.\n\nWhen the `Receiver` is polled (`Future::poll`) it writes a waker to the channel and sets it to the `RECEIVING` state. If the `Receiver` was then dropped (instead of polled to completion), the `Drop` implementation on `Receiver` unconditionally swapped the ",
+        "vuln_symbols": [
+          "Receiver",
+          "RECEIVING",
+          "Drop",
+          "DISCONNECTED",
+          "Sender"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.1.12"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.88
+        },
+        "import_name": "oneshot"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The UAF needs an oneshot::Receiver polled as a Future and then dropped before completion (cancellation). Quickwit uses the oneshot crate only in the Kafka source with blocking recv() (quickwit-indexing/src/source/kafka_source.rs:149,164); the .await uses are in the kafka-broker-tests cfg (line 774+). tantivy's FutureResult is consumed with blocking .wait() (merge_executor.rs:538), which runs it to completion. The sequencer uses tokio::sync::oneshot (actors/sequencer.rs:25), not this crate. tantivy internals were not checkable (git dep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#22",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41678",
+            "GHSA-8c75-8mhr-p7r9"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has incorrect bounds assertion in aes key wrap \u2014 ### Summary\n``aes::unwrap_key()`` has an incorrect bounds assertion on the out buffer size, which can lead to out-of-bounds write.\n\n### Details\n``aes::unwrap_key()`` contains an incorrect assertion: it checks that `out.len() + 8 <= in_.len()`, but this condition is reversed. The intended invariant is `out.len() >= in_.len() - 8`, ensuring the output buffer is large enough.\n\nBecause of the inverted check, the function only accepts buffers at or below the minimum required size and rejects larger ones. If a smaller buffer is provided t",
+        "vuln_symbols": [
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The openssl crate is in the binary only through native-tls 0.2.11 (via reqwest/hyper-tls/tokio-native-tls and pulsar's TLS). The direct quickwit-indexing openssl dep (quickwit-indexing/Cargo.toml:38) is enabled only by vendored-kafka, which is not in release-feature-set. Quickwit has no openssl:: calls; its only use is openssl_probe (quickwit-cli/src/main.rs:44). native-tls's openssl backend (native-tls-0.2.11/src/imp/openssl.rs) only uses SslConnector/SslAcceptor, X509::from_pem/stack_from_pem, PKey::private_key_from_pem, Pkcs12::from_der/parse and client ALPN wire setup. No other crate in the closure calls openssl:: APIs. aes::unwrap_key is never called."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#23",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41681",
+            "GHSA-ghm9-cr32-g9qj"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: rustMdCtxRef::digest_final() writes past caller buffer with no length check \u2014 `EVP_DigestFinal()` always writes `EVP_MD_CTX_size(ctx)` to the `out` buffer. If `out` is smaller than that, `MdCtxRef::digest_final()` writes past its end, usually corrupting the stack. This is reachable from safe Rust.",
+        "vuln_symbols": [
+          "EVP_DigestFinal",
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The openssl crate is in the binary only through native-tls 0.2.11 (via reqwest/hyper-tls/tokio-native-tls and pulsar's TLS). The direct quickwit-indexing openssl dep (quickwit-indexing/Cargo.toml:38) is enabled only by vendored-kafka, which is not in release-feature-set. Quickwit has no openssl:: calls; its only use is openssl_probe (quickwit-cli/src/main.rs:44). native-tls's openssl backend (native-tls-0.2.11/src/imp/openssl.rs) only uses SslConnector/SslAcceptor, X509::from_pem/stack_from_pem, PKey::private_key_from_pem, Pkcs12::from_der/parse and client ALPN wire setup. No other crate in the closure calls openssl:: APIs. MdCtxRef::digest_final is never called."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#24",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41898",
+            "GHSA-hppc-g8h3-xhp3"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Unchecked callback length in PSK/cookie trampolines leaks adjacent memory to peer \u2014 The FFI trampolines behind `SslContextBuilder::set_psk_client_callback`, `set_psk_server_callback`, `set_cookie_generate_cb`,  and `set_stateless_cookie_generate_cb` forwarded the user closure's returned usize directly to OpenSSL without checking it against the `&mut [u8]` that was handed to the closure. This can lead to buffer overflows and other unintended consequences.",
+        "vuln_symbols": [
+          "set_psk_server_callback",
+          "set_cookie_generate_cb",
+          "set_stateless_cookie_generate_cb"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The openssl crate is in the binary only through native-tls 0.2.11 (via reqwest/hyper-tls/tokio-native-tls and pulsar's TLS). The direct quickwit-indexing openssl dep (quickwit-indexing/Cargo.toml:38) is enabled only by vendored-kafka, which is not in release-feature-set. Quickwit has no openssl:: calls; its only use is openssl_probe (quickwit-cli/src/main.rs:44). native-tls's openssl backend (native-tls-0.2.11/src/imp/openssl.rs) only uses SslConnector/SslAcceptor, X509::from_pem/stack_from_pem, PKey::private_key_from_pem, Pkcs12::from_der/parse and client ALPN wire setup. No other crate in the closure calls openssl:: APIs. set_psk_*_callback and set_cookie_generate_cb/set_stateless_cookie_generate_cb are never registered."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#25",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45784",
+            "GHSA-phqj-4mhp-q6mq"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Potential out-of-bounds write in `CipherCtxRef::cipher_update_inplace` for AES-KW-PAD ciphers \u2014 `CipherCtxRef::cipher_update_inplace` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (EVP_aes_{128,192,256}_wrap_pad). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.\n\nThis method was missed in the fix for GHSA-xv59-967r-8726",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.80"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The openssl crate is in the binary only through native-tls 0.2.11 (via reqwest/hyper-tls/tokio-native-tls and pulsar's TLS). The direct quickwit-indexing openssl dep (quickwit-indexing/Cargo.toml:38) is enabled only by vendored-kafka, which is not in release-feature-set. Quickwit has no openssl:: calls; its only use is openssl_probe (quickwit-cli/src/main.rs:44). native-tls's openssl backend (native-tls-0.2.11/src/imp/openssl.rs) only uses SslConnector/SslAcceptor, X509::from_pem/stack_from_pem, PKey::private_key_from_pem, Pkcs12::from_der/parse and client ALPN wire setup. No other crate in the closure calls openssl:: APIs. CipherCtxRef::cipher_update_inplace with AES-KW-PAD is never used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#26",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41676",
+            "GHSA-pqf5-4pqq-29f5"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Deriver::derive and PkeyCtxRef::derive can overflow short buffers on OpenSSL 1.1.1 \u2014 `Deriver::derive` (and `PkeyCtxRef::derive`) sets `len = buf.len()` and passes it as the in/out length to `EVP_PKEY_derive`, relying on OpenSSL to honor it. On OpenSSL 1.1.x, X25519, X448, DH and HKDF-extract  ignore the incoming `*keylen`, unconditionally writing the full shared secret (32/56/prime-size bytes). A caller passing a short slice gets a heap/stack overflow from safe code. OpenSSL 3.x providers do check, so this only impacts older OpenSSL.",
+        "vuln_symbols": [
+          "EVP_PKEY_derive"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The openssl crate is in the binary only through native-tls 0.2.11 (via reqwest/hyper-tls/tokio-native-tls and pulsar's TLS). The direct quickwit-indexing openssl dep (quickwit-indexing/Cargo.toml:38) is enabled only by vendored-kafka, which is not in release-feature-set. Quickwit has no openssl:: calls; its only use is openssl_probe (quickwit-cli/src/main.rs:44). native-tls's openssl backend (native-tls-0.2.11/src/imp/openssl.rs) only uses SslConnector/SslAcceptor, X509::from_pem/stack_from_pem, PKey::private_key_from_pem, Pkcs12::from_der/parse and client ALPN wire setup. No other crate in the closure calls openssl:: APIs. Deriver::derive / PkeyCtxRef::derive are never called (TLS key exchange happens inside libssl, not through this API). The image also uses OpenSSL 3 (libssl3), not 1.1.1."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#27",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41677",
+            "GHSA-xmgf-hq76-4vx2"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-opennssl has an Out-of-bounds read in PEM password callback when returning an oversized length \u2014 The `*_from_pem_callback` APIs did not validate the length returned by the user's callback. A password callback that returns a value larger than the buffer it was given can cause some versions of OpenSSL to over-read this buffer. OpenSSL 3.x is not affected by this.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The openssl crate is in the binary only through native-tls 0.2.11 (via reqwest/hyper-tls/tokio-native-tls and pulsar's TLS). The direct quickwit-indexing openssl dep (quickwit-indexing/Cargo.toml:38) is enabled only by vendored-kafka, which is not in release-feature-set. Quickwit has no openssl:: calls; its only use is openssl_probe (quickwit-cli/src/main.rs:44). native-tls's openssl backend (native-tls-0.2.11/src/imp/openssl.rs) only uses SslConnector/SslAcceptor, X509::from_pem/stack_from_pem, PKey::private_key_from_pem, Pkcs12::from_der/parse and client ALPN wire setup. No other crate in the closure calls openssl:: APIs. No *_from_pem_callback API is used (native-tls uses private_key_from_pem without a callback). The image also ships OpenSSL 3 (libssl3), which the advisory says is unaffected."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#28",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42327",
+            "GHSA-xp3w-r5p5-63rr"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has undefined behavior in X509Ref::ocsp_responders for certificates with non-UTF-8 OCSP URLs \u2014 `X509Ref::ocsp_responders` returns OCSP responder URLs from a certificate's AIA extension as `OpensslString`, whose `Deref<Target = str>` wraps the raw bytes with `str::from_utf8_unchecked`. OpenSSL does not enforce that the underlying IA5String is ASCII, so a certificate with non-UTF-8 bytes in its OCSP accessLocation causes safe Rust code to construct a `&str` that violates the UTF-8 invariant \u2014 resulting in undefined behavior.",
+        "vuln_symbols": [
+          "OpensslString"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The openssl crate is in the binary only through native-tls 0.2.11 (via reqwest/hyper-tls/tokio-native-tls and pulsar's TLS). The direct quickwit-indexing openssl dep (quickwit-indexing/Cargo.toml:38) is enabled only by vendored-kafka, which is not in release-feature-set. Quickwit has no openssl:: calls; its only use is openssl_probe (quickwit-cli/src/main.rs:44). native-tls's openssl backend (native-tls-0.2.11/src/imp/openssl.rs) only uses SslConnector/SslAcceptor, X509::from_pem/stack_from_pem, PKey::private_key_from_pem, Pkcs12::from_der/parse and client ALPN wire setup. No other crate in the closure calls openssl:: APIs. X509Ref::ocsp_responders is never called."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#29",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44662",
+            "GHSA-xv59-967r-8726"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl vulnerable to heap buffer overflow when encrypting with AES key-wrap-with-padding \u2014 `CipherCtxRef::cipher_update`, `CipherCtxRef::cipher_update_vec`, and `symm::Crypter::update` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (`EVP_aes_{128,192,256}_wrap_pad`). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The openssl crate is in the binary only through native-tls 0.2.11 (via reqwest/hyper-tls/tokio-native-tls and pulsar's TLS). The direct quickwit-indexing openssl dep (quickwit-indexing/Cargo.toml:38) is enabled only by vendored-kafka, which is not in release-feature-set. Quickwit has no openssl:: calls; its only use is openssl_probe (quickwit-cli/src/main.rs:44). native-tls's openssl backend (native-tls-0.2.11/src/imp/openssl.rs) only uses SslConnector/SslAcceptor, X509::from_pem/stack_from_pem, PKey::private_key_from_pem, Pkcs12::from_der/parse and client ALPN wire setup. No other crate in the closure calls openssl:: APIs. cipher_update/cipher_update_vec/symm::Crypter with AES key-wrap-pad are never used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#30",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q445-7m23-qrmw",
+            "RUSTSEC-2024-0357"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "openssl's `MemBio::get_buf` has undefined behavior with empty buffers \u2014 Previously, `MemBio::get_buf` called `slice::from_raw_parts` with a null-pointer, which violates the functions invariants, leading to undefined behavior. In debug builds this would produce an assertion failure. This is now fixed.\n",
+        "vuln_symbols": [
+          "openssl::bio::MemBio::get_buf"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.66"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The openssl crate is in the binary only through native-tls 0.2.11 (via reqwest/hyper-tls/tokio-native-tls and pulsar's TLS). The direct quickwit-indexing openssl dep (quickwit-indexing/Cargo.toml:38) is enabled only by vendored-kafka, which is not in release-feature-set. Quickwit has no openssl:: calls; its only use is openssl_probe (quickwit-cli/src/main.rs:44). native-tls's openssl backend (native-tls-0.2.11/src/imp/openssl.rs) only uses SslConnector/SslAcceptor, X509::from_pem/stack_from_pem, PKey::private_key_from_pem, Pkcs12::from_der/parse and client ALPN wire setup. No other crate in the closure calls openssl:: APIs. MemBio::get_buf is reached only via to_pem/to_der-style serialisers, and native-tls Certificate::to_der uses i2d, not MemBio. No caller serialises into an empty MemBio."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#31",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-24898",
+            "GHSA-rpmj-rpgj-qmpm",
+            "RUSTSEC-2025-0004"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl ssl::select_next_proto use after free \u2014 ### Impact\n`ssl::select_next_proto` can return a slice pointing into the `server` argument's buffer but with a lifetime bound to the `client` argument. In situations where the `server` buffer's lifetime is shorter than the `client` buffer's, this can cause a use after free. This could cause the server to crash or to return arbitrary memory contents to the client.\n\n### Patches\n`openssl` 0.10.70 fixes the signature of `ssl::select_next_proto` to properly constrain the output buffer's lifetime to that of both input buffers.\n\n### Workarounds\nIn ",
+        "vuln_symbols": [
+          "openssl::ssl::select_next_proto"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.70"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The openssl crate is in the binary only through native-tls 0.2.11 (via reqwest/hyper-tls/tokio-native-tls and pulsar's TLS). The direct quickwit-indexing openssl dep (quickwit-indexing/Cargo.toml:38) is enabled only by vendored-kafka, which is not in release-feature-set. Quickwit has no openssl:: calls; its only use is openssl_probe (quickwit-cli/src/main.rs:44). native-tls's openssl backend (native-tls-0.2.11/src/imp/openssl.rs) only uses SslConnector/SslAcceptor, X509::from_pem/stack_from_pem, PKey::private_key_from_pem, Pkcs12::from_der/parse and client ALPN wire setup. No other crate in the closure calls openssl:: APIs. ssl::select_next_proto is only used in server-side ALPN select callbacks (set_alpn_select_callback). native-tls 0.2.11 only sets client ALPN protos (imp/openssl.rs:303-317), and Quickwit's servers use rustls/plain, not openssl."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#32",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4fcv-w3qc-ppgg",
+            "RUSTSEC-2025-0022"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl Use-After-Free in `Md::fetch` and `Cipher::fetch` \u2014 When a `Some(...)` value was passed to the `properties` argument of either of these functions, a use-after-free would result.\n\nIn practice this would nearly always result in OpenSSL treating the properties as an empty string (due to `CString::drop`'s behavior).\n\nThe maintainers thank [quitbug](https://github.com/quitbug/) for reporting this vulnerability to us.",
+        "vuln_symbols": [
+          "openssl::cipher::Cipher::fetch",
+          "openssl::md::Md::fetch"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.72"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The openssl crate is in the binary only through native-tls 0.2.11 (via reqwest/hyper-tls/tokio-native-tls and pulsar's TLS). The direct quickwit-indexing openssl dep (quickwit-indexing/Cargo.toml:38) is enabled only by vendored-kafka, which is not in release-feature-set. Quickwit has no openssl:: calls; its only use is openssl_probe (quickwit-cli/src/main.rs:44). native-tls's openssl backend (native-tls-0.2.11/src/imp/openssl.rs) only uses SslConnector/SslAcceptor, X509::from_pem/stack_from_pem, PKey::private_key_from_pem, Pkcs12::from_der/parse and client ALPN wire setup. No other crate in the closure calls openssl:: APIs. Md::fetch / Cipher::fetch with Some(properties) are never called."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#33",
+      "facts": {
+        "package": "opentelemetry_sdk",
+        "version": "0.20.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48504",
+            "GHSA-w9wp-h8wv-79jx"
+          ],
+          [
+            "opentelemetry_sdk"
+          ]
+        ],
+        "advisory_summary": "opentelemetry_sdk has unbounded memory allocation in W3C Baggage propagation \u2014 ## Summary\n\n`BaggagePropagator::extract_with_context` in `opentelemetry_sdk` did not enforce the W3C Baggage size limits before parsing an inbound `baggage` header. A large attacker-controlled header could cause unnecessary CPU work and short-lived heap allocations while parsing entries that would later be discarded by the SDK's baggage storage limits.\n\nThe SDK now applies limits aligned with the W3C Baggage limits:\n\n  - 64 list-members\n  - 8192 bytes total\n\n## Impact\n\nServices that accept untrusted inbound propagat",
+        "vuln_symbols": [
+          "baggage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "opentelemetry_sdk"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The only propagator Quickwit installs is TraceContextPropagator (quickwit-cli/src/logger.rs:55). BaggagePropagator (opentelemetry_sdk-0.20.0/src/propagation/baggage.rs) is never constructed or composed anywhere in the workspace or other closure crates, so no inbound `baggage` header is ever parsed by it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#34",
+      "facts": {
+        "package": "protobuf",
+        "version": "2.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-53605",
+            "GHSA-2gh3-rmm4-6rq5",
+            "RUSTSEC-2024-0437"
+          ],
+          [
+            "protobuf"
+          ]
+        ],
+        "advisory_summary": "Crash due to uncontrolled recursion in protobuf crate \u2014 Affected version of this crate did not properly parse unknown fields when parsing a user-supplied input.\n\nThis allows an attacker to cause a stack overflow when parsing the message on untrusted data.",
+        "vuln_symbols": [
+          "protobuf::coded_input_stream::CodedInputStream::skip_group"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "3.7.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "protobuf"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "protobuf 2.28.0 comes in only via prometheus 0.13.3 (default protobuf feature) <- quickwit-common (Cargo.toml:177). prometheus only encodes metric families to protobuf; it never parses input with CodedInputStream or merge_from (no such calls outside its generated proto.rs). Quickwit's gRPC uses prost, not protobuf 2.x. skip_group therefore never runs on attacker data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#35",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.29.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0194"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Quadratic run time when checking a start tag for duplicate attribute names \u2014 `BytesStart::attributes()` returns an `Attributes` iterator which, by default\n(`with_checks(true)`), rejects a start tag that repeats an attribute name. For\neach attribute yielded, the iterator compared the new name against every name\nseen so far in the same tag using a linear scan, so a start tag with `N`\ndistinct attribute names cost `O(N\u00b2)` byte comparisons. There was no bound on\n`N` other than the size of the buffered start tag.\n\n## Impact\n\nAny code that parses untrusted XML and iterates a start tag's attributes w",
+        "vuln_symbols": [
+          "Attributes",
+          "N",
+          "NsReader",
+          "snapshot.xml"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Requires the Azure storage backend: quickwit-storage/azure is in release-feature-set, and an azure:// index/default URI is a documented setting. quick-xml 0.29.0 is used by azure_core 0.13 xml::read_xml/read_xml_str (src/xml.rs:1-30), which azure_storage_blobs uses to deserialize list_blobs responses (container/operations/list_blobs.rs). Quickwit calls list_blobs (quickwit-storage/src/object_storage/azure_blob_storage.rs:311). The serde MapAccess iterates start-tag attributes with IterState::new(..) where check_duplicates=true (de/map.rs:208, events/attributes.rs:517-521,599-612), which is the linear-scan quadratic check. The attacker is the remote endpoint or a network attacker on the Azure path."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#36",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.29.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0195"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Unbounded namespace-declaration allocation in `NsReader` enables memory-exhaustion denial of service \u2014 `NsReader` resolves namespaces by calling `NamespaceResolver::push` for every\n`Start`/`Empty` event *before* the event is returned to the caller. `push`\niterated all `xmlns` / `xmlns:*` attributes on the start tag and, for each one,\nappended the prefix bytes to an internal buffer and pushed a `NamespaceBinding`\n(32 bytes on 64-bit) to an internal `Vec`, with no upper bound on the number of\ndeclarations.\n\n## Impact\n\nA start tag with `N` namespace declarations drove roughly `3\u00d7` the tag's byte\n",
+        "vuln_symbols": [
+          "NsReader",
+          "Start",
+          "Empty",
+          "push",
+          "xmlns",
+          "NamespaceBinding"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The bug is in NsReader / NamespaceResolver::push. azure_core only uses quick_xml::de::{from_str, from_reader} (azure_core-0.13.0/src/xml.rs:2-4). The 0.29 serde Deserializer is built on Reader, not NsReader (no NsReader reference under src/de/), so namespace resolution never runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#37",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.30.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0194"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Quadratic run time when checking a start tag for duplicate attribute names \u2014 `BytesStart::attributes()` returns an `Attributes` iterator which, by default\n(`with_checks(true)`), rejects a start tag that repeats an attribute name. For\neach attribute yielded, the iterator compared the new name against every name\nseen so far in the same tag using a linear scan, so a start tag with `N`\ndistinct attribute names cost `O(N\u00b2)` byte comparisons. There was no bound on\n`N` other than the size of the buffered start tag.\n\n## Impact\n\nAny code that parses untrusted XML and iterates a start tag's attributes w",
+        "vuln_symbols": [
+          "Attributes",
+          "N",
+          "NsReader",
+          "snapshot.xml"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quick-xml 0.30.0 comes in only via opendal 0.44.2, built with default-features=false and only services-gcs (quickwit-storage/Cargo.toml:78; workspace Cargo.toml:293). The GCS service is JSON-based and has no quick_xml use (no matches under opendal src/services/gcs). Outside services/, opendal only references the quick_xml::DeError type (src/raw/serde_util.rs:32). No XML is parsed."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#38",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.30.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0195"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Unbounded namespace-declaration allocation in `NsReader` enables memory-exhaustion denial of service \u2014 `NsReader` resolves namespaces by calling `NamespaceResolver::push` for every\n`Start`/`Empty` event *before* the event is returned to the caller. `push`\niterated all `xmlns` / `xmlns:*` attributes on the start tag and, for each one,\nappended the prefix bytes to an internal buffer and pushed a `NamespaceBinding`\n(32 bytes on 64-bit) to an internal `Vec`, with no upper bound on the number of\ndeclarations.\n\n## Impact\n\nA start tag with `N` namespace declarations drove roughly `3\u00d7` the tag's byte\n",
+        "vuln_symbols": [
+          "NsReader",
+          "Start",
+          "Empty",
+          "push",
+          "xmlns",
+          "NamespaceBinding"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quick-xml 0.30.0 comes in only via opendal with only services-gcs enabled. GCS uses no quick_xml (no use under opendal src/services/gcs), and nothing constructs an NsReader. The namespace-push code never runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#39",
+      "facts": {
+        "package": "rand",
+        "version": "0.7.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The unsoundness needs rand's `log` feature, plus a custom logger that calls thread_rng. rand 0.7.3 (via http-types <- azure_core) has no `log` dependency in Cargo.lock (deps: getrandom, libc, rand_chacha, rand_core, rand_hc; Cargo.lock:6448-6458), so the feature is off. Quickwit's logger is tracing-subscriber's fmt layer (quickwit-cli/src/logger.rs:96-103), which does not call rand."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#40",
+      "facts": {
+        "package": "rand",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rand 0.8.5 resolves without the `log` dependency (Cargo.lock:6461-6469: libc, rand_chacha, rand_core only), so the `log` feature that triggers the unsound reseed-logging path is off. Quickwit's logger (tracing-subscriber fmt, quickwit-cli/src/logger.rs:96-103) also never calls thread_rng."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#41",
+      "facts": {
+        "package": "ring",
+        "version": "0.16.20",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ring 0.16.20 is used via rustls 0.20 (aws-smithy-client) and aws-config. The panics need either QUIC header protection (no QUIC/quinn in Cargo.lock) or overflow-checks with a ~64 GB single AES-GCM chunk. The release profile has no overflow-checks override (only [profile.dev] at Cargo.toml:349), so overflow checks are off, and TLS records are at most 16 KB."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#42",
+      "facts": {
+        "package": "ring",
+        "version": "0.17.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ring 0.17.8 is used via rustls 0.21 / webpki / jsonwebtoken 9 for TLS and JWT signing. No QUIC in the dependency tree, overflow-checks stay off in the release build (Cargo.toml has no [profile.release] override), and TLS records are far below the ~64 GB single-chunk threshold."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#43",
+      "facts": {
+        "package": "rkyv",
+        "version": "0.7.44",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0001"
+          ],
+          [
+            "rkyv"
+          ]
+        ],
+        "advisory_summary": "Potential Undefined Behaviors in `Arc<T>`/`Rc<T>` impls of `from_value` on OOM \u2014 The `SharedPointer::alloc` implementation for `sync::Arc<T>` and `rc::Rc<T>` in `rkyv/src/impls/alloc/rc/atomic.rs` (and `rc.rs`) does not check if the allocator returns a null pointer on OOM (Out of Memory).\n\nThis null pointer can flow through to `SharedPointer::from_value`, which calls `Box::from_raw(ptr)` with the null pointer. This triggers undefined behavior when utilizing safe deserialization APIs (such as `rkyv::from_bytes` or `rkyv::deserialize_using`) if an OOM condition occurs during the allocation of th",
+        "vuln_symbols": [
+          "from_value",
+          "rc.rs"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.46",
+          "0.8.13"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.86
+        },
+        "import_name": "rkyv"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rkyv 0.7.44 is only an optional dep of rust_decimal (<- vrl, which pulls rust_decimal without features, vrl-0.8.1/Cargo.toml:290-292). Neither Quickwit nor vrl references rkyv, so no rkyv::from_bytes or deserialize_using of Arc/Rc ever runs, let alone under OOM."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#44",
+      "facts": {
+        "package": "rkyv",
+        "version": "0.7.44",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0235"
+          ],
+          [
+            "rkyv"
+          ]
+        ],
+        "advisory_summary": "Insufficient archive validation can cause out-of-bounds reads in archives containing Rc/Arc \u2014 Shared pointer validation keyed already-validated pointees by their address and\ntype, but did not include pointer metadata. For unsized pointees, an archive\ncould therefore contain multiple `Rc`, `Arc`, or weak pointers that shared a\ndata address but used different metadata, such as different slice lengths.\n\nOnce the first pointer had been validated, later pointers to the same address\nskipped pointee validation. The safe checked `rkyv::access` API could\nconsequently return a slice with a forged length",
+        "vuln_symbols": [
+          "Rc",
+          "Arc"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.8.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rkyv"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No code in the binary validates or accesses rkyv archives. rkyv is only an optional rust_decimal dep, and nothing in Quickwit or vrl calls rkyv::access/check_archived_root (grep for rkyv in the workspace and in vrl src finds nothing)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#45",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-21895",
+            "GHSA-9c48-w39g-hm26"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "rsa crate has potential panic on a prime being equal to 1 \u2014 When creating a RSA private key from its components, the construction panics, instead of returning an error, when one of the primes is `1`. \n\nDiscovered by Christian Reitter from [Radically Open Security](https://www.radicallyopensecurity.com/) during a security review for [Proton AG](https://proton.me/).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.10"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rsa 0.9.6 is in the binary via reqsign 0.14.9 (services-google, behind the gcs feature). sqlx-mysql is not enabled (sqlx features: postgres only, Cargo.toml:219-224). reqsign builds RsaPrivateKey::from_pkcs8_pem from the operator's GCS service-account credential (reqsign src/google/signer.rs:140). A prime==1 key panic needs attacker-supplied key components, which a remote attacker cannot provide."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#46",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-49092",
+            "GHSA-4grx-2x9w-596c",
+            "GHSA-c38w-74pg-36hr",
+            "RUSTSEC-2023-0071"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "Marvin Attack: potential key recovery through timing sidechannels \u2014 ### Impact\nDue to a non-constant-time implementation, information about the private key is leaked through timing information which is observable over the network. An attacker may be able to use that information to recover the key.\n\n### Patches\nNo patch is yet available. The crypto-bigint migration ([RustCrypto/RSA#394](https://github.com/RustCrypto/RSA/pull/394)) did not close this. Tracking is [RustCrypto/RSA#626](https://github.com/RustCrypto/RSA/issues/626) (padding still not constant-time). Implicit rejection work is in [R",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Marvin is a timing side channel on RSA private-key operations, observable when an attacker can trigger many decryptions/signatures and time them. In the binary, rsa is only used by reqsign's google signer (src/google/signer.rs:9-11,140) to sign with the operator's GCS service-account key, locally and for outbound request signing/presigning. GCS OAuth token JWTs use jsonwebtoken/ring instead. No network-reachable decryption or signing oracle exists. sqlx-mysql (RSA password encryption) is not compiled (sqlx postgres only, Cargo.toml:219-224)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#47",
+      "facts": {
+        "package": "rustls",
+        "version": "0.20.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-32650",
+            "GHSA-6g7w-8wpp-frhj",
+            "RUSTSEC-2024-0336"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`rustls::ConnectionCommon::complete_io` could fall into an infinite loop based on network input \u2014 If a `close_notify` alert is received during a handshake, `complete_io`\ndoes not terminate.\n\nCallers which do not call `complete_io` are not affected.\n\n`rustls-tokio` and `rustls-ffi` do not call `complete_io`\nand are not affected.\n\n`rustls::Stream` and `rustls::StreamOwned` types use\n`complete_io` and are affected.",
+        "vuln_symbols": [
+          "rustls::ConnectionCommon::complete_io"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.21.11",
+          "0.22.4",
+          "0.23.5"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.20.9 only reached via aws-smithy-client 0.55.3 / hyper-rustls 0.23.2 / tokio-rustls 0.23.4 (S3/Kinesis AWS SDK path). None of them call ConnectionCommon::complete_io or use rustls::Stream/StreamOwned (grep of those crates and all pkgsrc: only sqlx-core uses complete_io, and it links rustls 0.21.10). tokio-rustls drives read_tls/write_tls itself (advisory: tokio-rustls not affected)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#48",
+      "facts": {
+        "package": "rustls",
+        "version": "0.20.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.20.9 does record the kx group pre-auth (src/client/tls13.rs:143 save_kx_hint), but this version supports only classical groups (X25519/secp256r1/secp384r1, no X25519MLKEM768), so the advisory's PQ->classical downgrade cannot occur; at most a switch between classical groups."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#49",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.10",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-32650",
+            "GHSA-6g7w-8wpp-frhj",
+            "RUSTSEC-2024-0336"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Denial of Service Vulnerability in Rustls Library \u2014 ### Summary\n`rustls::ConnectionCommon::complete_io` could fall into an infinite loop based on network input.\n\n### Details\n\nVerified at `0.22` and `0.23` `rustls`, but `0.21` and `0.20` release lines are also affected. `tokio-rustls` and `rustls-ffi` do not call `complete_io` and are not affected. `rustls::Stream` and `rustls::StreamOwned` types use `complete_io` and are affected.\n\nWhen using a blocking rustls server, if a client send a `close_notify` message immediately after `client_hello`, the server's `complete_io` will get in an infinite ",
+        "vuln_symbols": [
+          "rustls::ConnectionCommon::complete_io"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.21.11",
+          "0.22.4",
+          "0.23.5"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls 0.21.10 is used by sqlx-core 0.7.4 (runtime-tokio-rustls, Cargo.toml:219-222; quickwit-metastore/postgres in release-feature-set) and sqlx-core's RustlsSocket calls ConnectionCommon::complete_io in the handshake and every poll (sqlx-core src/net/tls/tls_rustls.rs:28,167). With the PostgreSQL metastore (QW_METASTORE_URI=postgres://..., common production setting; sqlx default sslmode=prefer attempts TLS) a network attacker/rogue DB server sending close_notify mid-handshake can loop complete_io. Not reached with the default file-backed metastore."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#50",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.10",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only matters if a custom ClientSessionStore Debug-formats Tls12/Tls13ClientSessionValue. No custom ClientSessionStore impl in quickwit or any pkgsrc crate (grep empty); reqwest/sqlx/hyper-rustls use rustls' default ClientSessionMemoryCache, and rustls' own debug! logs (client/hs.rs:73 etc.) print only server_name, not session values."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#51",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.10",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.21.10 records kx_hint pre-auth (client/handy.rs:84-96), but 0.21 offers only classical kx groups (no X25519MLKEM768), so the PQ->classical downgrade described cannot occur."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#52",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.100.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.100.3 is only pulled by webpki-roots 0.23.1, which is only an optional dep of tonic 0.9.2 enabled by tonic feature tls-webpki-roots (tonic Cargo.toml:159-161,216-219). The only enabler is google-cloud-gax 0.14/0.15 (Cargo.toml:43-48), which is only compiled with quickwit-indexing feature gcp-pubsub (quickwit-indexing/Cargo.toml:70-76), not in release-feature-set (quickwit-cli/Cargo.toml:93-104). Not compiled into the image."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#53",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.100.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 51: rustls-webpki 0.100.3 only via webpki-roots 0.23.1 <- tonic feature tls-webpki-roots <- google-cloud-gax, which needs quickwit-indexing feature gcp-pubsub (quickwit-indexing/Cargo.toml:70-76) not enabled by release-feature-set."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#54",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.100.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 51 (rustls-webpki 0.100.3 not compiled: gcp-pubsub feature off). Additionally CRL parsing is never used by quickwit's TLS clients."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#55",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.100.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 51: rustls-webpki 0.100.3 only reachable through webpki-roots 0.23.1/tonic tls-webpki-roots/google-cloud-gax, gated by quickwit-indexing gcp-pubsub feature, off in release-feature-set."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#56",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.101.7 is the verifier of rustls 0.21.10 used by reqwest 0.11.25 (workspace Cargo.toml:202-205 rustls-tls; used by Azure blob storage via azure_core enable_reqwest_rustls, Cargo.toml:285-290, and GCS via opendal) and sqlx-core postgres TLS. Server certs from those outbound connections run through name-constraint checking where URI constraints are ignored. Reachable with storage on Azure/GCS or a PostgreSQL metastore over TLS (common); exploit needs a cert from a name-constrained CA."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#57",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "As row 55: rustls-webpki 0.101.7 verifies server certs for reqwest (rustls-tls; Azure/GCS storage) and sqlx postgres TLS; wildcard SAN vs permitted-subtree constraint check runs on peer certs. Reachable with Azure/GCS storage or Postgres metastore; requires a constrained intermediate in the chain."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#58",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "bit_string_flags panic (rustls-webpki 0.101.7 src/der.rs:305-322, bug present) is only called on CRL paths (verify_cert.rs:576 KeyUsageMode::check for CRL issuers, CRL IDP parsing). rustls 0.21.10's WebPkiVerifier passes no CRLs (rustls src/verify.rs:352 '&[], // no CRLs'); no quickwit code or dependency parses CRLs (grep for CertRevocationList/with_crls empty in quickwit, reqwest, sqlx-core, hyper-rustls)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#59",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.101.7 builds paths for reqwest (rustls-tls => webpki-roots 0.25.4, which contains 'emSign ECC Root CA - G3') and sqlx-core (adds webpki_roots::TLS_SERVER_ROOTS, sqlx-core tls_rustls.rs:112). Outbound TLS to Azure/GCS storage or Postgres metastore would accept a chain through a distrusted emSign intermediate from a MITM."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#60",
+      "facts": {
+        "package": "serde_with",
+        "version": "3.7.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-7gcf-g7xr-8hxj"
+          ],
+          [
+            "serde_with"
+          ]
+        ],
+        "advisory_summary": "serde_with: KeyValueMap serialization panics on empty sequence or map entries \u2014 ### Summary\n\nThe public `KeyValueMap` serializer assumes that each mapped element has at least one field or item to use as the map key, but it subtracts `1` from the caller-visible length before validating that assumption. An application that serializes attacker-controlled data through `#[serde_as(as = \"KeyValueMap<_>\")]` can be crashed by an empty inner sequence or map entry.\n\n### Details\n\nThe affected public surface includes:\n\n- Serialization of `#[serde_as(as = \"KeyValueMap<_>\")]` values through `serde_json::to_",
+        "vuln_symbols": [
+          "KeyValueMap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.21.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "serde_with"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "KeyValueMap is never used: no 'KeyValueMap' in any quickwit .rs file nor in aws_lambda_events (the only other serde_with 3.7.0 dependent; lambda is a separate binary anyway). Only the re-export in serde_with src/lib.rs:431."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#61",
+      "facts": {
+        "package": "sqlx",
+        "version": "0.7.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-xmrp-424f-vfpx",
+            "RUSTSEC-2024-0363"
+          ],
+          [
+            "sqlx"
+          ]
+        ],
+        "advisory_summary": "SQLx Binary Protocol Misinterpretation caused by Truncating or Overflowing Casts \u2014 The following presentation at this year's DEF CON was brought to our attention on the SQLx Discord:\n\n> SQL Injection isn't Dead: Smuggling Queries at the Protocol Level  \n> <http://web.archive.org/web/20240812130923/https://media.defcon.org/DEF%20CON%2032/DEF%20CON%2032%20presentations/DEF%20CON%2032%20-%20Paul%20Gerste%20-%20SQL%20Injection%20Isn't%20Dead%20Smuggling%20Queries%20at%20the%20Protocol%20Level.pdf>  \n> (Archive link for posterity.)\n\nEssentially, encoding a value larger than 4GiB can cause the lengt",
+        "vuln_symbols": [
+          "cast_possible_truncation",
+          "cast_possible_wrap",
+          "cast_sign_loss"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.8.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "sqlx"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Needs the PostgreSQL metastore (QW_METASTORE_URI=postgres://...), which is compiled in via release-feature-set quickwit-metastore/postgres (quickwit-cli/Cargo.toml, quickwit-metastore/Cargo.toml:66) and is the common production setup. The truncating casts are present in sqlx-postgres 0.7.4: src/arguments.rs:138 and src/io/buf_mut.rs:28 (len as i32). Attacker path: the unauthenticated POST/PUT /api/v1/templates takes the raw body with no content_length_limit (quickwit-serve/src/template_api/rest_handler.rs:63-65,147-149). It is parsed into an IndexTemplate with a free-form description String (quickwit-config/src/index_template/mod.rs:48), and the resulting index_template_json is bound into the Postgres query (quickwit-metastore/src/metastore/postgres/metastore.rs:1338,1349). A body over 4 GiB therefore reaches the overflowing length encoding. In practice this needs the server to buffer more than 4 GiB."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#62",
+      "facts": {
+        "package": "tar",
+        "version": "0.4.40",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-3pv8-6f4r-ffg2"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "tar has a PAX header desynchronization issue \u2014 ### Summary\n\nWhen a tar stream contains multiple \"header\" entries prior to a file entry, tar-rs applies the PAX header (`x`) to the _next_ entry in the stream, regardless of type. For example, a stream of `x -> L -> file` (PAX, GNU longname, file) would result in `x`'s extensions being applied to `L` rather than to `file`.\n\n[Per POSIX pax](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/pax.html), this is incorrect: a PAX header always applies to a file entry, not any intermediary entries. See the \"pax Header Block\" section for the spec",
+        "vuln_symbols": [
+          "x",
+          "L",
+          "file",
+          "size",
+          "Err"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.46"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tar"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tar 0.4.40 is only a [build-dependencies] (optional, feature ipadic/ko-dic) of lindera-ipadic / lindera-ko-dic 0.27.2 (lindera-ipadic Cargo.toml:60-62) used by build.rs to unpack bundled dictionaries at compile time; not in the runtime binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#63",
+      "facts": {
+        "package": "tar",
+        "version": "0.4.40",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33056",
+            "GHSA-j4xf-2g29-59ph",
+            "RUSTSEC-2026-0067"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "tar-rs `unpack_in` can chmod arbitrary directories by following symlinks \u2014 ## Summary\n\nWhen unpacking a tar archive, the `tar` crate's `unpack_dir` function uses `fs::metadata()` to check whether a path that already exists is a directory. Because `fs::metadata()` follows symbolic links, a crafted tarball containing a symlink entry followed by a directory entry with the same name causes the crate to treat the symlink target as a valid existing directory \u2014 and subsequently apply `chmod` to it. This allows an attacker to modify the permissions of arbitrary directories outside the extraction root.",
+        "vuln_symbols": [
+          "tar::Entry::unpack",
+          "tar::Entry::unpack_in"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.4.45"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tar"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tar 0.4.40 is only a build-dependency of lindera-ipadic/lindera-ko-dic 0.27.2 (lindera-ipadic Cargo.toml:60-62); unpack runs at build time on the crate's own dictionary archive, not in the deployed binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#64",
+      "facts": {
+        "package": "tar",
+        "version": "0.4.40",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33055",
+            "GHSA-gchp-q4r4-x4ff",
+            "RUSTSEC-2026-0068"
+          ],
+          [
+            "tar"
+          ]
+        ],
+        "advisory_summary": "tar-rs incorrectly ignores PAX size headers if header size is nonzero \u2014 ### Summary\n\nAs part of [CVE-2025-62518](https://www.cve.org/CVERecord?id=CVE-2025-62518) the astral-tokio-tar project was changed to correctly honor PAX size headers in the case where it was different from the base header.\n\nHowever, it was missed at the time that this project (the original Rust `tar` crate) had a conditional logic that skipped the PAX size header in the case that the base header size was nonzero - almost the inverse of the astral-tokio-tar issue.\n\nThe problem here is that *any* discrepancy in how tar pars",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.45"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tar"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tar 0.4.40 is only a build-dependency of lindera-ipadic/lindera-ko-dic 0.27.2 (Cargo.toml:60-62); no runtime tar parsing in the binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#65",
+      "facts": {
+        "package": "time",
+        "version": "0.3.34",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25727",
+            "GHSA-r6v5-fh4h-64xc",
+            "RUSTSEC-2026-0009"
+          ],
+          [
+            "time"
+          ]
+        ],
+        "advisory_summary": "time vulnerable to stack exhaustion Denial of Service attack \u2014 ### Impact\n\nWhen user-provided input is provided to any type that parses with the RFC 2822 format, a denial of service attack via stack exhaustion is possible. The attack relies on formally deprecated and rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary, non-malicious input will never encounter this scenario.\n\n### Patches\n\nA limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned rather than exhausting the stack.\n\n### Workarounds\n\nLimiting the ",
+        "vuln_symbols": [
+          "time::Date::parse",
+          "time::OffsetDateTime::parse",
+          "time::PrimitiveDateTime::parse",
+          "time::Time::parse",
+          "time::UtcDateTime::parse",
+          "time::UtcOffset::parse",
+          "time::parsing::Parsed::parse_item"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.47"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "time"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Untrusted query text reaches time's RFC 2822 parser: quickwit-query/src/json_literal.rs:29-36 default date formats include DateTimeInputFormat::Rfc2822 and :151-152 calls parse_date_time_str on query literals against datetime fields; quickwit-datetime/src/date_time_parsing.rs:44,135-136 calls OffsetDateTime::parse(value, &Rfc2822). Unauthenticated search API (/api/v1/{index}/search, ES _search, 1MiB bodies) lets an attacker send deeply nested comments; time 0.3.34 rfc2822.rs:25-46 cfws/comment/ccontent recurse without depth limit."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#66",
+      "facts": {
+        "package": "tokio",
+        "version": "1.36.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rr8g-9fpq-6wmg",
+            "RUSTSEC-2025-0023"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "Tokio broadcast channel calls clone in parallel, but does not require `Sync` \u2014 The broadcast channel internally calls `clone` on the stored value when receiving it, and only requires `T:Send`. This means that using the broadcast channel with values that are `Send` but not `Sync` can trigger unsoundness if the `clone` implementation makes use of the value being `!Sync`.\n\nThank you to Austin Bonander for finding and reporting this issue.",
+        "vuln_symbols": [
+          "Sync",
+          "clone",
+          "Send"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.2",
+          "1.42.1",
+          "1.43.1",
+          "1.44.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.83
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No tokio::sync::broadcast channel use in quickwit (only an unrelated module named ingest_v2/broadcast.rs using chitchat) or in the crates on the path (grep of pkgsrc: only tokio-stream's BroadcastStream wrapper, unused). Unsoundness needs a broadcast of a Send+!Sync type with a !Sync-dependent Clone; none found."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#67",
+      "facts": {
+        "package": "tokio",
+        "version": "1.36.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0386"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "`AsyncFd::new` and related constructors violate I/O safety \u2014 `tokio::io::unix::AsyncFd` provides safe constructors (`new`, `with_interest`, `try_new`, and `try_with_interest`) that accept any `T: AsRawFd` rather than requiring proof of ownership or validity of the file descriptor. Because `RawFd` implements `AsRawFd`, safe code can construct an `AsyncFd` from an arbitrary or closed file descriptor, or close/replace the underlying file descriptor while the `AsyncFd` is still alive.\n\nThis violates I/O safety in two ways:\n\n1. `AsyncFd<T>` implements `AsFd` for all `T: AsRawFd` by calling `Borrowe",
+        "vuln_symbols": [
+          "tokio::io::unix::AsyncFd::new",
+          "tokio::io::unix::AsyncFd::try_new",
+          "tokio::io::unix::AsyncFd::try_with_interest",
+          "tokio::io::unix::AsyncFd::with_interest"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.51.6",
+          "1.53.3"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AsyncFd constructors are not called by quickwit or any crate in its closure (pkgsrc grep: only inotify/neli use AsyncFd, neither is in Cargo.lock). Unsoundness requires passing an unowned/closed fd to AsyncFd::new."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#68",
+      "facts": {
+        "package": "tracing-subscriber",
+        "version": "0.3.18",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58160",
+            "GHSA-xwfj-jgwm-7wp5",
+            "RUSTSEC-2025-0055"
+          ],
+          [
+            "tracing-subscriber"
+          ]
+        ],
+        "advisory_summary": " Tracing logging user input may result in poisoning logs with ANSI escape sequences \u2014 ### Impact\n\nPrevious versions of tracing-subscriber were vulnerable to ANSI escape sequence injection attacks. Untrusted user input containing ANSI escape sequences could be injected into terminal output when logged, potentially allowing attackers to:\n\n- Manipulate terminal title bars\n- Clear screens or modify terminal display\n- Potentially mislead users through terminal manipulation\n\nIn isolation, impact is minimal, however security issues have been found in terminal emulators that enabled an attacker to use",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.20"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tracing_subscriber"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "quickwit-cli installs tracing_subscriber::fmt layers (quickwit-cli/src/logger.rs:58,91-93,100; ANSI on by default) for the server. Attacker-controlled text reaches Display-formatted log messages, e.g. doc-processing errors for unauthenticated ingested documents logged as \"{error}\" (quickwit-indexing/src/actors/doc_processor.rs:449-454; errors include field names/values from the doc). tracing-subscriber 0.3.18 does not escape ANSI sequences (fixed 0.3.20)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#69",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.23.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "webpki-roots 0.23.1 is only an optional dep of tonic 0.9.2 (feature tls-webpki-roots, tonic Cargo.toml:159-161,216-219), enabled only by google-cloud-gax, which is compiled only with quickwit-indexing feature gcp-pubsub (quickwit-indexing/Cargo.toml:70-76), not in release-feature-set."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#70",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.25.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "webpki-roots 0.25.4 (contains 'emSign ECC Root CA - G3' in src/lib.rs) is the trust store of reqwest 0.11.25 with rustls-tls (workspace Cargo.toml:202-205; Azure storage via azure_core enable_reqwest_rustls, GCS via opendal) and of sqlx-core postgres TLS (tls_rustls.rs:112). Outbound TLS with Azure/GCS storage or a Postgres metastore trusts it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#71",
+      "facts": {
+        "package": "zip",
+        "version": "0.6.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-vv5m-jxxh-4627",
+            "RUSTSEC-2026-0367"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": " Insecure Preservation of SUID/SGID Bits during ZIP Extraction Leading to Potential Privilege Escalation \u2014 The `zip` crate preserves privileged Unix permission bits (SUID, SGID, and sticky bits) from ZIP `external_attributes` during extraction, instead of masking them to safe permission bits. If a privileged process (for example, `root` in an installer, CI/CD pipeline, or container build) extracts an attacker-controlled ZIP archive using `ZipArchive::extract()` or the stream extraction API, files can be created as setuid-root or setgid. This behavior allows the creation of SUID/SGID files duri",
+        "vuln_symbols": [
+          "external_attributes",
+          "root"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zip 0.6.6 is only an optional [build-dependencies] of lindera-cc-cedict 0.27.2 (Cargo.toml:56-58, feature cc-cedict) used by build.rs to unpack the bundled dictionary; not in the runtime binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#72",
+      "facts": {
+        "package": "zip",
+        "version": "0.6.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4v9h-p7m9-rh26",
+            "RUSTSEC-2026-0368"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "zip: `ZipArchive::extract` creates symbolic links whose attacker-controlled targets are outside the destination directory \u2014 In `zip` 9.0.0-pre2, `ZipArchive::extract` creates a symbolic link from an archive entry after validating only the output entry path. The link target bytes are passed directly to the platform symlink API, so a malicious archive can create an entry inside the destination that resolves to an attacker-chosen path outside it. This behavior was verified on macOS and Linux. On either platform, a subsequent application read or write through that extracted entry accesses the exte",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zip 0.6.6 only a build-dependency of lindera-cc-cedict 0.27.2 (Cargo.toml:56-58); extraction happens at build time on a fixed archive, not in the deployed binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#73",
+      "facts": {
+        "package": "zip",
+        "version": "0.6.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4684-h2q9-2vcp",
+            "RUSTSEC-2026-0369"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "ZipStreamReader::extract() and ZipArchive::extract() apply Unix permissions through symlinks without confining the target \u2014 `ZipStreamReader::extract()` applies Unix permissions through extracted symlinks without validating the symlink target stays within the destination\n\nFor further details see: https://github.com/zip-rs/zip2/security/advisories/GHSA-4684-h2q9-2vcp",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zip 0.6.6 only a build-dependency of lindera-cc-cedict 0.27.2 (Cargo.toml:56-58); not in the deployed binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#74",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "5.0.2+zstd.1.5.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0395"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free with `CParameter::StableInBuffer` \u2014 With `CParameter::StableInBuffer(true)` (`experimental` feature), the C\nlibrary keeps a pointer to the input of one streaming call and reads from it\nin later calls, including `flush_stream` and `end_stream`, which take no\ninput. An `InBuffer` only borrows its slice for one call, so safe code could\nfree it in between, and freed memory was compressed into the frame. The C\nlibrary behaves this way since zstd 1.5.4, whether bundled or linked from the\nsystem.\n\nThe flaw was corrected by refusing to enable the parameter.",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::set_parameter"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 5.0.2: StableInBuffer is an experimental-feature CParameter; nobody sets it (no StableInBuffer in zstd 0.13.0/0.11.2 src, quickwit, vrl) and zstd's experimental feature is not enabled by quickwit (workspace Cargo.toml:271 zstd = \"0.13.0\" defaults: legacy, arrays, zdict_builder)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#75",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "5.0.2+zstd.1.5.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0397"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "`OutBuffer::around_pos` exposes uninitialized memory \u2014 `OutBuffer::around_pos` accepted a position past the initialized length of a\n`Vec<u8>`. The next streaming call then marked everything before the\nposition as initialized, so safe code could read stale heap memory between\nthe vector's previous length and that position.\n\nThe flaw was corrected by zero-filling that gap.",
+        "vuln_symbols": [
+          "zstd_safe::OutBuffer::around_pos"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 5.0.2: OutBuffer::around_pos is not called by the zstd crate (grep of zstd 0.13.0/0.11.2 src: zio uses OutBuffer::around only, reader.rs:77,137,177, writer.rs:103), nor by quickwit or vrl."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#76",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "5.0.2+zstd.1.5.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0399"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free through `init_using_cdict` and `init_using_ddict` \u2014 `CCtx::init_using_cdict` and `DCtx::init_using_ddict` (`experimental`\nfeature, deprecated) took the dictionary as `&CDict<'b>` and `&DDict<'b>`\nwith only `'b: 'a`, so the dictionary itself could be dropped while the\ncontext still pointed at it. The same mistake in other constructors was\nfixed earlier (<https://github.com/gyscos/zstd-rs/issues/365>).\n\nThe flaw was corrected by taking `&'a CDict<'b>` and `&'a DDict<'b>`.",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::init_using_cdict",
+          "zstd_safe::DCtx::init_using_ddict"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 5.0.2: init_using_cdict/init_using_ddict are experimental/deprecated and not called by zstd 0.13.0/0.11.2 or quickwit; experimental feature not enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#77",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "5.0.2+zstd.1.5.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0400"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free of a dictionary after a one-shot call on a context with an open stream \u2014 The one-shot `DCtx` and `CCtx` methods assumed the C library resets the\ncontext, but it leaves an open stream as it is. When a stream was left\nunfinished on a context, a one-shot call such as `decompress_using_dict`\ncould leave the context pointing at the dictionary borrowed for that call,\nand the next streaming call resumed the stream against it after it was\nfreed: decompressed output then contained freed heap memory. On the\ncompression side, the stream resumed against the one-shot call's buffers.\n\nThis re",
+        "vuln_symbols": [
+          "zstd_safe::DCtx::decompress",
+          "zstd_safe::DCtx::decompress_using_ddict",
+          "zstd_safe::DCtx::decompress_using_dict"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 5.0.2: needs a one-shot (de)compress on a context that has an unfinished stream. zstd crate keeps separate contexts: bulk::Decompressor/Compressor only do one-shot calls (bulk/decompressor.rs:92-100), stream Encoder/Decoder only streaming (stream/raw.rs:163-186). Users (quickwit-proto search/mod.rs:236,263, quickwit-serve decompression.rs:54 decode_all, vrl decode_zstd, tantivy bulk) never mix them on one context."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#78",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "5.0.2+zstd.1.5.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0401"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Out-of-bounds read in `train_from_buffer` when sample sizes overflow \u2014 `ZDICT_trainFromBuffer` is never told the length of the samples buffer, so\n`train_from_buffer` checked that the sample sizes add up to it. With\noverflow checks off, as in release builds, that sum wrapped around: sizes\ntotalling 2^64 plus the buffer length passed the check, and the trainer read\npast the end of the buffer. `zstd::dict::from_continuous` relies on this\ncheck from zstd 0.4.10; older versions of zstd had their own, covered by a\nseparate advisory.\n\nThis requires the sample sizes to come from an untrusted source. T",
+        "vuln_symbols": [
+          "zstd_safe::train_from_buffer"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 5.0.2: train_from_buffer only via zstd::dict::from_samples (dict.rs:117); no runtime dictionary training in quickwit/vrl (grep), and sample sizes are never attacker-controlled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#79",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "5.0.2+zstd.1.5.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0402"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Heap buffer overflow in `CCtx::try_clone` on a multithreaded context \u2014 `CCtx::try_clone` (`experimental` feature, deprecated) copies tables sized\nfrom the context's applied parameters. Starting a multithreaded frame\n(`zstdmt` feature) replaces those parameters with the workers' without\nresizing the context's own tables, so after an abandoned single-threaded\nframe, the copy wrote up to 512 KiB past a heap allocation, or read past\none. This became reachable with the bundled zstd 1.5.6.\n\nThe flaw was corrected by refusing `try_clone` (and the unsafe\n`compress_block`) once `NbWorkers` was set on t",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::try_clone"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 5.0.2: CCtx::try_clone is experimental/deprecated and not called; also needs zstdmt multithreaded frames, not enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#80",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "5.0.2+zstd.1.5.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0403"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Uninitialized memory exposed when streaming decompression of a legacy frame fails \u2014 When decompression fails inside a legacy (zstd v0.4 to v0.7) frame, the\nbundled zstd library reports the output buffer as fully written although\nnothing was written. `DCtx::decompress_stream` committed that position even\non error, and for a `Vec<u8>` destination this extended the vector's length\nover uninitialized memory.\n\nLegacy support is enabled by default. A 5- or 6-byte corrupt legacy frame is\nenough: through `zstd::stream::write::Decoder`, up to 32 KiB of stale heap\nmemory is then passed to the wrapped wr",
+        "vuln_symbols": [
+          "zstd_safe::DCtx::decompress_stream"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): zstd-safe 5.0.2 is used only by zstd 0.11.2, whose runtime users are pulsar (git quickwit-oss/pulsar-rs f9eff04, features include compression, workspace Cargo.toml:184-188) and zip 0.6.6. zip is only a build-dependency of lindera-cc-cedict (its Cargo.toml:56-58), so it doesn't count. Pulsar is compiled in via release-feature-set quickwit-indexing/pulsar and is reached only when a Pulsar source is configured (a documented optional source). The consumer then zstd-decompresses producer-compressed message batches, which is attacker-influenced data. Legacy-frame support is on by default (zstd 0.11 Cargo.toml:67,73). Caveat: pulsar-rs source wasn't available. As far as I know it decodes through zstd::decode_all/read::Decoder, which passes a caller slice and propagates the Err (zstd zio/reader.rs:137-148). That avoids the Vec length-extension leak, which needs write::Decoder or a Vec<u8> OutBuffer. Marked reachable because decompress_stream does run on attacker frames and the source couldn't be checked."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#81",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "5.0.2+zstd.1.5.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0404"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Double free in `DCtx::try_clone` \u2014 `DCtx::try_clone` (`experimental` feature, deprecated) is a plain copy of the\nC context. A context owning a dictionary (from `load_dictionary`,\n`ref_prefix` or `init_using_dict`) or a dictionary table (`ref_ddict` with\n`RefMultipleDDicts`) ended up with both copies freeing it. A context cloned\nmid-frame resumed on uninitialized stream state. The clone also silently lost\nthe `WindowLogMax` limit.\n\nThe flaw was corrected by refusing to clone such contexts, and by carrying\nover the parameters the copy leaves out.",
+        "vuln_symbols": [
+          "zstd_safe::DCtx::try_clone"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 5.0.2: DCtx::try_clone is experimental/deprecated and not called by zstd 0.11.2 or pulsar; experimental feature off."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#82",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "5.0.2+zstd.1.5.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0406"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free when changing a multithreaded context with an unfinished frame \u2014 When a multithreaded frame (`zstdmt` feature, `CParameter::NbWorkers`) is\nleft unfinished, its jobs may still be running on the worker threads: the C\nlibrary only waits for them when the next frame starts, or when the context\nis freed. A session reset makes the context accept changes again in the\nmeantime, so:\n\n- unloading the dictionary (`load_dictionary`, `ref_cdict`, `ref_prefix`,\n  `disable_dictionary`, `init*`, or `reset` with parameters) freed the\n  dictionary a worker was still compressing against;\n- changin",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::disable_dictionary",
+          "zstd_safe::CCtx::init",
+          "zstd_safe::CCtx::load_dictionary",
+          "zstd_safe::CCtx::ref_cdict",
+          "zstd_safe::CCtx::ref_prefix",
+          "zstd_safe::CCtx::reset",
+          "zstd_safe::CCtx::set_parameter"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 5.0.2: requires zstdmt feature and CParameter::NbWorkers (zstd Encoder::multithread, stream/mod.rs:106-110, cfg(feature=\"zstdmt\")). quickwit uses zstd with default features (workspace Cargo.toml:271); no multithread()/NbWorkers caller found in quickwit/vrl/zstd bulk paths."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#83",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.0.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0395"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free with `CParameter::StableInBuffer` \u2014 With `CParameter::StableInBuffer(true)` (`experimental` feature), the C\nlibrary keeps a pointer to the input of one streaming call and reads from it\nin later calls, including `flush_stream` and `end_stream`, which take no\ninput. An `InBuffer` only borrows its slice for one call, so safe code could\nfree it in between, and freed memory was compressed into the frame. The C\nlibrary behaves this way since zstd 1.5.4, whether bundled or linked from the\nsystem.\n\nThe flaw was corrected by refusing to enable the parameter.",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::set_parameter"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 7.0.0: StableInBuffer is an experimental-feature CParameter; nobody sets it (no StableInBuffer in zstd 0.13.0/0.11.2 src, quickwit, vrl) and zstd's experimental feature is not enabled by quickwit (workspace Cargo.toml:271 zstd = \"0.13.0\" defaults: legacy, arrays, zdict_builder)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#84",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.0.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0397"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "`OutBuffer::around_pos` exposes uninitialized memory \u2014 `OutBuffer::around_pos` accepted a position past the initialized length of a\n`Vec<u8>`. The next streaming call then marked everything before the\nposition as initialized, so safe code could read stale heap memory between\nthe vector's previous length and that position.\n\nThe flaw was corrected by zero-filling that gap.",
+        "vuln_symbols": [
+          "zstd_safe::OutBuffer::around_pos"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 7.0.0: OutBuffer::around_pos is not called by the zstd crate (grep of zstd 0.13.0/0.11.2 src: zio uses OutBuffer::around only, reader.rs:77,137,177, writer.rs:103), nor by quickwit or vrl."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#85",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.0.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0399"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free through `init_using_cdict` and `init_using_ddict` \u2014 `CCtx::init_using_cdict` and `DCtx::init_using_ddict` (`experimental`\nfeature, deprecated) took the dictionary as `&CDict<'b>` and `&DDict<'b>`\nwith only `'b: 'a`, so the dictionary itself could be dropped while the\ncontext still pointed at it. The same mistake in other constructors was\nfixed earlier (<https://github.com/gyscos/zstd-rs/issues/365>).\n\nThe flaw was corrected by taking `&'a CDict<'b>` and `&'a DDict<'b>`.",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::init_using_cdict",
+          "zstd_safe::DCtx::init_using_ddict"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 7.0.0: init_using_cdict/init_using_ddict are experimental/deprecated and not called by zstd 0.13.0/0.11.2 or quickwit; experimental feature not enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#86",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.0.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0400"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free of a dictionary after a one-shot call on a context with an open stream \u2014 The one-shot `DCtx` and `CCtx` methods assumed the C library resets the\ncontext, but it leaves an open stream as it is. When a stream was left\nunfinished on a context, a one-shot call such as `decompress_using_dict`\ncould leave the context pointing at the dictionary borrowed for that call,\nand the next streaming call resumed the stream against it after it was\nfreed: decompressed output then contained freed heap memory. On the\ncompression side, the stream resumed against the one-shot call's buffers.\n\nThis re",
+        "vuln_symbols": [
+          "zstd_safe::DCtx::decompress",
+          "zstd_safe::DCtx::decompress_using_ddict",
+          "zstd_safe::DCtx::decompress_using_dict"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 7.0.0: needs a one-shot (de)compress on a context that has an unfinished stream. zstd crate keeps separate contexts: bulk::Decompressor/Compressor only do one-shot calls (bulk/decompressor.rs:92-100), stream Encoder/Decoder only streaming (stream/raw.rs:163-186). Users (quickwit-proto search/mod.rs:236,263, quickwit-serve decompression.rs:54 decode_all, vrl decode_zstd, tantivy bulk) never mix them on one context."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#87",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.0.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0401"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Out-of-bounds read in `train_from_buffer` when sample sizes overflow \u2014 `ZDICT_trainFromBuffer` is never told the length of the samples buffer, so\n`train_from_buffer` checked that the sample sizes add up to it. With\noverflow checks off, as in release builds, that sum wrapped around: sizes\ntotalling 2^64 plus the buffer length passed the check, and the trainer read\npast the end of the buffer. `zstd::dict::from_continuous` relies on this\ncheck from zstd 0.4.10; older versions of zstd had their own, covered by a\nseparate advisory.\n\nThis requires the sample sizes to come from an untrusted source. T",
+        "vuln_symbols": [
+          "zstd_safe::train_from_buffer"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 7.0.0: train_from_buffer only via zstd::dict::from_samples (dict.rs:117); no runtime dictionary training in quickwit/vrl (grep), and sample sizes are never attacker-controlled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#88",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.0.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0402"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Heap buffer overflow in `CCtx::try_clone` on a multithreaded context \u2014 `CCtx::try_clone` (`experimental` feature, deprecated) copies tables sized\nfrom the context's applied parameters. Starting a multithreaded frame\n(`zstdmt` feature) replaces those parameters with the workers' without\nresizing the context's own tables, so after an abandoned single-threaded\nframe, the copy wrote up to 512 KiB past a heap allocation, or read past\none. This became reachable with the bundled zstd 1.5.6.\n\nThe flaw was corrected by refusing `try_clone` (and the unsafe\n`compress_block`) once `NbWorkers` was set on t",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::try_clone"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 7.0.0: CCtx::try_clone is experimental/deprecated and not called; also needs zstdmt multithreaded frames, not enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#89",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.0.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0403"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Uninitialized memory exposed when streaming decompression of a legacy frame fails \u2014 When decompression fails inside a legacy (zstd v0.4 to v0.7) frame, the\nbundled zstd library reports the output buffer as fully written although\nnothing was written. `DCtx::decompress_stream` committed that position even\non error, and for a `Vec<u8>` destination this extended the vector's length\nover uninitialized memory.\n\nLegacy support is enabled by default. A 5- or 6-byte corrupt legacy frame is\nenough: through `zstd::stream::write::Decoder`, up to 32 KiB of stale heap\nmemory is then passed to the wrapped wr",
+        "vuln_symbols": [
+          "zstd_safe::DCtx::decompress_stream"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): zstd 0.13.0 (default features include legacy, Cargo.toml:72,79; zstd-safe 7.0.0 legacy -> zstd-sys/legacy, Cargo.toml:52,59) runs DCtx::decompress_stream (zstd-safe src/lib.rs:1125-1140; OutBufferWrapper drop commits pos even on error) on unauthenticated input. quickwit-serve/src/decompression.rs:52-54 calls zstd::decode_all on any REST body sent with Content-Encoding: zstd (ingest and ES _bulk), which goes copy_decode -> read::Decoder -> raw Decoder::run -> decompress_stream (zstd stream/functions.rs:8-23, stream/raw.rs:186). VRL decode_zstd (vrl-0.8.1 src/stdlib/decode_zstd.rs:6) works the same way on source data. Caveat on impact: every reachable caller I could read uses read::Decoder, whose OutBuffer is the caller's slice, and the error is propagated with ? (zio/reader.rs:137-148). So the Vec length extension and stale-heap leak via write::Decoder described in the advisory likely doesn't materialise. The git deps chitchat and tantivy couldn't be read (I believe they use zstd::bulk). Labelled reachable at function level, on attacker data, with legacy enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#90",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.0.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0404"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Double free in `DCtx::try_clone` \u2014 `DCtx::try_clone` (`experimental` feature, deprecated) is a plain copy of the\nC context. A context owning a dictionary (from `load_dictionary`,\n`ref_prefix` or `init_using_dict`) or a dictionary table (`ref_ddict` with\n`RefMultipleDDicts`) ended up with both copies freeing it. A context cloned\nmid-frame resumed on uninitialized stream state. The clone also silently lost\nthe `WindowLogMax` limit.\n\nThe flaw was corrected by refusing to clone such contexts, and by carrying\nover the parameters the copy leaves out.",
+        "vuln_symbols": [
+          "zstd_safe::DCtx::try_clone"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 7.0.0: DCtx::try_clone is experimental/deprecated and not called by zstd 0.13.0, quickwit, vrl; experimental feature off."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#91",
+      "facts": {
+        "package": "zstd-safe",
+        "version": "7.0.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0406"
+          ],
+          [
+            "zstd-safe"
+          ]
+        ],
+        "advisory_summary": "Use-after-free when changing a multithreaded context with an unfinished frame \u2014 When a multithreaded frame (`zstdmt` feature, `CParameter::NbWorkers`) is\nleft unfinished, its jobs may still be running on the worker threads: the C\nlibrary only waits for them when the next frame starts, or when the context\nis freed. A session reset makes the context accept changes again in the\nmeantime, so:\n\n- unloading the dictionary (`load_dictionary`, `ref_cdict`, `ref_prefix`,\n  `disable_dictionary`, `init*`, or `reset` with parameters) freed the\n  dictionary a worker was still compressing against;\n- changin",
+        "vuln_symbols": [
+          "zstd_safe::CCtx::disable_dictionary",
+          "zstd_safe::CCtx::init",
+          "zstd_safe::CCtx::load_dictionary",
+          "zstd_safe::CCtx::ref_cdict",
+          "zstd_safe::CCtx::ref_prefix",
+          "zstd_safe::CCtx::reset",
+          "zstd_safe::CCtx::set_parameter"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "8.2.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "zstd_safe"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zstd-safe 7.0.0: requires zstdmt feature and CParameter::NbWorkers (zstd Encoder::multithread, stream/mod.rs:106-110, cfg(feature=\"zstdmt\")). quickwit uses zstd with default features (workspace Cargo.toml:271); no multithread()/NbWorkers caller found in quickwit/vrl/zstd bulk paths."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-quickwit#92",
+      "facts": {
+        "package": "zstd-sys",
+        "version": "2.0.9+zstd.1.5.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0410"
+          ],
+          [
+            "zstd-sys"
+          ]
+        ],
+        "advisory_summary": "[affects only arch=wasm32] WebAssembly allocator shim corrupts memory on allocation failure \u2014 On wasm32, zstd-sys provides `malloc` and `free` to the C library through a\nshim over Rust's allocator. The shim did not check for allocation failure:\nit wrote its size header to address 0 and returned address 4, which the C\nlibrary used as a valid buffer. `free(NULL)` also read below address 0.\n\nWhenever the instance cannot grow its memory by what a frame asks for, a\nsmall crafted frame (a 9-byte header declaring a 128 MiB window is enough)\nmade decompression write decoded data over the bottom of the",
+        "vuln_symbols": [
+          "malloc",
+          "free"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.1.2"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zstd_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Advisory affects only arch=wasm32 allocator shim; the Docker image builds for linux x86_64/aarch64."
+      }
+    }
+  ]
+}

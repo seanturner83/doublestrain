@@ -10,3 +10,4 @@ runs/
 # third-party app checkouts for real-* cases (fetched by fetch.sh at a pinned commit)
 cases/real-*/repo/
 cases/vlb-*/repo/
+cases/real-*/artifact/

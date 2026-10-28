@@ -1,0 +1,3179 @@
+{
+  "id": "real-rs-stalwart",
+  "description": "Stalwart Mail Server v0.11.8 (SMTP/IMAP/JMAP, stalwart-mail): Rust held-out (rs3), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#1",
+      "facts": {
+        "package": "anyhow",
+        "version": "1.0.95",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0190"
+          ],
+          [
+            "anyhow"
+          ]
+        ],
+        "advisory_summary": "Unsoundness in `Error::downcast_mut()` \u2014 Affected versions of this crate violate borrow rules, resulting in undefined behavior, when the user adds context to an error via `Error::context` and then later calls `Error::downcast_mut` on the returned `Error`.\n\nThe flaw was corrected in commit `6e8c000` by revising how the mutable reference is constructed, avoiding inclusion of a shared reference in the resulting borrow chain.\n\n## Example\n\n```rust\nuse anyhow::Error;\nuse std::fmt;\n\n#[derive(Debug)]\nstruct ErrorContext(&'static str);\n\nimpl fmt::Display for ErrorContext {\n    fn fmt(&self, f: &mut fmt",
+        "vuln_symbols": [
+          "anyhow::Error::downcast_mut"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.0.103"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "anyhow"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "anyhow 1.0.95 is pulled in only by http-types 2.12.0 (azure_core), prost-derive (proc-macro, build time) and sequoia-openpgp 1.22.0. None of them calls anyhow::Error::downcast_mut: sequoia's downcast_mut (src/packet/any.rs:69,93) is its own Packet trait, http-types' Error::downcast_mut wrapper (src/error.rs:153) is not called by azure_core, whose downcast_mut (error/mod.rs:247) is on Box<dyn Error>. Stalwart's crates/ never call downcast_mut."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#2",
+      "facts": {
+        "package": "azure_core",
+        "version": "0.21.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0275"
+          ],
+          [
+            "azure_core"
+          ]
+        ],
+        "advisory_summary": "Legacy `azure_core` writes the `authorization` header value to logs \u2014 Applications built on the legacy Azure SDK for Rust (`azure_core` 0.21.0 and\nearlier) write the value of the outgoing `authorization` header to their logs\nwhenever debug-level logging is enabled, and in every affected version also at\ntrace level. The leaked values are live credentials \u2014 Microsoft Entra\nID bearer tokens, Azure Storage SharedKey signatures, and SAS tokens \u2014 and\nanyone with read access to the logs can replay them until they expire\n(CWE-532).\n\nVersions 0.22.0 and later, which are the rewritten and currently supp",
+        "vuln_symbols": [
+          "authorization",
+          "legacy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.0",
+          "0.22.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "azure_core"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "azure_core 0.21.0 is compiled in (store 'azure' feature, Dockerfile), but it is used only if an Azure blob store is configured, which is not the default (RocksDB). The leak is emitted only as tracing debug!/trace! events (policies/transport.rs:32, custom_headers_policy.rs:34). Cargo.lock has no tracing-subscriber, tracing has no 'log' feature (Cargo.lock:7313-7321), and crates/ never install a subscriber or logger (no set_global_default or set_logger). Stalwart logs through its own trc crate, so these events are dropped and never reach a log."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#3",
+      "facts": {
+        "package": "bytes",
+        "version": "1.9.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25541",
+            "GHSA-434x-w66g-qw3r",
+            "RUSTSEC-2026-0007"
+          ],
+          [
+            "bytes"
+          ]
+        ],
+        "advisory_summary": "bytes has integer overflow in BytesMut::reserve \u2014 # Details\n\nIn the unique reclaim path of `BytesMut::reserve`, the condition\n```rs\nif v_capacity >= new_cap + offset\n```\nuses an unchecked addition. When `new_cap + offset` overflows `usize` in release builds, this condition may incorrectly pass, causing `self.cap` to be set to a value that exceeds the actual allocated capacity. Subsequent APIs such as `spare_capacity_mut()` then trust this corrupted `cap` value and may create out-of-bounds slices, leading to UB.\n\nThis behavior is observable in release builds (integer overflow wraps), whereas de",
+        "vuln_symbols": [
+          "usize",
+          "self.cap",
+          "spare_capacity_mut",
+          "cap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "bytes"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The bug needs BytesMut::reserve(additional) with additional close to usize::MAX, so that new_cap+offset wraps on 64-bit. Stalwart's only direct BytesMut use is postgres ToSql output (crates/store/src/backend/postgres/lookup.rs:61,97), with small sizes. hyper, h2 and tokio-util reserve bounded or frame-limited sizes. No path was found where an attacker-supplied length reaches reserve() without a bound. Not exhaustively proven, hence medium."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#4",
+      "facts": {
+        "package": "crossbeam-channel",
+        "version": "0.5.14",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4574",
+            "GHSA-pg9f-39pc-qf8g",
+            "RUSTSEC-2025-0024",
+            "TROVE-2025-013"
+          ],
+          [
+            "crossbeam-channel"
+          ]
+        ],
+        "advisory_summary": "crossbeam-channel Vulnerable to Double Free on Drop \u2014 The internal `Channel` type's `Drop` method has a race\nwhich could, in some circumstances, lead to a double-free.\nThis could result in memory corruption.\n\nQuoting from the\n[upstream description in merge request \\#1187](https://github.com/crossbeam-rs/crossbeam/pull/1187#issue-2980761131):\n\n> The problem lies in the fact that `dicard_all_messages` contained two paths that could lead to `head.block` being read but only one of them would swap the value. This meant that `dicard_all_messages` could end up observing a non-null block pointer (and ",
+        "vuln_symbols": [
+          "Channel",
+          "Drop",
+          "dicard_all_messages",
+          "head.block"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.5.15"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "crossbeam_channel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crossbeam-channel 0.5.14's only dependent is crossbeam 0.8.4 (a re-export), which only mysql_async 0.34.1 uses. mysql_async uses only crossbeam::queue::ArrayQueue (src/buffer_pool.rs:9), never a channel, so Channel::drop / discard_all_messages never runs. MySQL is also an optional store backend, not the default."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#5",
+      "facts": {
+        "package": "crossbeam-epoch",
+        "version": "0.9.18",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0204"
+          ],
+          [
+            "crossbeam-epoch"
+          ]
+        ],
+        "advisory_summary": "Invalid pointer dereference in `fmt::Pointer` impl for `Atomic` and `Shared` when the underlying pointer is invalid \u2014 Affected versions of `fmt::Display` dereference the underlying pointer. This causes a invalid pointer dereference e.g., when a pointer created with `Atomic::null` or `Shared::null`. `fmt::Debug` impls and pre-0.9 `fmt::Display` impls, which do not dereference pointers, are not affected by this issue.",
+        "vuln_symbols": [
+          "Atomic",
+          "Shared"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.20"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "crossbeam_epoch"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The bug is in the fmt::Pointer impl of crossbeam-epoch's Atomic/Shared, which only runs when one is formatted with {:p}. Its dependents (crossbeam-deque via rayon-core, and crossbeam via mysql_async ArrayQueue) never format Atomic/Shared with {:p}, and Stalwart does not use crossbeam-epoch directly."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#6",
+      "facts": {
+        "package": "crypto-bigint",
+        "version": "0.5.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0387"
+          ],
+          [
+            "crypto-bigint"
+          ]
+        ],
+        "advisory_summary": "Multiple timing variability issues in operations intended to be constant-time \u2014 ## Summary\n\nSeveral operations intended to be constant-time could execute secret-dependent\nbranches, depending on the compiler and target CPU. These include subtraction,\nzero counting, division, and Montgomery multiplication.\n\nAdditionally, `UintRef` equality could terminate at the first unequal limb,\nand `BoxedMontyForm::invert` branched on whether an inverse exists.\n\n## Impact\n\nApplications using affected operations on secret integers may leak information\nthrough timing or microarchitectural side channels. This i",
+        "vuln_symbols": [
+          "UintRef",
+          "ctutils"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.6"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "crypto_bigint"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "crypto-bigint 0.5.5 backs p256/p384 Scalar (p256 src/arithmetic/scalar.rs:84 Scalar(U256), reduce via sbb at :665). Secret scalars go through it: jmap web push ECE uses EphemeralSecret::random plus diffie_hellman (crates/jmap/src/push/ece.rs:49-54, on by default when a user registers a push subscription), and sequoia-openpgp uses ECDH/ECDSA for encryption at rest. The named UintRef/BoxedMontyForm APIs are 0.6/0.7 only, but subtraction, borrow and comparison code in 0.5.5 runs on secret data. Leakage depends on the compiler, and remote exploitation is impractical, so low confidence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#7",
+      "facts": {
+        "package": "event-listener",
+        "version": "5.4.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0221"
+          ],
+          [
+            "event-listener"
+          ]
+        ],
+        "advisory_summary": "`event-listener` allows `!Send` tags to cross thread boundaries via `StackSlot` \u2014 Affected versions of `event-listener` unconditionally implement `Send` and\n`Sync` for `StackSlot<'_, T>`, the stack-allocated listener type created\nby the `listener!` macro.\n\nThis allows a `!Send` tag type set via `Event::with_tag` to be moved to\nanother thread and accessed via `StackSlot::wait`, causing a data race in safe\ncode.",
+        "vuln_symbols": [
+          "StackSlot",
+          "Send",
+          "Sync"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.2"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "event_listener"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The unsoundness needs a !Send tag set via Event::with_tag together with the listener! StackSlot. event-listener 5.4.0 is used only by async-lock 3.4.0 (through azure_storage) and event-listener-strategy. async-lock's listener! uses (once_cell.rs:291,344) are on untagged Event<()>, and nothing calls with_tag."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#8",
+      "facts": {
+        "package": "fast-float",
+        "version": "0.2.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-x8jh-xj3x-gx3c",
+            "RUSTSEC-2024-0379"
+          ],
+          [
+            "fast-float"
+          ]
+        ],
+        "advisory_summary": "`fast-float` has multiple soundness issues \u2014 `fast-float` contains multiple soundness issues:\n\n 1. [Undefined behavior when checking input length](https://github.com/aldanor/fast-float-rust/issues/28), which has been merged but no package [pubished](https://github.com/aldanor/fast-float-rust/issues/35).\n 1. [Many functions marked as safe with non-local safety guarantees](https://github.com/aldanor/fast-float-rust/issues/37)\n\nThe library is also unmaintained.\n\n## Alternatives\n\nFor quickly parsing floating-point numbers third-party crates are generally no longer needed. A fast float parsing algo",
+        "vuln_symbols": [
+          "lexical"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "fast_float"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "fast-float 0.2.0 is a direct dependency of jmap_proto (crates/jmap-proto/Cargo.toml:12). The JMAP JSON request parser calls fast_float::parse on attacker-supplied number bytes whenever a number contains '.', 'e' or 'E' (crates/jmap-proto/src/parser/json.rs:215), reachable by any authenticated JMAP user. Issue #28, UB in the length check: AsciiStr::check_len does ptr.add(n) past the end (fast-float src/common.rs:77-78), via try_read_u64 in try_parse_8digits_le (number.rs:71-74), which runs on every short float."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#9",
+      "facts": {
+        "package": "fast-float",
+        "version": "0.2.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-8655-xgh5-5vvq",
+            "RUSTSEC-2025-0003"
+          ],
+          [
+            "fast-float"
+          ]
+        ],
+        "advisory_summary": "fast-fault has a segmentation fault due to lack of bound check \u2014 In this case, the \"fast_float::common::AsciiStr::first\" method within the \"AsciiStr\" struct \nuses the unsafe keyword to reading from memory without performing bounds checking. \nSpecifically, it directly dereferences a pointer offset by \"self.ptr\".\nBecause of the above reason, the method accesses invalid memory address when it takes an empty string as its input.\nThis approach violates Rust\u2019s memory safety guarantees, as it can lead to invalid memory access if empty buffer is provided.\n\nNo patched version for fast-float crate has b",
+        "vuln_symbols": [
+          "fast_float::common::AsciiStr::first"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "fast_float"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AsciiStr::first (src/common.rs:38-39) lives in a private module (lib.rs:50 'mod common;'). Every public-API path guards emptiness before calling it: parse_float returns early on empty input (parse.rs:10), the sign step re-checks is_empty (number.rs:130-136), and check_first/parse_scientific check !is_empty (common.rs:55, number.rs:100). Stalwart's call (jmap-proto parser/json.rs:215) always passes a non-empty slice that starts at the number's first character. So first() is never called on an empty string."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#10",
+      "facts": {
+        "package": "h2",
+        "version": "0.3.26",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.3.26 comes via hyper 0.14 and reqwest 0.11 (which has HTTP/2 with ALPN h2). In the server binary, reqwest 0.11 is used only by the elasticsearch client (store 'elastic' feature, compiled in by the Dockerfile; crates/store/Cargo.toml:42). That client is used when an Elasticsearch full-text-search store is configured, a documented optional backend, and the attacker is a malicious or MITM ES server. rust-s3 uses hyper 0.14 with http1 only (rust-s3 Cargo.toml:112-119). jmap-client is used only by stalwart-cli. hickory DoH is not selectable (resolver.rs:105-140 has no https). Not used in the default config (internal FTS), so low confidence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#11",
+      "facts": {
+        "package": "h2",
+        "version": "0.4.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "h2 0.4.7 comes via hyper 1.6 and reqwest 0.12 with the 'http2' feature (crates/smtp/Cargo.toml:50 etc.). The HTTP server is HTTP/1-only (jmap/src/api/http.rs:596 http1::Builder), but outbound reqwest clients negotiate h2 by ALPN against attacker-chosen hosts in the default config. Example: the MTA-STS policy fetch to https://mta-sts.{recipient-domain}/ during outbound delivery (crates/smtp/src/outbound/mta_sts/lookup.rs:70-78), plus spam-filter URL redirector checks (spam-filter/src/analysis/url.rs:184,292). A malicious HTTP/2 server can stream empty DATA frames to the h2 client receive path."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#12",
+      "facts": {
+        "package": "hickory-proto",
+        "version": "0.24.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-25188",
+            "GHSA-37wc-h8xc-5hc4"
+          ],
+          [
+            "hickory-proto"
+          ]
+        ],
+        "advisory_summary": "Hickory DNS's DNSSEC validation may accept broken authentication chains \u2014 ### Summary\nThe DNSSEC validation routines treat entire RRsets of DNSKEY records as trusted once they have established trust in only one of the DNSKEYs. As a result, if a zone includes a DNSKEY with a public key that matches a configured trust anchor, all keys in that zone will be trusted to authenticate other records in the zone. There is a second variant of this vulnerability involving DS records, where an authenticated DS record covering one DNSKEY leads to trust in signatures made by an unrelated DNSKEY in the same z",
+        "vuln_symbols": [
+          "verify_dnskey_rrset",
+          "verify_rrset",
+          "Secure",
+          "verify_default_rrset",
+          "handle.lookup",
+          "verify_rrset_with_dnskey"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.24.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "hickory_proto"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "hickory-proto 0.24.2 is built with dnssec-ring (mail-auth 0.6.1 enables hickory-resolver 'dnssec-ring'). Stalwart builds a validating resolver (opts_dnssec.validate=true, crates/common/src/config/smtp/resolver.rs:226-233) and uses it for DANE TLSA lookups during outbound delivery (crates/smtp/src/outbound/dane/dnssec.rs:47-53). queue.outbound.tls.dane defaults to 'optional' (common/src/config/smtp/queue.rs:157). This runs DnssecDnsHandle::send -> verify_rrsets -> verify_dnskey_rrset/verify_default_rrset/verify_rrset_with_dnskey (xfer/dnssec_dns_handle.rs:118,471,643,769) on DNS data from the recipient domain."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#13",
+      "facts": {
+        "package": "hickory-proto",
+        "version": "0.24.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-v7pc-74h8-xq2h",
+            "RUSTSEC-2025-0006"
+          ],
+          [
+            "hickory-proto"
+          ]
+        ],
+        "advisory_summary": "Hickory DNS failure to verify self-signed RRSIG for DNSKEYs \u2014 Summary\n\nThe DNSSEC validation routines treat entire RRsets of DNSKEY records as trusted once they have established trust in only one of the DNSKEYs. As a result, if a zone includes a DNSKEY with a public key that matches a configured trust anchor, all keys in that zone will be trusted to authenticate other records in the zone. There is a second variant of this vulnerability involving DS records, where an authenticated DS record covering one DNSKEY leads to trust in signatures made by an unrelated DNSKEY in the same zone.\n\nDetails\n\n",
+        "vuln_symbols": [
+          "hickory_proto::dnssec::DnssecDnsHandle::send",
+          "hickory_proto::xfer::DnssecDnsHandle::send"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.24.3",
+          "0.25.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "hickory_proto"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Same path as the previous hickory DNSSEC row: the validating resolver used for DANE TLSA lookups (common/src/config/smtp/resolver.rs:226-233; smtp/src/outbound/dane/dnssec.rs:47-53; DANE 'optional' by default, queue.rs:157). This calls hickory_proto::xfer::DnssecDnsHandle::send (xfer/dnssec_dns_handle.rs:118) on responses for recipient-controlled domains."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#14",
+      "facts": {
+        "package": "hickory-proto",
+        "version": "0.24.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q2qq-hmj6-3wpp",
+            "RUSTSEC-2026-0119"
+          ],
+          [
+            "hickory-proto"
+          ]
+        ],
+        "advisory_summary": "CPU exhaustion during message encoding due to O(n\u00b2) name compression \u2014 During message encoding, `hickory-proto`'s `BinEncoder` stores pointers to\nlabels that are candidates for name compression in a `Vec<(usize, Vec<u8>)>`.\nThe name compression logic then searches for matches with a linear scan.\n\nA malicious message with many records can both introduce many candidate labels,\nand invoke this linear scan many times. This can amplify CPU exhaustion in DoS\nattacks.\n\nThis is similar to\n[CVE-2024-8508](https://www.nlnetlabs.nl/downloads/unbound/CVE-2024-8508.txt).\n\nWe recommend all affected users up",
+        "vuln_symbols": [
+          "BinEncoder"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "hickory_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The quadratic cost is in BinEncoder name compression when encoding a message with many records. Stalwart only encodes small outbound DNS queries (one question) through hickory-resolver/mail-auth, plus small RFC2136 update messages via dns-update (ACME DNS-01). It runs no DNS server, so attacker-supplied many-record messages are only decoded, never encoded."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#15",
+      "facts": {
+        "package": "hickory-resolver",
+        "version": "0.24.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93657",
+            "GHSA-5j98-2g5x-46v6"
+          ],
+          [
+            "hickory-resolver"
+          ]
+        ],
+        "advisory_summary": "hickory-resolver: Resolver::lookup() and Resolver::lookup_ip() APIs obscure DNSSEC validation failures \u2014 When calling `Resolver::lookup()` or `Resolver::lookup_ip()` on a resolver with DNSSEC validation enabled, both methods return `Ok(...)` if DNSSEC validation fails. It is possible but very inconvenient to check the validation status of individual records. These methods should instead return an error when DNSSEC validation determines a response is bogus.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "hickory_resolver"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The validating resolver is used (tlsa_lookup, smtp/src/outbound/dane/dnssec.rs:47-53). In 0.24.2, though, DnssecDnsHandle does not return bogus records as Ok: verify_rrsets returns the validation error when nothing verifies and strips unverified rrsets from the answer (hickory-proto xfer/dnssec_dns_handle.rs:383-419). The 'Ok with bogus proof' behaviour belongs to the 0.25/0.26 Proof-annotated API. Low confidence because the advisory's affected range was flagged against this version."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#16",
+      "facts": {
+        "package": "lru",
+        "version": "0.12.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rhfx-m35p-ff5j",
+            "RUSTSEC-2026-0002"
+          ],
+          [
+            "lru"
+          ]
+        ],
+        "advisory_summary": "`IterMut` violates Stacked Borrows by invalidating internal pointer \u2014 Affected versions of this crate contain a soundness issue in the `IterMut` iterator implementation. The `IterMut::next` and `IterMut::next_back` methods temporarily create an exclusive reference to the key when dereferencing the internal node pointer.\n\nThis invalidates the shared pointer held by the internal `HashMap`, violating Stacked Borrows rules.",
+        "vuln_symbols": [
+          "IterMut",
+          "HashMap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.16.3"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.85
+        },
+        "import_name": "lru"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "lru 0.12.5's only dependent is mysql_async 0.34.1 (an optional MySQL store, not the default). mysql_async's statement cache (src/conn/stmt_cache.rs:44-97) uses only unbounded/put/get/pop/pop_lru, never iter_mut, so IterMut::next is never called."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#17",
+      "facts": {
+        "package": "lru",
+        "version": "0.12.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0253"
+          ],
+          [
+            "lru"
+          ]
+        ],
+        "advisory_summary": "Potential use-after-free due to lack of panic safety in `LruCache::pop()` \u2014 `LruCache::pop()` in `lru` was not panic-safe. If the `Drop` implementation of a stored key panics during `pop()`, `self.detach()` is never called, leaving dangling pointers in the internal doubly-linked list.\n\nA subsequent cache operation that triggers eviction can then dereference these dangling pointers:\n- The node is freed from the map, but remains linked in the LRU list due to the skipped `detach()` call\n- When a new insertion causes eviction, the LRU traversal encounters the dangling pointer\n- This results in a w",
+        "vuln_symbols": [
+          "Drop",
+          "pop",
+          "self.detach",
+          "detach"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.18.2"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "lru"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The UAF needs a key whose Drop panics during LruCache::pop. The only user, mysql_async's stmt cache, is LruCache<u32, Entry> (src/conn/stmt_cache.rs:44,97), and u32 keys cannot panic on drop. The crate is also only on the optional MySQL backend."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#18",
+      "facts": {
+        "package": "lz4_flex",
+        "version": "0.11.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-32829",
+            "GHSA-vvp9-7p8x-rfvv",
+            "RUSTSEC-2026-0041"
+          ],
+          [
+            "lz4_flex"
+          ]
+        ],
+        "advisory_summary": "lz4_flex's decompression can leak information from uninitialized memory or reused output buffer \u2014 ### Summary\nDecompressing invalid LZ4 data can leak data from uninitialized memory, or can leak content from previous decompression operations when reusing an output buffer.\n\n### Details\nThe LZ4 block format defines a \"match copy operation\" which duplicates previously written data or data from the user-supplied dict. The position of that data is defined by an _offset_. The data is copied within the output buffer from the _offset_ to the current output position.\nHowever, lz4_flex did not properly d",
+        "vuln_symbols": [
+          "lz4_flex::block::decompress",
+          "lz4_flex::block::decompress_into",
+          "lz4_flex::block::decompress_into_with_dict",
+          "lz4_flex::block::decompress_size_prepended",
+          "lz4_flex::block::decompress_size_prepended_with_dict",
+          "lz4_flex::block::decompress_with_dict"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.11.6",
+          "0.12.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "lz4_flex"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "lz4_flex is used only to decompress data the server compressed itself: Bincode values (crates/store/src/write/mod.rs:695-709) and blobs with compression=lz4 (default config, crates/common/src/manager/boot.rs:605; decompress at store/src/dispatch/blob.rs:61, compress at :96). The leak needs invalid LZ4 input, and attackers control only plaintext, not compressed bytes. Reaching it would need write access to the backing store. jmap lists lz4_flex but never calls it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#19",
+      "facts": {
+        "package": "opentelemetry_sdk",
+        "version": "0.25.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48504",
+            "GHSA-w9wp-h8wv-79jx"
+          ],
+          [
+            "opentelemetry_sdk"
+          ]
+        ],
+        "advisory_summary": "opentelemetry_sdk has unbounded memory allocation in W3C Baggage propagation \u2014 ## Summary\n\n`BaggagePropagator::extract_with_context` in `opentelemetry_sdk` did not enforce the W3C Baggage size limits before parsing an inbound `baggage` header. A large attacker-controlled header could cause unnecessary CPU work and short-lived heap allocations while parsing entries that would later be discarded by the SDK's baggage storage limits.\n\nThe SDK now applies limits aligned with the W3C Baggage limits:\n\n  - 64 list-members\n  - 8192 bytes total\n\n## Impact\n\nServices that accept untrusted inbound propagat",
+        "vuln_symbols": [
+          "baggage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "opentelemetry_sdk"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "opentelemetry_sdk is used only for OTLP export (crates/common/Cargo.toml:43-46). Nowhere in crates/ is a propagator, BaggagePropagator or extract_with_context set up or called (grep for propagat/baggage finds only ACME DNS propagation). Inbound 'baggage' headers are never parsed."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#20",
+      "facts": {
+        "package": "postgres-protocol",
+        "version": "0.6.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-5x78-73v4-xg6w",
+            "RUSTSEC-2026-0179"
+          ],
+          [
+            "postgres-protocol"
+          ]
+        ],
+        "advisory_summary": "postgres-protocol: Unbounded SCRAM iteration count allows a malicious server to cause CPU-exhaustion denial of service \u2014 A malicious, compromised, or man-in-the-middle server can supply an arbitrarily\nlarge SCRAM-SHA-256 PBKDF2 iteration count during authentication. The client\nruns it inline with no upper bound, pinning a `tokio` worker thread for minutes\nper connection, possibly stalling the whole async runtime.\n\nApplications that connect only to a trusted database are not exposed; the risk\napplies to clients that may connect to untrusted or user-supplied servers, or\nwhose connection can be i",
+        "vuln_symbols": [
+          "postgres_protocol::authentication::sasl::ScramSha256::update"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.6.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "postgres_protocol"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "postgres-protocol 0.6.7 comes via tokio-postgres (store 'postgres' feature, compiled into the Docker image). It runs when PostgreSQL is configured as the data, blob or lookup store, a documented and commonly used backend. tokio-postgres connect_raw.rs:182,231 runs ScramSha256::update with a server-supplied iteration count. TLS is off by default (store/src/backend/postgres/main.rs:45 tls.enable=false), so a malicious server or MITM can set it. Not active in the default RocksDB config."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#21",
+      "facts": {
+        "package": "postgres-protocol",
+        "version": "0.6.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rgqc-3x5p-6gwg",
+            "RUSTSEC-2026-0180"
+          ],
+          [
+            "postgres-protocol"
+          ]
+        ],
+        "advisory_summary": "postgres-protocol: Panic decoding a malformed `hstore` value allows denial of service \u2014 A malicious or compromised server can return a binary `hstore` value with an\ninvalid internal length field, causing the client to panic while decoding it.\n\nApplications that connect only to a trusted database are not exposed; the risk\napplies to clients that may connect to untrusted or user-supplied servers, or\nwhose connection can be intercepted by a man-in-the-middle.",
+        "vuln_symbols": [
+          "postgres_protocol::types::hstore_from_sql"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.6.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "postgres_protocol"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "hstore_from_sql runs only through postgres-types' FromSql for HashMap<String, Option<String>> (postgres-types lib.rs:754). Stalwart's Postgres code reads only Vec<u8>, &[u8] and i64, plus its own Value FromSql, which handles text/bool/int/float types only (crates/store/src/backend/postgres/lookup.rs:175-189). No hstore decoding happens."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#22",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.31.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0194"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Quadratic run time when checking a start tag for duplicate attribute names \u2014 `BytesStart::attributes()` returns an `Attributes` iterator which, by default\n(`with_checks(true)`), rejects a start tag that repeats an attribute name. For\neach attribute yielded, the iterator compared the new name against every name\nseen so far in the same tag using a linear scan, so a start tag with `N`\ndistinct attribute names cost `O(N\u00b2)` byte comparisons. There was no bound on\n`N` other than the size of the buffered start tag.\n\n## Impact\n\nAny code that parses untrusted XML and iterates a start tag's attributes w",
+        "vuln_symbols": [
+          "Attributes",
+          "N",
+          "NsReader",
+          "snapshot.xml"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "quick-xml 0.31.0 is used only by azure_core 0.21.0, with the 'xml' feature enabled by azure_storage_blobs (Cargo.toml:44-46), and is compiled in through the Dockerfile's 'azure' feature. With an Azure Blob store configured, a documented optional object-storage backend that is off by default, non-success responses with application/xml bodies go through azure_core error/http_error.rs:156-161 -> xml::read_xml -> quick_xml::de::from_reader. The serde MapAccess iterates attributes with IterState::new (de/map.rs:209), which has check_duplicates=true (events/attributes.rs:525,608-616), so the O(N^2) scan runs on XML from the storage endpoint or a MITM. Low confidence: the setting is less common."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#23",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.31.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0195"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Unbounded namespace-declaration allocation in `NsReader` enables memory-exhaustion denial of service \u2014 `NsReader` resolves namespaces by calling `NamespaceResolver::push` for every\n`Start`/`Empty` event *before* the event is returned to the caller. `push`\niterated all `xmlns` / `xmlns:*` attributes on the start tag and, for each one,\nappended the prefix bytes to an internal buffer and pushed a `NamespaceBinding`\n(32 bytes on 64-bit) to an internal `Vec`, with no upper bound on the number of\ndeclarations.\n\n## Impact\n\nA start tag with `N` namespace declarations drove roughly `3\u00d7` the tag's byte\n",
+        "vuln_symbols": [
+          "NsReader",
+          "Start",
+          "Empty",
+          "push",
+          "xmlns",
+          "NamespaceBinding"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "NsReader is never used. azure_core's XML handling goes through quick_xml::de (from_reader/from_str, azure_core src/xml.rs:4-6), and quick-xml 0.31's deserializer is built on the plain Reader: there is no NsReader in src/de/. Stalwart itself does not use quick-xml 0.31. NamespaceResolver::push therefore never runs on untrusted data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#24",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.32.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0194"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Quadratic run time when checking a start tag for duplicate attribute names \u2014 `BytesStart::attributes()` returns an `Attributes` iterator which, by default\n(`with_checks(true)`), rejects a start tag that repeats an attribute name. For\neach attribute yielded, the iterator compared the new name against every name\nseen so far in the same tag using a linear scan, so a start tag with `N`\ndistinct attribute names cost `O(N\u00b2)` byte comparisons. There was no bound on\n`N` other than the size of the buffered start tag.\n\n## Impact\n\nAny code that parses untrusted XML and iterates a start tag's attributes w",
+        "vuln_symbols": [
+          "Attributes",
+          "N",
+          "NsReader",
+          "snapshot.xml"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quick-xml 0.32.0 is used only by rust-s3 0.35.0-alpha.2 and aws-creds 0.37.0 (S3 store, optional). Stalwart's S3 backend calls only get_object, get_object_range, put_object and delete_object (crates/store/src/backend/s3/mod.rs:61-100), and none of these deserialize XML. rust-s3 parses XML only in list_buckets, multipart, location and list (bucket.rs:405,1393,1411,1578,1996,2080). aws-creds parses XML only for STS web-identity credentials (credentials.rs:233), which are tried only when no access-key is configured and the AWS_ROLE_ARN/web-identity env is set (a rare EKS IRSA setup). The attribute-duplicate scan is therefore not hit in a common deployment."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#25",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.32.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0195"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Unbounded namespace-declaration allocation in `NsReader` enables memory-exhaustion denial of service \u2014 `NsReader` resolves namespaces by calling `NamespaceResolver::push` for every\n`Start`/`Empty` event *before* the event is returned to the caller. `push`\niterated all `xmlns` / `xmlns:*` attributes on the start tag and, for each one,\nappended the prefix bytes to an internal buffer and pushed a `NamespaceBinding`\n(32 bytes on 64-bit) to an internal `Vec`, with no upper bound on the number of\ndeclarations.\n\n## Impact\n\nA start tag with `N` namespace declarations drove roughly `3\u00d7` the tag's byte\n",
+        "vuln_symbols": [
+          "NsReader",
+          "Start",
+          "Empty",
+          "push",
+          "xmlns",
+          "NamespaceBinding"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "NsReader is never used: rust-s3 and aws-creds use only quick_xml::de/se, and the 0.32 deserializer is built on Reader, with no NsReader in src/de/. Stalwart's S3 calls (get/put/delete object, crates/store/src/backend/s3/mod.rs:61-100) parse no XML at all."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#26",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.37.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0194"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Quadratic run time when checking a start tag for duplicate attribute names \u2014 `BytesStart::attributes()` returns an `Attributes` iterator which, by default\n(`with_checks(true)`), rejects a start tag that repeats an attribute name. For\neach attribute yielded, the iterator compared the new name against every name\nseen so far in the same tag using a linear scan, so a start tag with `N`\ndistinct attribute names cost `O(N\u00b2)` byte comparisons. There was no bound on\n`N` other than the size of the buffered start tag.\n\n## Impact\n\nAny code that parses untrusted XML and iterates a start tag's attributes w",
+        "vuln_symbols": [
+          "Attributes",
+          "N",
+          "NsReader",
+          "snapshot.xml"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quick-xml 0.37.2 (no serialize feature, Cargo.lock entry depends only on memchr) is used by mail-auth's DMARC aggregate-report parser (src/report/dmarc/parse.rs:141), which is reachable from inbound report mail, and by jmap autoconfig (crates/jmap/src/api/autoconfig.rs:221). Both use plain Reader events. The only attribute access is BytesStart::try_get_attribute (dmarc/parse.rs:311), which iterates attributes().with_checks(false) (quick-xml events/mod.rs:302), so the duplicate-name check behind the O(N^2) cost is disabled. No serde deserializer is compiled for 0.37."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#27",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.37.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0195"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Unbounded namespace-declaration allocation in `NsReader` enables memory-exhaustion denial of service \u2014 `NsReader` resolves namespaces by calling `NamespaceResolver::push` for every\n`Start`/`Empty` event *before* the event is returned to the caller. `push`\niterated all `xmlns` / `xmlns:*` attributes on the start tag and, for each one,\nappended the prefix bytes to an internal buffer and pushed a `NamespaceBinding`\n(32 bytes on 64-bit) to an internal `Vec`, with no upper bound on the number of\ndeclarations.\n\n## Impact\n\nA start tag with `N` namespace declarations drove roughly `3\u00d7` the tag's byte\n",
+        "vuln_symbols": [
+          "NsReader",
+          "Start",
+          "Empty",
+          "push",
+          "xmlns",
+          "NamespaceBinding"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "NsReader is not used. mail-auth (dmarc/parse.rs:14,141) and jmap autoconfig (autoconfig.rs:12,221) both use quick_xml::reader::Reader, and no serde deserializer is compiled for 0.37 (no serialize feature). NamespaceResolver::push is never called."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#28",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-31812",
+            "GHSA-6xvm-j4wr-6v98",
+            "RUSTSEC-2026-0037"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Quinn affected by unauthenticated remote DoS via panic in QUIC transport parameter parsing \u2014 ### Summary\nA remote, unauthenticated attacker can trigger a denial of service in applications using vulnerable `quinn` versions by sending a crafted QUIC Initial packet containing malformed `quic_transport_parameters`. `In quinn-proto` parsing logic, attacker-controlled varints are decoded with `unwrap()`, so truncated encodings cause `Err(UnexpectedEnd)` and `panic`. This is reachable over the network with a single packet and no prior trust or authentication.\n\n### Details\nThe issue is panic-on-untrus",
+        "vuln_symbols": [
+          "quinn",
+          "quic_transport_parameters",
+          "unwrap",
+          "panic",
+          "UnexpectedEnd",
+          "Err"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.14"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn-proto 0.11.9 appears in Cargo.lock only through reqwest 0.12's optional quinn dependency. Its 'http3' feature (reqwest Cargo.toml:126-131) is enabled by no crate on the path (workspace Cargo.tomls, azure_core, dns-update, opentelemetry-*). The lock entry comes from the weak 'quinn?/ring' feature (Cargo.toml:74), which does not activate the dependency, and http3 would also need --cfg reqwest_unstable. No QUIC code is compiled; Stalwart has no QUIC listener."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#29",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25800",
+            "GHSA-4w2j-m93h-cj5j",
+            "RUSTSEC-2026-0185"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Quinn: Remote memory exhaustion in quinn-proto from unbounded out-of-order stream reassembly \u2014 ## Summary\n\nThe `Assembler` component that assembles unordered stream fragments into consecutive chunks of the stream incurs some overhead for non-contiguous fragments. Readers that read from a `RecvStream` in order (through an `AsyncRead` impl for example) will be sensitive to peers that send fragments while leaving out early parts of the stream, and in particular, fragments with many gaps (because these cannot be defragmented). In such a scenario, the receiving connection suffers from high buffer o",
+        "vuln_symbols": [
+          "Assembler",
+          "RecvStream",
+          "AsyncRead"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.15"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn is not compiled. It is only an optional reqwest dependency behind 'http3', which nothing enables (reqwest Cargo.toml:126-131); the lock entry comes only from the weak 'quinn?/ring' feature. No QUIC streams exist."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#30",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-465w-v9q3-7j98",
+            "RUSTSEC-2026-0338"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Remote peer can panic quinn-proto with zero-length STREAM frames during unordered reads \u2014 When a stream is read in unordered mode (for example through `RecvStream::read(false)` in\nquinn-proto or `read_unordered` in `quinn`), quinn-proto proactively deduplicates received data\nby recording received ranges in a `RangeSet` through its `replace` method. When an incoming\nSTREAM frame carried an empty payload, the `Drop` implementation of the iterator returned by\n`replace` inserted an empty range into the set, violating the invariant that stored ranges are\nnon-empty. Subsequent frames overlapping tha",
+        "vuln_symbols": [
+          "read_unordered",
+          "quinn",
+          "RangeSet",
+          "replace",
+          "Drop"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.18"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn is not compiled (reqwest 'http3' is not enabled; the lock entry comes only from the weak 'quinn?/ring' feature, reqwest Cargo.toml:74,126-131). No unordered QUIC stream reads happen."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#31",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-hmxj-32vh-65vr",
+            "RUSTSEC-2026-0339"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Unbounded growth of pending connection ID retirements in quinn-proto \u2014 When processing a NEW_CONNECTION_ID frame, quinn-proto queues a RETIRE_CONNECTION_ID frame for\neach connection ID that the peer asked it to retire. The normal path bounds this queue and closes\nthe connection with a CONNECTION_ID_LIMIT_ERROR if the bound would be exceeded. However, the path\nhandling a connection ID that had already been retired pushed onto the queue without applying\nthe limit and without deduplicating.\n\nA peer that has completed the handshake can first send a NEW_CONNECTION_ID frame with a large\n`retire_prio",
+        "vuln_symbols": [
+          "retire_prior_to"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn is not compiled (reqwest 'http3' is not enabled; the lock entry comes only from the weak 'quinn?/ring' feature, reqwest Cargo.toml:74,126-131). NEW_CONNECTION_ID frames are never processed."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#32",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-3g6h-r5qx-f6hq",
+            "RUSTSEC-2026-0340"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Peer minimum ACK delay can panic quinn-proto when ACK_FREQUENCY transmission is enabled \u2014 When sending ACK_FREQUENCY frames is enabled through\n`TransportConfig::ack_frequency_config(Some(..))`, the peer's transport parameters could cause\n`AckFrequencyState::candidate_max_ack_delay` to call `Duration::clamp` with a minimum greater\nthan its maximum, which panics.\n\nFor example, a peer advertising a `min_ack_delay` of 100,000 microseconds and a `max_ack_delay`\nof 100 milliseconds passes transport parameter validation. At a 5 ms RTT, the lower bound of the\nclamp becomes 100 ms while the upper bound",
+        "vuln_symbols": [
+          "min_ack_delay",
+          "max_ack_delay",
+          "clamp"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.18"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn is not compiled (reqwest 'http3' is not enabled, reqwest Cargo.toml:126-131). Even if it were, the bug needs ack_frequency_config(Some(..)), which nothing sets."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#33",
+      "facts": {
+        "package": "quinn-proto",
+        "version": "0.11.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2hv7-gw8g-gpq5",
+            "RUSTSEC-2026-0342"
+          ],
+          [
+            "quinn-proto"
+          ]
+        ],
+        "advisory_summary": "Zero-length DATAGRAM frames bypass the receive buffer limit in quinn-proto \u2014 quinn-proto bounds its queue of received datagrams by charging each queued frame's payload length\nagainst `TransportConfig::datagram_receive_buffer_size`, evicting the oldest datagrams when the\nlimit is exceeded. A DATAGRAM frame with an empty payload was charged zero bytes, so it never\ntriggered eviction and was appended to the queue, which has no other bound.\n\nDATAGRAM frames are not subject to flow control. A peer that has completed the handshake can\ntherefore send a stream of empty DATAGRAM frames and grow the rec",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quinn_proto"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quinn is not compiled (reqwest 'http3' is not enabled; the lock entry comes only from the weak 'quinn?/ring' feature, reqwest Cargo.toml:74,126-131). No QUIC DATAGRAM frames are received."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#34",
+      "facts": {
+        "package": "rand",
+        "version": "0.7.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The unsoundness needs a custom `log` logger that calls rand::rng()/thread_rng() while logging. rand 0.7.3 comes only via http-types (azure_core). Stalwart installs no log logger: crates/ have no set_logger/set_boxed_logger/impl Log, and logging goes through its own trc crate. The condition cannot be met."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#35",
+      "facts": {
+        "package": "rand",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "thread_rng is used, but the unsoundness needs a custom `log` logger that calls rand::thread_rng/rng. Stalwart installs no `log` logger (no set_logger/set_boxed_logger/impl Log in crates/; logging goes through trc), so rand's log calls go to the no-op logger."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#36",
+      "facts": {
+        "package": "rand",
+        "version": "0.9.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as rand 0.8.5: no custom `log` logger is ever installed in the server (no set_logger/set_boxed_logger/impl Log in crates/), so the reentrant logger -> rand::rng() condition cannot occur."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#37",
+      "facts": {
+        "package": "ring",
+        "version": "0.16.20",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The panic happens only with overflow checking enabled. The Docker image builds --release, and the workspace sets [profile.release] overflow-checks = false (Cargo.toml:43). ring 0.16.20 is used via hickory-proto (DNS-over-TLS/DNSSEC) and ldap3, with no QUIC HeaderProtectionKey use. The 64 GB single-chunk AES-GCM case cannot occur either."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#38",
+      "facts": {
+        "package": "ring",
+        "version": "0.17.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The panic happens only with overflow checking enabled, but the release profile sets overflow-checks = false (Cargo.toml:43) and the Dockerfile builds --release. No QUIC is compiled (quinn is not enabled), so HeaderProtectionKey::new_mask is unused, and TLS records are far below 64 GB per chunk."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#39",
+      "facts": {
+        "package": "rkyv",
+        "version": "0.7.45",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0001"
+          ],
+          [
+            "rkyv"
+          ]
+        ],
+        "advisory_summary": "Potential Undefined Behaviors in `Arc<T>`/`Rc<T>` impls of `from_value` on OOM \u2014 The `SharedPointer::alloc` implementation for `sync::Arc<T>` and `rc::Rc<T>` in `rkyv/src/impls/alloc/rc/atomic.rs` (and `rc.rs`) does not check if the allocator returns a null pointer on OOM (Out of Memory).\n\nThis null pointer can flow through to `SharedPointer::from_value`, which calls `Box::from_raw(ptr)` with the null pointer. This triggers undefined behavior when utilizing safe deserialization APIs (such as `rkyv::from_bytes` or `rkyv::deserialize_using`) if an OOM condition occurs during the allocation of th",
+        "vuln_symbols": [
+          "from_value",
+          "rc.rs"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.46",
+          "0.8.13"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.86
+        },
+        "import_name": "rkyv"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rkyv 0.7.45 only via rust_decimal 1.36.0 <- mysql_common 0.32.4 <- mysql_async (store 'mysql' feature). rust_decimal's rkyv impls are behind its non-default 'rkyv' feature (rust_decimal Cargo.toml: rkyv=[dep:rkyv], default=[serde,std]); mysql_common/mysql_async enable only 'rust_decimal' (mysql_common Cargo.toml:140-142, no features). No workspace crate depends on or calls rkyv (no rkyv in crates/*/Cargo.toml). No Arc/Rc from_value deserialization of rkyv archives anywhere."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#40",
+      "facts": {
+        "package": "rkyv",
+        "version": "0.7.45",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0235"
+          ],
+          [
+            "rkyv"
+          ]
+        ],
+        "advisory_summary": "Insufficient archive validation can cause out-of-bounds reads in archives containing Rc/Arc \u2014 Shared pointer validation keyed already-validated pointees by their address and\ntype, but did not include pointer metadata. For unsized pointees, an archive\ncould therefore contain multiple `Rc`, `Arc`, or weak pointers that shared a\ndata address but used different metadata, such as different slice lengths.\n\nOnce the first pointer had been validated, later pointers to the same address\nskipped pointee validation. The safe checked `rkyv::access` API could\nconsequently return a slice with a forged length",
+        "vuln_symbols": [
+          "Rc",
+          "Arc"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.8.17"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rkyv"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same path as row 38: rkyv only reachable through rust_decimal's off-by-default rkyv feature; validation (rkyv-safe / bytecheck) not enabled; no code in Stalwart or deps calls rkyv::access/check_archived_root on archives with Rc/Arc. Stalwart 0.11.8 doesn't use rkyv at all."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#41",
+      "facts": {
+        "package": "rpassword",
+        "version": "7.3.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2p6r-x3vv-xqm2"
+          ],
+          [
+            "rpassword"
+          ]
+        ],
+        "advisory_summary": "rpassword affected by partial password reveal when input is interrupted  \u2014 rpassword maintainers were made aware of a possible issue with a partial password reveal when input is interrupted.\n\nTo quote @squell:\n\n> @conradkleinespel I've confirmed this problem with SequoiaPGP, which I think uses rpassword, e.g.:\n>\n> Suppose we use pkill -9 sq in a different terminal right after the password has been typed in:\n>\n> $ sq key generate --userid \"barf\" --with-password\n> Enter password to protect the key: Killed\n> $ hello^C\n>\n> Where the password I typed in is \"hello\".\n\nThis has been fixed in version v",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.5.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "rpassword"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rpassword 7.3.1's only dependent is stalwart-cli (Cargo.lock); the CLI is an interactive management client copied into the image but never run by the server (Dockerfile CMD/entrypoint run stalwart-mail). Not in mail-server's dependency closure."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#42",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-21895",
+            "GHSA-9c48-w39g-hm26"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "rsa crate has potential panic on a prime being equal to 1 \u2014 When creating a RSA private key from its components, the construction panics, instead of returning an error, when one of the primes is `1`. \n\nDiscovered by Christian Reitter from [Radically Open Security](https://www.radicallyopensecurity.com/) during a security review for [Proton AG](https://proton.me/).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.10"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rsa 0.9.7 is used by common/email/jmap and mail-auth(feature 'generate'). App code uses only RsaPublicKey (common/src/auth/oauth/config.rs:235, email/src/crypto.rs:262-272 encrypt, jmap/src/api/management/dkim.rs). RsaPrivateKey::from_components is only reached via sequoia rust backend rsa_private_key() for sign/decrypt (sequoia src/crypto/backend/rust/asymmetric.rs:217-245,374), which Stalwart never does (it only encrypts to user public keys), or mail-auth rust_crypto.rs (feature 'rust-crypto' off; ring default, no ed25519-dalek in Cargo.lock). DKIM key generation (mail-auth src/dkim/generate.rs:24 RsaPrivateKey::new) generates real primes, never 1."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#43",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-49092",
+            "GHSA-4grx-2x9w-596c",
+            "GHSA-c38w-74pg-36hr",
+            "RUSTSEC-2023-0071"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "Marvin Attack: potential key recovery through timing sidechannels \u2014 ### Impact\nDue to a non-constant-time implementation, information about the private key is leaked through timing information which is observable over the network. An attacker may be able to use that information to recover the key.\n\n### Patches\nNo patch is yet available. The crypto-bigint migration ([RustCrypto/RSA#394](https://github.com/RustCrypto/RSA/pull/394)) did not close this. Tracking is [RustCrypto/RSA#626](https://github.com/RustCrypto/RSA/issues/626) (padding still not constant-time). Implicit rejection work is in [R",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Marvin needs private-key RSA decryption (or signing) with the rsa crate on attacker-observable timing. Stalwart never performs rsa-crate private-key operations: DKIM signing uses ring (mail-auth default 'ring', 'rust-crypto' off; mail-auth src/common/crypto/mod.rs:14-25), OAuth/OIDC signing uses ring (common/src/auth/oauth/config.rs), email encryption-at-rest only does public-key Pkcs1v15Encrypt (email/src/crypto.rs:272) and sequoia encrypt. Only private-key use is RsaPrivateKey::new key generation for admin DKIM key creation (jmap/src/api/management/dkim.rs:200 -> mail-auth generate.rs:24) which is not a decryption oracle."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#44",
+      "facts": {
+        "package": "rtrb",
+        "version": "0.3.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0274"
+          ],
+          [
+            "rtrb"
+          ]
+        ],
+        "advisory_summary": "Double free / use-after-free in `ReadChunk::commit` when an element's `Drop` panics \u2014 `ReadChunk::commit` and `ReadChunk::commit_all` drop the committed elements\nbefore advancing the consumer head. If an element's `Drop` panics during the\ndrop loop, `head` is never advanced, so the ring buffer still treats those slots\nas holding live elements. When the `RingBuffer` is later dropped (it walks\n`head..tail` and drops each slot), or a subsequent `read_chunk()` / `commit()`\ntouches the same slots, the already-dropped elements are dropped a second time \u2014\na double free (CWE-415) / use-after-free (CWE",
+        "vuln_symbols": [
+          "rtrb::chunks::ReadChunk::commit",
+          "rtrb::chunks::ReadChunk::commit_all"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.5",
+          "0.4.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "rtrb"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rtrb 0.3.2 used only in trc/src/ipc/channel.rs:15-86 via Producer::push / Consumer::pop on a RingBuffer; ReadChunk::commit/commit_all and read_chunk are never called (grep of crates/ finds no read_chunk/commit), and Event types don't have panicking Drop."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#45",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.21.12 (in mail-server via ldap3 tls-rustls, hickory dns-over-rustls, rust-s3, elasticsearch/reqwest 0.11). No custom ClientSessionStore exists in the app or any dependency: the only impl is rustls' own ClientSessionMemoryCache (src/client/handy.rs), whose Debug impl omits the stored values (0.22.4 handy.rs:167-172, 0.23.21 handy.rs:186-191; 0.21.12 has no Debug impl for it); rustls itself only logs server_name (client/hs.rs 'No cached session for {:?}'). Nothing formats Tls12/Tls13ClientSessionValue with Debug."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#46",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Downgrade only matters when the client offers a post-quantum hybrid group (X25519MLKEM768). rustls 0.21.12 has no PQ key-exchange groups at all (ring 0.17 only, Cargo.lock rustls 0.21.12 deps: log, ring, rustls-webpki, sct), so the kx-hint recorded before authentication can only choose among classical groups and the advisory's downgrade cannot occur."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#47",
+      "facts": {
+        "package": "rustls",
+        "version": "0.22.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.22.4 (mysql_async default-rustls when MySQL store configured; jmap-client in stalwart-cli). No custom ClientSessionStore exists in the app or any dependency: the only impl is rustls' own ClientSessionMemoryCache (src/client/handy.rs), whose Debug impl omits the stored values (0.22.4 handy.rs:167-172, 0.23.21 handy.rs:186-191; 0.21.12 has no Debug impl for it); rustls itself only logs server_name (client/hs.rs 'No cached session for {:?}'). Nothing formats Tls12/Tls13ClientSessionValue with Debug."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#48",
+      "facts": {
+        "package": "rustls",
+        "version": "0.22.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.22.4 (mysql_async; CLI's jmap-client) uses the ring provider only (Cargo.lock deps: ring, no aws-lc-rs); no X25519MLKEM768 group is ever offered, so the ServerHello-hint downgrade to classical key exchange the advisory describes cannot happen."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#49",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.21",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2mjx-qc3c-rqvc",
+            "RUSTSEC-2026-0285"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Rustls: TLS 1.3 handshake messages incorrectly accepted across encryption level boundaries \u2014 Rustls accepted TLS 1.3 handshake messages sent at the wrong encryption level when they followed a key-changing message in the same record. The handshake transcript is still authenticated, so a network-position attacker cannot use this to alter or complete a handshake; the practical effect is that a peer could send handshake messages that should be encrypted in plaintext without rustls rejecting the connection.\n\nThis issue affects rustls versions 0.23.13 through 0.23.44 inclusive.\n\n# Original report\n##",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.45"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls 0.23.21 (in affected range 0.23.13-0.23.44) is the TLS stack for every Stalwart listener and outbound client (crates/common, smtp, imap, pop3, managesieve, utils Cargo.toml: rustls 0.23 features std,ring,tls12; tokio-rustls 0.26). TLS 1.3 handshakes from any internet peer (implicit TLS on 465/993/995/443, STARTTLS on 25/587/143) go through the affected state machine, and outbound SMTP delivery makes TLS 1.3 client handshakes to attacker-chosen MX hosts; a peer can send handshake messages at the wrong encryption level. Impact is low (transcript still authenticated) but the code runs on attacker input."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#50",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.21",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 (all listeners/clients). No custom ClientSessionStore exists in the app or any dependency: the only impl is rustls' own ClientSessionMemoryCache (src/client/handy.rs), whose Debug impl omits the stored values (0.22.4 handy.rs:167-172, 0.23.21 handy.rs:186-191; 0.21.12 has no Debug impl for it); rustls itself only logs server_name (client/hs.rs 'No cached session for {:?}'). Nothing formats Tls12/Tls13ClientSessionValue with Debug."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#51",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.21",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h2v8-394m-p7vv",
+            "RUSTSEC-2026-0348"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Brotli certificate decompression can allocate up to 1 GiB before authentication \u2014 The built-in Brotli certificate decompressor (enabled by the non-default\n`brotli` crate feature) bounded the size of the decompressed output, but\naccepted a peer-selected history window. Brotli's large-window extension was\nenabled, so a five-byte header could cause an allocation of 1 GiB. A peer can\nabort a process whose allocator cannot satisfy that request.\n\nNo trusted certificate is required by the attacker. Affected configurations are:\n\n- clients that enable the `brotli` feature and connect to a malicious ser",
+        "vuln_symbols": [
+          "brotli"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Brotli certificate decompression requires rustls' non-default 'brotli' feature. All workspace crates use rustls 0.23 with default-features=false, features [std, ring, tls12] (e.g. crates/common/Cargo.toml:27, smtp/Cargo.toml:30) and Cargo.lock lists rustls 0.23.21 deps as once_cell, ring, rustls-pki-types, rustls-webpki, subtle, zeroize: no brotli crate, so the decompressor is not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#52",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.21",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 is built with the ring provider only (workspace features std,ring,tls12; Cargo.lock has no aws-lc-rs). The ring provider's ALL_KX_GROUPS (src/crypto/ring/mod.rs, kx_group) are X25519/P-256/P-384; X25519MLKEM768 is never offered, so the unauthenticated-ServerHello downgrade from hybrid PQ to classical cannot happen. Stalwart installs no custom CryptoProvider."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#53",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): rustls-webpki 0.101.7 is in the deployed binary through rustls 0.21.12 (Cargo.lock: rust-s3 0.35.0-alpha.2 [s3 feature], ldap3 0.11.5, elasticsearch->reqwest 0.11, hickory 0.24), so chain verification with name constraints does run on outbound TLS (S3/LDAP/ES). But the advisory's bug, URI constraints being ignored, is not in this version. 0.101.7 has no URI GeneralName variant: a URI tag parses to GeneralName::Unsupported(6) (src/subject_name/verify.rs:403,417-420), and Unsupported vs. Unsupported with the same tag returns Err(NameConstraintViolation) (verify.rs:235-239). A URI SAN under a URI-constrained CA is therefore rejected, not accepted. The ignore-and-accept behaviour came with the GeneralName::UniformResourceIdentifier variant added in 0.102+, which falls through to `_ => continue` (e.g. 0.103.1 src/subject_name/mod.rs:166-177,264,293). The version range flags 0.101.7, but its code fails closed. Exploiting it would also need a misissued cert from a constrained CA, and rustls never asserts URI names."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#54",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.101.7 comes only via rustls 0.21.12, which in the server binary is used by: ldap3 0.11.5 (directory/Cargo.toml:21 features tls-rustls; LDAP directory with TLS/ldaps, roots from rustls-native-certs = Debian ca-certificates, ldap3 src/conn.rs:83-85), elasticsearch 8.5.0-alpha.1 -> reqwest 0.11.27 rustls-tls (store/Cargo.toml:42, Elasticsearch FTS store, webpki-roots 0.25.4), rust-s3 (S3 blob store, store/Cargo.toml:14) and hickory dns-over-rustls (resolver.type=cloudflare-tls/quad9-tls, common/src/config/smtp/resolver.rs:107-109). None is on by default (default = RocksDB + internal directory), but LDAP/S3/Elasticsearch are documented, commonly used backends and verify server certs by default (tls.allow-invalid-certs=false, directory/src/backend/ldap/config.rs:45, store/src/backend/elastic/mod.rs:53). Wildcard-vs-permitted-subtree name-constraint check runs during path validation of the peer's chain; exploitation needs a misissued wildcard cert under a DNS-constrained CA. Optional-backend only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#55",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CRL checking is opt-in (RevocationOptions / ClientConfig with_crls). No code in Stalwart or its dependencies supplies CRLs: grep for with_crls/RevocationOptions/CertificateRevocationList finds only reqwest's unused add_crl builder (reqwest 0.12 async_impl/client.rs:626-639, never called; crates/ has no crl usage) and rcgen tests. bit_string_flags on CRL issuingDistributionPoint is never reached for webpki 0.101.7."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#56",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.101.7 comes only via rustls 0.21.12, which in the server binary is used by: ldap3 0.11.5 (directory/Cargo.toml:21 features tls-rustls; LDAP directory with TLS/ldaps, roots from rustls-native-certs = Debian ca-certificates, ldap3 src/conn.rs:83-85), elasticsearch 8.5.0-alpha.1 -> reqwest 0.11.27 rustls-tls (store/Cargo.toml:42, Elasticsearch FTS store, webpki-roots 0.25.4), rust-s3 (S3 blob store, store/Cargo.toml:14) and hickory dns-over-rustls (resolver.type=cloudflare-tls/quad9-tls, common/src/config/smtp/resolver.rs:107-109). None is on by default (default = RocksDB + internal directory), but LDAP/S3/Elasticsearch are documented, commonly used backends and verify server certs by default (tls.allow-invalid-certs=false, directory/src/backend/ldap/config.rs:45, store/src/backend/elastic/mod.rs:53). Trust anchors there include emSign roots (webpki-roots 0.25.4 src/lib.rs:2928 'emSign ECC Root CA - G3' for Elasticsearch/reqwest 0.11; Debian bookworm ca-certificates/Mozilla store for ldap3 native certs), so a chain through the distrusted emSign intermediates would be accepted by 0.101.7."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#57",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93602",
+            "GHSA-pwjx-qhcg-rvj4",
+            "RUSTSEC-2026-0049"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "CRLs not considered authoritative by Distribution Point due to faulty matching logic \u2014 If a certificate had more than one `distributionPoint`, then only the first `distributionPoint` would be considered against each CRL's `IssuingDistributionPoint` `distributionPoint`, and then the certificate's subsequent `distributionPoint`s would be ignored.\n\nThe impact was that correctly provided CRLs would not be consulted to check revocation. With `UnknownStatusPolicy::Deny` (the default) this would lead to incorrect but safe `Error::UnknownRevocationStatus`. With `UnknownStatusPolicy::Allow` this would ",
+        "vuln_symbols": [
+          "distributionPoint",
+          "IssuingDistributionPoint"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.10",
+          "0.104.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Faulty distributionPoint matching is in CRL revocation checking, which is only active when RevocationOptions/CRLs are supplied. Nothing in Stalwart or dependencies configures CRLs (no with_crls/RevocationOptions usage; reqwest 0.12 add_crl never called). rustls 0.23/0.22 WebPkiServerVerifier built from root store only (utils/src/lib.rs:283-292)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#58",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.102.8 is the verifier for rustls 0.23.21 (and 0.22.4), used by default for outbound SMTP delivery (smtp/src/outbound/delivery.rs:977 uses smtp_connectors.pki_verify = mail_send build_tls_connector(false) (common/src/config/inner.rs:233; mail-send 0.5.0 src/smtp/tls.rs root store from webpki_roots::TLS_SERVER_ROOTS); also utils/src/lib.rs:278-292; queue.outbound.tls.allow-invalid-certs defaults to false on first attempt, common/src/config/smtp/queue.rs:171-178), ACME, webhooks and other reqwest 0.12 (rustls-tls-webpki-roots) clients. An attacker can make the server connect to an MX they control (e.g. a sender domain receiving a DSN/reply) and present any chain, so path validation incl. name-constraint checks runs on attacker-supplied certificates. URI name constraints are silently accepted during that validation; practical exploitation requires a misissued cert below a URI-constrained intermediate."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#59",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.102.8 is the verifier for rustls 0.23.21 (and 0.22.4), used by default for outbound SMTP delivery (smtp/src/outbound/delivery.rs:977 uses smtp_connectors.pki_verify = mail_send build_tls_connector(false) (common/src/config/inner.rs:233; mail-send 0.5.0 src/smtp/tls.rs root store from webpki_roots::TLS_SERVER_ROOTS); also utils/src/lib.rs:278-292; queue.outbound.tls.allow-invalid-certs defaults to false on first attempt, common/src/config/smtp/queue.rs:171-178), ACME, webhooks and other reqwest 0.12 (rustls-tls-webpki-roots) clients. An attacker can make the server connect to an MX they control (e.g. a sender domain receiving a DSN/reply) and present any chain, so path validation incl. name-constraint checks runs on attacker-supplied certificates. Wildcard certs under a DNS-name-constrained intermediate are wrongly accepted; requires misissuance, but the check runs on attacker-supplied chains."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#60",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 54 for 0.102.8: the CRL BIT STRING panic needs RevocationOptions/CRL bytes passed to verify_for_usage; no code path in Stalwart (utils/src/lib.rs:278-300 root store only) or its dependencies loads CRLs (reqwest add_crl/with_crls unused)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#61",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.102.8 is the verifier for rustls 0.23.21 (and 0.22.4), used by default for outbound SMTP delivery (smtp/src/outbound/delivery.rs:977 uses smtp_connectors.pki_verify = mail_send build_tls_connector(false) (common/src/config/inner.rs:233; mail-send 0.5.0 src/smtp/tls.rs root store from webpki_roots::TLS_SERVER_ROOTS); also utils/src/lib.rs:278-292; queue.outbound.tls.allow-invalid-certs defaults to false on first attempt, common/src/config/smtp/queue.rs:171-178), ACME, webhooks and other reqwest 0.12 (rustls-tls-webpki-roots) clients. An attacker can make the server connect to an MX they control (e.g. a sender domain receiving a DSN/reply) and present any chain, so path validation incl. name-constraint checks runs on attacker-supplied certificates. The root store is webpki-roots 0.26.7, which contains 'emSign ECC Root CA - G3' (webpki-roots src/lib.rs:3020-3042), copied verbatim into the RootCertStore used for outbound SMTP (mail-send build_tls_connector) and utils/src/lib.rs:285-289; 0.102.8 lacks the distrusted-intermediate key check, so a server presenting a chain via the compromised emSign intermediates would be accepted."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#62",
+      "facts": {
+        "package": "sequoia-openpgp",
+        "version": "1.22.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-67897",
+            "GHSA-v6x3-9r38-r27q",
+            "RUSTSEC-2025-0136"
+          ],
+          [
+            "sequoia-openpgp"
+          ]
+        ],
+        "advisory_summary": "Underflow in aes_key_unwrap function \u2014 The `aes_key_unwrap` function would panic if passed a ciphertext\nthat was too short.  In a debug build, it would panic due to a\nsubtraction underflow.  In a release build, it would use the\nsmall negative quantity to allocate a vector.  Since the\nallocator expects an unsigned quantity, the negative value would\nbe interpreted as a huge allocation.  The allocator would then\nfail to allocate the memory and panic.\n\nAn attacker could trigger this panic by sending a victim an\nencrypted message whose PKESK or SKESK packet has been specially\nmodified.  When the vi",
+        "vuln_symbols": [
+          "sequoia_openpgp::crypto::ecdh::aes_key_unwrap"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.1.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "sequoia_openpgp"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "sequoia-openpgp 1.22.0 is used only by crates/email/src/crypto.rs for encryption-at-rest: it parses user-uploaded certs (Cert::from_bytes, crypto.rs:144,452,589) and encrypts to them. aes_key_unwrap is only called from ecdh::decrypt_unwrap2 (sequoia src/crypto/ecdh.rs:139), i.e. when decrypting a PKESK with a secret key; Stalwart never decrypts or holds secret keys (no Decryptor/decrypt in email/src/crypto.rs), so attacker-crafted PKESK/SKESK packets are never unwrapped."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#63",
+      "facts": {
+        "package": "time",
+        "version": "0.3.37",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25727",
+            "GHSA-r6v5-fh4h-64xc",
+            "RUSTSEC-2026-0009"
+          ],
+          [
+            "time"
+          ]
+        ],
+        "advisory_summary": "time vulnerable to stack exhaustion Denial of Service attack \u2014 ### Impact\n\nWhen user-provided input is provided to any type that parses with the RFC 2822 format, a denial of service attack via stack exhaustion is possible. The attack relies on formally deprecated and rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary, non-malicious input will never encounter this scenario.\n\n### Patches\n\nA limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned rather than exhausting the stack.\n\n### Workarounds\n\nLimiting the ",
+        "vuln_symbols": [
+          "time::Date::parse",
+          "time::OffsetDateTime::parse",
+          "time::PrimitiveDateTime::parse",
+          "time::Time::parse",
+          "time::UtcDateTime::parse",
+          "time::UtcOffset::parse",
+          "time::parsing::Parsed::parse_item"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.47"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "time"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The stack-exhaustion bug is in time's RFC 2822 parser (well_known::Rfc2822 parse). Across Stalwart and every dependency in Cargo.lock, Rfc2822 is only used for formatting (rust-s3 request_trait.rs:601 format(&Rfc2822); x509-parser 0.15/0.16 time.rs:66 format); serde_with 1.14's Rfc2822 DeserializeAs (time_0_3.rs:328-342) is not used by any crate. Stalwart parses mail dates with mail-parser, not time. No call to *::parse with Rfc2822."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#64",
+      "facts": {
+        "package": "tokio",
+        "version": "1.38.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rr8g-9fpq-6wmg",
+            "RUSTSEC-2025-0023"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "Tokio broadcast channel calls clone in parallel, but does not require `Sync` \u2014 The broadcast channel internally calls `clone` on the stored value when receiving it, and only requires `T:Send`. This means that using the broadcast channel with values that are `Send` but not `Sync` can trigger unsoundness if the `clone` implementation makes use of the value being `!Sync`.\n\nThank you to Austin Bonander for finding and reporting this issue.",
+        "vuln_symbols": [
+          "Sync",
+          "clone",
+          "Send"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.2",
+          "1.42.1",
+          "1.43.1",
+          "1.44.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.83
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Unsoundness requires a broadcast channel carrying a Send-but-!Sync T whose Clone relies on !Sync. Stalwart crates don't use tokio::sync::broadcast (imap 'broadcast_state_change' is an app method, not tokio broadcast). Only dependency use is redis 0.27.6 src/aio/mod.rs:177,306 broadcast::Sender<PushInfo>; PushInfo is plain owned data (Send+Sync, derived Clone), so the condition is not met."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#65",
+      "facts": {
+        "package": "tokio",
+        "version": "1.38.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0386"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "`AsyncFd::new` and related constructors violate I/O safety \u2014 `tokio::io::unix::AsyncFd` provides safe constructors (`new`, `with_interest`, `try_new`, and `try_with_interest`) that accept any `T: AsRawFd` rather than requiring proof of ownership or validity of the file descriptor. Because `RawFd` implements `AsRawFd`, safe code can construct an `AsyncFd` from an arbitrary or closed file descriptor, or close/replace the underlying file descriptor while the `AsyncFd` is still alive.\n\nThis violates I/O safety in two ways:\n\n1. `AsyncFd<T>` implements `AsFd` for all `T: AsRawFd` by calling `Borrowe",
+        "vuln_symbols": [
+          "tokio::io::unix::AsyncFd::new",
+          "tokio::io::unix::AsyncFd::try_new",
+          "tokio::io::unix::AsyncFd::try_with_interest",
+          "tokio::io::unix::AsyncFd::with_interest"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.51.6",
+          "1.53.3"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No crate in the build (Stalwart crates/ or any third-party crate source in Cargo.lock) calls tokio::io::unix::AsyncFd::new/with_interest/try_new/try_with_interest (grep for AsyncFd finds nothing outside tokio itself), so the I/O-safety violation via arbitrary/closed raw fds is never exercised."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#66",
+      "facts": {
+        "package": "tokio-postgres",
+        "version": "0.7.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-3gjw-f78c-vvpw",
+            "RUSTSEC-2026-0178"
+          ],
+          [
+            "tokio-postgres"
+          ]
+        ],
+        "advisory_summary": "tokio-postgres: Panic on a `DataRow` with fewer fields than columns allows denial of service \u2014 A malicious or compromised server can send a row containing fewer fields than\nits row description declares columns. Reading one of the missing columns then\npanics with an out-of-bounds index, aborting the calling task. This affects even\nthe otherwise non-panicking `try_get`, and both `Row` and `SimpleQueryRow`.\n\nApplications that connect only to a trusted database are not exposed; the risk\napplies to clients that may connect to untrusted or user-supplied servers, or\nwhose connection can be intercepte",
+        "vuln_symbols": [
+          "tokio_postgres::Row::get",
+          "tokio_postgres::Row::try_get",
+          "tokio_postgres::SimpleQueryRow::get",
+          "tokio_postgres::SimpleQueryRow::try_get"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.7.18"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tokio_postgres"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "tokio-postgres 0.7.12 is compiled in (Docker features include 'postgres' -> store/Cargo.toml:35,59) and used when PostgreSQL is configured as data/blob/lookup store or SQL directory (documented, common option; default is RocksDB). store/src/backend/postgres/*.rs read rows with row.try_get/get (e.g. blob.rs:27-29). A malicious/compromised DB server or MITM can send a short DataRow; TLS is off by default (postgres/main.rs:44-57 tls.enable=false -> NoTls), so a network attacker on the DB path can inject it. Not reachable in the pure default RocksDB config."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#67",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.25.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "webpki-roots 0.25.4's only dependent is reqwest 0.11.27, pulled by elasticsearch 8.5.0-alpha.1 (store/Cargo.toml:42 features rustls-tls -> reqwest/rustls-tls-webpki-roots; Docker builds the 'elastic' feature) and jmap-client (CLI only). In the server it is the trust store when Elasticsearch is configured as the full-text-search store with cert verification (tls.allow-invalid-certs default false, store/src/backend/elastic/mod.rs:53); it contains 'emSign ECC Root CA - G3' (src/lib.rs:2928). Optional backend, not default."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#68",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.26.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "webpki-roots 0.26.7 is the default trust store for outbound SMTP delivery (mail-send 0.5.0 build_tls_connector via common/src/config/inner.rs:233 -> smtp/src/outbound/delivery.rs:977), utils::rustls_client_config (utils/src/lib.rs:285), reqwest 0.12 rustls-tls-webpki-roots (ACME, webhooks, spam-filter lookups), redis, mysql_async. It includes 'emSign ECC Root CA - G3' (src/lib.rs:3020-3042), so a remote MX/HTTP server chaining to the distrusted emSign intermediates is trusted. Outbound delivery to attacker-chosen hosts happens by default."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#69",
+      "facts": {
+        "package": "xxhash-rust",
+        "version": "0.8.15",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-6g2r-675j-hx59"
+          ],
+          [
+            "xxhash-rust"
+          ]
+        ],
+        "advisory_summary": "xxhash-rust: Safe xxh3 custom-secret API accepts too-short secret in release \u2014 I have a minimized safe Rust witness for xxhash-rust 0.8.15.\n\nSafe public route:\n\nxxhash_rust::xxh3::xxh3_64_with_secret(&[0x41], &[])\n\nThe caller-side harness contains no unsafe code. Under release execution, the internal minimum custom-secret length predicate is enforced only by debug_assert!. Release-Miri reports construction of a fixed-width reference beyond the empty secret allocation.\n\nObserved diagnostic:\n\nUndefined Behavior: constructing invalid value of type &[u8; 4]: encountered a dangling reference\n\nLocal",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.8.16"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "xxhash_rust"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The bug is in the xxh3 custom-secret API (xxh3_64_with_secret / xxh3_128_with_secret / Xxh3::with_secret). Stalwart only calls xxh3::xxh3_64 (store/src/write/hash.rs:47, assert.rs:75,89, composite/sharded_blob.rs:53, nlp/src/bayes/mod.rs:78-112, directory ldap/lookup.rs:383); sequoia-openpgp uses Xxh3::new() (packet/container.rs:312). No *_with_secret call anywhere."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#70",
+      "facts": {
+        "package": "zip",
+        "version": "2.2.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-29787",
+            "GHSA-94vh-gphv-8pm8",
+            "RUSTSEC-2025-0168"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "zip Incorrectly Canonicalizes Paths during Archive Extraction Leading to Arbitrary File Write \u2014 ### Summary\n\n\nIn the archive extraction routine of affected versions of the `zip` crate, symbolic links earlier in the archive are allowed to be used for later files in the archive without validation of the final canonicalized path, allowing maliciously crafted archives to overwrite arbitrary files in the file system when extracted.\n\n### Details\n\nThis is a variant of the [zip-slip](https://github.com/snyk/zip-slip-vulnerability) vulnerability, we can make the extraction logic step outside of the tar",
+        "vuln_symbols": [
+          "zip::read::ZipArchive::extract",
+          "zip::unstable::stream::ZipStreamReader::extract"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zip 2.2.2 is used by common/src/manager/webadmin.rs:84-110 (webadmin bundle: by_index + read_to_end, written to numbered paths bundle_path/{i:02}, never using archive names), smtp/src/reporting/analysis.rs:173-190 and mail-auth report/dmarc/parse.rs:96, tlsrpt/parse.rs:77 (in-memory by_index reads of DMARC/TLS-RPT report attachments). Nobody calls ZipArchive::extract or ZipStreamReader::extract, where the vulnerable logic lives. The symlink canonicalization zip-slip is only in extract()."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#71",
+      "facts": {
+        "package": "zip",
+        "version": "2.2.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-vv5m-jxxh-4627",
+            "RUSTSEC-2026-0367"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": " Insecure Preservation of SUID/SGID Bits during ZIP Extraction Leading to Potential Privilege Escalation \u2014 The `zip` crate preserves privileged Unix permission bits (SUID, SGID, and sticky bits) from ZIP `external_attributes` during extraction, instead of masking them to safe permission bits. If a privileged process (for example, `root` in an installer, CI/CD pipeline, or container build) extracts an attacker-controlled ZIP archive using `ZipArchive::extract()` or the stream extraction API, files can be created as setuid-root or setgid. This behavior allows the creation of SUID/SGID files duri",
+        "vuln_symbols": [
+          "external_attributes",
+          "root"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zip 2.2.2 is used by common/src/manager/webadmin.rs:84-110 (webadmin bundle: by_index + read_to_end, written to numbered paths bundle_path/{i:02}, never using archive names), smtp/src/reporting/analysis.rs:173-190 and mail-auth report/dmarc/parse.rs:96, tlsrpt/parse.rs:77 (in-memory by_index reads of DMARC/TLS-RPT report attachments). Nobody calls ZipArchive::extract or ZipStreamReader::extract, where the vulnerable logic lives. SUID/SGID preservation happens only when extract() sets file permissions."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#72",
+      "facts": {
+        "package": "zip",
+        "version": "2.2.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4v9h-p7m9-rh26",
+            "RUSTSEC-2026-0368"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "zip: `ZipArchive::extract` creates symbolic links whose attacker-controlled targets are outside the destination directory \u2014 In `zip` 9.0.0-pre2, `ZipArchive::extract` creates a symbolic link from an archive entry after validating only the output entry path. The link target bytes are passed directly to the platform symlink API, so a malicious archive can create an entry inside the destination that resolves to an attacker-chosen path outside it. This behavior was verified on macOS and Linux. On either platform, a subsequent application read or write through that extracted entry accesses the exte",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zip 2.2.2 is used by common/src/manager/webadmin.rs:84-110 (webadmin bundle: by_index + read_to_end, written to numbered paths bundle_path/{i:02}, never using archive names), smtp/src/reporting/analysis.rs:173-190 and mail-auth report/dmarc/parse.rs:96, tlsrpt/parse.rs:77 (in-memory by_index reads of DMARC/TLS-RPT report attachments). Nobody calls ZipArchive::extract or ZipStreamReader::extract, where the vulnerable logic lives. Symlink creation from archive entries happens only in extract()."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-stalwart#73",
+      "facts": {
+        "package": "zip",
+        "version": "2.2.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4684-h2q9-2vcp",
+            "RUSTSEC-2026-0369"
+          ],
+          [
+            "zip"
+          ]
+        ],
+        "advisory_summary": "ZipStreamReader::extract() and ZipArchive::extract() apply Unix permissions through symlinks without confining the target \u2014 `ZipStreamReader::extract()` applies Unix permissions through extracted symlinks without validating the symlink target stays within the destination\n\nFor further details see: https://github.com/zip-rs/zip2/security/advisories/GHSA-4684-h2q9-2vcp",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "9.0.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "zip"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "zip 2.2.2 is used by common/src/manager/webadmin.rs:84-110 (webadmin bundle: by_index + read_to_end, written to numbered paths bundle_path/{i:02}, never using archive names), smtp/src/reporting/analysis.rs:173-190 and mail-auth report/dmarc/parse.rs:96, tlsrpt/parse.rs:77 (in-memory by_index reads of DMARC/TLS-RPT report attachments). Nobody calls ZipArchive::extract or ZipStreamReader::extract, where the vulnerable logic lives. Permission application through symlinks happens only in extract()/stream extract()."
+      }
+    }
+  ]
+}

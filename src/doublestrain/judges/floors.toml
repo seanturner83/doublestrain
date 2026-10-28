@@ -40,7 +40,7 @@ not_reachable = 0.7
 reachable = inf
 not_reachable = 0.9
 corroborate = true
-corroborate_by = ["jelly", "pyimports", "split", "shape", "claude"]
+corroborate_by = ["jelly", "pyimports", "cargofeat", "split", "shape", "claude"]
 
 [role.govulncheck]
 # a call graph, not a model: called -> reachable 1.0, only imported / required ->
@@ -71,14 +71,36 @@ not_reachable = 0.9
 corroborate = true
 corroborate_by = ["endpoint", "split", "shape", "claude"]
 
+[role.cargofeat]
+# Cargo feature resolution over the manifests (doublestrain/cargofeat.py), crate level:
+# not_reachable 1.0 when the locked crate isn't compiled into the binary the image builds;
+# compiled -> `unsure`. rs1 (2026-10-26, built after reading those labels, so not a
+# measurement): 49 of 256 not_reachable labels, 0 of 27 reachable. Unmeasured, and cargo is
+# held: a second read must agree, mutually with an endpoint model, as for jelly.
+reachable = inf
+not_reachable = 0.9
+corroborate = true
+corroborate_by = ["endpoint", "split", "shape", "claude"]
+
 [role.split]
 # six-app run: matcher 0.90s 6 right / 1 wrong (goof dustjs) against 77 / 0 at >= 0.95
 reachable = inf
 not_reachable = 0.95
-# Ecosystems held for every model tier (SSVC_NR_UNMEASURED, default cargo,go,pypi) where this
+# Ecosystems held for every model tier (SSVC_NR_UNMEASURED, default cargo,go,pypi,maven) where this
 # role's not_reachable may still settle: go5-split-raw (2026-10-18, five Go apps, 145
 # blind labels): not_reachable 128 right / 0 wrong, reachable 6/6 on reachable labels.
-measured_ecosystems = ["go"]
+# pypi only as a pair (corroborate_ecosystems): split's not_reachable >= 0.95 settles when
+# claude's (opus for pypi) >= 0.7 agrees. Held-out py8 (2026-10-26, five apps, 564 blind
+# labels, re-reviewed): 260 right / 0 wrong; py7 (dev) 261 / 1 before approots. Split
+# alone was 277 / 3 there, so alone it still settles nothing; claude alone is unmeasured
+# (it was asked only on split's not_reachable rows) and stays held.
+# cargo likewise only as the pair (opus for cargo). rs1 dev 159 / 0; held-out rs2 155 / 1
+# (Kellnr gix-worktree, reachable only with the opt-in docs.enabled; accepted as an edge
+# case, 2026-10-27) and rs3 166 / 0 (2026-10-27), all re-reviewed blind. Split
+# alone was 164 / 1, 172 / 2 and 174 / 5, so alone it still settles nothing on cargo.
+measured_ecosystems = ["go", "pypi", "cargo"]
+corroborate_ecosystems = ["pypi", "cargo"]
+corroborate_by = ["claude"]
 
 [role.shape]
 reachable = inf
@@ -106,7 +128,7 @@ measured = "all10-r4 (2026-10-17)"
 [[model]]
 role = "shape"
 model = "claude-opus-5-5"
-# Opus 5.5 reports lower confidence than Sonnet for the same separation (docs/data-handling.md,
+# Opus 5.5 reports lower confidence than Sonnet for the same separation (README,
 # "Call shapes"). all10-r5: not_reachable at 0.80 20 right / 2 wrong (sirappsec
 # sequelize, sqlite3: rows the disagreement toggle had sent on from split), >= 0.85
 # 135 right / 0 wrong. Was 0.8.

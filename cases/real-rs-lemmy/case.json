@@ -1,0 +1,3258 @@
+{
+  "id": "real-rs-lemmy",
+  "description": "Lemmy 0.19.7 (federated link aggregator, lemmy_server): Rust dev set (rs1), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#1",
+      "facts": {
+        "package": "activitypub_federation",
+        "version": "0.5.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-25194",
+            "GHSA-7723-35v7-qcxw"
+          ],
+          [
+            "activitypub_federation"
+          ]
+        ],
+        "advisory_summary": "Server-Side Request Forgery (SSRF) in activitypub_federation \u2014 ### Summary\nThis vulnerability allows a user to bypass any predefined hardcoded URL path or security anti-Localhost mechanism and perform an arbitrary GET request to any Host, Port and URL using a Webfinger Request.\n\n### Details\nThe Webfinger endpoint takes a remote domain for checking accounts as a feature, however, as per the ActivityPub spec (https://www.w3.org/TR/activitypub/#security-considerations), on the security considerations section at B.3, access to Localhost services should be prevented while running in production.\nThe",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "activitypub_federation"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "activitypub_federation 0.5.9 is pre-fix: fetch/webfinger.rs:57-68 builds https://{domain}/.well-known/webfinger from the user-supplied identifier and Config::verify_url_valid (config.rs:141-172) only checks scheme, domain!=None and literal 'localhost' - no IP/private-address check. Lemmy's url_verifier (apub/src/lib.rs:49) only does allow/blocklist. Attacker input reaches it via /api/v3/resolve_object (apub/api/resolve_object.rs:32 -> fetcher/search.rs:36 webfinger_resolve_actor / ObjectId dereference of arbitrary URL), community/user lookup (fetcher/mod.rs:53) and comment mentions (mentions.rs:74). Hostnames resolving to 127.0.0.1/internal hosts are fetched."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#2",
+      "facts": {
+        "package": "activitypub_federation",
+        "version": "0.5.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33693",
+            "GHSA-q537-8fr5-cw35"
+          ],
+          [
+            "activitypub_federation"
+          ]
+        ],
+        "advisory_summary": "Activitypub-Federation has SSRF via 0.0.0.0 bypass in activitypub-federation-rust v4_is_invalid() \u2014 ### Summary\n\nThe `v4_is_invalid()` function in `activitypub-federation-rust` (`src/utils.rs`) does not check for `Ipv4Addr::UNSPECIFIED` (0.0.0.0). An unauthenticated attacker controlling a remote domain can point it to 0.0.0.0, bypass the SSRF protection introduced by the fix for CVE-2025-25194 (GHSA-7723-35v7-qcxw), and reach localhost services on the target server.\n\n### Details\n\n**File:** `src/utils.rs` in `activitypub-federation-rust`\n**Function:** `v4_is_invalid(v4: Ipv4Addr) -> bool`\n\nThe ",
+        "vuln_symbols": [
+          "v4_is_invalid",
+          "is_private",
+          "is_loopback",
+          "is_link_local",
+          "is_multicast",
+          "is_documentation"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.7.0-beta.9"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "activitypub_federation"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "0.5.9 predates the v4_is_invalid() check entirely (grep finds no v4_is_invalid/is_private/is_loopback in src); verify_url_valid (config.rs:141-172) has no IP filtering at all, so pointing an attacker domain at 0.0.0.0 reaches localhost services even more directly. Attacker-controlled URLs/webfinger identifiers reach fetch_object_http via resolve_object (apub/api/resolve_object.rs:32, fetcher/search.rs:30-36), mentions (mentions.rs:74) and inbound activities. Named function absent, but the advisory's SSRF-to-0.0.0.0 condition holds in this version, so labelled reachable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#3",
+      "facts": {
+        "package": "actix-http",
+        "version": "3.7.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-73051",
+            "GHSA-xhj4-vrgc-hr34"
+          ],
+          [
+            "actix-http"
+          ]
+        ],
+        "advisory_summary": "actix-http has HTTP/1.1 CL.TE Request Smuggling  \u2014 A vulnerability in `actix-http`'s HTTP/1.1 request parser allows an unauthenticated remote client to smuggle requests in deployments where a front-end HTTP intermediary and the Actix backend disagree about whether `Content-Length` or `Transfer-Encoding: chunked` defines the request body length.\n\n## Severity\n\n**Medium**.\nThis is an HTTP request smuggling vulnerability that can be triggered over the network without application-level credentials. Exploitation requires a specific proxy topology: an upstream proxy, WAF, load balancer, or similar in",
+        "vuln_symbols": [
+          "awc"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "actix_http"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "actix-http 3.7.0 is the HTTP/1.1 server for every lemmy_server request (src/lib.rs:310-346 HttpServer::new(...).bind). h1/decoder.rs:84-215 accepts a request carrying both Content-Length and Transfer-Encoding: chunked and silently prefers chunked (lines 198-206) instead of rejecting the conflict. Exploitation needs a front proxy that frames by CL; Lemmy's standard Docker deployment puts nginx (and often a CDN/LB) in front, so a common deployment meets the topology condition."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#4",
+      "facts": {
+        "package": "anyhow",
+        "version": "1.0.86",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0190"
+          ],
+          [
+            "anyhow"
+          ]
+        ],
+        "advisory_summary": "Unsoundness in `Error::downcast_mut()` \u2014 Affected versions of this crate violate borrow rules, resulting in undefined behavior, when the user adds context to an error via `Error::context` and then later calls `Error::downcast_mut` on the returned `Error`.\n\nThe flaw was corrected in commit `6e8c000` by revising how the mutable reference is constructed, avoiding inclusion of a shared reference in the resulting borrow chain.\n\n## Example\n\n```rust\nuse anyhow::Error;\nuse std::fmt;\n\n#[derive(Debug)]\nstruct ErrorContext(&'static str);\n\nimpl fmt::Display for ErrorContext {\n    fn fmt(&self, f: &mut fmt",
+        "vuln_symbols": [
+          "anyhow::Error::downcast_mut"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.0.103"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "anyhow"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "anyhow 1.0.86 is used by lemmy crates, reqwest-middleware 0.2.5, reqwest-tracing 0.4.8, webmention 0.5.0 (prost-derive is a proc-macro, optional). grep for downcast_mut over crates/, src/ and those dependents' src finds no call, so the context+downcast_mut UB condition never occurs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#5",
+      "facts": {
+        "package": "aws-lc-sys",
+        "version": "0.21.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-3337",
+            "GHSA-65p9-r9h6-22vj",
+            "GHSA-frmv-5gcm-jwxh",
+            "RUSTSEC-2026-0043",
+            "RUSTSEC-2026-0045"
+          ],
+          [
+            "aws-lc-sys"
+          ]
+        ],
+        "advisory_summary": "AWS-LC has Timing Side-Channel in AES-CCM Tag Verification \u2014 ### Summary\nAWS-LC is an open-source, general-purpose cryptographic library.\n\n### Impact\nObservable timing discrepancy in AES-CCM decryption in AWS-LC allows an unauthenticated user to potentially determine authentication tag validity via timing analysis.\n\nThe impacted implementations are through the EVP CIPHER API: EVP_aes_128_ccm, EVP_aes_192_ccm, and EVP_aes_256_ccm.\n\nCustomers of AWS services do not need to take action. aws-lc-sys and aws-lc-fips-sys contain code from AWS-LC. Applications using aws-lc-sys or aws-lc-fips-sys shoul",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.38.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_lc_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "aws-lc-sys 0.21.1 is linked via aws-lc-rs 1.9.0 (rustls 0.23 default aws_lc_rs feature; tokio-postgres-generic-rustls is pict-rs-only). Lemmy installs ring as the process CryptoProvider (src/main.rs:12-13) and db_schema/utils.rs:398-417 and lettre (smtp/client/tls.rs:354,558-577) use ring/default provider, so aws-lc crypto isn't used for TLS. Even if it were, rustls cipher suites are AES-GCM/ChaCha20 only and aws-lc-rs 1.9.0 exposes no AES-CCM (grep 'ccm' in aws-lc-rs src: none), so EVP_aes_*_ccm is never invoked."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#6",
+      "facts": {
+        "package": "aws-lc-sys",
+        "version": "0.21.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-4428",
+            "GHSA-9f94-5g5w-gf6r",
+            "RUSTSEC-2026-0042",
+            "RUSTSEC-2026-0048"
+          ],
+          [
+            "aws-lc-sys"
+          ]
+        ],
+        "advisory_summary": "CRL Distribution Point Scope Check Logic Error in AWS-LC \u2014 ### Summary\n\nAWS-LC is an open-source, general-purpose cryptographic library.\n\n### Impact \n\nA logic error in CRL distribution point matching in AWS-LC allows a revoked certificate to bypass revocation checks during certificate validation, when the application enables CRL checking and uses partitioned CRLs with Issuing Distribution Point (IDP) extensions.\n\nCustomers of AWS services do not need to take action. aws-lc-sys and aws-lc-fips-sys contain code from AWS-LC. Applications using aws-lc-sys or aws-lc-fips-sys should upgrade to the m",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.39.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "aws_lc_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The bug is in AWS-LC's X509 CRL distribution-point matching. Nothing uses AWS-LC's X509/CRL verification: certificate validation is done by rustls-webpki (pure Rust) with ring algorithms (src/main.rs:12 installs ring provider; db_schema/utils.rs:398-417), aws-lc-rs exposes no X509 API, and Lemmy configures no CRL checking."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#7",
+      "facts": {
+        "package": "bytes",
+        "version": "1.7.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25541",
+            "GHSA-434x-w66g-qw3r",
+            "RUSTSEC-2026-0007"
+          ],
+          [
+            "bytes"
+          ]
+        ],
+        "advisory_summary": "bytes has integer overflow in BytesMut::reserve \u2014 # Details\n\nIn the unique reclaim path of `BytesMut::reserve`, the condition\n```rs\nif v_capacity >= new_cap + offset\n```\nuses an unchecked addition. When `new_cap + offset` overflows `usize` in release builds, this condition may incorrectly pass, causing `self.cap` to be set to a value that exceeds the actual allocated capacity. Subsequent APIs such as `spare_capacity_mut()` then trust this corrupted `cap` value and may create out-of-bounds slices, leading to UB.\n\nThis behavior is observable in release builds (integer overflow wraps), whereas de",
+        "vuln_symbols": [
+          "usize",
+          "self.cap",
+          "spare_capacity_mut",
+          "cap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "bytes"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "bytes 1.7.1 BytesMut::reserve is called pervasively (actix-http, hyper 0.14, tokio-util, postgres-protocol), but the bug needs new_cap+offset to overflow usize, i.e. an 'additional' near usize::MAX. All reserve() callers on the path use small bounded sizes: actix-http h1/dispatcher.rs:989 (HW_BUFFER_SIZE-remaining), h1/encoder.rs:269/301/438 (header/chunk sizes), helpers.rs (50), actix-codec framed.rs:169/220, hyper proto/h1/io.rs:258 & role.rs, postgres-protocol backend.rs:115/132 (i32 frame lengths from Postgres), tokio-util framed_impl.rs:71/87. ws/frame.rs is unused (no websockets). Bodies are capped (actix JSON default 2MB, apub MAX_BODY_SIZE 204800 in reqwest_shim.rs:14). Attacker data cannot reach the overflow condition."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#8",
+      "facts": {
+        "package": "crossbeam-channel",
+        "version": "0.5.13",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4574",
+            "GHSA-pg9f-39pc-qf8g",
+            "RUSTSEC-2025-0024",
+            "TROVE-2025-013"
+          ],
+          [
+            "crossbeam-channel"
+          ]
+        ],
+        "advisory_summary": "crossbeam-channel Vulnerable to Double Free on Drop \u2014 The internal `Channel` type's `Drop` method has a race\nwhich could, in some circumstances, lead to a double-free.\nThis could result in memory corruption.\n\nQuoting from the\n[upstream description in merge request \\#1187](https://github.com/crossbeam-rs/crossbeam/pull/1187#issue-2980761131):\n\n> The problem lies in the fact that `dicard_all_messages` contained two paths that could lead to `head.block` being read but only one of them would swap the value. This meant that `dicard_all_messages` could end up observing a non-null block pointer (and ",
+        "vuln_symbols": [
+          "Channel",
+          "Drop",
+          "dicard_all_messages",
+          "head.block"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.5.15"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "crossbeam_channel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crossbeam-channel 0.5.13 is in the default build only via moka 0.12.8 (opentelemetry_sdk 0.19 and console-subscriber are behind non-default 'console' feature). moka's only unbounded (list-flavour) channel is the interrupted-op channel in future/base_cache.rs:185, whose sender and receiver live in the same cache struct, so the last receiver is dropped only when the cache itself is dropped with no concurrent senders. All Lemmy moka caches are process-lifetime statics (LazyLock in api_crud/site/read.rs:34, apub/lib.rs:131, api_common/utils.rs:549, federate/util.rs:141/181/203, db_schema/impls/local_site.rs:21) plus activitypub_federation's actor_pkey_cache in the long-lived FederationConfig (config.rs:85), so the Drop/discard_all_messages race never occurs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#9",
+      "facts": {
+        "package": "crossbeam-epoch",
+        "version": "0.9.18",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0204"
+          ],
+          [
+            "crossbeam-epoch"
+          ]
+        ],
+        "advisory_summary": "Invalid pointer dereference in `fmt::Pointer` impl for `Atomic` and `Shared` when the underlying pointer is invalid \u2014 Affected versions of `fmt::Display` dereference the underlying pointer. This causes a invalid pointer dereference e.g., when a pointer created with `Atomic::null` or `Shared::null`. `fmt::Debug` impls and pre-0.9 `fmt::Display` impls, which do not dereference pointers, are not affected by this issue.",
+        "vuln_symbols": [
+          "Atomic",
+          "Shared"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.20"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "crossbeam_epoch"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crossbeam-epoch 0.9.18 reached via moka 0.12.8 (metrics-util and sled are pict-rs-only, optional). The bug is in the fmt::Pointer impls for Atomic/Shared (atomic.rs:942-947, 1663-1666), only triggered by {:p} formatting; grep of moka src finds no ':p}' / fmt::Pointer use, and Lemmy never touches crossbeam-epoch types."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#10",
+      "facts": {
+        "package": "diesel",
+        "version": "2.1.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-wq9x-qwcq-mmgf",
+            "RUSTSEC-2024-0365"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Diesel vulnerable to Binary Protocol Misinterpretation caused by Truncating or Overflowing Casts \u2014 The following presentation at this year's DEF CON was brought to our attention on the Diesel Gitter Channel:\n\n> SQL Injection isn't Dead: Smuggling Queries at the Protocol Level  \n> <http://web.archive.org/web/20240812130923/https://media.defcon.org/DEF%20CON%2032/DEF%20CON%2032%20presentations/DEF%20CON%2032%20-%20Paul%20Gerste%20-%20SQL%20Injection%20Isn't%20Dead%20Smuggling%20Queries%20at%20the%20Protocol%20Level.pdf>  \n> (Archive link for posterity.)\nEssentially, encoding a value larger than ",
+        "vuln_symbols": [
+          "cast_possible_truncation",
+          "cast_possible_wrap",
+          "cast_sign_loss"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.2.3"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "diesel 2.1.6 Postgres backend is used for all queries (db_schema, diesel-async/tokio-postgres), but the advisory's protocol-smuggling requires serializing a single bind value/length >2-4 GiB so the length cast truncates. Attacker-supplied data is size-capped well below that: actix web::Json default 2MB limit (no JsonConfig/PayloadConfig overrides in Lemmy), federated fetches capped at 204800 bytes (activitypub_federation reqwest_shim.rs:14, fetch/mod.rs:140). Lemmy uses no numeric/array types where attacker controls element counts at that scale."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#11",
+      "facts": {
+        "package": "diesel",
+        "version": "2.1.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h5x4-m2qf-r4f2",
+            "RUSTSEC-2026-0111"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Diesel's SQLite backend has possible UTF-8 corruption \u2014 Diesel uses the `sqlite3_value_text` function to receive strings from SQLite while deserializing query results. We misinterpreted the corresponding [SQLite](https://sqlite.org/c3ref/value_blob.html) documentation that this function always returns a UTF-8 encoded string values as `*const c_char`. Based on that we used `str::from_utf8_unchecked` to construct a Rust string slice without any additional UTF-8 checks in place. It turned out that this function doesn't always return correct UTF-8 strings. For field of the SQLite side storage type",
+        "vuln_symbols": [
+          "diesel::deserialize::FromSql::<Text,Sqlite>::from_sql",
+          "diesel::sqlite::SqliteValue::read_str"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.8"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SQLite backend not compiled: diesel 2.1.6 in Cargo.lock depends only on pq-sys (no libsqlite3-sys); all Lemmy Cargo.toml diesel features are postgres/chrono/serde_json etc."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#12",
+      "facts": {
+        "package": "diesel",
+        "version": "2.1.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0134"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Unsound access to padding bytes while serializing date/time values using the Mysql backend \u2014 Diesel relies on libmysqlclient for interacting with Mysql compatible databases. This library requires to provide date/time values according to the byte layout of their `MYSQL_TIME` type.\n\nDiesel replicated this type as `#[repr(C)]` struct, populated all the fields of this struct and then casted this value to an array of bytes. As this cast exposes padding bytes contained in this struct, this is undefined behaviour.\n\nThis vulnerability affects any user serializing date/time values using the Mysql backe",
+        "vuln_symbols": [
+          "diesel::serialize::ToSql<Date,Mysql>",
+          "diesel::serialize::ToSql<DateTime,Mysql>",
+          "diesel::serialize::ToSql<Time,Mysql>",
+          "diesel::serialize::ToSql<Timestamp,Mysql>"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.8"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.92
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "MySQL backend not compiled: diesel 2.1.6 in Cargo.lock has no mysqlclient-sys dependency; Lemmy enables only the postgres feature."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#13",
+      "facts": {
+        "package": "diesel",
+        "version": "2.1.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0135"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Unsound transmute while debug/display printing batch Insert statements in Diesel's SQLite backend \u2014 Diesel allows users to output the generated SQL for any query DSL construct via th `diesel::debug_query` function as `Display` and `Debug` output.\n\nFor the particular implementation used by batch Insert statements in the SQLite backend Diesel relied on an unspecified transmute between types with a `#[repr(rust)]` layout. This is formally undefined behaviour as the compiler is free to change the layout of these types at any time. \n\nThis vulnerability affects users that print out batch insert stat",
+        "vuln_symbols": [
+          "diesel::debug_query"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.8"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SQLite backend not compiled (no libsqlite3-sys in Cargo.lock diesel deps), so the SQLite batch-insert debug_query transmute does not exist in the binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#14",
+      "facts": {
+        "package": "diesel",
+        "version": "2.1.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-m9p2-fxp5-v3fp",
+            "RUSTSEC-2026-0136"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Diesel: Command injection in Diesel's implementation of `COPY FROM`/`COPY TO` \u2014 Diesel allows users to configure various options for PostgreSQL's `COPY FROM` and `COPY TO` statements. These configurations are partially provided as strings or characters. \n\nDiesel did not check if any these user-provided options contain a quote character `'`, which can lead to the injection of additional options in the current `COPY FROM`/`COPY TO` statement. \n\nThis vulnerability affects any user of `COPY FROM`/`COPY TO` that passes user-provided input to any of the affected functions. It can result in modificat",
+        "vuln_symbols": [
+          "diesel::pg::CopyFromQuery::with_default",
+          "diesel::pg::CopyFromQuery::with_delimiter",
+          "diesel::pg::CopyFromQuery::with_escape",
+          "diesel::pg::CopyFromQuery::with_null",
+          "diesel::pg::CopyFromQuery::with_quote",
+          "diesel::pg::CopyToQuery::with_delimiter",
+          "diesel::pg::CopyToQuery::with_escape",
+          "diesel::pg::CopyToQuery::with_null",
+          "diesel::pg::CopyToQuery::with_quote"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.8"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "diesel 2.1.6 predates COPY FROM/TO support: no CopyFromQuery/CopyToQuery in the crate source (grep finds none in src/pg), and Lemmy never issues COPY via diesel. Vulnerable functions absent."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#15",
+      "facts": {
+        "package": "diesel",
+        "version": "2.1.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q8x8-jrhj-fh9p",
+            "RUSTSEC-2026-0137"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Diesel: Possible unaligned data access for implementations of `SqliteAggregate` \u2014 Diesel allows to register custom aggregate SQL functions for SQLite via the `SqliteAggregate` interface.\n\nTo store an instance of the custom aggregate processor Diesel relied on the `sqlite3_aggregate_context` function provided by sqlite. This function doesn't provide any guarantees about alignment of the returned allocation, which in turn can lead to problems if the type implementing requires a special alignment, e.g. via a custom `#[align(x)]` attribute on the type implementing this trait. This affects any user",
+        "vuln_symbols": [
+          "diesel::sqlite::SqliteAggregate"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.8"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SqliteAggregate is SQLite-only; SQLite backend not compiled (no libsqlite3-sys in Cargo.lock) and Lemmy defines no SQLite aggregates."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#16",
+      "facts": {
+        "package": "diesel",
+        "version": "2.1.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-ggxf-9f6j-w742",
+            "RUSTSEC-2026-0172"
+          ],
+          [
+            "diesel"
+          ]
+        ],
+        "advisory_summary": "Diesel has possible use after free when deserializing a SQLite database via `SqliteConnection::deserialize_readonly_database` \u2014 Diesel allows loading a SQLite database from a byte buffer, represented as `&[u8]`, at runtime via the `SqliteConnection::deserialize_readonly_database` function. In previous versions of Diesel, this buffer was passed directly to libsqlite3. Since libsqlite3 requires the buffer to remain alive for as long as the database connection is open and Diesel did not ensure this as part of its safe API, callers of `SqliteConnection::deserialize_readonly_database` could drop th",
+        "vuln_symbols": [
+          "diesel::sqlite::SqliteConnection::deserialize_readonly_database"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "2.3.10"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "diesel"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SqliteConnection::deserialize_readonly_database is SQLite-only; SQLite backend not compiled (no libsqlite3-sys in Cargo.lock)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#17",
+      "facts": {
+        "package": "diesel-async",
+        "version": "0.4.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-ff9q-rm55-q7qr"
+          ],
+          [
+            "diesel-async"
+          ]
+        ],
+        "advisory_summary": "diesel-async may expose uninitialized padding bytes for MySQL temporal columns \u2014 ### Summary\n\ndiesel-async exposes uninitialized stack padding to safe code on every read of a MySQL `DATE`, `TIME`, `DATETIME`, or `TIMESTAMP` column. Reading that buffer is undefined behavior, and the leaked bytes can contain stale heap/stack contents, so this is both a soundness bug and a potential information-disclosure vector.\n\n### Details\n\nIn `diesel-async/src/mysql/row.rs` (lines 65-103), `MysqlRow::get` builds a `MysqlTime` from the parsed `mysql_async::Value` and then fabricates the byte buffer that downst",
+        "vuln_symbols": [
+          "DATE",
+          "TIME",
+          "DATETIME",
+          "TIMESTAMP",
+          "MysqlTime",
+          "FromSql"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        },
+        "import_name": "diesel_async"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "diesel-async 0.4.1 is built with postgres/deadpool only (db_schema/Cargo.toml:61, federate/Cargo.toml:29); Cargo.lock lists no mysql_async dependency, so the MySQL row/MysqlTime code is not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#18",
+      "facts": {
+        "package": "diesel-async",
+        "version": "0.4.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0138"
+          ],
+          [
+            "diesel-async"
+          ]
+        ],
+        "advisory_summary": "Unsound access to padding bytes while serializing date/time values using the Mysql backend \u2014 Diesel-async uses the mysql-async crate for interacting with Mysql compatible databases. This library already provides access to deserialized data for date/time releated types. Diesel-async then translated these deserialized data back to their serialized binary representation to hook into diesels desearialization framework.\n\nWhile serializing these data/time values again Diesel-async relied on a cast between the `MysqlTime` `#[repr(C)]` struct (defined by Diesel) and a byte array. As this cast exposes ",
+        "vuln_symbols": [
+          "MysqlTime",
+          "AsyncMysqlConnection"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.0"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "diesel_async"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "MySQL backend of diesel-async not compiled (no mysql_async in Cargo.lock; features postgres+deadpool only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#19",
+      "facts": {
+        "package": "event-listener",
+        "version": "5.3.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0221"
+          ],
+          [
+            "event-listener"
+          ]
+        ],
+        "advisory_summary": "`event-listener` allows `!Send` tags to cross thread boundaries via `StackSlot` \u2014 Affected versions of `event-listener` unconditionally implement `Send` and\n`Sync` for `StackSlot<'_, T>`, the stack-allocated listener type created\nby the `listener!` macro.\n\nThis allows a `!Send` tag type set via `Event::with_tag` to be moved to\nanother thread and accessed via `StackSlot::wait`, causing a data race in safe\ncode.",
+        "vuln_symbols": [
+          "StackSlot",
+          "Send",
+          "Sync"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.2"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "event_listener"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "event-listener 5.3.1 used by moka (future feature), async-lock 3.4.0 (listener! macro in once_cell.rs:291,344) and event-listener-strategy. The unsoundness needs a !Send tag set via Event::with_tag; all uses are untagged Event (tag ()=Send); grep finds no Event::with_tag (moka's with_tag hits are crossbeam-epoch Shared pointers)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#20",
+      "facts": {
+        "package": "h2",
+        "version": "0.3.26",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "h2 0.3.26 enters via actix-http (http2 feature on through actix-web rustls-0_23), reqwest 0.11.27/hyper 0.14 and optional tonic. Server: lemmy_server binds plain TCP with HttpServer::bind (src/lib.rs:281,346), which uses HttpService::tcp() = HTTP/1.1 only (actix-web server.rs:512-548; h2c only via bind_auto_h2c), and TLS is terminated elsewhere. Client: reqwest 0.11 is compiled with default-tls (webmention 0.5.0 depends on reqwest with default features), so TlsBackend::default() = native-tls (reqwest tls.rs:476-480) and ALPN h2 is only offered with feature native-tls-alpn (async_impl/client.rs:344, connect.rs:758) which nothing enables; no http2_prior_knowledge/use_rustls_tls calls in Lemmy. tonic users (console-subscriber, opentelemetry-otlp) are behind the non-default 'console' feature. So no h2 connection is ever established."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#21",
+      "facts": {
+        "package": "h2",
+        "version": "0.4.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "h2 0.4.5 is only depended on by hyper 1.4.1 (via reqwest 0.12.4, hyper-rustls 0.26, metrics-exporter-prometheus - all pulled only by pict-rs) and tonic 0.12.2 (console-subscriber 0.4). pict-rs is optional behind the non-default 'embed-pictrs' feature and console-subscriber behind 'console' (Cargo.toml:41-52, default = []); Docker builds CARGO_BUILD_FEATURES=default. Not in the deployed binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#22",
+      "facts": {
+        "package": "idna",
+        "version": "0.3.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-12224",
+            "GHSA-h97m-ww89-6jmq",
+            "RUSTSEC-2024-0421"
+          ],
+          [
+            "idna"
+          ]
+        ],
+        "advisory_summary": "`idna` accepts Punycode labels that do not produce any non-ASCII when decoded \u2014 `idna` 0.5.0 and earlier accepts Punycode labels that do not produce any non-ASCII output, which means that either ASCII labels or the empty root label can be masked such that they appear unequal without IDNA processing or when processed with a different implementation and equal when processed with `idna` 0.5.0 or earlier.\n\nConcretely, `example.org` and `xn--example-.org` become equal after processing by `idna` 0.5.0 or earlier. Also, `example.org.xn--` and `example.org.` become equal after processing by `idna` 0.5",
+        "vuln_symbols": [
+          "example.org",
+          "url"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "idna"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "idna 0.3.0 is used by mdurl 0.3.1 (format.rs:34 idna::domain_to_ascii on link hostnames) via markdown-it 0.6.1's beautify_links plugin (plugins/extra/beautify_links.rs:17-18 normalize_link -> mdurl::format_url_for_computers). Lemmy registers markdown_it::plugins::extra::add (utils/src/utils/markdown/mod.rs:14) and parses user/federated post & comment markdown (markdown_rewrite_image_links, markdown_to_html), so attacker-supplied link hosts like xn--example-.org reach the lax Punycode decoding. Security impact is small (link normalisation only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#23",
+      "facts": {
+        "package": "idna",
+        "version": "0.5.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-12224",
+            "GHSA-h97m-ww89-6jmq",
+            "RUSTSEC-2024-0421"
+          ],
+          [
+            "idna"
+          ]
+        ],
+        "advisory_summary": "`idna` accepts Punycode labels that do not produce any non-ASCII when decoded \u2014 `idna` 0.5.0 and earlier accepts Punycode labels that do not produce any non-ASCII output, which means that either ASCII labels or the empty root label can be masked such that they appear unequal without IDNA processing or when processed with a different implementation and equal when processed with `idna` 0.5.0 or earlier.\n\nConcretely, `example.org` and `xn--example-.org` become equal after processing by `idna` 0.5.0 or earlier. Also, `example.org.xn--` and `example.org.` become equal after processing by `idna` 0.5",
+        "vuln_symbols": [
+          "example.org",
+          "url"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "idna"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "idna 0.5.0 is used by url 2.5.2, which Lemmy and activitypub_federation use to parse every attacker-supplied URL (post URLs, federated object ids, resolve_object queries, inbox activity ids); Url host parsing calls idna domain_to_ascii, so a host like xn--example-.org is normalised to example.org. Domain comparisons for local/blocked/allowlisted instances (apub check_apub_id_valid via VerifyUrlData apub/lib.rs:49, Config::is_local_url) operate on these hosts. Also lettre email address domains."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#24",
+      "facts": {
+        "package": "jsonwebtoken",
+        "version": "9.3.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25537",
+            "GHSA-h395-gr6q-cpjc"
+          ],
+          [
+            "jsonwebtoken"
+          ]
+        ],
+        "advisory_summary": "jsonwebtoken has Type Confusion that leads to potential authorization bypass \u2014 ## Summary:\n\nIt has been discovered that there is a Type Confusion vulnerability in jsonwebtoken, specifically, in its claim validation logic.\n\nWhen a standard claim (such as nbf or exp) is provided with an incorrect JSON type (Like a String instead of a Number), the library\u2019s internal parsing mechanism marks the claim as \u201cFailedToParse\u201d. Crucially, the validation logic treats this \u201cFailedToParse\u201d state identically to \u201cNotPresent\u201d.\n\nThis means that if a check is enabled (like: validate_nbf = true), but the claim is ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.3.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "jsonwebtoken"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jsonwebtoken 9.3.0 is used only in api_common/src/claims.rs. Claims::validate (claims.rs:23-37) uses Validation::default with validate_exp=false and exp removed from required claims (nbf not validated by default), tokens are HS256-signed with the server's jwt_secret, and every token is additionally checked against the login_token table (claims.rs:32). An attacker cannot mint a signed token with mistyped exp/nbf, and no exp/nbf check is enabled to bypass."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#25",
+      "facts": {
+        "package": "lettre",
+        "version": "0.11.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46428",
+            "GHSA-4pj9-g833-qx53",
+            "RUSTSEC-2026-0141"
+          ],
+          [
+            "lettre"
+          ]
+        ],
+        "advisory_summary": "lettre has TLS hostname verification disabled when using Boring TLS backend \u2014 ### Summary\nAn inverted-boolean bug in lettre's `boring-tls` integration silently\ndisables TLS hostname verification for callers using the default (strict)\nconfiguration. An on-path attacker presenting any chain-valid certificate\nfor any domain can intercept SMTP submission, including PLAIN/LOGIN\ncredentials and message contents, against any lettre user built with the\n`boring-tls` feature. Other TLS backends (`native-tls`, `rustls`) are\nunaffected.\n\n### Details\nboring's `SslConnectorBuilder::set_verify_hostname(bool)",
+        "vuln_symbols": [
+          "rustls",
+          "TlsParametersBuilder",
+          "set_verify_hostname",
+          "accept_invalid_hostnames",
+          "attacker.example",
+          "mail.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.22"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "lettre"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bug is only in lettre's boring-tls backend. Lemmy builds lettre with default-features=false and features builder,tokio1,tokio1-rustls-tls,smtp-transport (crates/utils/Cargo.toml:76-81); boring-tls is not enabled and no boring crate is in Cargo.lock."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#26",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41678",
+            "GHSA-8c75-8mhr-p7r9"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has incorrect bounds assertion in aes key wrap \u2014 ### Summary\n``aes::unwrap_key()`` has an incorrect bounds assertion on the out buffer size, which can lead to out-of-bounds write.\n\n### Details\n``aes::unwrap_key()`` contains an incorrect assertion: it checks that `out.len() + 8 <= in_.len()`, but this condition is reversed. The intended invariant is `out.len() >= in_.len() - 8`, ensuring the output buffer is large enough.\n\nBecause of the inverted check, the function only accepts buffers at or below the minimum required size and rejects larger ones. If a smaller buffer is provided t",
+        "vuln_symbols": [
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.64 is linked only through native-tls 0.2.12 (reqwest 0.11 default-tls, enabled by webmention 0.5.0's default reqwest features; Cargo.lock: native-tls is the sole dependent of openssl). Lemmy itself never uses openssl/native_tls (grep of crates/ and src/ finds nothing). native-tls/openssl.rs only builds SslConnector client sessions (plus X509::digest in tls_server_end_point, unused by reqwest). aes::unwrap_key is never called by native-tls, tokio-native-tls, hyper-tls or reqwest."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#27",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41681",
+            "GHSA-ghm9-cr32-g9qj"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: rustMdCtxRef::digest_final() writes past caller buffer with no length check \u2014 `EVP_DigestFinal()` always writes `EVP_MD_CTX_size(ctx)` to the `out` buffer. If `out` is smaller than that, `MdCtxRef::digest_final()` writes past its end, usually corrupting the stack. This is reachable from safe Rust.",
+        "vuln_symbols": [
+          "EVP_DigestFinal",
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.64 is linked only through native-tls 0.2.12 (reqwest 0.11 default-tls, enabled by webmention 0.5.0's default reqwest features; Cargo.lock: native-tls is the sole dependent of openssl). Lemmy itself never uses openssl/native_tls (grep of crates/ and src/ finds nothing). native-tls/openssl.rs only builds SslConnector client sessions (plus X509::digest in tls_server_end_point, unused by reqwest). MdCtxRef::digest_final is never called on the path (native-tls uses X509::digest via X509_digest only in the unused tls_server_end_point)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#28",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41898",
+            "GHSA-hppc-g8h3-xhp3"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Unchecked callback length in PSK/cookie trampolines leaks adjacent memory to peer \u2014 The FFI trampolines behind `SslContextBuilder::set_psk_client_callback`, `set_psk_server_callback`, `set_cookie_generate_cb`,  and `set_stateless_cookie_generate_cb` forwarded the user closure's returned usize directly to OpenSSL without checking it against the `&mut [u8]` that was handed to the closure. This can lead to buffer overflows and other unintended consequences.",
+        "vuln_symbols": [
+          "set_psk_server_callback",
+          "set_cookie_generate_cb",
+          "set_stateless_cookie_generate_cb"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.64 is linked only through native-tls 0.2.12 (reqwest 0.11 default-tls, enabled by webmention 0.5.0's default reqwest features; Cargo.lock: native-tls is the sole dependent of openssl). Lemmy itself never uses openssl/native_tls (grep of crates/ and src/ finds nothing). native-tls/openssl.rs only builds SslConnector client sessions (plus X509::digest in tls_server_end_point, unused by reqwest). No PSK client/server or DTLS cookie callbacks are installed by native-tls/reqwest; trampolines never registered."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#29",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45784",
+            "GHSA-phqj-4mhp-q6mq"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Potential out-of-bounds write in `CipherCtxRef::cipher_update_inplace` for AES-KW-PAD ciphers \u2014 `CipherCtxRef::cipher_update_inplace` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (EVP_aes_{128,192,256}_wrap_pad). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.\n\nThis method was missed in the fix for GHSA-xv59-967r-8726",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.80"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.64 is linked only through native-tls 0.2.12 (reqwest 0.11 default-tls, enabled by webmention 0.5.0's default reqwest features; Cargo.lock: native-tls is the sole dependent of openssl). Lemmy itself never uses openssl/native_tls (grep of crates/ and src/ finds nothing). native-tls/openssl.rs only builds SslConnector client sessions (plus X509::digest in tls_server_end_point, unused by reqwest). No AES key-wrap-with-padding cipher / CipherCtxRef::cipher_update_inplace use anywhere on the path."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#30",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41676",
+            "GHSA-pqf5-4pqq-29f5"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Deriver::derive and PkeyCtxRef::derive can overflow short buffers on OpenSSL 1.1.1 \u2014 `Deriver::derive` (and `PkeyCtxRef::derive`) sets `len = buf.len()` and passes it as the in/out length to `EVP_PKEY_derive`, relying on OpenSSL to honor it. On OpenSSL 1.1.x, X25519, X448, DH and HKDF-extract  ignore the incoming `*keylen`, unconditionally writing the full shared secret (32/56/prime-size bytes). A caller passing a short slice gets a heap/stack overflow from safe code. OpenSSL 3.x providers do check, so this only impacts older OpenSSL.",
+        "vuln_symbols": [
+          "EVP_PKEY_derive"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.64 is linked only through native-tls 0.2.12 (reqwest 0.11 default-tls, enabled by webmention 0.5.0's default reqwest features; Cargo.lock: native-tls is the sole dependent of openssl). Lemmy itself never uses openssl/native_tls (grep of crates/ and src/ finds nothing). native-tls/openssl.rs only builds SslConnector client sessions (plus X509::digest in tls_server_end_point, unused by reqwest). Deriver::derive / PkeyCtxRef::derive never called; additionally the Debian bookworm runtime ships OpenSSL 3.x, which is not affected."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#31",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41677",
+            "GHSA-xmgf-hq76-4vx2"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-opennssl has an Out-of-bounds read in PEM password callback when returning an oversized length \u2014 The `*_from_pem_callback` APIs did not validate the length returned by the user's callback. A password callback that returns a value larger than the buffer it was given can cause some versions of OpenSSL to over-read this buffer. OpenSSL 3.x is not affected by this.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.64 is linked only through native-tls 0.2.12 (reqwest 0.11 default-tls, enabled by webmention 0.5.0's default reqwest features; Cargo.lock: native-tls is the sole dependent of openssl). Lemmy itself never uses openssl/native_tls (grep of crates/ and src/ finds nothing). native-tls/openssl.rs only builds SslConnector client sessions (plus X509::digest in tls_server_end_point, unused by reqwest). No *_from_pem_callback calls; native-tls Identity loading isn't used by reqwest client and runtime OpenSSL 3.x is unaffected."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#32",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42327",
+            "GHSA-xp3w-r5p5-63rr"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has undefined behavior in X509Ref::ocsp_responders for certificates with non-UTF-8 OCSP URLs \u2014 `X509Ref::ocsp_responders` returns OCSP responder URLs from a certificate's AIA extension as `OpensslString`, whose `Deref<Target = str>` wraps the raw bytes with `str::from_utf8_unchecked`. OpenSSL does not enforce that the underlying IA5String is ASCII, so a certificate with non-UTF-8 bytes in its OCSP accessLocation causes safe Rust code to construct a `&str` that violates the UTF-8 invariant \u2014 resulting in undefined behavior.",
+        "vuln_symbols": [
+          "OpensslString"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.64 is linked only through native-tls 0.2.12 (reqwest 0.11 default-tls, enabled by webmention 0.5.0's default reqwest features; Cargo.lock: native-tls is the sole dependent of openssl). Lemmy itself never uses openssl/native_tls (grep of crates/ and src/ finds nothing). native-tls/openssl.rs only builds SslConnector client sessions (plus X509::digest in tls_server_end_point, unused by reqwest). X509Ref::ocsp_responders never called (native-tls does not do OCSP)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#33",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44662",
+            "GHSA-xv59-967r-8726"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl vulnerable to heap buffer overflow when encrypting with AES key-wrap-with-padding \u2014 `CipherCtxRef::cipher_update`, `CipherCtxRef::cipher_update_vec`, and `symm::Crypter::update` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (`EVP_aes_{128,192,256}_wrap_pad`). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.64 is linked only through native-tls 0.2.12 (reqwest 0.11 default-tls, enabled by webmention 0.5.0's default reqwest features; Cargo.lock: native-tls is the sole dependent of openssl). Lemmy itself never uses openssl/native_tls (grep of crates/ and src/ finds nothing). native-tls/openssl.rs only builds SslConnector client sessions (plus X509::digest in tls_server_end_point, unused by reqwest). No AES-KW-PAD Crypter/cipher_update use anywhere on the path."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#34",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q445-7m23-qrmw",
+            "RUSTSEC-2024-0357"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "openssl's `MemBio::get_buf` has undefined behavior with empty buffers \u2014 Previously, `MemBio::get_buf` called `slice::from_raw_parts` with a null-pointer, which violates the functions invariants, leading to undefined behavior. In debug builds this would produce an assertion failure. This is now fixed.\n",
+        "vuln_symbols": [
+          "openssl::bio::MemBio::get_buf"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.66"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.64 is linked only through native-tls 0.2.12 (reqwest 0.11 default-tls, enabled by webmention 0.5.0's default reqwest features; Cargo.lock: native-tls is the sole dependent of openssl). Lemmy itself never uses openssl/native_tls (grep of crates/ and src/ finds nothing). native-tls/openssl.rs only builds SslConnector client sessions (plus X509::digest in tls_server_end_point, unused by reqwest). MemBio::get_buf is only used by openssl's to_pem/CMS/PKCS7/ASN1-Display helpers (openssl src macros.rs:50-83, pkey.rs:353, asn1.rs:82); none are invoked by native-tls client handshakes or reqwest."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#35",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-24898",
+            "GHSA-rpmj-rpgj-qmpm",
+            "RUSTSEC-2025-0004"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl ssl::select_next_proto use after free \u2014 ### Impact\n`ssl::select_next_proto` can return a slice pointing into the `server` argument's buffer but with a lifetime bound to the `client` argument. In situations where the `server` buffer's lifetime is shorter than the `client` buffer's, this can cause a use after free. This could cause the server to crash or to return arbitrary memory contents to the client.\n\n### Patches\n`openssl` 0.10.70 fixes the signature of `ssl::select_next_proto` to properly constrain the output buffer's lifetime to that of both input buffers.\n\n### Workarounds\nIn ",
+        "vuln_symbols": [
+          "openssl::ssl::select_next_proto"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.70"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.64 is linked only through native-tls 0.2.12 (reqwest 0.11 default-tls, enabled by webmention 0.5.0's default reqwest features; Cargo.lock: native-tls is the sole dependent of openssl). Lemmy itself never uses openssl/native_tls (grep of crates/ and src/ finds nothing). native-tls/openssl.rs only builds SslConnector client sessions (plus X509::digest in tls_server_end_point, unused by reqwest). ssl::select_next_proto is only used in ALPN server-select callbacks; native-tls/reqwest never install one (grep finds no select_next_proto/set_alpn_select_callback; native-tls-alpn not even enabled)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#36",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.64",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4fcv-w3qc-ppgg",
+            "RUSTSEC-2025-0022"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl Use-After-Free in `Md::fetch` and `Cipher::fetch` \u2014 When a `Some(...)` value was passed to the `properties` argument of either of these functions, a use-after-free would result.\n\nIn practice this would nearly always result in OpenSSL treating the properties as an empty string (due to `CString::drop`'s behavior).\n\nThe maintainers thank [quitbug](https://github.com/quitbug/) for reporting this vulnerability to us.",
+        "vuln_symbols": [
+          "openssl::cipher::Cipher::fetch",
+          "openssl::md::Md::fetch"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.72"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.64 is linked only through native-tls 0.2.12 (reqwest 0.11 default-tls, enabled by webmention 0.5.0's default reqwest features; Cargo.lock: native-tls is the sole dependent of openssl). Lemmy itself never uses openssl/native_tls (grep of crates/ and src/ finds nothing). native-tls/openssl.rs only builds SslConnector client sessions (plus X509::digest in tls_server_end_point, unused by reqwest). Md::fetch / Cipher::fetch are never called with properties on the path."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#37",
+      "facts": {
+        "package": "opentelemetry_sdk",
+        "version": "0.19.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48504",
+            "GHSA-w9wp-h8wv-79jx"
+          ],
+          [
+            "opentelemetry_sdk"
+          ]
+        ],
+        "advisory_summary": "opentelemetry_sdk has unbounded memory allocation in W3C Baggage propagation \u2014 ## Summary\n\n`BaggagePropagator::extract_with_context` in `opentelemetry_sdk` did not enforce the W3C Baggage size limits before parsing an inbound `baggage` header. A large attacker-controlled header could cause unnecessary CPU work and short-lived heap allocations while parsing entries that would later be discarded by the SDK's baggage storage limits.\n\nThe SDK now applies limits aligned with the W3C Baggage limits:\n\n  - 64 list-members\n  - 8192 bytes total\n\n## Impact\n\nServices that accept untrusted inbound propagat",
+        "vuln_symbols": [
+          "baggage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "opentelemetry_sdk"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "opentelemetry_sdk 0.19.0 is only pulled by opentelemetry 0.19 / tracing-opentelemetry 0.19 / opentelemetry-otlp 0.12, which are optional deps behind lemmy_server's non-default 'console' feature (Cargo.toml:44-50, default = []); Docker builds with default features. Not in the deployed binary (and no BaggagePropagator is installed)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#38",
+      "facts": {
+        "package": "opentelemetry_sdk",
+        "version": "0.23.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48504",
+            "GHSA-w9wp-h8wv-79jx"
+          ],
+          [
+            "opentelemetry_sdk"
+          ]
+        ],
+        "advisory_summary": "opentelemetry_sdk has unbounded memory allocation in W3C Baggage propagation \u2014 ## Summary\n\n`BaggagePropagator::extract_with_context` in `opentelemetry_sdk` did not enforce the W3C Baggage size limits before parsing an inbound `baggage` header. A large attacker-controlled header could cause unnecessary CPU work and short-lived heap allocations while parsing entries that would later be discarded by the SDK's baggage storage limits.\n\nThe SDK now applies limits aligned with the W3C Baggage limits:\n\n  - 64 list-members\n  - 8192 bytes total\n\n## Impact\n\nServices that accept untrusted inbound propagat",
+        "vuln_symbols": [
+          "baggage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.32.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "opentelemetry_sdk"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "opentelemetry_sdk 0.23.0 is only pulled by pict-rs (optional, 'embed-pictrs' feature), opentelemetry-otlp 0.16/opentelemetry-proto 0.6 (pict-rs) and tracing-opentelemetry 0.24 (pict-rs, or tracing-actix-web's opentelemetry feature which Lemmy disables: default-features=false, Cargo.toml:121). None compiled in the default build."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#39",
+      "facts": {
+        "package": "postgres-protocol",
+        "version": "0.6.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-5x78-73v4-xg6w",
+            "RUSTSEC-2026-0179"
+          ],
+          [
+            "postgres-protocol"
+          ]
+        ],
+        "advisory_summary": "postgres-protocol: Unbounded SCRAM iteration count allows a malicious server to cause CPU-exhaustion denial of service \u2014 A malicious, compromised, or man-in-the-middle server can supply an arbitrarily\nlarge SCRAM-SHA-256 PBKDF2 iteration count during authentication. The client\nruns it inline with no upper bound, pinning a `tokio` worker thread for minutes\nper connection, possibly stalling the whole async runtime.\n\nApplications that connect only to a trusted database are not exposed; the risk\napplies to clients that may connect to untrusted or user-supplied servers, or\nwhose connection can be i",
+        "vuln_symbols": [
+          "postgres_protocol::authentication::sasl::ScramSha256::update"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.6.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "postgres_protocol"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "postgres-protocol via diesel-async/tokio-postgres (lemmy_server->diesel-async 0.4.1->tokio-postgres 0.7.11). SCRAM ScramSha256::update does run when connecting to Postgres with password auth, but the iteration count comes from Lemmy's own admin-configured DB (docker-compose 'postgres' service on the internal network, docker/lemmy.hjson database.host=postgres). Users/federated peers cannot influence it. Exposure only if the DB link is MITM-able: with sslmode=require, db_schema/src/utils.rs:327-336 uses NoCertVerifier (accepts any cert), so remote managed DB over an untrusted network would be exposed. Not the default."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#40",
+      "facts": {
+        "package": "postgres-protocol",
+        "version": "0.6.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rgqc-3x5p-6gwg",
+            "RUSTSEC-2026-0180"
+          ],
+          [
+            "postgres-protocol"
+          ]
+        ],
+        "advisory_summary": "postgres-protocol: Panic decoding a malformed `hstore` value allows denial of service \u2014 A malicious or compromised server can return a binary `hstore` value with an\ninvalid internal length field, causing the client to panic while decoding it.\n\nApplications that connect only to a trusted database are not exposed; the risk\napplies to clients that may connect to untrusted or user-supplied servers, or\nwhose connection can be intercepted by a man-in-the-middle.",
+        "vuln_symbols": [
+          "postgres_protocol::types::hstore_from_sql"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.6.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "postgres_protocol"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "hstore_from_sql is only invoked when decoding an hstore column via postgres-types FromSql. Lemmy has no hstore usage (grep hstore in crates/src: none). diesel-async decodes rows through DieselFromSqlWrapper (diesel-async src/pg/row.rs:72), not postgres-types hstore. The data source is also the trusted local DB."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#41",
+      "facts": {
+        "package": "protobuf",
+        "version": "2.28.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-53605",
+            "GHSA-2gh3-rmm4-6rq5",
+            "RUSTSEC-2024-0437"
+          ],
+          [
+            "protobuf"
+          ]
+        ],
+        "advisory_summary": "Crash due to uncontrolled recursion in protobuf crate \u2014 Affected version of this crate did not properly parse unknown fields when parsing a user-supplied input.\n\nThis allows an attacker to cause a stack overflow when parsing the message on untrusted data.",
+        "vuln_symbols": [
+          "protobuf::coded_input_stream::CodedInputStream::skip_group"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "3.7.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "protobuf"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "protobuf 2.28.0 only via prometheus 0.13.4 (default 'protobuf' feature). Lemmy uses only prometheus::TextEncoder/gather (src/prometheus_metrics.rs:4,56). prometheus never parses protobuf input (no parse_from/merge_from/CodedInputStream in prometheus src), so skip_group on untrusted input can't run."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#42",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.30.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0194"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Quadratic run time when checking a start tag for duplicate attribute names \u2014 `BytesStart::attributes()` returns an `Attributes` iterator which, by default\n(`with_checks(true)`), rejects a start tag that repeats an attribute name. For\neach attribute yielded, the iterator compared the new name against every name\nseen so far in the same tag using a linear scan, so a start tag with `N`\ndistinct attribute names cost `O(N\u00b2)` byte comparisons. There was no bound on\n`N` other than the size of the buffered start tag.\n\n## Impact\n\nAny code that parses untrusted XML and iterates a start tag's attributes w",
+        "vuln_symbols": [
+          "Attributes",
+          "N",
+          "NsReader",
+          "snapshot.xml"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quick-xml 0.30.0 is only pulled in via pict-rs->rusty-s3, and pict-rs is optional behind lemmy_server's non-default 'embed-pictrs' feature (Cargo.toml features: default=[]; Dockerfile CARGO_BUILD_FEATURES=default). Not in the deployed binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#43",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.30.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0195"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Unbounded namespace-declaration allocation in `NsReader` enables memory-exhaustion denial of service \u2014 `NsReader` resolves namespaces by calling `NamespaceResolver::push` for every\n`Start`/`Empty` event *before* the event is returned to the caller. `push`\niterated all `xmlns` / `xmlns:*` attributes on the start tag and, for each one,\nappended the prefix bytes to an internal buffer and pushed a `NamespaceBinding`\n(32 bytes on 64-bit) to an internal `Vec`, with no upper bound on the number of\ndeclarations.\n\n## Impact\n\nA start tag with `N` namespace declarations drove roughly `3\u00d7` the tag's byte\n",
+        "vuln_symbols": [
+          "NsReader",
+          "Start",
+          "Empty",
+          "push",
+          "xmlns",
+          "NamespaceBinding"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 41: quick-xml 0.30.0 only via optional pict-rs (embed-pictrs feature off by default). Not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#44",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.31.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0194"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Quadratic run time when checking a start tag for duplicate attribute names \u2014 `BytesStart::attributes()` returns an `Attributes` iterator which, by default\n(`with_checks(true)`), rejects a start tag that repeats an attribute name. For\neach attribute yielded, the iterator compared the new name against every name\nseen so far in the same tag using a linear scan, so a start tag with `N`\ndistinct attribute names cost `O(N\u00b2)` byte comparisons. There was no bound on\n`N` other than the size of the buffered start tag.\n\n## Impact\n\nAny code that parses untrusted XML and iterates a start tag's attributes w",
+        "vuln_symbols": [
+          "Attributes",
+          "N",
+          "NsReader",
+          "snapshot.xml"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quick-xml 0.31.0 via rss 2.0.8/atom_syndication (lemmy_routes feeds) and plist 1.6.1 (syntect via markdown-it). Lemmy only WRITES RSS (crates/routes/src/feeds.rs:173-185 Channel{..}.to_string() -> rss write_to quick_xml::Writer). It never parses RSS/Atom (no Channel::read_from usage). syntect's plist reader runs only for loading .tmTheme/.tmPreferences files from disk (syntect highlighting/settings.rs:28). markdown-it syntect plugin uses load_defaults (bundled binary dumps, markdown-it plugins/extra/syntect.rs:44-45). So the Reader/Attributes duplicate-check iterator never runs on attacker XML."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#45",
+      "facts": {
+        "package": "quick-xml",
+        "version": "0.31.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0195"
+          ],
+          [
+            "quick-xml"
+          ]
+        ],
+        "advisory_summary": "Unbounded namespace-declaration allocation in `NsReader` enables memory-exhaustion denial of service \u2014 `NsReader` resolves namespaces by calling `NamespaceResolver::push` for every\n`Start`/`Empty` event *before* the event is returned to the caller. `push`\niterated all `xmlns` / `xmlns:*` attributes on the start tag and, for each one,\nappended the prefix bytes to an internal buffer and pushed a `NamespaceBinding`\n(32 bytes on 64-bit) to an internal `Vec`, with no upper bound on the number of\ndeclarations.\n\n## Impact\n\nA start tag with `N` namespace declarations drove roughly `3\u00d7` the tag's byte\n",
+        "vuln_symbols": [
+          "NsReader",
+          "Start",
+          "Empty",
+          "push",
+          "xmlns",
+          "NamespaceBinding"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.41.0"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "quick_xml"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "quick-xml 0.31.0 via rss 2.0.8/atom_syndication (lemmy_routes feeds) and plist 1.6.1 (syntect via markdown-it). Lemmy only WRITES RSS (crates/routes/src/feeds.rs:173-185 Channel{..}.to_string() -> rss write_to quick_xml::Writer). It never parses RSS/Atom (no Channel::read_from usage). syntect's plist reader runs only for loading .tmTheme/.tmPreferences files from disk (syntect highlighting/settings.rs:28). markdown-it syntect plugin uses load_defaults (bundled binary dumps, markdown-it plugins/extra/syntect.rs:44-45). So the Reader/NsReader namespace resolver never runs on attacker XML (NsReader isn't used on any reachable path)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#46",
+      "facts": {
+        "package": "rand",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a custom `log` logger that calls rand::thread_rng. Lemmy's only logger is tracing-log LogTracer (src/lib.rs:386) forwarding to tracing-subscriber fmt; it never calls rand. opentelemetry (rand users) is only behind the non-default 'console' feature. The unsound condition isn't met."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#47",
+      "facts": {
+        "package": "ring",
+        "version": "0.17.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ring 0.17.8 is used through rustls/jsonwebtoken/webpki. The panic needs QUIC HeaderProtectionKey::new_mask (Lemmy uses no QUIC: no quinn/h3 in Cargo.lock) or a single AES-GCM seal/open of ~64GB in one chunk (TLS records are <=16KB). Overflow checks are on in the Dockerfile's default debug build, but neither trigger is reachable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#48",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-21895",
+            "GHSA-9c48-w39g-hm26"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "rsa crate has potential panic on a prime being equal to 1 \u2014 When creating a RSA private key from its components, the construction panics, instead of returning an error, when one of the primes is `1`. \n\nDiscovered by Christian Reitter from [Radically Open Security](https://www.radicallyopensecurity.com/) during a security review for [Proton AG](https://proton.me/).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.10"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rsa 0.9.6 via activitypub_federation 0.5.9. Private keys are only built from Lemmy's own locally generated PEM in its DB (activitypub_federation config.rs:204, http_signatures.rs:52 from_pkcs8_pem; generated at http_signatures.rs:59). Remote peers supply only public keys (http_signatures.rs:204 from_public_key_pem). Attackers can't supply private-key components with a prime of 1."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#49",
+      "facts": {
+        "package": "rsa",
+        "version": "0.9.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-49092",
+            "GHSA-4grx-2x9w-596c",
+            "GHSA-c38w-74pg-36hr",
+            "RUSTSEC-2023-0071"
+          ],
+          [
+            "rsa"
+          ]
+        ],
+        "advisory_summary": "Marvin Attack: potential key recovery through timing sidechannels \u2014 ### Impact\nDue to a non-constant-time implementation, information about the private key is leaked through timing information which is observable over the network. An attacker may be able to use that information to recover the key.\n\n### Patches\nNo patch is yet available. The crypto-bigint migration ([RustCrypto/RSA#394](https://github.com/RustCrypto/RSA/pull/394)) did not close this. Tracking is [RustCrypto/RSA#626](https://github.com/RustCrypto/RSA/issues/626) (padding still not constant-time). Implicit rejection work is in [R",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rsa"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rsa 0.9.6 has non-constant-time private-key ops. activitypub_federation signs every outgoing federated request/activity with the local actor's RSA key (http_signatures.rs:105 private_key.sign). Remote servers and users can trigger many signing operations (follows, signed fetches, deliveries to their inbox) and observe timing over the network. No patched version exists. Exploitability over the network is hard, but the vulnerable code runs on attacker-triggered paths."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#50",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "reqwest 0.11.27 is the only user of rustls 0.21.12 (and hyper-rustls 0.24/tokio-rustls 0.24). webmention 0.5.0 (crates/api_crud/Cargo.toml:30) depends on reqwest with default features, so 'default-tls' (native-tls/OpenSSL) is on alongside rustls-tls (Cargo.lock reqwest 0.11.27 deps include native-tls, hyper-tls). reqwest tls.rs:476-490 then makes TlsBackend::default() = native-tls, and neither Lemmy's client_builder (crates/api_common/src/request.rs:40-47) nor any crate in the closure calls use_rustls_tls/use_preconfigured_tls (only pict-rs, optional). So every outgoing HTTPS federation/link fetch uses OpenSSL. The rustls 0.21 code is compiled but never runs. Also, the Debug leak needs a custom ClientSessionStore that Debug-formats session values. None exists in Lemmy, and rustls's own logs don't print them (client/hs.rs:73,130 log only the server name)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#51",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "reqwest 0.11.27 is the only user of rustls 0.21.12 (and hyper-rustls 0.24/tokio-rustls 0.24). webmention 0.5.0 (crates/api_crud/Cargo.toml:30) depends on reqwest with default features, so 'default-tls' (native-tls/OpenSSL) is on alongside rustls-tls (Cargo.lock reqwest 0.11.27 deps include native-tls, hyper-tls). reqwest tls.rs:476-490 then makes TlsBackend::default() = native-tls, and neither Lemmy's client_builder (crates/api_common/src/request.rs:40-47) nor any crate in the closure calls use_rustls_tls/use_preconfigured_tls (only pict-rs, optional). So every outgoing HTTPS federation/link fetch uses OpenSSL. The rustls 0.21 code is compiled but never runs. Also, the downgrade only matters when a post-quantum hybrid group is offered. rustls 0.21 has no ML-KEM/Kyber group."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#52",
+      "facts": {
+        "package": "rustls",
+        "version": "0.22.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.22.4 is only reached via pict-rs->reqwest 0.12.4 (hyper-rustls 0.26/tokio-rustls 0.25 rdeps are only reqwest 0.12.4, whose rdeps are pict-rs/reqwest-middleware 0.3/reqwest-tracing 0.5 under pict-rs). pict-rs is behind the non-default 'embed-pictrs' feature (Cargo.toml [features] default=[]). Not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#53",
+      "facts": {
+        "package": "rustls",
+        "version": "0.22.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 51: rustls 0.22.4 is only via optional pict-rs (embed-pictrs off). Not in the deployed binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#54",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.12 is used by lettre (SMTP) and tokio-postgres-rustls (DB, db_schema/src/utils.rs:327-336). The secret leak needs a custom ClientSessionStore that Debug-formats Tls12/Tls13ClientSessionValue. Lemmy defines none (grep ClientSessionStore: no hits), lettre and tokio-postgres-rustls use the default in-memory store, and rustls's own logging doesn't Debug-print the values (client/hs.rs:80,122)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#55",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h2v8-394m-p7vv",
+            "RUSTSEC-2026-0348"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Brotli certificate decompression can allocate up to 1 GiB before authentication \u2014 The built-in Brotli certificate decompressor (enabled by the non-default\n`brotli` crate feature) bounded the size of the decompressed output, but\naccepted a peer-selected history window. Brotli's large-window extension was\nenabled, so a five-byte header could cause an allocation of 1 GiB. A peer can\nabort a process whose allocator cannot satisfy that request.\n\nNo trusted certificate is required by the attacker. Affected configurations are:\n\n- clients that enable the `brotli` feature and connect to a malicious ser",
+        "vuln_symbols": [
+          "brotli"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The Brotli certificate decompressor needs rustls's non-default 'brotli' feature. Cargo.lock's rustls 0.23.12 deps are aws-lc-rs, log, once_cell, ring, rustls-pki-types, rustls-webpki, subtle, zeroize: no brotli/brotli-decompressor, so the feature is off (the brotli crate in the lock is from actix-http compression). Not compiled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#56",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The vulnerable kx-hint recording runs in rustls 0.23.12 TLS clients (lettre SMTP when email TLS is configured; Postgres with sslmode=require). But the impact is a downgrade from a post-quantum hybrid group to classical, and 0.23.12 ships no X25519MLKEM768/Kyber group (no kyber/mlkem in rustls src; rustls-post-quantum isn't in Cargo.lock). Lemmy also installs the ring provider (src/main.rs:12), which only has classical groups. The advisory's condition (PQ group listed first) can't occur."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#57",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 is used only by rustls 0.21.12 (Cargo.lock), which is only used by reqwest 0.11.27, and reqwest's TLS backend at runtime is native-tls (webmention 0.5.0 enables reqwest default-tls; reqwest tls.rs:476-490 picks TlsBackend::Default; no use_rustls_tls anywhere outside optional pict-rs). The webpki verification code is compiled but never runs on certificates. (Even on a rustls path, this needs a misissued cert under a URI-name-constrained CA.)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#58",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 is used only by rustls 0.21.12 (Cargo.lock), which is only used by reqwest 0.11.27, and reqwest's TLS backend at runtime is native-tls (webmention 0.5.0 enables reqwest default-tls; reqwest tls.rs:476-490 picks TlsBackend::Default; no use_rustls_tls anywhere outside optional pict-rs). The webpki verification code is compiled but never runs on certificates. (Even on a rustls path, this needs a misissued wildcard cert under a DNS-name-constrained CA.)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#59",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 is used only by rustls 0.21.12 (Cargo.lock), which is only used by reqwest 0.11.27, and reqwest's TLS backend at runtime is native-tls (webmention 0.5.0 enables reqwest default-tls; reqwest tls.rs:476-490 picks TlsBackend::Default; no use_rustls_tls anywhere outside optional pict-rs). The webpki verification code is compiled but never runs on certificates. Also, CRL checking is opt-in (RevocationOptions/with_crls). Neither Lemmy nor reqwest/lettre loads CRLs (grep: none)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#60",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls-webpki 0.101.7 is used only by rustls 0.21.12 (Cargo.lock), which is only used by reqwest 0.11.27, and reqwest's TLS backend at runtime is native-tls (webmention 0.5.0 enables reqwest default-tls; reqwest tls.rs:476-490 picks TlsBackend::Default; no use_rustls_tls anywhere outside optional pict-rs). The webpki verification code is compiled but never runs on certificates. The emSign roots in webpki-roots 0.25.4 would be the trust anchors only on the unused rustls backend. OpenSSL's system store governs instead."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#61",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93602",
+            "GHSA-pwjx-qhcg-rvj4",
+            "RUSTSEC-2026-0049"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "CRLs not considered authoritative by Distribution Point due to faulty matching logic \u2014 If a certificate had more than one `distributionPoint`, then only the first `distributionPoint` would be considered against each CRL's `IssuingDistributionPoint` `distributionPoint`, and then the certificate's subsequent `distributionPoint`s would be ignored.\n\nThe impact was that correctly provided CRLs would not be consulted to check revocation. With `UnknownStatusPolicy::Deny` (the default) this would lead to incorrect but safe `Error::UnknownRevocationStatus`. With `UnknownStatusPolicy::Allow` this would ",
+        "vuln_symbols": [
+          "distributionPoint",
+          "IssuingDistributionPoint"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.10",
+          "0.104.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CRL Distribution Point matching only runs when CRLs are supplied (RevocationOptions/WebPkiServerVerifier with_crls). Lemmy, lettre and tokio-postgres-rustls never load CRLs (grep CertRevocationList/with_crls/RevocationOptions: none). The DB TLS path uses a NoCertVerifier anyway (db_schema/src/utils.rs:371-385)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#62",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.102.8 (via rustls 0.23.12) verifies server certificates for lettre SMTP TLS: lettre 0.11.7 tls.rs:356-386 builds a RootCertStore from webpki-roots 0.26.2 (no rustls-native-certs feature; Lemmy enables tokio1-rustls-tls, crates/utils/Cargo.toml:76-81), and crates/utils/src/email.rs:71-73 uses starttls_relay/relay when email.tls_type is 'starttls'/'tls'. Email is optional config (default tls_type 'none', no email block in docker/lemmy.hjson), but instances commonly configure an external SMTP relay with TLS for signup verification and password resets. The DB TLS path uses NoCertVerifier, so webpki doesn't run there. The attacker is a network MITM on the SMTP connection who needs a misissued cert under a URI-name-constrained CA, so exploitation is very unlikely, but the vulnerable name-constraint code runs on peer-supplied chains."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#63",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.102.8 (via rustls 0.23.12) verifies server certificates for lettre SMTP TLS: lettre 0.11.7 tls.rs:356-386 builds a RootCertStore from webpki-roots 0.26.2 (no rustls-native-certs feature; Lemmy enables tokio1-rustls-tls, crates/utils/Cargo.toml:76-81), and crates/utils/src/email.rs:71-73 uses starttls_relay/relay when email.tls_type is 'starttls'/'tls'. Email is optional config (default tls_type 'none', no email block in docker/lemmy.hjson), but instances commonly configure an external SMTP relay with TLS for signup verification and password resets. The DB TLS path uses NoCertVerifier, so webpki doesn't run there. Needs a MITM on the SMTP link plus a wildcard cert from a DNS-name-constrained CA. The vulnerable check runs on peer-supplied chains."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#64",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The CRL BIT STRING panic needs CRL parsing via RevocationOptions/BorrowedCertRevocationList::from_der. Lemmy, lettre and tokio-postgres-rustls supply no CRLs (grep: none), so the CRL code never runs. rustls 0.22.4 (the other user) is pict-rs-only/optional."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#65",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "rustls-webpki 0.102.8 (via rustls 0.23.12) verifies server certificates for lettre SMTP TLS: lettre 0.11.7 tls.rs:356-386 builds a RootCertStore from webpki-roots 0.26.2 (no rustls-native-certs feature; Lemmy enables tokio1-rustls-tls, crates/utils/Cargo.toml:76-81), and crates/utils/src/email.rs:71-73 uses starttls_relay/relay when email.tls_type is 'starttls'/'tls'. Email is optional config (default tls_type 'none', no email block in docker/lemmy.hjson), but instances commonly configure an external SMTP relay with TLS for signup verification and password resets. The DB TLS path uses NoCertVerifier, so webpki doesn't run there. The trust anchors include emSign ECC Root CA - G3 (webpki-roots 0.26.2 src/lib.rs:2940-2962), so a MITM on the SMTP TLS connection holding a leaked emSign intermediate key could present a chain that's accepted. Reachable only with SMTP TLS configured."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#66",
+      "facts": {
+        "package": "scc",
+        "version": "2.1.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0205"
+          ],
+          [
+            "scc"
+          ]
+        ],
+        "advisory_summary": "`Array::insert` violates exception safety if compare function panics, leading to potential Double-Free \u2014 In affected versions of this crate, `Array::insert` is not exception safe. In the `UPSERT` path, `key` and `value`'s snapshot is written to `self.data_block`, and after the insertion is completed, `key` and `value` are `mem::forget` in order to prevent double free. However, during the insertion, `K::compare` is invoked, which is a user-provided method. If user deliberately call panic in this function, during unwinding, the destructors of `key`, `value`, and `self` will all be called (since ",
+        "vuln_symbols": [
+          "UPSERT",
+          "key",
+          "value",
+          "self.data_block",
+          "self",
+          "ManuallyDrop"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.8.4"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "scc"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "scc 2.1.1 is pulled in only by serial_test 3.1.1. serial_test is listed as a normal dependency but is only used for the #[serial] attribute in #[cfg(test)] modules, so no runtime code path calls scc. Even under test its keys are Strings, whose compare can't panic, so the Array::insert UPSERT panic-unwind condition isn't met."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#67",
+      "facts": {
+        "package": "serde_with",
+        "version": "3.9.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-7gcf-g7xr-8hxj"
+          ],
+          [
+            "serde_with"
+          ]
+        ],
+        "advisory_summary": "serde_with: KeyValueMap serialization panics on empty sequence or map entries \u2014 ### Summary\n\nThe public `KeyValueMap` serializer assumes that each mapped element has at least one field or item to use as the map key, but it subtracts `1` from the caller-visible length before validating that assumption. An application that serializes attacker-controlled data through `#[serde_as(as = \"KeyValueMap<_>\")]` can be crashed by an empty inner sequence or map entry.\n\n### Details\n\nThe affected public surface includes:\n\n- Serialization of `#[serde_as(as = \"KeyValueMap<_>\")]` values through `serde_json::to_",
+        "vuln_symbols": [
+          "KeyValueMap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.21.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "serde_with"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No use of serde_with KeyValueMap in Lemmy (grep KeyValueMap in crates/ and src/: none). The workspace crates use serde_with for other adapters (e.g. skip_serializing_none). Dependent crates on the path don't use KeyValueMap either."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#68",
+      "facts": {
+        "package": "time",
+        "version": "0.3.36",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25727",
+            "GHSA-r6v5-fh4h-64xc",
+            "RUSTSEC-2026-0009"
+          ],
+          [
+            "time"
+          ]
+        ],
+        "advisory_summary": "time vulnerable to stack exhaustion Denial of Service attack \u2014 ### Impact\n\nWhen user-provided input is provided to any type that parses with the RFC 2822 format, a denial of service attack via stack exhaustion is possible. The attack relies on formally deprecated and rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary, non-malicious input will never encounter this scenario.\n\n### Patches\n\nA limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned rather than exhausting the stack.\n\n### Workarounds\n\nLimiting the ",
+        "vuln_symbols": [
+          "time::Date::parse",
+          "time::OffsetDateTime::parse",
+          "time::PrimitiveDateTime::parse",
+          "time::Time::parse",
+          "time::UtcDateTime::parse",
+          "time::UtcOffset::parse",
+          "time::parsing::Parsed::parse_item"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.47"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "time"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only RFC 2822 parsing is affected. Lemmy uses chrono for dates, not time. Of time 0.3.36's users (actix-web/actix-http, cookie 0.16.2, diesel, plist, postgres-types, simple_asn1, serde_with; rusty-s3/refinery/pict-rs are optional), only serde_with's time_0_3 module references Rfc2822, and Lemmy uses no serde_as time Rfc2822 adapters. grep Rfc2822 in actix-http/actix-web/cookie/plist/simple_asn1: none."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#69",
+      "facts": {
+        "package": "tokio",
+        "version": "1.40.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rr8g-9fpq-6wmg",
+            "RUSTSEC-2025-0023"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "Tokio broadcast channel calls clone in parallel, but does not require `Sync` \u2014 The broadcast channel internally calls `clone` on the stored value when receiving it, and only requires `T:Send`. This means that using the broadcast channel with values that are `Send` but not `Sync` can trigger unsoundness if the `clone` implementation makes use of the value being `!Sync`.\n\nThank you to Austin Bonander for finding and reporting this issue.",
+        "vuln_symbols": [
+          "Sync",
+          "clone",
+          "Send"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.2",
+          "1.42.1",
+          "1.43.1",
+          "1.44.2"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.83
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The broadcast unsoundness needs tokio::sync::broadcast with a Send+!Sync type whose Clone relies on !Sync. Lemmy uses no broadcast channel (grep: none). Across the crate sources of every Cargo.lock package, the only broadcast user outside tokio is hyper-util 0.1.8 graceful.rs:306, reached only via console-subscriber/tonic/reqwest 0.12 (non-default features). Not reachable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#70",
+      "facts": {
+        "package": "tokio",
+        "version": "1.40.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0386"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "`AsyncFd::new` and related constructors violate I/O safety \u2014 `tokio::io::unix::AsyncFd` provides safe constructors (`new`, `with_interest`, `try_new`, and `try_with_interest`) that accept any `T: AsRawFd` rather than requiring proof of ownership or validity of the file descriptor. Because `RawFd` implements `AsRawFd`, safe code can construct an `AsyncFd` from an arbitrary or closed file descriptor, or close/replace the underlying file descriptor while the `AsyncFd` is still alive.\n\nThis violates I/O safety in two ways:\n\n1. `AsyncFd<T>` implements `AsFd` for all `T: AsRawFd` by calling `Borrowe",
+        "vuln_symbols": [
+          "tokio::io::unix::AsyncFd::new",
+          "tokio::io::unix::AsyncFd::try_new",
+          "tokio::io::unix::AsyncFd::try_with_interest",
+          "tokio::io::unix::AsyncFd::with_interest"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.51.6",
+          "1.53.3"
+        ],
+        "severity": "",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The I/O-safety issue needs AsyncFd::new/with_interest/try_* to be called with a non-owned or closed fd. Lemmy never uses AsyncFd (grep: none), and no crate in the closure (other than tokio itself) constructs AsyncFd. Tokio's internal uses wrap fds it owns."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#71",
+      "facts": {
+        "package": "tokio-postgres",
+        "version": "0.7.11",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-3gjw-f78c-vvpw",
+            "RUSTSEC-2026-0178"
+          ],
+          [
+            "tokio-postgres"
+          ]
+        ],
+        "advisory_summary": "tokio-postgres: Panic on a `DataRow` with fewer fields than columns allows denial of service \u2014 A malicious or compromised server can send a row containing fewer fields than\nits row description declares columns. Reading one of the missing columns then\npanics with an out-of-bounds index, aborting the calling task. This affects even\nthe otherwise non-panicking `try_get`, and both `Row` and `SimpleQueryRow`.\n\nApplications that connect only to a trusted database are not exposed; the risk\napplies to clients that may connect to untrusted or user-supplied servers, or\nwhose connection can be intercepte",
+        "vuln_symbols": [
+          "tokio_postgres::Row::get",
+          "tokio_postgres::Row::try_get",
+          "tokio_postgres::SimpleQueryRow::get",
+          "tokio_postgres::SimpleQueryRow::try_get"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.7.18"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tokio_postgres"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tokio_postgres::Row::get runs for every query row (diesel-async src/pg/row.rs:72, src/pg/mod.rs:470). But the panic needs a malicious/compromised Postgres server sending a DataRow with too few fields. Lemmy's DB is admin-configured and on the internal compose network (docker/lemmy.hjson database.host=postgres). Exposure only if the DB link is MITM-able with sslmode=require, since db_schema/src/utils.rs:327-336 uses NoCertVerifier. Not the default."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#72",
+      "facts": {
+        "package": "tonic",
+        "version": "0.12.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-47609",
+            "GHSA-4jwc-w2hc-78qv",
+            "RUSTSEC-2024-0376"
+          ],
+          [
+            "tonic"
+          ]
+        ],
+        "advisory_summary": "Tonic has remotely exploitable denial of service vulnerability \u2014 ### Impact\n\nWhen using `tonic::transport::Server` there is a remote DoS attack that can cause the server to exit cleanly on accepting a tcp/tls stream. This can be triggered via causing the accept call to error out with errors there were not covered correctly causing the accept loop to exit. \n\nMore information can be found [here](https://github.com/hyperium/tonic/issues/1897)\n\n### Patches\n\nUpgrading to tonic `0.12.3` and above contains the fix. \n\n### Workarounds\n\nA custom accept loop is a possible workaround.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.12.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tonic"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "tonic 0.12.2 is only reached via console-subscriber 0.4.0, which is optional behind lemmy_server's non-default 'console' feature (Cargo.toml [features] console=[...]; default=[]). The Dockerfile builds with CARGO_BUILD_FEATURES=default. No tonic Server in the deployed binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#73",
+      "facts": {
+        "package": "tracing-subscriber",
+        "version": "0.3.18",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58160",
+            "GHSA-xwfj-jgwm-7wp5",
+            "RUSTSEC-2025-0055"
+          ],
+          [
+            "tracing-subscriber"
+          ]
+        ],
+        "advisory_summary": " Tracing logging user input may result in poisoning logs with ANSI escape sequences \u2014 ### Impact\n\nPrevious versions of tracing-subscriber were vulnerable to ANSI escape sequence injection attacks. Untrusted user input containing ANSI escape sequences could be injected into terminal output when logged, potentially allowing attackers to:\n\n- Manipulate terminal title bars\n- Clear screens or modify terminal display\n- Potentially mislead users through terminal manipulation\n\nIn isolation, impact is minimal, however security issues have been found in terminal emulators that enabled an attacker to use",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.3.20"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tracing_subscriber"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "lemmy_server uses tracing-subscriber 0.3.18 fmt layer (src/lib.rs:395-401) to log to stdout (docker logs). with_ansi(false) only disables Lemmy's own colouring; 0.3.18 does not escape control/ANSI bytes in recorded field values, which the 0.3.20 fix adds. Attacker-influenced strings are logged: request target in TracingLogger spans (src/lib.rs:321, root_span_builder.rs), fetched URLs (api_common/src/request.rs:52 'Fetching site metadata for url'), federation error messages, and the settings-import summary (apub/src/api/user_settings_backup.rs:269). An admin viewing logs in a terminal gets the raw escapes. Impact is low."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#74",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.25.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "webpki-roots 0.25.4 is only a dependency of reqwest 0.11.27 (rustls-tls-webpki-roots) and is used only when reqwest's rustls backend builds its root store. webmention 0.5.0 enables reqwest default-tls, so TlsBackend::default() is native-tls (reqwest tls.rs:476-490). Lemmy's client_builder (api_common/src/request.rs:40-47) never selects rustls, so OpenSSL and the system CA store verify all outgoing HTTPS, and TLS_SERVER_ROOTS from 0.25.4 is never loaded."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-lemmy#75",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.26.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "webpki-roots 0.26.2 is loaded by lettre 0.11.7 (tls.rs:374-383, CertificateStore::Default without rustls-native-certs) when SMTP TLS is used: crates/utils/src/email.rs:71-73 with email.tls_type 'tls'/'starttls' (optional config, but common for an external SMTP relay). It contains emSign ECC Root CA - G3 (src/lib.rs:2940-2962), so a MITM on the SMTP link holding a leaked emSign intermediate key would be trusted. The other users (pict-rs, reqwest 0.12) are optional and off."
+      }
+    }
+  ]
+}

@@ -1,0 +1,2343 @@
+{
+  "id": "real-rs-rustdesk",
+  "description": "rustdesk-server 1.1.14 (hbbs rendezvous + hbbr relay): Rust dev set (rs1), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#1",
+      "facts": {
+        "package": "anyhow",
+        "version": "1.0.57",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0190"
+          ],
+          [
+            "anyhow"
+          ]
+        ],
+        "advisory_summary": "Unsoundness in `Error::downcast_mut()` \u2014 Affected versions of this crate violate borrow rules, resulting in undefined behavior, when the user adds context to an error via `Error::context` and then later calls `Error::downcast_mut` on the returned `Error`.\n\nThe flaw was corrected in commit `6e8c000` by revising how the mutable reference is constructed, avoiding inclusion of a shared reference in the resulting borrow chain.\n\n## Example\n\n```rust\nuse anyhow::Error;\nuse std::fmt;\n\n#[derive(Debug)]\nstruct ErrorContext(&'static str);\n\nimpl fmt::Display for ErrorContext {\n    fn fmt(&self, f: &mut fmt",
+        "vuln_symbols": [
+          "anyhow::Error::downcast_mut"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.0.103"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "anyhow"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "anyhow used by hbb_common/default_net (protobuf-codegen is build-only). No downcast_mut anywhere in src/ or libs/hbb_common/src (grep); default_net (git, net-interface lookup at libs/hbb_common/src/fingerprint.rs:230) has no reason to call it. Condition context()+downcast_mut never met."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#2",
+      "facts": {
+        "package": "atty",
+        "version": "0.2.14",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g98v-hv3f-hcfr",
+            "RUSTSEC-2021-0145"
+          ],
+          [
+            "atty"
+          ]
+        ],
+        "advisory_summary": "[affects only os=windows] atty potential unaligned read \u2014 On windows, `atty` dereferences a potentially unaligned pointer.\n\nIn practice however, the pointer won't be unaligned unless a custom global allocator is used.\n\nIn particular, the `System` allocator on windows uses `HeapAlloc`, which guarantees a large enough alignment.\n\n# atty is Unmaintained\n\nA Pull Request with a fix has been provided over a year ago but the maintainer seems to be unreachable.\n\nLast release of `atty` was almost 3 years ago.\n\n## Possible Alternative(s)\n\nThe below list has not been vetted in any way and may or may not ",
+        "vuln_symbols": [
+          "System",
+          "HeapAlloc"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.85
+        },
+        "import_name": "atty"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Windows-only unaligned read; atty via clap/flexi_logger/env_logger on Linux uses isatty. Docker image is Linux."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#3",
+      "facts": {
+        "package": "axum-core",
+        "version": "0.2.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-3212",
+            "GHSA-m77f-652q-wwp4",
+            "RUSTSEC-2022-0055"
+          ],
+          [
+            "axum-core"
+          ]
+        ],
+        "advisory_summary": "axum-core has no default limit put on request bodies \u2014 `<bytes::Bytes as axum_core::extract::FromRequest>::from_request` would not, by default, set a limit for the size of the request body. That meant if a malicious peer would send a very large (or infinite) body your server might run out of memory and crash.\n\nThis also applies to these extractors which used `Bytes::from_request` internally:\n- `axum::extract::Form`\n- `axum::extract::Json`\n- `String`\n\nThe fix is also in `axum-core` `0.3.0.rc.2` but `0.3.0.rc.1` _is_ vulnerable.\n\nBecause `axum` depends on `axum-core` it is vulnerable as well. Th",
+        "vuln_symbols": [
+          "axum"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.2.8",
+          "0.3.0-rc.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "axum_core"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "axum 0.5 (axum-core 0.2.4) is declared in Cargo.toml:27 but never used: no axum/Router/serve in src/ (grep); hbbs/hbbr serve only raw TCP/UDP/WebSocket. No HTTP body extractor runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#4",
+      "facts": {
+        "package": "bumpalo",
+        "version": "3.9.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-f85w-wvc7-crwc",
+            "RUSTSEC-2022-0078"
+          ],
+          [
+            "bumpalo"
+          ]
+        ],
+        "advisory_summary": "bumpalo has use-after-free due to a lifetime error in `Vec::into_iter()` \u2014 In affected versions of this crate, the lifetime of the iterator produced by `Vec::into_iter()` is not constrained to the lifetime of the `Bump` that allocated the vector's memory. Using the iterator after the `Bump` is dropped causes use-after-free accesses.\n\nThe following example demonstrates memory corruption arising from a misuse of this unsoundness.\n\n```rust\nuse bumpalo::{collections::Vec, Bump};\n\nfn main() {\n    let bump = Bump::new();\n    let mut vec = Vec::new_in(&bump);\n    vec.extend([0x01u8; 32]);\n    let int",
+        "vuln_symbols": [
+          "bumpalo::collections::vec::Vec::into_iter"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "3.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.92
+        },
+        "import_name": "bumpalo"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "bumpalo only via wasm-bindgen-backend (proc-macro/build-time, wasm-only). Not in Linux runtime binary."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#5",
+      "facts": {
+        "package": "bytes",
+        "version": "1.9.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25541",
+            "GHSA-434x-w66g-qw3r",
+            "RUSTSEC-2026-0007"
+          ],
+          [
+            "bytes"
+          ]
+        ],
+        "advisory_summary": "bytes has integer overflow in BytesMut::reserve \u2014 # Details\n\nIn the unique reclaim path of `BytesMut::reserve`, the condition\n```rs\nif v_capacity >= new_cap + offset\n```\nuses an unchecked addition. When `new_cap + offset` overflows `usize` in release builds, this condition may incorrectly pass, causing `self.cap` to be set to a value that exceeds the actual allocated capacity. Subsequent APIs such as `spare_capacity_mut()` then trust this corrupted `cap` value and may create out-of-bounds slices, leading to UB.\n\nThis behavior is observable in release builds (integer overflow wraps), whereas de",
+        "vuln_symbols": [
+          "usize",
+          "self.cap",
+          "spare_capacity_mut",
+          "cap"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "bytes"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "BytesMut::reserve is called with attacker-influenced size in libs/hbb_common/src/bytes_codec.rs:64, but n is at most 2^30 (4-byte header >>2, :45-59), so new_cap+offset cannot overflow usize on the 64-bit (or even 32-bit) image; other callers (tokio-util, tungstenite) use bounded sizes. Overflow condition unreachable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#6",
+      "facts": {
+        "package": "crossbeam-epoch",
+        "version": "0.9.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0204"
+          ],
+          [
+            "crossbeam-epoch"
+          ]
+        ],
+        "advisory_summary": "Invalid pointer dereference in `fmt::Pointer` impl for `Atomic` and `Shared` when the underlying pointer is invalid \u2014 Affected versions of `fmt::Display` dereference the underlying pointer. This causes a invalid pointer dereference e.g., when a pointer created with `Atomic::null` or `Shared::null`. `fmt::Debug` impls and pre-0.9 `fmt::Display` impls, which do not dereference pointers, are not affected by this issue.",
+        "vuln_symbols": [
+          "Atomic",
+          "Shared"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.20"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        },
+        "import_name": "crossbeam_epoch"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "crossbeam-epoch via crossbeam (flexi_logger 0.22) and crossbeam-deque (rayon via sysinfo). Bug is only in fmt::Pointer of Atomic/Shared; nothing formats epoch pointers with {:p}."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#7",
+      "facts": {
+        "package": "h2",
+        "version": "0.3.26",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q83h-524g-xf6h",
+            "RUSTSEC-2026-0258"
+          ],
+          [
+            "h2"
+          ]
+        ],
+        "advisory_summary": "h2 unbounded empty DATA frames \u2014 The h2 crate, used internally by hyper, had a flaw that would accept and queue empty DATA frames without limit.\nIf streams were not actively drained, this could lead to unbounded memory usage, or a panic if the length overflows.\n\nLow severity.\n\nPatched in v0.4.16.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.4.16"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "h2"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "reqwest is a git fork (0.11.23, no source); crates.io reqwest 0.11.27 used as stand-in. hbbs runs a daily outbound HTTPS version check: src/main.rs:32 check_software_update -> src/common.rs:204 reqwest::Client::builder().build() POST to https://api.rustdesk.com/version/latest (libs/hbb_common/src/lib.rs:426); on Linux reqwest features rustls-tls+rustls-tls-native-roots (Cargo.toml:58) -> rustls 0.21.12 / rustls-webpki 0.101.7 / webpki-roots 0.25.4 / hyper 0.14 + h2 (ALPN h2,http/1.1: reqwest async_impl/client.rs:567). h2 is only used as a client in that one daily request; the only h2 peer is the hard-coded TLS-authenticated api.rustdesk.com, the body is fully drained (common.rs:210 .bytes()) and the Client is dropped after one request. axum/hyper server is never started, so internet clients cannot send DATA frames to any h2 endpoint. Hard row: if the vendor server/MITM-with-valid-cert is counted, h2 client code does run."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#8",
+      "facts": {
+        "package": "idna",
+        "version": "0.2.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-12224",
+            "GHSA-h97m-ww89-6jmq",
+            "RUSTSEC-2024-0421"
+          ],
+          [
+            "idna"
+          ]
+        ],
+        "advisory_summary": "`idna` accepts Punycode labels that do not produce any non-ASCII when decoded \u2014 `idna` 0.5.0 and earlier accepts Punycode labels that do not produce any non-ASCII output, which means that either ASCII labels or the empty root label can be masked such that they appear unequal without IDNA processing or when processed with a different implementation and equal when processed with `idna` 0.5.0 or earlier.\n\nConcretely, `example.org` and `xn--example-.org` become equal after processing by `idna` 0.5.0 or earlier. Also, `example.org.xn--` and `example.org.` become equal after processing by `idna` 0.5",
+        "vuln_symbols": [
+          "example.org",
+          "url"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "idna"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "idna via url 2.2.2. url is only parsed for the constant https://api.rustdesk.com URL (reqwest) and in hbb_common proxy.rs (client proxy, unused by servers); tungstenite server handshake does not use url (handshake/server.rs). No attacker-controlled host comparison."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#9",
+      "facts": {
+        "package": "jsonwebtoken",
+        "version": "8.1.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25537",
+            "GHSA-h395-gr6q-cpjc"
+          ],
+          [
+            "jsonwebtoken"
+          ]
+        ],
+        "advisory_summary": "jsonwebtoken has Type Confusion that leads to potential authorization bypass \u2014 ## Summary:\n\nIt has been discovered that there is a Type Confusion vulnerability in jsonwebtoken, specifically, in its claim validation logic.\n\nWhen a standard claim (such as nbf or exp) is provided with an incorrect JSON type (Like a String instead of a Number), the library\u2019s internal parsing mechanism marks the claim as \u201cFailedToParse\u201d. Crucially, the validation logic treats this \u201cFailedToParse\u201d state identically to \u201cNotPresent\u201d.\n\nThis means that if a check is enabled (like: validate_nbf = true), but the claim is ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.3.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "jsonwebtoken"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jsonwebtoken 8 declared (Cargo.toml:41) but never used: no jsonwebtoken/decode/Validation in src/ (grep). No user accounts/JWT in this server."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#10",
+      "facts": {
+        "package": "lexical-core",
+        "version": "0.7.6",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2326-pfpj-vx3h",
+            "RUSTSEC-2023-0086"
+          ],
+          [
+            "lexical-core"
+          ]
+        ],
+        "advisory_summary": "lexical-core has multiple soundness issues \u2014 `RUSTSEC-2024-0377` contains multiple soundness issues:\n\n 1. [Bytes::read() allows creating instances of types with invalid bit patterns](https://github.com/Alexhuszagh/rust-lexical/issues/102)\n 1. [BytesIter::read() advances iterators out of bounds](https://github.com/Alexhuszagh/rust-lexical/issues/101)\n 1. [The `BytesIter` trait has safety invariants but is public and not marked `unsafe`](https://github.com/Alexhuszagh/rust-lexical/issues/104)\n 1. [`write_float()` calls `MaybeUninit::assume_init()` on uninitialized data, which is is not allowed b",
+        "vuln_symbols": [
+          "BytesIter",
+          "unsafe",
+          "write_float",
+          "radix"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.92
+        },
+        "import_name": "lexical_core"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "lexical-core via nom 5 <- config 0.11 <- deadpool 0.8 default 'config' feature. App builds the pool with Pool::new(DbPool, n) (src/database.rs:58) and never uses deadpool/config parsing; lexical float parsing never called."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#11",
+      "facts": {
+        "package": "libsqlite3-sys",
+        "version": "0.24.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-35737",
+            "BIT-sqlite-2022-35737",
+            "GHSA-jw36-hf63-69r9",
+            "RUSTSEC-2022-0090"
+          ],
+          [
+            "libsqlite3-sys"
+          ]
+        ],
+        "advisory_summary": "`libsqlite3-sys` via C SQLite CVE-2022-35737 \u2014 It was sometimes possible for SQLite versions >= 1.0.12, < 3.39.2 to allow an array-bounds overflow when large string were input into SQLite's `printf` function.\n\nAs `libsqlite3-sys` bundles SQLite, it is susceptible to the vulnerability. `libsqlite3-sys` was updated to bundle the patched version of SQLite [here](https://github.com/rusqlite/rusqlite/releases/tag/sys0.25.1).",
+        "vuln_symbols": [
+          "printf"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.25.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "libsqlite3_sys"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "libsqlite3-sys 0.24.2 (bundled SQLite <3.39.2) is used by hbbs via sqlx sqlite (src/database.rs). CVE-2022-35737 needs multi-GB string arguments to SQLite printf %Q/%q/%w; app only binds parameters (database.rs:97-140) and frames are capped at 2^30 bytes (bytes_codec.rs:45-59), below SQLite's default 1e9 SQLITE_MAX_LENGTH; no app call to sqlite3_*printf."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#12",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41678",
+            "GHSA-8c75-8mhr-p7r9"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has incorrect bounds assertion in aes key wrap \u2014 ### Summary\n``aes::unwrap_key()`` has an incorrect bounds assertion on the out buffer size, which can lead to out-of-bounds write.\n\n### Details\n``aes::unwrap_key()`` contains an incorrect assertion: it checks that `out.len() + 8 <= in_.len()`, but this condition is reversed. The intended invariant is `out.len() >= in_.len() - 8`, ensuring the output buffer is large enough.\n\nBecause of the inverted check, the function only accepts buffers at or below the minimum required size and rejects larger ones. If a smaller buffer is provided t",
+        "vuln_symbols": [
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.68 enters only through native-tls (reqwest native-tls feature and hbb_common tokio-native-tls), both gated to cfg(any(macos,windows)) (Cargo.toml:52-53, libs/hbb_common/Cargo.toml:59-60); edition 2021 resolver 2 does not enable them on Linux; Docker image is Linux. aes::unwrap_key not used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#13",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41681",
+            "GHSA-ghm9-cr32-g9qj"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: rustMdCtxRef::digest_final() writes past caller buffer with no length check \u2014 `EVP_DigestFinal()` always writes `EVP_MD_CTX_size(ctx)` to the `out` buffer. If `out` is smaller than that, `MdCtxRef::digest_final()` writes past its end, usually corrupting the stack. This is reachable from safe Rust.",
+        "vuln_symbols": [
+          "EVP_DigestFinal",
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.68 enters only through native-tls (reqwest native-tls feature and hbb_common tokio-native-tls), both gated to cfg(any(macos,windows)) (Cargo.toml:52-53, libs/hbb_common/Cargo.toml:59-60); edition 2021 resolver 2 does not enable them on Linux; Docker image is Linux. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#14",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41898",
+            "GHSA-hppc-g8h3-xhp3"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Unchecked callback length in PSK/cookie trampolines leaks adjacent memory to peer \u2014 The FFI trampolines behind `SslContextBuilder::set_psk_client_callback`, `set_psk_server_callback`, `set_cookie_generate_cb`,  and `set_stateless_cookie_generate_cb` forwarded the user closure's returned usize directly to OpenSSL without checking it against the `&mut [u8]` that was handed to the closure. This can lead to buffer overflows and other unintended consequences.",
+        "vuln_symbols": [
+          "set_psk_server_callback",
+          "set_cookie_generate_cb",
+          "set_stateless_cookie_generate_cb"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.68 enters only through native-tls (reqwest native-tls feature and hbb_common tokio-native-tls), both gated to cfg(any(macos,windows)) (Cargo.toml:52-53, libs/hbb_common/Cargo.toml:59-60); edition 2021 resolver 2 does not enable them on Linux; Docker image is Linux. No PSK/cookie callbacks."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#15",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45784",
+            "GHSA-phqj-4mhp-q6mq"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Potential out-of-bounds write in `CipherCtxRef::cipher_update_inplace` for AES-KW-PAD ciphers \u2014 `CipherCtxRef::cipher_update_inplace` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (EVP_aes_{128,192,256}_wrap_pad). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.\n\nThis method was missed in the fix for GHSA-xv59-967r-8726",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.80"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.68 enters only through native-tls (reqwest native-tls feature and hbb_common tokio-native-tls), both gated to cfg(any(macos,windows)) (Cargo.toml:52-53, libs/hbb_common/Cargo.toml:59-60); edition 2021 resolver 2 does not enable them on Linux; Docker image is Linux. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#16",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41676",
+            "GHSA-pqf5-4pqq-29f5"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl: Deriver::derive and PkeyCtxRef::derive can overflow short buffers on OpenSSL 1.1.1 \u2014 `Deriver::derive` (and `PkeyCtxRef::derive`) sets `len = buf.len()` and passes it as the in/out length to `EVP_PKEY_derive`, relying on OpenSSL to honor it. On OpenSSL 1.1.x, X25519, X448, DH and HKDF-extract  ignore the incoming `*keylen`, unconditionally writing the full shared secret (32/56/prime-size bytes). A caller passing a short slice gets a heap/stack overflow from safe code. OpenSSL 3.x providers do check, so this only impacts older OpenSSL.",
+        "vuln_symbols": [
+          "EVP_PKEY_derive"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.68 enters only through native-tls (reqwest native-tls feature and hbb_common tokio-native-tls), both gated to cfg(any(macos,windows)) (Cargo.toml:52-53, libs/hbb_common/Cargo.toml:59-60); edition 2021 resolver 2 does not enable them on Linux; Docker image is Linux. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#17",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41677",
+            "GHSA-xmgf-hq76-4vx2"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-opennssl has an Out-of-bounds read in PEM password callback when returning an oversized length \u2014 The `*_from_pem_callback` APIs did not validate the length returned by the user's callback. A password callback that returns a value larger than the buffer it was given can cause some versions of OpenSSL to over-read this buffer. OpenSSL 3.x is not affected by this.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.78"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.68 enters only through native-tls (reqwest native-tls feature and hbb_common tokio-native-tls), both gated to cfg(any(macos,windows)) (Cargo.toml:52-53, libs/hbb_common/Cargo.toml:59-60); edition 2021 resolver 2 does not enable them on Linux; Docker image is Linux. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#18",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42327",
+            "GHSA-xp3w-r5p5-63rr"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl has undefined behavior in X509Ref::ocsp_responders for certificates with non-UTF-8 OCSP URLs \u2014 `X509Ref::ocsp_responders` returns OCSP responder URLs from a certificate's AIA extension as `OpensslString`, whose `Deref<Target = str>` wraps the raw bytes with `str::from_utf8_unchecked`. OpenSSL does not enforce that the underlying IA5String is ASCII, so a certificate with non-UTF-8 bytes in its OCSP accessLocation causes safe Rust code to construct a `&str` that violates the UTF-8 invariant \u2014 resulting in undefined behavior.",
+        "vuln_symbols": [
+          "OpensslString"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.68 enters only through native-tls (reqwest native-tls feature and hbb_common tokio-native-tls), both gated to cfg(any(macos,windows)) (Cargo.toml:52-53, libs/hbb_common/Cargo.toml:59-60); edition 2021 resolver 2 does not enable them on Linux; Docker image is Linux. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#19",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44662",
+            "GHSA-xv59-967r-8726"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl vulnerable to heap buffer overflow when encrypting with AES key-wrap-with-padding \u2014 `CipherCtxRef::cipher_update`, `CipherCtxRef::cipher_update_vec`, and `symm::Crypter::update` incorrectly sized output buffers when used with AES key-wrap-with-padding ciphers (`EVP_aes_{128,192,256}_wrap_pad`). For a non-multiple-of-8 input, OpenSSL writes up to 7 bytes past the end of the caller's buffer or Vec, producing attacker-controllable heap corruption when the plaintext length is attacker-influenced.\n\nThis only impacts users using AES key-wrap-with-padding ciphers.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.10.79"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.68 enters only through native-tls (reqwest native-tls feature and hbb_common tokio-native-tls), both gated to cfg(any(macos,windows)) (Cargo.toml:52-53, libs/hbb_common/Cargo.toml:59-60); edition 2021 resolver 2 does not enable them on Linux; Docker image is Linux. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#20",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-24898",
+            "GHSA-rpmj-rpgj-qmpm",
+            "RUSTSEC-2025-0004"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl ssl::select_next_proto use after free \u2014 ### Impact\n`ssl::select_next_proto` can return a slice pointing into the `server` argument's buffer but with a lifetime bound to the `client` argument. In situations where the `server` buffer's lifetime is shorter than the `client` buffer's, this can cause a use after free. This could cause the server to crash or to return arbitrary memory contents to the client.\n\n### Patches\n`openssl` 0.10.70 fixes the signature of `ssl::select_next_proto` to properly constrain the output buffer's lifetime to that of both input buffers.\n\n### Workarounds\nIn ",
+        "vuln_symbols": [
+          "openssl::ssl::select_next_proto"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.70"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.68 enters only through native-tls (reqwest native-tls feature and hbb_common tokio-native-tls), both gated to cfg(any(macos,windows)) (Cargo.toml:52-53, libs/hbb_common/Cargo.toml:59-60); edition 2021 resolver 2 does not enable them on Linux; Docker image is Linux. select_next_proto not used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#21",
+      "facts": {
+        "package": "openssl",
+        "version": "0.10.68",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-4fcv-w3qc-ppgg",
+            "RUSTSEC-2025-0022"
+          ],
+          [
+            "openssl"
+          ]
+        ],
+        "advisory_summary": "rust-openssl Use-After-Free in `Md::fetch` and `Cipher::fetch` \u2014 When a `Some(...)` value was passed to the `properties` argument of either of these functions, a use-after-free would result.\n\nIn practice this would nearly always result in OpenSSL treating the properties as an empty string (due to `CString::drop`'s behavior).\n\nThe maintainers thank [quitbug](https://github.com/quitbug/) for reporting this vulnerability to us.",
+        "vuln_symbols": [
+          "openssl::cipher::Cipher::fetch",
+          "openssl::md::Md::fetch"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.72"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "openssl"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "openssl 0.10.68 enters only through native-tls (reqwest native-tls feature and hbb_common tokio-native-tls), both gated to cfg(any(macos,windows)) (Cargo.toml:52-53, libs/hbb_common/Cargo.toml:59-60); edition 2021 resolver 2 does not enable them on Linux; Docker image is Linux. Md/Cipher::fetch not used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#22",
+      "facts": {
+        "package": "protobuf",
+        "version": "3.7.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-53605",
+            "GHSA-2gh3-rmm4-6rq5",
+            "RUSTSEC-2024-0437"
+          ],
+          [
+            "protobuf"
+          ]
+        ],
+        "advisory_summary": "Crash due to uncontrolled recursion in protobuf crate \u2014 Affected version of this crate did not properly parse unknown fields when parsing a user-supplied input.\n\nThis allows an attacker to cause a stack overflow when parsing the message on untrusted data.",
+        "vuln_symbols": [
+          "protobuf::coded_input_stream::CodedInputStream::skip_group"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "3.7.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "protobuf"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Untrusted network bytes are parsed with protobuf 3.7.1 RendezvousMessage::parse_from_bytes at src/rendezvous_server.rs:316 (UDP 21116), :483/:1076 (TCP 21116), :1285, and src/relay_server.rs:428 (21117/21119 incl. WebSocket); unknown fields go through rt::read_unknown_or_skip_group -> skip_group/skip_field recursion with no depth limit (protobuf-3.7.1 src/rt/unknown_or_group.rs:10-17, coded_input_stream/mod.rs:513-536). Any unauthenticated client can send nested StartGroup tags -> stack overflow, crashing hbbs/hbbr."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#23",
+      "facts": {
+        "package": "rand",
+        "version": "0.8.5",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-cq8v-f236-94qc",
+            "RUSTSEC-2026-0097"
+          ],
+          [
+            "rand"
+          ]
+        ],
+        "advisory_summary": "Rand is unsound with a custom logger using `rand::rng()` \u2014 It has been reported (by [@lopopolo](https://github.com/lopopolo)) that the `rand` library is [unsound](https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library) (i.e. that safe code using the public API can cause Undefined Behaviour) when all the following conditions are met:\n\n- The `log` and `thread_rng` features are enabled\n- A [custom logger](https://docs.rs/log/latest/log/#implementing-a-logger) is defined\n- The custom logger accesses `rand::rng()` (previously `rand::thread_rng()`) and calls",
+        "vuln_symbols": [
+          "rand::rng",
+          "rand::thread_rng"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.10.1",
+          "0.8.6",
+          "0.9.3"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.77
+        },
+        "import_name": "rand"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rand 0.8.5 resolved without the 'log' feature (Cargo.lock rand deps: libc, rand_chacha, rand_core only), and the logger (flexi_logger) does not call thread_rng. Advisory needs log feature + a logger using rand."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#24",
+      "facts": {
+        "package": "remove_dir_all",
+        "version": "0.5.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-mc8h-8q98-g5hr",
+            "RUSTSEC-2023-0018"
+          ],
+          [
+            "remove_dir_all"
+          ]
+        ],
+        "advisory_summary": "Race Condition Enabling Link Following and Time-of-check Time-of-use (TOCTOU) \u2014 The remove_dir_all crate is a Rust library that offers additional features over the Rust\nstandard library fs::remove_dir_all function.\n\nIt was possible to trick a privileged process doing a recursive delete in an\nattacker controlled directory into deleting privileged files, on all operating systems.\n\nFor instance, consider deleting a tree called 'etc' in a parent directory\ncalled 'p'. Between calling `remove_dir_all(\"a\")` and remove_dir_all(\"a\")\nactually starting its work, the attacker can move 'p' to 'p-prime', an",
+        "vuln_symbols": [
+          "remove_dir_all::ensure_empty_dir",
+          "remove_dir_all::remove_dir_all",
+          "remove_dir_all::remove_dir_contents"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.8.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "remove_dir_all"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "remove_dir_all via tempfile <- native-tls (macOS/Windows only) and protobuf-codegen (build-dependency of hbb_common). Not in Linux runtime binary; no recursive delete in server."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#25",
+      "facts": {
+        "package": "ring",
+        "version": "0.16.20",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ring 0.16.20 only via jsonwebtoken (unused) and rustls 0.20.4/sct/webpki (sqlx TLS for postgres/mysql, unused with SQLite). Also the panic needs overflow-checks, off in --release (Cargo.toml [profile.release]) and no QUIC."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#26",
+      "facts": {
+        "package": "ring",
+        "version": "0.17.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-4432",
+            "GHSA-4p46-pwfr-66x6",
+            "GHSA-c86p-w88r-qvqr",
+            "GO-2025-3678",
+            "RUSTSEC-2025-0009"
+          ],
+          [
+            "ring"
+          ]
+        ],
+        "advisory_summary": "Some AES functions may panic when overflow checking is enabled in ring \u2014 `ring::aead::quic::HeaderProtectionKey::new_mask()` may panic when overflow checking is enabled. In the QUIC protocol, an attacker can induce this panic by sending a specially-crafted packet. Even unintentionally it is likely to occur in 1 out of every 2**32 packets sent and/or received.\n\nOn 64-bit targets operations using `ring::aead::{AES_128_GCM, AES_256_GCM}` may panic when overflow checking is enabled, when encrypting/decrypting approximately 68,719,476,700 bytes (about 64 gigabytes) of data in a single chunk. Protoc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.17.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "ring"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ring 0.17.3 is used by rustls 0.21.12 for the daily outbound reqwest call, but the advisory's panics need overflow checking enabled (release build: overflow-checks off by default; Cargo.toml profile.release doesn't enable it), QUIC header protection is not used, and the >64GiB single-chunk case can't occur."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#27",
+      "facts": {
+        "package": "rustls",
+        "version": "0.20.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-32650",
+            "GHSA-6g7w-8wpp-frhj",
+            "RUSTSEC-2024-0336"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`rustls::ConnectionCommon::complete_io` could fall into an infinite loop based on network input \u2014 If a `close_notify` alert is received during a handshake, `complete_io`\ndoes not terminate.\n\nCallers which do not call `complete_io` are not affected.\n\n`rustls-tokio` and `rustls-ffi` do not call `complete_io`\nand are not affected.\n\n`rustls::Stream` and `rustls::StreamOwned` types use\n`complete_io` and are affected.",
+        "vuln_symbols": [
+          "rustls::ConnectionCommon::complete_io"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.21.11",
+          "0.22.4",
+          "0.23.5"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "sqlx 0.6 is only used with SQLite (src/database.rs:3-23, SqliteConnection); its rustls 0.20.4 / webpki 0.22 / webpki-roots 0.22.4 / tokio-rustls 0.23.4 stack is only used for postgres/mysql TLS, never called. rustls 0.20.4 only via sqlx-core/tokio-rustls 0.23; complete_io never runs (tokio-rustls doesn't call it either)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#28",
+      "facts": {
+        "package": "rustls",
+        "version": "0.20.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "sqlx 0.6 is only used with SQLite (src/database.rs:3-23, SqliteConnection); its rustls 0.20.4 / webpki 0.22 / webpki-roots 0.22.4 / tokio-rustls 0.23.4 stack is only used for postgres/mysql TLS, never called. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#29",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "reqwest is a git fork (0.11.23, no source); crates.io reqwest 0.11.27 used as stand-in. rustls 0.21.12 is used by reqwest for the daily version check, but reqwest uses rustls' default ClientSessionMemoryCache; nothing formats Tls12/Tls13ClientSessionValue with Debug (rustls src/msgs/persist.rs:69,139 derive only; no {:?} logging of values in client/*.rs). Needs a custom ClientSessionStore that Debug-logs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#30",
+      "facts": {
+        "package": "rustls",
+        "version": "0.21.12",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "reqwest is a git fork (0.11.23, no source); crates.io reqwest 0.11.27 used as stand-in. hbbs runs a daily outbound HTTPS version check: src/main.rs:32 check_software_update -> src/common.rs:204 reqwest::Client::builder().build() POST to https://api.rustdesk.com/version/latest (libs/hbb_common/src/lib.rs:426); on Linux reqwest features rustls-tls+rustls-tls-native-roots (Cargo.toml:58) -> rustls 0.21.12 / rustls-webpki 0.101.7 / webpki-roots 0.25.4 / hyper 0.14 + h2 (ALPN h2,http/1.1: reqwest async_impl/client.rs:567). rustls 0.21.12 does record kx_hint from the unauthenticated ServerHello (src/client/tls13.rs:158), but a fresh reqwest Client (hence fresh ClientConfig/session cache) is built for every check (common.rs:204), so no later connection uses the hint, and 0.21 has no post-quantum groups to downgrade from. Hard row: the recording code itself does run."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#31",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.21",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2mjx-qc3c-rqvc",
+            "RUSTSEC-2026-0285"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Rustls: TLS 1.3 handshake messages incorrectly accepted across encryption level boundaries \u2014 Rustls accepted TLS 1.3 handshake messages sent at the wrong encryption level when they followed a key-changing message in the same record. The handshake transcript is still authenticated, so a network-position attacker cannot use this to alter or complete a handshake; the practical effect is that a peer could send handshake messages that should be encrypted in plaintext without rustls rejecting the connection.\n\nThis issue affects rustls versions 0.23.13 through 0.23.44 inclusive.\n\n# Original report\n##",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.45"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 / rustls-webpki 0.102.8 / webpki-roots 0.26.7 come only via hbb_common tokio-rustls 0.26 + rustls-platform-verifier, used solely in libs/hbb_common/src/proxy.rs:449-466 (Proxy::https_connect for client-side proxy); hbbs/hbbr never construct a Proxy (only FramedStream::new direct connect at src/rendezvous_server.rs:1240), so never called. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#32",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.21",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-c8m5-c952-6cm4",
+            "RUSTSEC-2026-0346"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "`Debug` impls for client session values expose TLS secrets \u2014 The `Debug` implementations of `Tls12ClientSessionValue` and\n`Tls13ClientSessionValue` were derived, and so included the TLS 1.2 master\nsecret or TLS 1.3 resumption PSK in their output.\n\nCustom `ClientSessionStore` implementations that format these values with\n`Debug` (for example, when logging) could disclose these secrets to readers of\nthe logs. This conflicts with rustls's\n[key-material redaction policy](https://github.com/rustls/rustls/blob/99f2358cae2954837dbb866faf6727de75489ab9/SECURITY.md#boundary-public-api).\n\nOrdinary conne",
+        "vuln_symbols": [
+          "Debug",
+          "Tls12ClientSessionValue",
+          "Tls13ClientSessionValue",
+          "ClientSessionStore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.91
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 / rustls-webpki 0.102.8 / webpki-roots 0.26.7 come only via hbb_common tokio-rustls 0.26 + rustls-platform-verifier, used solely in libs/hbb_common/src/proxy.rs:449-466 (Proxy::https_connect for client-side proxy); hbbs/hbbr never construct a Proxy (only FramedStream::new direct connect at src/rendezvous_server.rs:1240), so never called. Also no custom ClientSessionStore."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#33",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.21",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-h2v8-394m-p7vv",
+            "RUSTSEC-2026-0348"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Brotli certificate decompression can allocate up to 1 GiB before authentication \u2014 The built-in Brotli certificate decompressor (enabled by the non-default\n`brotli` crate feature) bounded the size of the decompressed output, but\naccepted a peer-selected history window. Brotli's large-window extension was\nenabled, so a five-byte header could cause an allocation of 1 GiB. A peer can\nabort a process whose allocator cannot satisfy that request.\n\nNo trusted certificate is required by the attacker. Affected configurations are:\n\n- clients that enable the `brotli` feature and connect to a malicious ser",
+        "vuln_symbols": [
+          "brotli"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 / rustls-webpki 0.102.8 / webpki-roots 0.26.7 come only via hbb_common tokio-rustls 0.26 + rustls-platform-verifier, used solely in libs/hbb_common/src/proxy.rs:449-466 (Proxy::https_connect for client-side proxy); hbbs/hbbr never construct a Proxy (only FramedStream::new direct connect at src/rendezvous_server.rs:1240), so never called. Brotli cert decompression is a non-default rustls feature, not enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#34",
+      "facts": {
+        "package": "rustls",
+        "version": "0.23.21",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w44r-93j7-qv28",
+            "RUSTSEC-2026-0349"
+          ],
+          [
+            "rustls"
+          ]
+        ],
+        "advisory_summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange \u2014 The client recorded the server-selected key exchange group for each server\nname when processing the ServerHello, before the server was authenticated.\nThis record is used to predict which key share to send in future ClientHellos\nto that server name.\n\nA network attacker can answer one connection attempt with a ServerHello\nselecting X25519, and then close the connection. Later ClientHellos for that\nname carry only an X25519 key share, while `supported_groups` still lists\nX25519MLKEM768 first. If the genuine se",
+        "vuln_symbols": [
+          "supported_groups"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.23.46"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 / rustls-webpki 0.102.8 / webpki-roots 0.26.7 come only via hbb_common tokio-rustls 0.26 + rustls-platform-verifier, used solely in libs/hbb_common/src/proxy.rs:449-466 (Proxy::https_connect for client-side proxy); hbbs/hbbr never construct a Proxy (only FramedStream::new direct connect at src/rendezvous_server.rs:1240), so never called. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#35",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Path exists: on Linux hbbs pulls the reqwest git fork with rustls-tls features (Cargo.toml:59-60) -> hyper-rustls 0.24.2 -> rustls 0.21.12 -> rustls-webpki 0.101.7 (Cargo.lock). hbbs main.rs:34 calls check_software_update -> common.rs:202-208 reqwest POST to https://api.rustdesk.com (hbb_common lib.rs:426), so webpki chain verification including check_name_constraints (verify_cert.rs:191) runs on network-supplied certs. But 0.101.7 does not contain the bug: URI SANs and URI constraints both parse as GeneralName::Unsupported(6) (subject_name/verify.rs:403,413-419), and an Unsupported name matched against an Unsupported constraint of the same tag returns NameConstraintViolation (verify.rs:235-238), so URI name constraints fail closed instead of being ignored. The ignore bug came in 0.102.x, where URI got its own UniformResourceIdentifier variant and drops into the `_ => continue` arm (0.102.8 verify.rs:258,287,152-156). Exploiting it would also need a misissued cert from a name-constrained CA, and rustls never checks URI names. Stand-in: the reqwest fork (git 9cb758c, 0.11.23) has no cached source, so crates.io reqwest 0.11.27 was used for features (rustls-tls-native-roots -> __rustls)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#36",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "reqwest is a git fork (0.11.23, no source); crates.io reqwest 0.11.27 used as stand-in. hbbs runs a daily outbound HTTPS version check: src/main.rs:32 check_software_update -> src/common.rs:204 reqwest::Client::builder().build() POST to https://api.rustdesk.com/version/latest (libs/hbb_common/src/lib.rs:426); on Linux reqwest features rustls-tls+rustls-tls-native-roots (Cargo.toml:58) -> rustls 0.21.12 / rustls-webpki 0.101.7 / webpki-roots 0.25.4 / hyper 0.14 + h2 (ALPN h2,http/1.1: reqwest async_impl/client.rs:567). rustls-webpki 0.101.7 verifies the chain presented to the outbound check; a MITM holding a wildcard leaf from a DNS-name-constrained intermediate would be accepted. Requires a misissuing constrained CA; reachable but low practicality."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#37",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "reqwest is a git fork (0.11.23, no source); crates.io reqwest 0.11.27 used as stand-in. rustls 0.21.12's server-cert verifier (used by reqwest) does no CRL checking; reqwest never supplies CRLs, so BorrowedCertRevocationList/bit_string_flags never parse attacker data. 0.102.8 path is unused (see hbb_common proxy)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#38",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.101.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "reqwest is a git fork (0.11.23, no source); crates.io reqwest 0.11.27 used as stand-in. hbbs runs a daily outbound HTTPS version check: src/main.rs:32 check_software_update -> src/common.rs:204 reqwest::Client::builder().build() POST to https://api.rustdesk.com/version/latest (libs/hbb_common/src/lib.rs:426); on Linux reqwest features rustls-tls+rustls-tls-native-roots (Cargo.toml:58) -> rustls 0.21.12 / rustls-webpki 0.101.7 / webpki-roots 0.25.4 / hyper 0.14 + h2 (ALPN h2,http/1.1: reqwest async_impl/client.rs:567). reqwest loads webpki-roots 0.25.4 TLS_SERVER_ROOTS (reqwest async_impl/client.rs:470) which contains emSign ECC Root CA - G3 (webpki-roots-0.25.4 src/lib.rs:2928); rustls-webpki 0.101.7 will accept chains through the distrusted emSign intermediates whose keys are public, so a network MITM can impersonate api.rustdesk.com to hbbs's daily check."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#39",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93602",
+            "GHSA-pwjx-qhcg-rvj4",
+            "RUSTSEC-2026-0049"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "CRLs not considered authoritative by Distribution Point due to faulty matching logic \u2014 If a certificate had more than one `distributionPoint`, then only the first `distributionPoint` would be considered against each CRL's `IssuingDistributionPoint` `distributionPoint`, and then the certificate's subsequent `distributionPoint`s would be ignored.\n\nThe impact was that correctly provided CRLs would not be consulted to check revocation. With `UnknownStatusPolicy::Deny` (the default) this would lead to incorrect but safe `Error::UnknownRevocationStatus`. With `UnknownStatusPolicy::Allow` this would ",
+        "vuln_symbols": [
+          "distributionPoint",
+          "IssuingDistributionPoint"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.10",
+          "0.104.0-alpha.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 / rustls-webpki 0.102.8 / webpki-roots 0.26.7 come only via hbb_common tokio-rustls 0.26 + rustls-platform-verifier, used solely in libs/hbb_common/src/proxy.rs:449-466 (Proxy::https_connect for client-side proxy); hbbs/hbbr never construct a Proxy (only FramedStream::new direct connect at src/rendezvous_server.rs:1240), so never called. Also no CRLs configured."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#40",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93600",
+            "GHSA-965h-392x-2mh5",
+            "RUSTSEC-2026-0098"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints for URI names were incorrectly accepted \u2014 Name constraints for URI names were ignored and therefore accepted.\n\nNote this library does not provide an API for asserting URI names, and URI name constraints are otherwise not implemented.  URI name constraints are now rejected unconditionally.\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to exploit.\n\nThis vulnerability is identified as [GHSA-965h-392x-2mh5](https://github.com/rustls/webpki/security/advisories/GHSA",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 / rustls-webpki 0.102.8 / webpki-roots 0.26.7 come only via hbb_common tokio-rustls 0.26 + rustls-platform-verifier, used solely in libs/hbb_common/src/proxy.rs:449-466 (Proxy::https_connect for client-side proxy); hbbs/hbbr never construct a Proxy (only FramedStream::new direct connect at src/rendezvous_server.rs:1240), so never called. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#41",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93601",
+            "GHSA-xgp8-3hg3-c2mh",
+            "RUSTSEC-2026-0099"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Name constraints were accepted for certificates asserting a wildcard name \u2014 Permitted subtree name constraints for DNS names were accepted for certificates asserting a wildcard name.\n\nThis was incorrect because, given a name constraint of `accept.example.com`, `*.example.com` could feasibly allow a name of `reject.example.com` which is outside the constraint.\nThis is very similar to [CVE-2025-61727](https://go.dev/issue/76442).\n\nSince name constraints are restrictions on otherwise properly-issued certificates, this bug is reachable only after signature verification and requires misissuance to ",
+        "vuln_symbols": [
+          "accept.example.com",
+          "reject.example.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.12",
+          "0.104.0-alpha.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 / rustls-webpki 0.102.8 / webpki-roots 0.26.7 come only via hbb_common tokio-rustls 0.26 + rustls-platform-verifier, used solely in libs/hbb_common/src/proxy.rs:449-466 (Proxy::https_connect for client-side proxy); hbbs/hbbr never construct a Proxy (only FramedStream::new direct connect at src/rendezvous_server.rs:1240), so never called. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#42",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93599",
+            "GHSA-82j2-j2ch-gfr8",
+            "RUSTSEC-2026-0104"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "rustls-webpki: Denial of service via panic on malformed CRL BIT STRING \u2014 ### Summary\n\n`bit_string_flags()` in `src/der.rs` panics with an index-out-of-bounds when given a BIT STRING whose content is exactly `[0x00]` (one byte: zero padding bits, zero data bytes). This is reachable through the public API `BorrowedCertRevocationList::from_der()` via the `issuingDistributionPoint` CRL extension.\n\n**Precondition**: CRL checking is opt-in in rustls-webpki. This vulnerability affects only applications that explicitly pass `RevocationOptions` to `verify_for_usage()` and load CRL bytes from a source t",
+        "vuln_symbols": [
+          "bit_string_flags",
+          "issuingDistributionPoint",
+          "RevocationOptions",
+          "verify_for_usage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.13",
+          "0.104.0-alpha.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 / rustls-webpki 0.102.8 / webpki-roots 0.26.7 come only via hbb_common tokio-rustls 0.26 + rustls-platform-verifier, used solely in libs/hbb_common/src/proxy.rs:449-466 (Proxy::https_connect for client-side proxy); hbbs/hbbr never construct a Proxy (only FramedStream::new direct connect at src/rendezvous_server.rs:1240), so never called. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#43",
+      "facts": {
+        "package": "rustls-webpki",
+        "version": "0.102.8",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "rustls-webpki"
+          ]
+        ],
+        "advisory_summary": "Certificate verification may accept distrusted intermediates \u2014 Affected versions may accept certificate paths containing distrusted emSign\nintermediate public keys when the configured trust anchors allow such paths.\nThe private keys corresponding to these intermediates are now well known.\n\nVersions 0.103.16 and 0.104.0-alpha.8 reject paths containing these public keys.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.103.16",
+          "0.104.0-alpha.8"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "rustls_webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 / rustls-webpki 0.102.8 / webpki-roots 0.26.7 come only via hbb_common tokio-rustls 0.26 + rustls-platform-verifier, used solely in libs/hbb_common/src/proxy.rs:449-466 (Proxy::https_connect for client-side proxy); hbbs/hbbr never construct a Proxy (only FramedStream::new direct connect at src/rendezvous_server.rs:1240), so never called. "
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#44",
+      "facts": {
+        "package": "spin",
+        "version": "0.9.3",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2qv5-7mw5-j3cg",
+            "RUSTSEC-2023-0031"
+          ],
+          [
+            "spin"
+          ]
+        ],
+        "advisory_summary": "spin-rs initialisation failure in `Once::try_call_once` can lead to undefined behaviour for other initialisers \u2014 `Once::try_call_once` is unsound if invoked more than once concurrently and any call fails to initialise successfully.\n",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.82
+        },
+        "import_name": "spin"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "spin 0.9.3 used by ring 0.17.3 (src/cpu.rs:43 Once::call_once, which wraps an infallible closure -> try_call_once never fails) and flume (spin Mutex only). Unsoundness requires a failing try_call_once."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#45",
+      "facts": {
+        "package": "sqlx",
+        "version": "0.6.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-xmrp-424f-vfpx",
+            "RUSTSEC-2024-0363"
+          ],
+          [
+            "sqlx"
+          ]
+        ],
+        "advisory_summary": "SQLx Binary Protocol Misinterpretation caused by Truncating or Overflowing Casts \u2014 The following presentation at this year's DEF CON was brought to our attention on the SQLx Discord:\n\n> SQL Injection isn't Dead: Smuggling Queries at the Protocol Level  \n> <http://web.archive.org/web/20240812130923/https://media.defcon.org/DEF%20CON%2032/DEF%20CON%2032%20presentations/DEF%20CON%2032%20-%20Paul%20Gerste%20-%20SQL%20Injection%20Isn't%20Dead%20Smuggling%20Queries%20at%20the%20Protocol%20Level.pdf>  \n> (Archive link for posterity.)\n\nEssentially, encoding a value larger than 4GiB can cause the lengt",
+        "vuln_symbols": [
+          "cast_possible_truncation",
+          "cast_possible_wrap",
+          "cast_sign_loss"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.8.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "sqlx"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Advisory concerns truncating length casts in the Postgres/MySQL wire protocol encoders. hbbs uses only SQLite (src/database.rs:3-23), which binds via sqlite3_bind_blob64/text64 with u64 lengths (sqlx-core 0.6.0 src/sqlite/statement/handle.rs:197-220) and has no wire protocol; inputs are also capped at 1 GiB per frame."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#46",
+      "facts": {
+        "package": "time",
+        "version": "0.3.9",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25727",
+            "GHSA-r6v5-fh4h-64xc",
+            "RUSTSEC-2026-0009"
+          ],
+          [
+            "time"
+          ]
+        ],
+        "advisory_summary": "time vulnerable to stack exhaustion Denial of Service attack \u2014 ### Impact\n\nWhen user-provided input is provided to any type that parses with the RFC 2822 format, a denial of service attack via stack exhaustion is possible. The attack relies on formally deprecated and rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary, non-malicious input will never encounter this scenario.\n\n### Patches\n\nA limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned rather than exhausting the stack.\n\n### Workarounds\n\nLimiting the ",
+        "vuln_symbols": [
+          "time::Date::parse",
+          "time::OffsetDateTime::parse",
+          "time::PrimitiveDateTime::parse",
+          "time::Time::parse",
+          "time::UtcDateTime::parse",
+          "time::UtcOffset::parse",
+          "time::parsing::Parsed::parse_item"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "0.3.47"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "time"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "time 0.3.9 via flexi_logger 0.22 (formatting; only file_spec.rs:310 parses its own format_description for rotated file names, not RFC 2822; app logs to stdout, src/main.rs:12) and simple_asn1 <- jsonwebtoken (unused). No RFC 2822 parsing of attacker input."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#47",
+      "facts": {
+        "package": "tokio",
+        "version": "1.43.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-rr8g-9fpq-6wmg",
+            "RUSTSEC-2025-0023"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "Tokio broadcast channel calls clone in parallel, but does not require `Sync` \u2014 The broadcast channel internally calls `clone` on the stored value when receiving it, and only requires `T:Send`. This means that using the broadcast channel with values that are `Send` but not `Sync` can trigger unsoundness if the `clone` implementation makes use of the value being `!Sync`.\n\nThank you to Austin Bonander for finding and reporting this issue.",
+        "vuln_symbols": [
+          "Sync",
+          "clone",
+          "Send"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.2",
+          "1.42.1",
+          "1.43.1",
+          "1.44.2"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.83
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No tokio::sync::broadcast in src/ or libs/hbb_common/src; the only broadcast user found in compiled deps is tokio-stream's BroadcastStream wrapper, not used. Condition (Send+!Sync T with !Sync-dependent clone) not met."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#48",
+      "facts": {
+        "package": "tokio",
+        "version": "1.43.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "RUSTSEC-2026-0386"
+          ],
+          [
+            "tokio"
+          ]
+        ],
+        "advisory_summary": "`AsyncFd::new` and related constructors violate I/O safety \u2014 `tokio::io::unix::AsyncFd` provides safe constructors (`new`, `with_interest`, `try_new`, and `try_with_interest`) that accept any `T: AsRawFd` rather than requiring proof of ownership or validity of the file descriptor. Because `RawFd` implements `AsRawFd`, safe code can construct an `AsyncFd` from an arbitrary or closed file descriptor, or close/replace the underlying file descriptor while the `AsyncFd` is still alive.\n\nThis violates I/O safety in two ways:\n\n1. `AsyncFd<T>` implements `AsFd` for all `T: AsRawFd` by calling `Borrowe",
+        "vuln_symbols": [
+          "tokio::io::unix::AsyncFd::new",
+          "tokio::io::unix::AsyncFd::try_new",
+          "tokio::io::unix::AsyncFd::try_with_interest",
+          "tokio::io::unix::AsyncFd::with_interest"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.51.6",
+          "1.53.3"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.89
+        },
+        "import_name": "tokio"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No AsyncFd construction in app, hbb_common, hyper, reqwest, sqlx, deadpool, tokio-util/rustls (grep). Unsound constructor never called with unowned fds."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#49",
+      "facts": {
+        "package": "tungstenite",
+        "version": "0.17.2",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-43669",
+            "GHSA-9mcr-873m-xcxp",
+            "RUSTSEC-2023-0065"
+          ],
+          [
+            "tungstenite"
+          ]
+        ],
+        "advisory_summary": "Tungstenite allows remote attackers to cause a denial of service \u2014 The Tungstenite crate through 0.20.0 for Rust allows remote attackers to cause a denial of service (minutes of CPU consumption) via an excessive length of an HTTP header in a client handshake. The length affects both how many times a parse is attempted (e.g., thousands of times) and the average amount of data for each parse attempt (e.g., millions of bytes).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.20.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "tungstenite"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "tungstenite 0.17.2 server handshake runs on unauthenticated internet input: tokio_tungstenite::accept_hdr_async at src/rendezvous_server.rs:1131 (WebSocket port 21118 = port+2, :97,:144,:280) and src/relay_server.rs:417 (21119, :83). Long header in the client handshake triggers the repeated-parse CPU DoS."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#50",
+      "facts": {
+        "package": "webpki",
+        "version": "0.22.0",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-8qv2-5vq6-g2g7",
+            "RUSTSEC-2023-0052"
+          ],
+          [
+            "webpki"
+          ]
+        ],
+        "advisory_summary": "webpki: CPU denial of service in certificate path building \u2014 When this crate is given a pathological certificate chain to validate, it will\nspend CPU time exponential with the number of candidate certificates at each\nstep of path building.\n\nBoth TLS clients and TLS servers that accept client certificate are affected.\n\nThis was previously reported in\n<https://github.com/briansmith/webpki/issues/69> and re-reported recently\nby Luke Malinowski.\n\nwebpki 0.22.1 included a partial fix and webpki 0.22.2 added further fixes.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.22.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        },
+        "import_name": "webpki"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "sqlx 0.6 is only used with SQLite (src/database.rs:3-23, SqliteConnection); its rustls 0.20.4 / webpki 0.22 / webpki-roots 0.22.4 / tokio-rustls 0.23.4 stack is only used for postgres/mysql TLS, never called. webpki 0.22.0 only via rustls 0.20.4/tokio-rustls 0.23.4 (sqlx) and webpki-roots 0.22.4."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#51",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.22.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "sqlx 0.6 is only used with SQLite (src/database.rs:3-23, SqliteConnection); its rustls 0.20.4 / webpki 0.22 / webpki-roots 0.22.4 / tokio-rustls 0.23.4 stack is only used for postgres/mysql TLS, never called. webpki-roots 0.22.4 only via sqlx-core."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#52",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.25.4",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "reqwest is a git fork (0.11.23, no source); crates.io reqwest 0.11.27 used as stand-in. hbbs runs a daily outbound HTTPS version check: src/main.rs:32 check_software_update -> src/common.rs:204 reqwest::Client::builder().build() POST to https://api.rustdesk.com/version/latest (libs/hbb_common/src/lib.rs:426); on Linux reqwest features rustls-tls+rustls-tls-native-roots (Cargo.toml:58) -> rustls 0.21.12 / rustls-webpki 0.101.7 / webpki-roots 0.25.4 / hyper 0.14 + h2 (ALPN h2,http/1.1: reqwest async_impl/client.rs:567). webpki-roots 0.25.4 (contains emSign ECC Root CA - G3, src/lib.rs:2928) is loaded as trust anchors by reqwest (async_impl/client.rs:465-478); a MITM using a distrusted emSign intermediate key can impersonate api.rustdesk.com to hbbs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#53",
+      "facts": {
+        "package": "webpki-roots",
+        "version": "0.26.7",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-111943",
+            "GO-2026-6809",
+            "RUSTSEC-2026-0381",
+            "RUSTSEC-2026-0382",
+            "RUSTSEC-2026-0383"
+          ],
+          [
+            "webpki-roots"
+          ]
+        ],
+        "advisory_summary": "Bundled root certificates allow trust in distrusted emSign intermediates \u2014 Affected versions include `emSign ECC Root CA - G3`, which can allow certificate\npaths through distrusted emSign intermediates.\n\nAffected versions may accept certificate paths containing distrusted emSign\nintermediate public keys. The private keys corresponding to these intermediates\nare now well known.\n\nVersion 1.0.10+ removes this root.\n\nThe `webpki-roots` 0.26.11 compatibility package contains no independent trust\nstore and re-exports the roots from its separately resolved 1.x dependency.\nThat parent dependency must ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.26.11",
+          "1.0.10"
+        ],
+        "severity": "",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        },
+        "import_name": "webpki_roots"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "rustls 0.23.21 / rustls-webpki 0.102.8 / webpki-roots 0.26.7 come only via hbb_common tokio-rustls 0.26 + rustls-platform-verifier, used solely in libs/hbb_common/src/proxy.rs:449-466 (Proxy::https_connect for client-side proxy); hbbs/hbbr never construct a Proxy (only FramedStream::new direct connect at src/rendezvous_server.rs:1240), so never called. webpki-roots 0.26.7 only via rustls-platform-verifier."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-rs-rustdesk#54",
+      "facts": {
+        "package": "whoami",
+        "version": "1.2.1",
+        "ecosystem": "cargo",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-w5w5-8vfh-xcjq",
+            "RUSTSEC-2024-0020"
+          ],
+          [
+            "whoami"
+          ]
+        ],
+        "advisory_summary": "[affects only os=illumos, os=solaris, os=dragonfly, os=freebsd, os=netbsd, os=openbsd] Stack buffer overflow with whoami on several Unix platforms \u2014 With versions of the whoami crate >= 0.5.3 and < 1.5.0, calling any of these functions leads to an\nimmediate stack buffer overflow on illumos and Solaris:\n\n- `whoami::username`\n- `whoami::realname`\n- `whoami::username_os`\n- `whoami::realname_os`\n\nWith versions of the whoami crate >= 0.5.3 and < 1.0.1, calling any of the above functions also\nleads to a stack buffer overflow on these platforms:\n\n- Bitrig\n- DragonFlyBSD\n- FreeBSD\n- NetBSD\n- OpenBSD\n\n",
+        "vuln_symbols": [
+          "whoami::realname",
+          "whoami::realname_os",
+          "whoami::username",
+          "whoami::username_os"
+        ],
+        "vuln_symbols_source": "osv-affected-functions",
+        "fixed": [
+          "1.5.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        },
+        "import_name": "whoami"
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only affects illumos/Solaris/BSDs; image is Linux. Also whoami is declared (Cargo.toml:25) but never called in src/ (grep)."
+      }
+    }
+  ]
+}

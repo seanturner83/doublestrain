@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from . import accounting, advisory_notes
 from .judges import JudgeResult, ReachQuery, Verdict, accept
-from .judges.base import role
+from .judges.base import needs_corroboration, policy, role
 from .judges.usage import nr_held
 from .ssvc import Candidate, Reachability
 
@@ -39,8 +39,12 @@ def resolve_reachability(c: Candidate, judge, repo_path: str | None,
     with accounting.tag(cve=cve, package=c.bumped_package):
         r = judge.judge(query_for(c, repo_path, cve))
     if (accept(r) and r.verdict == Verdict.NOT_REACHABLE and r.source != "govulncheck"
-            and nr_held(c.ecosystem, role(r.source))):
+            and nr_held(c.ecosystem, role(r.source))
+            and all(nr_held(c.ecosystem, role(s)) for s in r.corroborates.split(",") if s)):
         return r        # no measured floor for this ecosystem: a tier that skips the guard can't settle it
+    if (accept(r) and needs_corroboration(r, c.ecosystem) and not r.corroborates
+            and not policy(r).get("corroborate")):
+        return r        # measured on this ecosystem only as a pair (pypi: split, then claude): alone it settles nothing
     if accept(r):
         c.reachability = (Reachability.REACHABLE if r.verdict == Verdict.REACHABLE
                           else Reachability.UNREACHABLE)

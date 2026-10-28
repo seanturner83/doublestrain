@@ -265,6 +265,29 @@ def test_claude_judge_pkgsrc_adds_read_only_dirs(app, tmp_path, monkeypatch):
     assert f"lodash@4.17.20: {src}" in call["stdin"] and "x@1.0.0: refused" in call["stdin"]
 
 
+def test_claude_judge_picks_opus_for_pypi_rows(app, tmp_path, monkeypatch):
+    # opus for pypi by default (py3-py5b: no false NR where sonnet left one); an explicit
+    # SSVC_CLAUDE_MODEL applies everywhere, SSVC_CLAUDE_MODEL_PYPI wins for pypi
+    monkeypatch.delenv("SSVC_CLAUDE_MODEL", raising=False)
+    monkeypatch.delenv("SSVC_CLAUDE_MODEL_PYPI", raising=False)
+    js = _q(app)
+    py = ReachQuery(str(app), "pypi", "django", "CVE-1", version="1.0")
+    j = ClaudeCodeJudge(pkgsrc=False)
+    assert (j.model_for(py), j.model_for(js)) == ("opus", "sonnet")
+    c = CachedJudge(j, cache_dir=str(tmp_path / "c"))
+    assert c._path(py).parent.name.startswith("claude@opus@") and c._path(js).parent.name.startswith("claude@sonnet@")
+    monkeypatch.setenv("SSVC_CLAUDE_MODEL", "sonnet")
+    assert ClaudeCodeJudge().model_for(py) == "sonnet"
+    monkeypatch.setenv("SSVC_CLAUDE_MODEL_PYPI", "haiku")
+    assert (ClaudeCodeJudge().model_for(py), ClaudeCodeJudge().model_for(js)) == ("haiku", "sonnet")
+    monkeypatch.delenv("SSVC_CLAUDE_MODEL")
+    monkeypatch.setenv("SSVC_CLAUDE_BIN", _fake_claude(tmp_path, {
+        "type": "result", "structured_output": {"verdict": "unsure", "confidence": 0.5, "rationale": "", "evidence": []}}))
+    ClaudeCodeJudge(pkgsrc=False).judge(py)
+    argv = json.loads((tmp_path / "argv.json").read_text())["argv"]
+    assert argv[argv.index("--model") + 1] == "haiku"
+
+
 def test_claude_judge_error_is_no_claim(app, tmp_path, monkeypatch):
     monkeypatch.setenv("SSVC_CLAUDE_BIN", _fake_claude(tmp_path, {"type": "result", "is_error": True, "result": "rate limited"}))
     assert ClaudeCodeJudge().judge(_q(app)) is None
@@ -1049,6 +1072,50 @@ def test_corroboration_is_a_toggle(app, monkeypatch):
     assert not accept(CascadeJudge([ws(), ws2]).judge(_q(app)))
 
 
+def test_pip_settles_only_split_then_claude(app):
+    # py8 (2026-10-26, held-out): split not_reachable >= 0.95 with opus >= 0.7 agreeing, 260 / 0;
+    # split alone 277 / 3, the workstation alone 240 / 4, claude alone never measured
+    nr = lambda name, c, src, m="": lambda: _Fixed(name, JudgeResult(Verdict.NOT_REACHABLE, c, src, model=m))  # noqa: E731
+    ws, sp = nr("workstation", 0.95, "workstation", QWEN), nr("split", 0.95, "split:workstation", QWEN)
+    cl, weak = nr("claude", 0.8, "claude"), nr("claude", 0.6, "claude")
+    sh = nr("shape", 0.95, "shape:claude-opus-5-5")
+
+    def settles(*tiers, eco="pypi"):
+        c = _cand(bumped_package="pillow", ecosystem=eco)
+        judge = tiers[0]() if len(tiers) == 1 else CascadeJudge([t() for t in tiers])
+        resolve_reachability(c, judge, str(app), "CVE-1")
+        return c.reachability == Reachability.UNREACHABLE
+
+    assert settles(sp, cl) and settles(ws, sp, cl)          # the workstation held too: claude reads for both
+    r = CascadeJudge([ws(), sp(), cl()]).judge(ReachQuery(str(app), "pypi", "pillow", "CVE-1"))
+    assert r.corroborates == "workstation,split:workstation" and r.rationale.startswith("corroborates workstation, split")
+    assert not settles(sp, weak) and not settles(sp, sh) and not settles(ws, cl)
+    assert not settles(cl) and not settles(sp)               # alone, in a cascade or outside one
+    assert not settles(nr("x", 1.0, "pyimports"), ws)         # the other half of the py2 rule: never measured fresh
+    assert settles(sp, eco="npm")                             # npm unchanged: split settles alone
+
+
+def test_cargo_settles_only_split_then_claude(app):
+    # rs1-rs3 (2026-10-27): split not_reachable >= 0.95 with opus >= 0.7 agreeing, 159 / 0, 155 / 1, 166 / 0
+    nr = lambda name, c, src, m="": lambda: _Fixed(name, JudgeResult(Verdict.NOT_REACHABLE, c, src, model=m))  # noqa: E731
+    ws, sp = nr("workstation", 0.95, "workstation", QWEN), nr("split", 0.95, "split:workstation", QWEN)
+    cl, weak = nr("claude", 0.8, "claude"), nr("claude", 0.6, "claude")
+
+    def settles(*tiers):
+        c = _cand(bumped_package="h2", ecosystem="cargo")
+        judge = tiers[0]() if len(tiers) == 1 else CascadeJudge([t() for t in tiers])
+        resolve_reachability(c, judge, str(app), "CVE-1")
+        return c.reachability == Reachability.UNREACHABLE
+
+    assert settles(sp, cl) and settles(ws, sp, cl)
+    assert not settles(sp, weak) and not settles(ws, cl) and not settles(sp) and not settles(cl)
+
+
+def test_cargo_and_pypi_default_to_opus(monkeypatch):
+    from doublestrain.judges.claude_code import MODEL_BY_ECOSYSTEM
+    assert MODEL_BY_ECOSYSTEM == {"pypi": "opus", "cargo": "opus"}
+
+
 def test_cache_fills_in_the_answering_model(app, tmp_path, monkeypatch):
     class _Endpoint(_Fixed):
         def answer_model(self):
@@ -1102,3 +1169,22 @@ def test_a_reaching_parent_without_an_entry_point_becomes_a_trigger():
     assert [t["package"] for t in added] == ["yargs"] and added[0]["condition"].startswith("help text")
     assert spec["triggers"] == out["triggers"][:1] and len(spec["triggers"]) == 1     # cached spec untouched
     assert with_parent_triggers({"triggers": [], "parents": []}) == {"triggers": [], "parents": []}
+
+
+def test_local_judge_keys_a_non_baseline_quant(monkeypatch):
+    # 2026-10-24: a Q6_K switch under the same model id wrote answers into the Q4 cache
+    from doublestrain.judges.local import OpenAIJudge
+    monkeypatch.setenv("SSVC_WORKSTATION_BASE_URL", "http://192.0.2.1:1234/v1")
+    quant = {"q": "Q4_K_M"}
+
+    def fake(self, path, payload, timeout, root=None):
+        if path == "/models":
+            return {"data": [{"id": "qwen/x"}]}
+        assert root == "http://192.0.2.1:1234" and path == "/api/v0/models"
+        return {"data": [{"id": "other", "state": "loaded", "quantization": "F16"},
+                         {"id": "qwen/x", "state": "loaded", "quantization": quant["q"]}]}
+    monkeypatch.setattr(OpenAIJudge, "_req", fake)
+    base = OpenAIJudge("workstation").fingerprint()
+    assert base.endswith("@ctx" + str(__import__("doublestrain.judges.local", fromlist=["x"]).CONTEXT_VERSION))  # baseline: older keys
+    quant["q"] = "Q6_K"
+    assert OpenAIJudge("workstation").fingerprint() == base + "@qQ6_K"

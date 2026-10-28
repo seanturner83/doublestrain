@@ -1,0 +1,3345 @@
+{
+  "id": "real-jv-akhq",
+  "description": "AKHQ 0.26.0 (Kafka web UI, Micronaut shadow jar): JVM dev set (jv1), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "artifact": {
+    "paths": [
+      "artifact/akhq-0.26.0-all.jar"
+    ],
+    "include": [],
+    "exclude": [],
+    "first_party": [
+      "org.akhq"
+    ]
+  },
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#1",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.4.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-11226",
+            "GHSA-25qh-j22f-pwp8"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "QOS.CH logback-core is vulnerable to Arbitrary Code Execution through file processing \u2014 QOS.CH logback-core versions up to 1.5.18 contain an ACE vulnerability in conditional configuration file processing in Java applications. This vulnerability allows an attacker to execute arbitrary code by compromising an existing logback configuration file or by injecting a malicious environment variable before program execution.\n\nA successful attack requires the Janino library and Spring Framework to be present on the user's class path. Additionally, the attacker must have write access to a configuration f",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.16",
+          "1.5.19"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "logback config is the operator's src/main/resources/logback.xml (bundled in jar; console appenders only, no <if>/evaluator/receiver); CVE-2025-11226 needs attacker write access to logback config or env vars; also Janino absent (no org/codehaus/janino in jar) and no Spring. Operator-trusted input only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#2",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.4.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-12801",
+            "GHSA-6v67-2wr5-gvf4"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "QOS.CH logback-core Server-Side Request Forgery vulnerability \u2014 Server-Side Request Forgery (SSRF) in SaxEventRecorder by QOS.CH logback version 1.5.12 on the Java platform, allows an attacker to forge requests by compromising logback configuration files in XML.\n \nThe attacks involves the modification of DOCTYPE declaration in\u00a0 XML configuration files.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.15",
+          "1.5.13"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "logback config is the operator's src/main/resources/logback.xml (bundled in jar; console appenders only, no <if>/evaluator/receiver); SSRF via DOCTYPE in logback XML config requires modifying the config file (operator-trusted); no runtime path lets HTTP users supply logback XML."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#3",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.4.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-10532",
+            "GHSA-jhq6-gfmj-v8fx"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "Logback vulnerable to Object Injection through HardenedObjectInputStream modules \u2014 Deserialization of untrusted data vulnerability in QOS.CH Sarl logback logback-core (HardenedObjectInputStream (logback-core) modules) allows Object Injection, albeit heavily restricted.\n\nMore precisely, an attacker able to influence serialized data sent to SimpleSocketServer or SimpleSSLSocketServer can instantiate Proxy objects.\n\n\nAlthough deserialization is heavily restricted by HardenedObjectInputStream and no practical way to achieve remote code execution or significant privilege  escalation has been identi",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.5.34"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HardenedObjectInputStream is only used by logback SimpleSocketServer/SimpleSSLSocketServer/ServerSocketReceiver; AKHQ never starts them (repo src/main/resources/logback.xml has only ConsoleAppenders, no receiver; no app code references ch.qos.logback.classic.net)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#4",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.4.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-9828",
+            "GHSA-p47f-322f-whfh"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "QOS.CH Sarl logback logback-core has a deserialization of untrusted data vulnerability \u2014 Deserialization of untrusted data vulnerability in QOS.CH Sarl logback logback-core (HardenedObjectInputStream (logback-core) modules) allows Object Injection albeit heavily restricted.\n\nMore precisely, an attacker able to influence serialized data sent to SimpleSocketServer or SimpleSSLSocketServer can instantiate objects from classes in the java.lang and java.util packages that are not explicitly blocked.\n\nAlthough deserialization is heavily restricted by HardenedObjectInputStream and no practical way to",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.5.33"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as CVE-2026-10532: needs a logback SimpleSocketServer/SSL socket server or socket receiver to read serialized events; none configured (src/main/resources/logback.xml) or started by AKHQ."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#5",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.4.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-12798",
+            "GHSA-pr98-23f8-jwxv"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "QOS.CH logback-core Expression Language Injection vulnerability \u2014 ACE vulnerability in JaninoEventEvaluator by QOS.CH logback-core up to and including version 1.5.12 in Java applications allows attackers to execute arbitrary code by compromising an existing logback configuration file or by injecting an environment variable before program execution.\n\nMalicious logback configuration files can allow the attacker to execute arbitrary code using the JaninoEventEvaluator extension.\n\nA successful attack requires the user to have write access to a configuration file. Alternatively, the attacker could ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.15",
+          "1.5.13"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "logback config is the operator's src/main/resources/logback.xml (bundled in jar; console appenders only, no <if>/evaluator/receiver); JaninoEventEvaluator needs attacker-modified config and the Janino library, which is not bundled (no org/codehaus/janino classes in the jar)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#6",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.4.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1225",
+            "GHSA-qqpg-mvqg-649v"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "Logback allows an attacker to instantiate classes already present on the class path \u2014 ACE vulnerability in configuration file processing  by QOS.CH logback-core up to and including version 1.5.24 in Java applications, allows an attacker to instantiate classes already present on the class path by compromising an existing logback configuration file.\n\nThe instantiation of a potentially malicious Java class requires that said class is present on the user's class-path. In addition, the attacker must  have write access to a configuration file. However, after successful instantiation, the instance is",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.5.25"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "logback config is the operator's src/main/resources/logback.xml (bundled in jar; console appenders only, no <if>/evaluator/receiver); class instantiation through a compromised logback configuration file; config is operator-controlled, not attacker-reachable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#7",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-18401",
+            "GHSA-72hv-8253-57qq"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition \u2014 ### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent",
+        "vuln_symbols": [
+          "maxNumberLength",
+          "StreamReadConstraints",
+          "NonBlockingUtf8JsonParserBase",
+          "_finishNumberIntegralPart",
+          "TextBuffer",
+          "_valueComplete"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.6",
+          "2.21.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Async (non-blocking) parser is never driven: only callers of createNonBlockingByteArrayParser are io/micronaut/jackson/core/parser/JacksonCoreProcessor (reached only via JsonMapper.createReactiveParser, which no class in the jar invokes; Micronaut 4 server bodies go through io/micronaut/http/netty/body/JsonCounter + synchronous readValue) and Vert.x parsetools JsonParserImpl, which nothing (incl. ksqldb-api-client, which uses RecordParser) uses."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#8",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89425",
+            "GHSA-7hhh-6rmp-j9qf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: UTF8DataInputJsonParser._reportInvalidToken() missing maxErrorTokenLength limit -> unbounded StringBuilder growth (DoS) \u2014 ## Status\n\n**FULLY REPRODUCED.** A malformed token fed through `createParser(DataInput)` produced a\n20,000,109-character exception message from a 20-million-character attacker payload, while the\nidentical payload fed through `createParser(InputStream)` produced a correctly bounded\n367-character message.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed against:** `jackson-core-2.20.2`\n- **Affected file:** ",
+        "vuln_symbols": [
+          "UTF8DataInputJsonParser._reportInvalidToken",
+          "StringBuilder",
+          "ErrorReportConfiguration.getMaxErrorTokenLength",
+          "UTF8StreamJsonParser",
+          "ReaderBasedJsonParser",
+          "NonBlockingUtf8JsonParserBase"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "UTF8DataInputJsonParser only used via JsonFactory/ObjectMapper.createParser/readValue(DataInput); no class outside jackson-core/databind in the jar calls a jackson method with a java.io.DataInput argument. HTTP bodies and Kafka messages are parsed from byte[]/InputStream (bounded error tokens)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#9",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89407",
+            "GHSA-p6pp-m3f8-5c89"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": " jackson-core: ReDoS: quadratic backtracking in NumberInput.PATTERN_FLOAT via looksLikeValidNumber() \u2014 ## Status\n\n**FULLY REPRODUCED** with a clean, textbook empirical signature: measured runtime grew almost\nexactly 4x for every doubling of input size across five consecutive doublings (5,000 \u2192 160,000\ncharacters), confirming O(n\u00b2) behavior. A single 160,000-character string (smaller than a typical\nHTTP request body) took **74.4 seconds** for one call to `NumberInput.looksLikeValidNumber()`.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed",
+        "vuln_symbols": [
+          "NumberInput.looksLikeValidNumber",
+          "PATTERN_FLOAT",
+          "PATTERN_FLOAT_TRAILING_DOT",
+          "looksLikeValidNumber",
+          "Pattern",
+          "Matcher"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): jackson-core 2.17.1 NumberInput.java:41-42 PATTERN_FLOAT '[+-]?[0-9]*[\\.]?[0-9]+...' and looksLikeValidNumber:583-592 (vulnerable regex present). Only callers are databind string->number coercions: NumberDeserializers.java:656 (Float), :759 (Double), :867 (Number), :1050 (BigDecimal), StdDeserializer.java:1068/1086 (float); jackson-core itself and YAML/CSV formats do not call it. So a JSON STRING must be bound to a Float/Double/Number/BigDecimal target. Only attacker route found: AWS Glue schema registry (documented docs/docs/configuration/schema-registry/glue.md). Record.java:201-202 hands every message to GlueSchemaRegistryKafkaDeserializer (SchemaRegistryRepository.java:347-362, serde 1.1.23); its json/JsonDeserializer.deserialize reads the schema definition's \"className\", calls Class.forName(className) and objectMapper.readValue(messageBytes, cls) (bytecode of JsonDeserializer.class), so a JSON-format message whose Glue schema says className=java.lang.Float / java.math.BigDecimal binds attacker message bytes straight into that JDK type. Needs an attacker who can produce to the topic AND register/reference a Glue schema version with that className (producers with schema auto-registration rights). No other path: app @Body types (TopicController/GroupController/SchemaController models, Map<String,String>/Map<String,Integer>) have no such fields; Confluent KafkaJsonSchemaDeserializer is built with the client-only ctor (SchemaRegistryRepository.java:314), which never calls configure(), so typeProperty stays null and its javaType deriveType path is dead; other JSON use (AvroSerializer.java:74 Map, AKHQSecurityRule.java:150 Object) is untyped. Chosen reachable because unsure; low confidence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#10",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68494",
+            "GHSA-r7wm-3cxj-wff9"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Async parser maxNumberLength bypass via chunked digit accumulation (incomplete fix for GHSA-72hv-8253-57qq) \u2014 ## Summary\n\nThe fix released in jackson-core `2.18.6` and `2.21.1` for [GHSA-72hv-8253-57qq](https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq) (Number Length Constraint Bypass in Async Parser, published 2026-02-28) is incomplete. The fix commit `b0c428e6` (#1555) wired `validateIntegerLength` into a new `_setIntLength` helper and called it at every place where the integer portion of a number is *decided* (terminator byte arrived, `.` / `e/",
+        "vuln_symbols": [
+          "b0c428e6",
+          "validateIntegerLength",
+          "_setIntLength",
+          "MINOR_NUMBER_INTEGER_DIGITS",
+          "NOT_AVAILABLE",
+          "_textBuffer.expandCurrentSegment"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Incomplete fix of async parser maxNumberLength; same as row 6: no code in the deployed jar drives the non-blocking parser (JacksonCoreProcessor only via uninvoked JsonMapper.createReactiveParser; Vert.x JsonParserImpl unused)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#11",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59888",
+            "GHSA-3pjw-73gf-8qr5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonIgnore on a Record property is bypassed with a PropertyNamingStrategy \u2014 ## Summary\nFor Java Records, `POJOPropertiesCollector._removeUnwantedIgnorals()` records a `@JsonIgnore`-annotated component under its original implicit name before `_renameUsing()` applies the `PropertyNamingStrategy`. After the rename, `_ignoredPropertyNames` still holds only the pre-rename name, so `_ignorableProps` is built from the stale key. The renamed JSON key passes `IgnorePropertiesUtil.shouldIgnore()` and is assigned to the Record's constructor parameter, defeating the `@JsonIgnore`.\n\n## I",
+        "vuln_symbols": [
+          "POJOPropertiesCollector._removeUnwantedIgnorals",
+          "_renameUsing",
+          "PropertyNamingStrategy",
+          "_ignoredPropertyNames",
+          "_ignorableProps",
+          "IgnorePropertiesUtil.shouldIgnore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a Java Record with @JsonIgnore deserialized under a PropertyNamingStrategy. AKHQ has no records/naming strategy (grep of src/main/java); Micronaut mapper not configured with a naming strategy (application.yml); Glue mapper (JsonDeserializer.java:59-62) has none either."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#12",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59889",
+            "GHSA-5gvw-p9qm-jgwh"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonView bypassed for @JsonUnwrapped container properties on deserialization \u2014 ## Summary\n`UnwrappedPropertyHandler.processUnwrapped()` replays the buffered JSON for a `@JsonUnwrapped` property by iterating its properties and calling `prop.deserializeAndSet()` with **no `prop.visibleInView(ctxt.getActiveView())` guard** \u2014 the exact guard `processUnwrappedCreatorProperties()` received in the #5971 / GHSA-rcqc-6cw3-h962 fix, and the guard `BeanDeserializer.deserializeWithUnwrapped` applies to directly-matched properties. As a result, a property annotated with both `@JsonView(P",
+        "vuln_symbols": [
+          "UnwrappedPropertyHandler.processUnwrapped",
+          "prop.deserializeAndSet",
+          "processUnwrappedCreatorProperties",
+          "BeanDeserializer.deserializeWithUnwrapped",
+          "BeanDeserializer",
+          "PublicView"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs deserialization with an active @JsonView into @JsonUnwrapped properties. AKHQ uses @JsonView only for serialization (TopicController.java:492-497 download, Record.java:45-89) and @JsonUnwrapped only on response DTO AkhqController.AuthUser.AuthPermissions (AkhqController.java:272); no readerWithView anywhere."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#13",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54515",
+            "GHSA-5jmj-h7xm-6q6v"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has case-insensitive deserialization bypasses per-property @JsonIgnoreProperties \u2014 ## Summary\nIn `BeanDeserializerBase.createContextual()`, per-property `@JsonIgnoreProperties` exclusions are applied by `_handleByNameInclusion()`, producing a `contextual` deserializer whose `BeanPropertyMap` has the ignored properties removed. The subsequent per-property case-insensitivity block (triggered by `@JsonFormat(ACCEPT_CASE_INSENSITIVE_PROPERTIES)`) rebuilds from `this._beanProperties` (the original, unfiltered map) instead of `contextual._beanProperties`, then overwrites the filtere",
+        "vuln_symbols": [
+          "BeanDeserializerBase.createContextual",
+          "_handleByNameInclusion",
+          "contextual",
+          "BeanPropertyMap",
+          "this._beanProperties",
+          "contextual._beanProperties"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs per-property @JsonIgnoreProperties combined with @JsonFormat(ACCEPT_CASE_INSENSITIVE_PROPERTIES); no class outside jackson in the jar references ACCEPT_CASE_INSENSITIVE_PROPERTIES and AKHQ DTOs use neither."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#14",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91777",
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind quadratic forward-reference completion  \u2014 ### Summary\n\nWhen an `@JsonIdentityInfo` collection or map first creates N unresolved\nobject-ID references and later resolves the same IDs in reverse order,\njackson-databind scans the remaining pending-reference accumulator for each\nresolution. A shallow JSON document whose size grows linearly can therefore\ncause quadratic CPU work during deserialization.\n\n### Details\n\nThe affected path is forward-reference completion in\n`CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference()`\nand the corresponding map implemen",
+        "vuln_symbols": [
+          "CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference",
+          "equals"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonIdentityInfo types deserialized from attacker JSON; no class outside jackson in the shadow jar references JsonIdentityInfo."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#15",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-83557",
+            "GHSA-gx83-3vf8-gh7j"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Comparable missing from DefaultBaseTypeLimitingValidator's unsafe base types (incomplete PolymorphicTypeValidator denylist) \u2014 ### Summary\n`DefaultBaseTypeLimitingValidator` \u2014 the `PolymorphicTypeValidator` used automatically whenever `@JsonTypeInfo` is applied without an explicitly configured custom validator \u2014 denies polymorphic resolution only for nine specific \"unsafe base types\" (`Object`, `Serializable`, `Closeable`, `AutoCloseable`, `Cloneable`, `Runnable`, `java.util.logging.Handler`, `javax.naming.Referenceable`, `javax.sql.DataSource`). Its `isSafeSubType()` returns ",
+        "vuln_symbols": [
+          "DefaultBaseTypeLimitingValidator",
+          "PolymorphicTypeValidator",
+          "Serializable",
+          "Closeable",
+          "AutoCloseable",
+          "Cloneable"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs polymorphic @JsonTypeInfo(Id.CLASS/MINIMAL_CLASS) with a Comparable-typed base under the default validator. Only @JsonTypeInfo users: AuditEvent (Id.NAME, serialize-only, AuditModule), ksql rest entities (Id.NAME), Confluent AuthenticationConfig (NAME)/JwtIssuer (CLASS, base type JwtIssuer, not loaded by AKHQ); Micronaut default typing (ObjectMapperFactory activateDefaultTyping) only with undocumented jackson.default-typing."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#16",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54514",
+            "GHSA-hgj6-7826-r7m5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: InetSocketAddress deserialization triggers eager DNS resolution (SSRF) \u2014 ## Summary\n`JDKFromStringDeserializer` constructed `InetSocketAddress` with `new InetSocketAddress(host, port)`, which performs eager DNS name resolution for hostname inputs at deserialization time. An application that binds untrusted JSON into a type containing an `InetSocketAddress` field issues an attacker-chosen DNS query during `readValue`, before any application-level validation or connect logic. The fix uses `InetSocketAddress.createUnresolved(host, port)`, deferring DNS to an explicit connect.\n\n#",
+        "vuln_symbols": [
+          "JDKFromStringDeserializer",
+          "InetSocketAddress",
+          "readValue"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): databind 2.17.1 FromStringDeserializer.java:121-122,355-377 builds new InetSocketAddress(host,port) (eager DNS). Only attacker route found: AWS Glue schema registry (documented docs/docs/configuration/schema-registry/glue.md). Record.java:201-202 hands every message to GlueSchemaRegistryKafkaDeserializer (SchemaRegistryRepository.java:347-362, serde 1.1.23); its json/JsonDeserializer.deserialize reads the schema definition's \"className\", calls Class.forName(className) and objectMapper.readValue(messageBytes, cls) (bytecode of JsonDeserializer.class), so a JSON-format message whose Glue schema says className=java.net.InetSocketAddress binds attacker message bytes straight into that JDK type. Needs an attacker who can produce to the topic AND register/reference a Glue schema version with that className (producers with schema auto-registration rights). No other path: app @Body types (TopicController/GroupController/SchemaController models, Map<String,String>/Map<String,Integer>) have no such fields; Confluent KafkaJsonSchemaDeserializer is built with the client-only ctor (SchemaRegistryRepository.java:314), which never calls configure(), so typeProperty stays null and its javaType deriveType path is dead; other JSON use (AvroSerializer.java:74 Map, AKHQSecurityRule.java:150 Object) is untyped. Chosen reachable because unsure; low confidence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#17",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54512",
+            "GHSA-j3rv-43j4-c7qm"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has a PolymorphicTypeValidator bypass via generic type parameters that allows arbitrary class instantiation \u2014 `jackson-databind`'s `PolymorphicTypeValidator` (PTV) is the primary safety mechanism guarding polymorphic deserialization. When polymorphic typing is enabled and a type identifier contains generic parameters (i.e. the type ID string contains `<`), `DatabindContext._resolveAndValidateGeneric()` validates **only the raw container class name** (the substring before `<`) against the configured PTV.\n\nIf the container type is approved, the method parses the full canonical t",
+        "vuln_symbols": [
+          "PolymorphicTypeValidator",
+          "DatabindContext._resolveAndValidateGeneric",
+          "TypeFactory.constructFromCanonical",
+          "java.util.ArrayList",
+          "com.evil.Gadget",
+          "BasicPolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs polymorphic typing with a configured PolymorphicTypeValidator approving a generic container; nothing in the jar outside jackson calls activateDefaultTyping/BasicPolymorphicTypeValidator except Micronaut ObjectMapperFactory when undocumented jackson.default-typing is set (off by default; AKHQ application.yml does not set it)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#18",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68497",
+            "GHSA-q4xh-88c3-wmh7"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Duration XMLGregorianCalendar Unbounded Number Parse DoS \u2014 ### Summary\n`jackson-databind` 3.2.1 deserializes a JSON **string** bound to a `javax.xml.datatype.Duration` or `javax.xml.datatype.XMLGregorianCalendar` field by passing the raw string verbatim to `DatatypeFactory.newDuration(value)` / `newXMLGregorianCalendar(value)`. Per the XML-Schema lexical grammar these factory methods accept numeric components of arbitrary length, which the JDK materializes into `java.math.BigInteger` / `BigDecimal` using the native `BigInteger(String)` constructor (an O(n\u00b2) parser). Because t",
+        "vuln_symbols": [
+          "javax.xml.datatype.Duration",
+          "javax.xml.datatype.XMLGregorianCalendar",
+          "java.math.BigInteger",
+          "BigDecimal",
+          "StreamReadConstraints.maxNumberLength",
+          "maxStringLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): databind 2.17.1 ext/CoreXMLDeserializers.java:112 _dataTypeFactory.newDuration(value) and :123 newXMLGregorianCalendar(value) with raw string (unbounded BigInteger parse). Only attacker route found: AWS Glue schema registry (documented docs/docs/configuration/schema-registry/glue.md). Record.java:201-202 hands every message to GlueSchemaRegistryKafkaDeserializer (SchemaRegistryRepository.java:347-362, serde 1.1.23); its json/JsonDeserializer.deserialize reads the schema definition's \"className\", calls Class.forName(className) and objectMapper.readValue(messageBytes, cls) (bytecode of JsonDeserializer.class), so a JSON-format message whose Glue schema says className=javax.xml.datatype.Duration / XMLGregorianCalendar binds attacker message bytes straight into that JDK type. Needs an attacker who can produce to the topic AND register/reference a Glue schema version with that className (producers with schema auto-registration rights). No other path: app @Body types (TopicController/GroupController/SchemaController models, Map<String,String>/Map<String,Integer>) have no such fields; Confluent KafkaJsonSchemaDeserializer is built with the client-only ctor (SchemaRegistryRepository.java:314), which never calls configure(), so typeProperty stays null and its javaType deriveType path is dead; other JSON use (AvroSerializer.java:74 Map, AKHQSecurityRule.java:150 Object) is untyped. Chosen reachable because unsure; low confidence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#19",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54513",
+            "GHSA-rmj7-2vxq-3g9f"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has an array subtype allowlist bypass in BasicPolymorphicTypeValidator (allowIfSubTypeIsArray) \u2014 ## Summary\n`BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray()` allowlists any array type based only on `clazz.isArray()`, without validating the array's component (element) type against the configured allowlist. A PTV built with `allowIfSubTypeIsArray()` plus an explicit concrete-type allowlist therefore still permits `EvilType[]` even though `EvilType` is not allowlisted. When Jackson deserializes the elements and no per-element type IDs are present, it instantiates th",
+        "vuln_symbols": [
+          "BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray",
+          "clazz.isArray",
+          "allowIfSubTypeIsArray",
+          "EvilType",
+          "BasicPolymorphicTypeValidator",
+          "PolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a BasicPolymorphicTypeValidator built with allowIfSubTypeIsArray(); no class in the jar outside jackson references BasicPolymorphicTypeValidator or allowIfSubTypeIsArray."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#20",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-77310",
+            "GHSA-vvgp-rfg2-7rr6"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Incomplete fix for CVE-2026-54514: eager DNS resolution (SSRF) still present in InetAddress deserialization \u2014 ### Summary\nCVE-2026-54514 (GHSA-hgj6-7826-r7m5) fixed an eager-DNS-resolution / SSRF issue in jackson-databind's deserialization of `java.net.InetSocketAddress` by switching to `InetSocketAddress.createUnresolved(...)` (PR #5951, commit 1f5a1037, released in 2.18.8 / 2.21.4 / 3.1.4). That fix did not cover the sibling `java.net.InetAddress` branch in the very same `FromStringDeserializer.Std._deserialize()` switch statement, which still calls `InetAddress.getByName(v",
+        "vuln_symbols": [
+          "java.net.InetSocketAddress",
+          "java.net.InetAddress",
+          "FromStringDeserializer.Std._deserialize",
+          "InetAddress",
+          "address.isUnresolved",
+          "InetAddress.getByName"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): databind 2.17.1 FromStringDeserializer.java:353-354 STD_INET_ADDRESS -> InetAddress.getByName(value) (eager DNS). Only attacker route found: AWS Glue schema registry (documented docs/docs/configuration/schema-registry/glue.md). Record.java:201-202 hands every message to GlueSchemaRegistryKafkaDeserializer (SchemaRegistryRepository.java:347-362, serde 1.1.23); its json/JsonDeserializer.deserialize reads the schema definition's \"className\", calls Class.forName(className) and objectMapper.readValue(messageBytes, cls) (bytecode of JsonDeserializer.class), so a JSON-format message whose Glue schema says className=java.net.InetAddress binds attacker message bytes straight into that JDK type. Needs an attacker who can produce to the topic AND register/reference a Glue schema version with that className (producers with schema auto-registration rights). No other path: app @Body types (TopicController/GroupController/SchemaController models, Map<String,String>/Map<String,Integer>) have no such fields; Confluent KafkaJsonSchemaDeserializer is built with the client-only ctor (SchemaRegistryRepository.java:314), which never calls configure(), so typeProperty stays null and its javaType deriveType path is dead; other JSON use (AvroSerializer.java:74 Map, AKHQSecurityRule.java:150 Object) is untyped. Chosen reachable because unsure; low confidence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#21",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-19032",
+            "GHSA-wjgm-6hv5-3cvf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Path Deserialization Missing Scheme Allowlist for FileSystemProvider Resolution \u2014 ### Summary\n\nA `java.nio.file.Path` field bound from untrusted JSON reaches `JDKFromStringDeserializer.NioPathHelper.deserialize`. The attacker string flows through `new URI(value)` \u2192 `Path.of(uri)`, then on `FileSystemNotFoundException` into a `ServiceLoader<FileSystemProvider>` enumeration that calls `provider.getPath(uri)` on the first scheme-matching provider. No scheme is rejected, so untrusted JSON can drive an arbitrary registered provider under the default `JsonMapper.builder().build()`.",
+        "vuln_symbols": [
+          "java.nio.file.Path",
+          "JDKFromStringDeserializer.NioPathHelper.deserialize",
+          "FileSystemNotFoundException",
+          "file",
+          "jar",
+          "Path"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): databind 2.17.1 ext/NioPathDeserializer.java:63-77 new URI(value) -> Paths.get(uri), on FileSystemNotFoundException iterates ServiceLoader<FileSystemProvider> and calls provider.getPath(uri), no scheme allowlist. Only attacker route found: AWS Glue schema registry (documented docs/docs/configuration/schema-registry/glue.md). Record.java:201-202 hands every message to GlueSchemaRegistryKafkaDeserializer (SchemaRegistryRepository.java:347-362, serde 1.1.23); its json/JsonDeserializer.deserialize reads the schema definition's \"className\", calls Class.forName(className) and objectMapper.readValue(messageBytes, cls) (bytecode of JsonDeserializer.class), so a JSON-format message whose Glue schema says className=java.nio.file.Path binds attacker message bytes straight into that JDK type. Needs an attacker who can produce to the topic AND register/reference a Glue schema version with that className (producers with schema auto-registration rights). No other path: app @Body types (TopicController/GroupController/SchemaController models, Map<String,String>/Map<String,Integer>) have no such fields; Confluent KafkaJsonSchemaDeserializer is built with the client-only ctor (SchemaRegistryRepository.java:314), which never calls configure(), so typeProperty stays null and its javaType deriveType path is dead; other JSON use (AvroSerializer.java:74 Map, AKHQSecurityRule.java:150 Object) is untyped. Chosen reachable because unsure; low confidence."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#22",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.17.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91776",
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind retains every unknown raw type ID  \u2014 ### Summary\n\nWith `@JsonTypeInfo(use = Id.NAME, defaultImpl = ...)`, every distinct unknown\nraw type ID selects the same fallback deserializer but is retained as a\nseparate key in `TypeDeserializerBase._deserializers`. An attacker who can\nrepeatedly supply new unknown type IDs can grow this process-lifetime cache\nwithout a configured bound.\n\n### Details\n\nThe affected path is `TypeDeserializerBase._findDeserializer()`. After an\nunknown name-based type ID resolves to the configured fallback/default\nimplementation, jackson-databind caches the ",
+        "vuln_symbols": [
+          "TypeDeserializerBase._deserializers",
+          "TypeDeserializerBase._findDeserializer",
+          "typeId",
+          "_deserializers",
+          "defaultImpl"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonTypeInfo(use=NAME, defaultImpl=...) on an attacker-deserialized type; no class outside jackson in the jar declares a Jackson defaultImpl (only unrelated gson/micronaut-context/kotlin strings), and AKHQ's only @JsonTypeInfo (AuditEvent) has no defaultImpl and is serialize-only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#23",
+      "facts": {
+        "package": "com.nimbusds:nimbus-jose-jwt",
+        "version": "9.37.3",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-53864",
+            "GHSA-xwmg-2g98-w7v9"
+          ],
+          [
+            "com.nimbusds:nimbus-jose-jwt"
+          ]
+        ],
+        "advisory_summary": "Nimbus JOSE + JWT is vulnerable to DoS attacks when processing deeply nested JSON \u2014 Connect2id Nimbus JOSE + JWT before 10.0.2 allows a remote attacker to cause a denial of service via a deeply nested JSON object supplied in a JWT claim set, because of uncontrolled recursion. NOTE: this is independent of the Gson 2.11.0 issue because the Connect2id product could have checked the JSON object nesting depth, regardless of what limits (if any) were imposed by Gson.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.0.2",
+          "9.37.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Micronaut security-jwt (micronaut-security-jwt in build.gradle) validates the JWT cookie/bearer token of every request when security is on (application.yml:27-44 cookie+jwt enabled); it parses attacker-supplied tokens with nimbus JWTParser/SignedJWT, whose header and claim-set JSON go through JSONObjectUtils.parse (shaded Gson) with no nesting limit in 9.37.3 -> deep-nesting recursion DoS pre-auth. OIDC id_tokens from the IdP are parsed the same way. Security (basic-auth/LDAP/OIDC) is documented (docs/docs/configuration/authentifications/*, application.example.yml:1-31).",
+        "requires": "micronaut.security.enabled: true (default false in application.yml:28)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#24",
+      "facts": {
+        "package": "commons-beanutils:commons-beanutils",
+        "version": "1.9.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-48734",
+            "GHSA-wxr5-93ph-8wr9"
+          ],
+          [
+            "commons-beanutils:commons-beanutils"
+          ]
+        ],
+        "advisory_summary": "Apache Commons Improper Access Control vulnerability \u2014 Improper Access Control vulnerability in Apache Commons.\n\n\n\nA special BeanIntrospector class was added in version 1.9.2. This can be used to stop attackers from using the declared class property of Java enum objects to get access to the classloader. However this protection was not enabled by default. PropertyUtilsBean (and consequently BeanUtilsBean) now disallows declared class level property access by default.\n\n\n\n\n\nReleases 1.11.0 and 2.0.0-M2 address a potential security issue when accessing enum properties in an uncontrolled way. If an",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only users of org/apache/commons/beanutils in the jar are commons-validator's XML Validator framework (Field, ValidatorUtils) and commons-digester rules; nothing uses those entry points (the only external users of commons-validator are everit json-schema format validators and kafka CoreUtils, which use validator.routines only). No PropertyUtils/BeanUtils call on attacker-controlled property names."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#25",
+      "facts": {
+        "package": "io.netty:netty-codec",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58057",
+            "GHSA-3p8m-j85q-pgmj"
+          ],
+          [
+            "io.netty:netty-codec"
+          ]
+        ],
+        "advisory_summary": "Netty's decoders vulnerable to DoS via zip bomb style attack \u2014 ### Summary\n\nWith specially crafted input, `BrotliDecoder` and some other decompressing decoders will allocate a large number of reachable byte buffers, which can lead to denial of service.\n\n### Details\n\n`BrotliDecoder.decompress` has no limit in how often it calls `pull`, decompressing data 64K bytes at a time. The buffers are saved in the output list, and remain reachable until OOM is hit. This is basically a zip bomb.\n\nTested on 4.1.118, but there were no changes to the decoder since.\n\n### PoC\n\nRun this test case with `-Xmx1G`:\n",
+        "vuln_symbols": [
+          "BrotliDecoder",
+          "BrotliDecoder.decompress",
+          "pull"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.125.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "BrotliDecoder only used when Brotli.isAvailable(): Micronaut server PipeliningServerHandler$MessageInboundHandler and netty HttpContentDecompressor.java:75 both check it, and brotli4j (com/aayushatharva/brotli4j) is not in the shadow jar, so the decoder is never instantiated."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#26",
+      "facts": {
+        "package": "io.netty:netty-codec",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59901",
+            "GHSA-558v-64gr-wgg4"
+          ],
+          [
+            "io.netty:netty-codec"
+          ]
+        ],
+        "advisory_summary": "Netty: [Bzip2Decoder] Infinite Loop in RLE State Machine Leads to Event-Loop Thread Hang \u2014 The `Bzip2Decoder` handler in Netty's compression codec pipeline is vulnerable to a denial-of-service attack through a malformed bzip2 stream that permanently captures the event-loop thread in an infinite loop. The vulnerability exists in the run-length encoding (RLE) state machine within [`Bzip2BlockDecompressor.read()`]",
+        "vuln_symbols": [
+          "Bzip2Decoder",
+          "Bzip2BlockDecompressor.read"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bzip2Decoder is not referenced by any class outside io/netty in the jar (Micronaut server decompression handles gzip/deflate/snappy/br only; Kafka uses its own compression)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#27",
+      "facts": {
+        "package": "io.netty:netty-codec",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42583",
+            "GHSA-mj4r-2hfc-f8p6"
+          ],
+          [
+            "io.netty:netty-codec"
+          ]
+        ],
+        "advisory_summary": "Netty Lz4FrameDecoder is vulnerable to resource exhaustion  \u2014 ### Summary\nLz4FrameDecoder allocates a ByteBuf of size `decompressedLength` (up to 32 MB per block) before LZ4 runs. A peer only needs a 21-byte header plus `compressedLength` payload bytes - 22 bytes if `compressedLength == 1` - to force that allocation.\n\n### Details\nio.netty.handler.codec.compression.Lz4FrameDecoder#decode\nHeader fields are trusted for sizing. On the compressed path, after `readableBytes >= compressedLength`, the decoder does `ctx.alloc().buffer(decompressedLength, decompressedLength)` then decompresses.\n\n### PoC",
+        "vuln_symbols": [
+          "decompressedLength",
+          "compressedLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Lz4FrameDecoder is not referenced by any class outside io/netty in the jar (Kafka lz4 uses its own KafkaLZ4BlockInputStream, not netty)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#28",
+      "facts": {
+        "package": "io.netty:netty-codec-dns",
+        "version": "4.1.108.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42579",
+            "GHSA-cm33-6792-r9fm"
+          ],
+          [
+            "io.netty:netty-codec-dns"
+          ]
+        ],
+        "advisory_summary": "Netty has a DNS Codec Input Validation Bypass (Encoder + Decoder) \u2014 # Security Vulnerability Report: DNS Codec Input Validation Bypass in Netty (Encoder + Decoder)\n\n## 1. Vulnerability Summary\n\n| Field | Value |\n|-------|-------|\n| **Product** | Netty |\n| **Version** | 4.2.12.Final (and all prior versions with codec-dns) |\n| **Component** | `io.netty.handler.codec.dns.DnsCodecUtil` |\n| **Vulnerability Type** | CWE-20: Improper Input Validation / CWE-626: Null Byte Interaction Error / CWE-400: Uncontrolled Resource Consumption |\n| **Impact** | DNS Cache Poisoning / Domain Validation Bypass / De",
+        "vuln_symbols": [
+          "io.netty.handler.codec.dns.DnsCodecUtil",
+          "encodeDomainName",
+          "decodeDomainName",
+          "DnsNameResolver"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Netty DNS codec decodes responses in netty-resolver-dns DnsNameResolver, which Vert.x 4.4.6 uses by default (io/vertx/core/impl/resolver/DnsResolverProvider; disabled only by vertx.disableDnsResolver). ksqldb-api-client creates a Vert.x client when a ksqlDB is configured (KafkaModule.java:364-379, documented docs/docs/configuration/brokers.md:20-40), so the DNS server / on-path attacker answering the ksqlDB host lookup feeds DnsCodecUtil.decodeDomainName / DefaultDnsRecordDecoder. 4.1.108 DnsCodecUtil.decodeDomainName appends raw label bytes without validation (no NUL/dot checks).",
+        "requires": "akhq.connections.<c>.ksqldb configured"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#29",
+      "facts": {
+        "package": "io.netty:netty-codec-dns",
+        "version": "4.1.108.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-73508",
+            "GHSA-mfg7-5gfp-c4w3"
+          ],
+          [
+            "io.netty:netty-codec-dns"
+          ]
+        ],
+        "advisory_summary": "Netty: Memory Leak in DNS Record Decoder via Malformed Domain Names \u2014 ### Summary\nA memory leak can be caused in Netty's DNS codec by sending malicious DNS packets containing invalid domain names. Because the leak occurs incrementally per packet, sustained malicious requests will cause a gradual Denial of Service.\n\n### Details\nInside `io.netty.handler.codec.dns.AbstractDnsRecord`, the parsed domain name string is passed to `IDN.toASCII(name)`. If the domain name contains characters that violate IDNA rules, `IDN.toASCII` throws an `IllegalArgumentException`.\n\nBecause this exception occurs insid",
+        "vuln_symbols": [
+          "io.netty.handler.codec.dns.AbstractDnsRecord",
+          "IDN.toASCII",
+          "IllegalArgumentException",
+          "DnsRecord",
+          "in.retainedDuplicate",
+          "out"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Netty DNS codec decodes responses in netty-resolver-dns DnsNameResolver, which Vert.x 4.4.6 uses by default (io/vertx/core/impl/resolver/DnsResolverProvider; disabled only by vertx.disableDnsResolver). ksqldb-api-client creates a Vert.x client when a ksqlDB is configured (KafkaModule.java:364-379, documented docs/docs/configuration/brokers.md:20-40), so the DNS server / on-path attacker answering the ksqlDB host lookup feeds DnsCodecUtil.decodeDomainName / DefaultDnsRecordDecoder. 4.1.108 AbstractDnsRecord.java:72-86 calls IDN.toASCII on decoded names; DefaultDnsRecordDecoder.java:105 retainedDuplicate leaks when that throws.",
+        "requires": "akhq.connections.<c>.ksqldb configured"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#30",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42585",
+            "GHSA-38f8-5428-x5cv"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty vulnerable to HTTP Request Smuggling due to malformed Transfer-Encoding \u2014 ### Summary\nNetty incorrectly parses malformed Transfer-Encoding, enabling request smuggling attacks.\n\n### Details\nNetty incorrectly marks a request as chunked when malformed \"Transfer-Encoding: chunked, identity\" is present.\nAccording to RFC https://datatracker.ietf.org/doc/html/rfc9112#name-message-body-length\n\n\"\nIf a Transfer-Encoding header field is present in a request and the chunked transfer coding is not the final encoding,\n the message body length cannot be determined reliably; the server MUST respond with",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Micronaut netty server installs HttpServerCodec on every HTTP/1.x connection (io/micronaut/http/server/netty/HttpPipelineBuilder$ConnectionPipeline references HttpServerCodec), so HttpObjectDecoder parses every attacker request; HttpUtil.isTransferEncodingChunked (HttpUtil.java:319-320) matches 'chunked' anywhere in TE, e.g. 'chunked, identity'."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#31",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59898",
+            "GHSA-4mp9-239f-g9hg"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: WebSockets V07/V08 handshaker missing Connection/Upgrade validation \u2014 ## Summary\nAn attacker can force WebSocket upgrade via the lax V07 (or V08) handshaker by sending `Sec-WebSocket-Version: 7` and omitting `Connection: Upgrade` / `Upgrade: websocket` headers, completing a protocol switch that a proxy would not recognize as an Upgrade request and enabling HTTP request smuggling / protocol-confusion attacks.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AKHQ declares no @ServerWebSocket routes (grep src/main/java), so Micronaut NettyServerWebSocketUpgradeHandler never handshakes; it also only engages on requests carrying Upgrade: websocket. Vert.x WebSocket code present is client-side (ksql client, unused for WS)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#32",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42584",
+            "GHSA-57rv-r2g8-2cj3"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty has HttpClientCodec response desynchronization \u2014 ### Summary\n If HttpClientCodec is configured, there are use cases when a response body from one request, can be parsed as another's.\n\n### Details\nHttpClientCodec pairs each inbound response with an outbound request by `queue.poll()` once per response, including for `1xx`. If the client pipelines GET then HEAD and the server sends 103, then 200 with GET body, then 200 for HEAD, the queue pairs HEAD with the first 200. The HEAD rule then skips reading that message\u2019s body, so the GET entity bytes stay on the stream and the following 200 is p",
+        "vuln_symbols": [
+          "queue.poll"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a pipelining HttpClientCodec user sending GET then HEAD; Micronaut HTTP client (GithubApiClient, RestApiClaimProvider, OIDC) and Vert.x (ksqldb client, pipelining off by default) do not pipeline; AWS netty-nio-client not pipelined."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#33",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-56746",
+            "GHSA-6cqp-g7gg-8hr5"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: Security Control Bypass via CORS Short-Circuit Failure \u2014 ### Summary\nNetty's CorsHandler provides a `shortCircuit()` configuration designed to reject unauthorized cross-origin requests immediately, acting as a security control before requests reach the application. However, due to a logical operator error in the origin evaluation process, this protection can be entirely bypassed. An attacker can bypass the short-circuit mechanism by sending a request with an `Origin: null` header. This failure forwards unauthorized requests to the backend application, bypassing intended access controls.",
+        "vuln_symbols": [
+          "shortCircuit",
+          "getForOrigin",
+          "isNullOriginAllowed"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty CorsHandler (io/netty/handler/codec/http/cors) is not referenced by any class outside netty; Micronaut uses its own CorsFilter."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#34",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55831",
+            "GHSA-6jqx-86gh-f27w"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty SPDY SETTINGS frame count materializes unbounded settings map \u2014 ### Summary\nNetty's SPDY SETTINGS decoder accepts a peer-declared SETTINGS entry count up to the 24-bit frame-length limit and materializes every unique setting ID in `DefaultSpdySettingsFrame` without an implementation-level count cap. A remote SPDY/3.1 peer can send one syntactically valid roughly 2 MiB SETTINGS frame that creates 262144 map entries, amplifying network input into heap growth and ordered-map insertion work.\n\n### Details\nInbound SPDY bytes enter `SpdyFrameCodec.decode()` and are passed directly to the frame ",
+        "vuln_symbols": [
+          "DefaultSpdySettingsFrame",
+          "SpdyFrameCodec.decode",
+          "numSettings",
+          "spdySettingsFrame.setValue",
+          "TreeMap",
+          "Setting"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SPDY codec not used: no class outside io/netty references io/netty/handler/codec/spdy; Micronaut server speaks HTTP/1.1 and HTTP/2 only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#35",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-67735",
+            "GHSA-84h7-rjj3-6jx4"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty has a CRLF Injection vulnerability in io.netty.handler.codec.http.HttpRequestEncoder \u2014 ### Summary\n\nThe `io.netty.handler.codec.http.HttpRequestEncoder` CRLF injection with the request uri when constructing a request. This leads to request smuggling when `HttpRequestEncoder` is used without proper sanitization of the uri.\n\n### Details\n\nThe `HttpRequestEncoder` simply UTF8 encodes the `uri` without sanitization (`buf.writeByte(SP).writeCharSequence(uriCharSequence, CharsetUtil.UTF_8);`)\n\nThe default implementation of HTTP headers guards against such possibility already with a validator ma",
+        "vuln_symbols": [
+          "io.netty.handler.codec.http.HttpRequestEncoder",
+          "HttpRequestEncoder",
+          "uri"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.129.Final",
+          "4.2.8.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HttpRequestEncoder is only used client-side (Micronaut client, Vert.x ksql client, AWS netty-nio-client) with URIs built from config/fixed paths (GithubApiClient.java:14 '/user', RestApiClaimProvider fixed URL; ksql client fixed endpoints); Micronaut URI templating encodes values. No attacker CRLF reaches a request URI."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#36",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59903",
+            "GHSA-8c42-7qj2-3j46"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty Vulnerable to Cache Poisoning and Information Disclosure via CORS Vary Header Overwrite \u2014 ### Summary\nNetty's `CorsHandler` silently overwrites existing `Vary` headers, enabling cache poisoning and sensitive information disclosure.\n\n### Details\n`io.netty.handler.codec.http.cors.CorsHandler#setVaryHeader` overwrites any existing Vary headers set by backend applications. \n\n```java\n    private static void setVaryHeader(final HttpResponse response) {\n        response.headers().set(HttpHeaderNames.VARY, HttpHeaderNames.ORIGIN);\n    }\n```\n\nBecause `set()` replaces all existing values for the h",
+        "vuln_symbols": [
+          "CorsHandler",
+          "Vary",
+          "set"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.137.Final",
+          "4.2.17.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty CorsHandler not used by any class outside netty (Micronaut CORS is its own filter), so setVaryHeader never runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#37",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42587",
+            "GHSA-f6hv-jmp6-3vwv"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: HttpContentDecompressor maxAllocation bypass when Content-Encoding set to br/zstd/snappy leads to decompression bomb DoS \u2014 ## Summary\n\n`HttpContentDecompressor` accepts a `maxAllocation` parameter to limit decompression buffer size and prevent decompression bomb attacks. This limit is correctly enforced for gzip and deflate encodings via `ZlibDecoder`, but is silently ignored when the content encoding is `br` (Brotli), `zstd`, or `snappy`. An attacker can bypass the configured decompression limit by sending a compressed payload with `Content-Encoding: br` instead of `Content-Encoding: g",
+        "vuln_symbols": [
+          "HttpContentDecompressor",
+          "maxAllocation",
+          "ZlibDecoder",
+          "br",
+          "zstd",
+          "snappy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): netty-codec-http 4.1.118 HttpContentDecompressor.java:75-87 decodes br (if Brotli available), snappy (always) and zstd (Zstd.isAvailable; zstd-jni with native libs is bundled in the jar) with no allocation limit at all (no maxAllocation param in this version). The Micronaut SERVER does not use it (PipeliningServerHandler$MessageInboundHandler builds its own ZlibDecoder/BrotliDecoder/SnappyFrameDecoder chain), so inbound request bodies are not this code. The Micronaut HTTP CLIENT always installs it: ConnectionManager.initHttp1 adds 'http-decoder' new HttpContentDecompressor() (also Http2ConnectionHolder). AKHQ uses that client only for optional, documented integrations: GitHub OAuth GithubApiClient.java:11, external REST claim provider RestApiClaimProvider.java:20 (akhq.security.rest), and micronaut-security-oauth2 OIDC discovery/token/JWKS calls (application.example.yml:17-21,282-292; docs/docs/configuration/authentifications/oidc.md, github.md, external.md). A malicious/compromised IdP or on-path attacker returning Content-Encoding: snappy/zstd bombs hits it. Vert.x client (ksqlDB) only adds it when tryUseCompression (default false); Kafka Connect/Schema Registry clients don't use netty HTTP."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#38",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58056",
+            "GHSA-fghv-69vj-qj49"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty vulnerable to request smuggling due to incorrect parsing of chunk extensions \u2014 ## Summary\nA flaw in netty's parsing of chunk extensions in HTTP/1.1 messages with chunked encoding can lead to request smuggling issues with some reverse proxies.\n\n## Details\nWhen encountering a newline character (LF) while parsing a chunk extension, netty interprets the newline as the end of the chunk-size line regardless of whether a preceding carriage return (CR) was found. This is in violation of the HTTP 1.1 standard which specifies that the chunk extension is terminated by a CRLF sequence (see the [RFC]",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.125.Final",
+          "4.2.5.Final"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Micronaut netty server installs HttpServerCodec on every HTTP/1.x connection (io/micronaut/http/server/netty/HttpPipelineBuilder$ConnectionPipeline references HttpServerCodec), so HttpObjectDecoder parses every attacker request; chunk-size line parsing in 4.1.118 accepts bare LF in chunk extensions (fixed 4.1.125)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#39",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59921",
+            "GHSA-gcjf-9mgh-3p7g"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: CRLF Injection via Multipart Filename in Netty HttpPostRequestEncoder \u2014 # Security Vulnerability Report: CRLF Injection via Multipart Filename in Netty HttpPostRequestEncoder\n\n## 1. Vulnerability Summary\n\n| Field | Value |\n|-------|-------|\n| **Product** | Netty |\n| **Version** | 4.2.12.Final (and all prior versions with codec-http multipart) |\n| **Component** | `io.netty.handler.codec.http.multipart.HttpPostRequestEncoder` |\n| **Vulnerability Type** | CWE-93: Improper Neutralization of CRLF Sequences / CWE-113: HTTP Response Splitting |\n| **Impact** | MIME Header Injection / Content-Ty",
+        "vuln_symbols": [
+          "io.netty.handler.codec.http.multipart.HttpPostRequestEncoder",
+          "io.netty.handler.codec.http.multipart.DiskFileUpload",
+          "setFilename",
+          "io.netty.handler.codec.http.multipart.MemoryFileUpload",
+          "io.netty.handler.codec.http.multipart.MixedFileUpload",
+          "HttpPostRequestEncoder"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HttpPostRequestEncoder (client multipart) only referenced by Micronaut client multipart support; AKHQ's clients (GithubApiClient, RestApiClaimProvider) send no multipart bodies."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#40",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-50020",
+            "GHSA-hvcg-qmg6-jm4c"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: HttpObjectDecoder skips arbitrary initial control characters when only initial CRLF characters are permitted \u2014 ## Summary\n\nBefore reading the first request-line, `HttpObjectDecoder` skips every byte for which\n`Character.isISOControl(b)` is `true` (0x00\u20130x1F and 0x7F) as well as all whitespace.\nRFC 9112 \u00a72.2 only asks servers to ignore **empty CRLF lines** preceding the request-line \u2014\na carefully scoped robustness allowance intended to handle HTTP/1.0 POST workarounds.\nSilently absorbing NUL bytes, SOH, STX, and other non-CRLF control characters goes\nsignificantly beyond this, and can be",
+        "vuln_symbols": [
+          "HttpObjectDecoder",
+          "ISO_CONTROL_OR_WHITESPACE",
+          "SKIP_CONTROL_CHARS_BYTES",
+          "ByteProcessor",
+          "LineParser.skipControlChars",
+          "readerIndex"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Micronaut netty server installs HttpServerCodec on every HTTP/1.x connection (io/micronaut/http/server/netty/HttpPipelineBuilder$ConnectionPipeline references HttpServerCodec), so HttpObjectDecoder parses every attacker request; HttpObjectDecoder.java:1220-1254 skipControlChars skips all ISO control chars/whitespace before the request line."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#41",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-56745",
+            "GHSA-jppx-w49h-x2qq"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: [SpdyHttpDecoder] ByteBuf Reference Leak on RST_STREAM Leads to Native Memory Exhaustion \u2014 The `SpdyHttpDecoder` handler in Netty's SPDY-to-HTTP codec allocates a pooled `ByteBuf` when processing a client-initiated `SYN_STREAM` frame with `FLAG_FIN=0`, storing the partially-constructed `FullHttpRequest` in an internal map (`messageMap`) to accumulate subsequent `DATA` frames. When the remote peer sends an `RST_STREAM` for that stream, or when the accumulated content exceeds `maxContentLength`, the decoder removes the entry from the map but **never releases the pooled ByteBuf**, permanen",
+        "vuln_symbols": [
+          "SpdyHttpDecoder",
+          "ByteBuf",
+          "SYN_STREAM",
+          "FullHttpRequest",
+          "messageMap",
+          "DATA"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SpdyHttpDecoder not used; no SPDY in Micronaut pipeline and no class outside netty references codec/spdy."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#42",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42580",
+            "GHSA-m4cv-j2px-7723"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty vulnerable to HTTP Request Smuggling due to incorrect chunk size parsing \u2014 ### Summary\nNetty's chunk size parser silently overflows int, enabling request smuggling attacks.\n\n### Details\nio.netty.handler.codec.http.HttpObjectDecoder#getChunkSize silently overflows int.\n\nThe size is accumulated as follows:\n\nresult *= 16;\nresult += digit;\n\nThe result is checked only for negative values. However, with a carefully crafted chunk size, the result can be a valid size.\n\n### PoC\nThe test below shows Netty successfully parsing the second request, demonstrating how an attacker can smuggle a second r",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Micronaut netty server installs HttpServerCodec on every HTTP/1.x connection (io/micronaut/http/server/netty/HttpPipelineBuilder$ConnectionPipeline references HttpServerCodec), so HttpObjectDecoder parses every attacker request; HttpObjectDecoder.getChunkSize (HttpObjectDecoder.java:908) accumulates without int-overflow check."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#43",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55833",
+            "GHSA-mvh2-crg5-v77c"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty SPDY zlib header block continues decoded expansion after maxHeaderSize truncation \u2014 ### Summary\nNetty SPDY header decoding continues inflating zlib-compressed header blocks after the raw header parser has already exceeded maxHeaderSize and marked the frame truncated. At commit b2d2137c4404af425bf9d5d601a62576f5c06925, a 12,253-byte compressed SPDY header block can declare and inflate a 12 MiB header-name field with maxHeaderSize=16, forcing compression-amplified decode and skip work in a reachable SpdyFrameCodec pipeline.\n\n### PoC\n[poc.zip](https://github.com/user-attachments/files/28445",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SPDY header decoding not used (no codec/spdy refs outside netty)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#44",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33870",
+            "GHSA-pwqr-wmgm-9rr8"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: HTTP Request Smuggling via Chunked Extension Quoted-String Parsing \u2014 ## Summary\n\nNetty incorrectly parses quoted strings in HTTP/1.1 chunked transfer encoding extension values, enabling request smuggling attacks.\n\n## Background\n\nThis vulnerability is a new variant discovered during research into the \"Funky Chunks\" HTTP request smuggling techniques:\n\n- <https://w4ke.info/2025/06/18/funky-chunks.html>\n- <https://w4ke.info/2025/10/29/funky-chunks-2.html>\n\nThe original research tested various chunk extension parsing differentials but did not cover quoted-string handling within extension val",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.132.Final",
+          "4.2.10.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Micronaut netty server installs HttpServerCodec on every HTTP/1.x connection (io/micronaut/http/server/netty/HttpPipelineBuilder$ConnectionPipeline references HttpServerCodec), so HttpObjectDecoder parses every attacker request; chunk extension quoted-string handling in 4.1.118 HttpObjectDecoder (fixed 4.1.132)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#45",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59899",
+            "GHSA-q4f6-jm68-57ww"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: [HttpContentEncoder] Unbounded Per-Connection Queue Growth via HTTP/1.1 Pipelining Leads to Denial of Service \u2014 ### Impact\n`HttpContentEncoder` (the superclass of the production handler `HttpContentCompressor`) maintains a per-channel `ArrayDeque<CharSequence>` named `acceptEncodingQueue` that accumulates attacker-controlled data without any size limit. The queue is filled on the I/O thread for every inbound HTTP request and drained only when the application later writes a non-1xx response. This creates a resource exhaustion vulnerability when an attacker exploits HTTP/1.1 pipelining to",
+        "vuln_symbols": [
+          "HttpContentEncoder",
+          "HttpContentCompressor",
+          "acceptEncodingQueue"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HttpContentEncoder/HttpContentCompressor only referenced by Vert.x server classes (HttpServerWorker, HttpChunkContentCompressor), and AKHQ starts no Vert.x HTTP server; Micronaut response compression uses its own io/micronaut/http/server/netty/handler/Compressor."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#46",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41417",
+            "GHSA-v8h7-rr48-vmmv"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty: Start-Line Injection in DefaultHttpRequest.setUri() Allows HTTP Request Smuggling and RTSP Request Injection \u2014 ### Summary\nNetty allows request-line validation to be bypassed when a `DefaultHttpRequest` or `DefaultFullHttpRequest` is created first and its URI is later changed via `setUri()`.\n\nThe constructors reject CRLF and whitespace characters that would break the start-line, but `setUri()` does not apply the same validation. `HttpRequestEncoder` and `RtspEncoder` then write the URI into the request line verbatim. If attacker-controlled input reaches `setUri()`, this enables CRLF inj",
+        "vuln_symbols": [
+          "DefaultHttpRequest",
+          "DefaultFullHttpRequest",
+          "setUri",
+          "HttpRequestEncoder",
+          "RtspEncoder",
+          "io.netty.handler.codec.http.DefaultHttpRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No class outside io/netty calls DefaultHttpRequest.setUri (byte search of jar); RtspEncoder unused; client request URIs are not attacker-controlled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#47",
+      "facts": {
+        "package": "io.netty:netty-codec-http",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42581",
+            "GHSA-xxqh-mfjm-7mv9"
+          ],
+          [
+            "io.netty:netty-codec-http"
+          ]
+        ],
+        "advisory_summary": "Netty HTTP/1.0 TE+CL Coexistence Bypasses Smuggling Sanitization \u2014 # NETTY HTTP/1.0 TE+CL Coexistence Bypasses Smuggling Sanitization\n\n| Field     | Value |\n|-----------|-------|\n| Library   | `io.netty:netty-codec-http` |\n| Component | `codec-http` \u2014 `HttpObjectDecoder` |\n| Severity  | **HIGH** |\n| Affects   | HEAD, commit `4f3533ae` confirmed |\n\n---\n\n## Summary\n\n`HttpObjectDecoder` strips a conflicting `Content-Length` header when a request carries both `Transfer-Encoding: chunked` and `Content-Length`, but only for HTTP/1.1 messages. The guard is absent for HTTP/1.0. An attacker that sends ",
+        "vuln_symbols": [
+          "HttpObjectDecoder",
+          "HttpMessage",
+          "handleTransferEncodingChunkedWithContentLength",
+          "EmbeddedChannel"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Micronaut netty server installs HttpServerCodec on every HTTP/1.x connection (io/micronaut/http/server/netty/HttpPipelineBuilder$ConnectionPipeline references HttpServerCodec), so HttpObjectDecoder parses every attacker request; HttpObjectDecoder.java:797-800 strips Content-Length only when protocolVersion == HTTP_1_1, so HTTP/1.0 requests with TE: chunked + CL keep both."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#48",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-50560",
+            "GHSA-563q-j3cm-6jxm"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty susceptible to HTTP/2 Reset Attack with different on-the-wire signature \u2014 ### Summary\n\nNetty HTTP/2 max header size handling produces attack similar to HTTP/2 Rapid Reset.\n\n### Details\n\nThere is a setting in the http2 specification called `SETTINGS_MAX_HEADER_LIST_SIZE`. According to[ the RFC](https://www.rfc-editor.org/rfc/rfc9113.html#name-defined-settings): \u201cThis advisory setting informs a peer of the maximum field section size that the sender is prepared to accept, in units of octets.\u201d\n\nWhen a client sends that setting to Netty, it appears that Netty will behave as follows:\n\n- Read t",
+        "vuln_symbols": [
+          "SETTINGS_MAX_HEADER_LIST_SIZE"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Micronaut HTTP server (micronaut-http-server-netty, HttpPipelineBuilder$ConnectionPipeline) installs Http2FrameCodec/Http2MultiplexHandler only via configureForAlpn/configureForH2cSupport when micronaut.server.http-version=2.0; default is HTTP/1.1 and AKHQ's src/main/resources/application.yml:1-15 sets no http-version, and AKHQ docs (docs/docs/configuration/others.md:13) only link generically to Micronaut config (only SSL is documented). Only other HTTP/2 user is the Vert.x HTTP/2 client inside ksqldb-api-client (ClientImpl setProtocolVersion HTTP_2; created in src/main/java/org/akhq/modules/KafkaModule.java:370-379 when a ksqldb is configured, documented docs/docs/configuration/brokers.md:20-24). The SETTINGS_MAX_HEADER_LIST_SIZE reset-style attack targets a Netty HTTP/2 server; as a client talking to an operator-configured ksqlDB server it has no meaningful effect.",
+        "requires": "micronaut.server.http-version: 2.0 (undocumented by AKHQ)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#49",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47244",
+            "GHSA-5x3r-wrvg-rp6q"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty HTTP/2: Advertised MAX_CONCURRENT_STREAMS are not enforced \u2014 ### Impact\nDefaultHttp2Connection.DefaultEndpoint initialises maxActiveStreams/maxStreams to Integer.MAX_VALUE, and Http2Settings never inserts SETTINGS_MAX_CONCURRENT_STREAMS by default (Http2Settings.java:305-307 only clamps a user-supplied value). Unless the application explicitly calls initialSettings().maxConcurrentStreams(n), a Netty HTTP/2 server advertises no limit and enforces none locally. Each open stream allocates a DefaultStream object, PropertyMap slots, flow-controller state and IntObjectHashMap entry; with ~2^30",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Micronaut HTTP server (micronaut-http-server-netty, HttpPipelineBuilder$ConnectionPipeline) installs Http2FrameCodec/Http2MultiplexHandler only via configureForAlpn/configureForH2cSupport when micronaut.server.http-version=2.0; default is HTTP/1.1 and AKHQ's src/main/resources/application.yml:1-15 sets no http-version, and AKHQ docs (docs/docs/configuration/others.md:13) only link generically to Micronaut config (only SSL is documented). Only other HTTP/2 user is the Vert.x HTTP/2 client inside ksqldb-api-client (ClientImpl setProtocolVersion HTTP_2; created in src/main/java/org/akhq/modules/KafkaModule.java:370-379 when a ksqldb is configured, documented docs/docs/configuration/brokers.md:20-24). Unenforced MAX_CONCURRENT_STREAMS is about peer-initiated streams on a server; the ksqlDB client opens its own streams.",
+        "requires": "micronaut.server.http-version: 2.0 (undocumented by AKHQ)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#50",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-56819",
+            "GHSA-93wv-jw9v-4972"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty: HTTP/2 decompression leaks ByteBuf reference count when the decompressor channel is already closed (Direct memory leak / OOM DoS) \u2014 ### Summary\n\nA remote, unauthenticated peer can leak one direct `ByteBuf` per HTTP/2 `DATA` frame in\napplications that enable HTTP/2 content decompression via `DelegatingDecompressorFrameListener`.\nWhen a `DATA` frame is processed for a stream whose decompressor has already been closed,\n`Http2Decompressor.decompress(...)` retains the frame buffer but never releases it on the error\npath, so its reference count never returns to zero. Repeating this over a lon",
+        "vuln_symbols": [
+          "ByteBuf",
+          "DATA",
+          "DelegatingDecompressorFrameListener",
+          "OutOfMemoryError",
+          "data.retain",
+          "ensureOpen"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DelegatingDecompressorFrameListener is referenced only by io/vertx/core/http/impl/VertxHttp2ConnectionHandler.java:388, installed only when useDecompression (Http2ClientConnection.java:691 isTryUseCompression / HttpServerWorker.java:248 server). ksqldb-api-client ClientImpl never sets tryUseCompression (default false) and no Vert.x server runs; Micronaut client/server HTTP/2 paths do not use it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#51",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48043",
+            "GHSA-c2gf-v879-257j"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "netty-codec-http2: ByteBuf Reference-Count Leak in DelegatingDecompressorFrameListener Leads to Memory Exhaustion \u2014 ### Impact\n\nThe `DelegatingDecompressorFrameListener` class orchestrates HTTP/2 decompression by embedding a per-stream `EmbeddedChannel` that runs the appropriate decompression codec (gzip, deflate, zstd) and forwards decompressed chunks to a wrapped listener. Each decompressed chunk is a pooled `ByteBuf` handed to an anonymous `ChannelInboundHandlerAdapter` tail handler, which becomes the sole owner responsible for releasing it.\n\nA remote peer could send frames that would resul",
+        "vuln_symbols": [
+          "DelegatingDecompressorFrameListener",
+          "EmbeddedChannel",
+          "ByteBuf",
+          "ChannelInboundHandlerAdapter"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 49: DelegatingDecompressorFrameListener only via Vert.x VertxHttp2ConnectionHandler.java:388 with tryUseCompression (not set by ksqldb-api-client ClientImpl) or a Vert.x server (none in app)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#52",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59900",
+            "GHSA-c69g-56f8-xwqj"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty: [codec-http2] Lack of Host Header Deduplication in HTTP/2\u2192HTTP/1.x Translation Leads to Request Routing Bypass \u2014 Netty's HTTP/2-to-HTTP/1.x translation layer (`Http2StreamFrameToHttpObjectCodec` and `InboundHttp2ToHttpAdapter`) fails to deduplicate or validate `Host` headers when an HTTP/2 client supplies both the `:authority` pseudo-header and a literal `host` header in a single HEADERS frame. The translator maps `:authority` to `Host` and separately copies the literal `host` header, producing an `HttpRequest` object containing two `Host` headers with attacker-controlled differing valu",
+        "vuln_symbols": [
+          "Http2StreamFrameToHttpObjectCodec",
+          "InboundHttp2ToHttpAdapter",
+          "Host",
+          "host",
+          "HttpRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final",
+          "4.2.16.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Micronaut HTTP server (micronaut-http-server-netty, HttpPipelineBuilder$ConnectionPipeline) installs Http2FrameCodec/Http2MultiplexHandler only via configureForAlpn/configureForH2cSupport when micronaut.server.http-version=2.0; default is HTTP/1.1 and AKHQ's src/main/resources/application.yml:1-15 sets no http-version, and AKHQ docs (docs/docs/configuration/others.md:13) only link generically to Micronaut config (only SSL is documented). Http2StreamFrameToHttpObjectCodec is used by Micronaut server HttpPipelineBuilder$StreamPipeline (HTTP/2 only) and by the Micronaut client ConnectionManager$Pool$Http2ConnectionHolder for responses, where Host dedup is irrelevant. InboundHttp2ToHttpAdapter has no users outside Netty.",
+        "requires": "micronaut.server.http-version: 2.0 (undocumented by AKHQ)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#53",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42587",
+            "GHSA-f6hv-jmp6-3vwv"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty: HttpContentDecompressor maxAllocation bypass when Content-Encoding set to br/zstd/snappy leads to decompression bomb DoS \u2014 ## Summary\n\n`HttpContentDecompressor` accepts a `maxAllocation` parameter to limit decompression buffer size and prevent decompression bomb attacks. This limit is correctly enforced for gzip and deflate encodings via `ZlibDecoder`, but is silently ignored when the content encoding is `br` (Brotli), `zstd`, or `snappy`. An attacker can bypass the configured decompression limit by sending a compressed payload with `Content-Encoding: br` instead of `Content-Encoding: g",
+        "vuln_symbols": [
+          "HttpContentDecompressor",
+          "maxAllocation",
+          "ZlibDecoder",
+          "br",
+          "zstd",
+          "snappy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Row is netty-codec-http2: its counterpart is DelegatingDecompressorFrameListener (br/zstd/snappy at DelegatingDecompressorFrameListener.java:186-194), used only by Vert.x with tryUseCompression (off for ksqldb-api-client). The codec-http HttpContentDecompressor is used by the Micronaut HTTP client (ConnectionManager, e.g. OIDC/rest claim provider responses) but in shipped 4.1.118 it has no maxAllocation at all (HttpContentDecompressor.java:47,57 constructors), so there is no configured limit to bypass; Micronaut server does not install it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#54",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-55163",
+            "GHSA-prj3-ccx8-p6x4"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty affected by MadeYouReset HTTP/2 DDoS vulnerability \u2014 Below is a technical explanation of a newly discovered vulnerability in HTTP/2, which we refer to as \u201cMadeYouReset.\u201d\n\n### MadeYouReset Vulnerability Summary\nThe MadeYouReset DDoS vulnerability is a logical vulnerability in the HTTP/2 protocol, that uses malformed HTTP/2 control frames in order to break the max concurrent streams limit - which results in resource exhaustion and distributed denial of service.\n\n### Mechanism\nThe vulnerability uses malformed HTTP/2 control frames, or malformed flow, in order to make the server reset stream",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.124.Final",
+          "4.2.4.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Micronaut HTTP server (micronaut-http-server-netty, HttpPipelineBuilder$ConnectionPipeline) installs Http2FrameCodec/Http2MultiplexHandler only via configureForAlpn/configureForH2cSupport when micronaut.server.http-version=2.0; default is HTTP/1.1 and AKHQ's src/main/resources/application.yml:1-15 sets no http-version, and AKHQ docs (docs/docs/configuration/others.md:13) only link generically to Micronaut config (only SSL is documented). Only other HTTP/2 user is the Vert.x HTTP/2 client inside ksqldb-api-client (ClientImpl setProtocolVersion HTTP_2; created in src/main/java/org/akhq/modules/KafkaModule.java:370-379 when a ksqldb is configured, documented docs/docs/configuration/brokers.md:20-24). MadeYouReset makes a server reset streams to bypass its concurrent-stream limit; server-side only.",
+        "requires": "micronaut.server.http-version: 2.0 (undocumented by AKHQ)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#55",
+      "facts": {
+        "package": "io.netty:netty-codec-http2",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33871",
+            "GHSA-w9fj-cfpg-grvv"
+          ],
+          [
+            "io.netty:netty-codec-http2"
+          ]
+        ],
+        "advisory_summary": "Netty HTTP/2 CONTINUATION Frame Flood DoS via Zero-Byte Frame Bypass \u2014 ### Summary\nA remote user can trigger a Denial of Service (DoS) against a Netty HTTP/2 server by sending a flood of `CONTINUATION` frames. The server's lack of a limit on the number of `CONTINUATION` frames, combined with a bypass of existing size-based mitigations using zero-byte frames, allows an user to cause excessive CPU consumption with minimal bandwidth, rendering the server unresponsive.\n\n### Details\nThe vulnerability exists in Netty's `DefaultHttp2FrameReader`. When an HTTP/2 `HEADERS` frame is received without the",
+        "vuln_symbols": [
+          "CONTINUATION",
+          "DefaultHttp2FrameReader",
+          "HEADERS",
+          "END_HEADERS",
+          "verifyContinuationFrame",
+          "maxHeaderListSize"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.132.Final",
+          "4.2.11.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Micronaut HTTP server (micronaut-http-server-netty, HttpPipelineBuilder$ConnectionPipeline) installs Http2FrameCodec/Http2MultiplexHandler only via configureForAlpn/configureForH2cSupport when micronaut.server.http-version=2.0; default is HTTP/1.1 and AKHQ's src/main/resources/application.yml:1-15 sets no http-version, and AKHQ docs (docs/docs/configuration/others.md:13) only link generically to Micronaut config (only SSL is documented). However DefaultHttp2FrameReader (HEADERS/CONTINUATION handling) is also used by the Vert.x HTTP/2 client in ksqldb-api-client (prior-knowledge HTTP_2, KafkaModule.java:370-379), so a malicious ksqlDB server or network attacker on a plaintext ksqlDB link can flood zero-length CONTINUATION frames to AKHQ. Advisory is framed against servers; labelled reachable because the shared frame-reader code processes attacker frames on a documented outbound connection.",
+        "requires": "akhq.connections.<c>.ksqldb configured (documented, brokers.md:20-24)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#56",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44249",
+            "GHSA-3qp7-7mw8-wx86"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty has an IPv6 Subnet Filter Bypass via Incorrect Comparator Masking \u2014 ### Summary\nAn attacker can bypass IPv6 subnet rules due to an incorrect masking operation in IpSubnetFilterRule.compareTo(). Valid public IP addresses can bypass the restrictions.\n\n### Details\n`io.netty.handler.ipfilter.IpSubnetFilterRule#compareTo(java.net.InetSocketAddress)` method performs a bitwise AND between the incoming IP address and the configured networkAddress, instead of the subnetMask.\n\n### Impact\nAccess Control Bypass. Attacker can bypass IpSubnetFilter IPv6 access controls.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "IpSubnetFilter/IpSubnetFilterRule referenced by no class outside io/netty in the shadow jar (byte-scan); Micronaut server and app do not install ip filters."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#57",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-75595",
+            "GHSA-c4c3-7fpv-j4q5"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: SNI Routing Bypass via Fragmented TLS ClientHello Causing Fallback to Default SslContext \u2014 ### Summary\nA fragmented TLS ClientHello whose handshake header spans multiple records makes Netty silently fall back to the default SslContext; where per-SNI selection is the sole mTLS gate, an unauthenticated attacker can bypass the route's mTLS requirement.\n\n### Details\nIn `io.netty.handler.ssl.SslClientHelloHandler#decode` the guard that should wait for the 4-byte handshake header checks the wrong offset - it ignores the 5-byte record header that precedes it - and therefore never fires:\n\n```ja",
+        "vuln_symbols": [
+          "SslContext"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.137.Final",
+          "4.2.17.Final"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SslClientHelloHandler/SniHandler/AbstractSniHandler are referenced outside Netty only by Vert.x server-side SNI (io/vertx/core/net/impl/SslChannelProvider, VertxSniHandler); no Vert.x server runs (only ksqldb-api-client client). Micronaut server SSL (ServerSslBuilder) uses plain SslHandler, no SNI routing."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#58",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-50010",
+            "GHSA-c653-97m9-rcg9"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: Wrapping plain trust manager silently disables hostname verification \u2014 SimpleTrustManagerFactory.engineGetTrustManagers() and related paths wrap any user-supplied plain X509TrustManager in X509TrustManagerWrapper, which extends X509ExtendedTrustManager but implements the 3-arg checkServerTrusted(chain, authType, SSLEngine) by discarding the SSLEngine and calling the 2-arg delegate. Because the object now IS an X509ExtendedTrustManager, neither SunJSSE's internal AbstractTrustManagerWrapper nor Netty's own OpenSslX509TrustManagerWrapper will re-wrap it to add endpoint-identification. Con",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "X509TrustManagerWrapper is applied only in SimpleTrustManagerFactory.java:151 subclasses. Users: InsecureTrustManagerFactory (trust-all anyway), FingerprintTrustManagerFactory, AWS netty-nio-client StaticTrustManagerFactory (custom TlsTrustManagersProvider, not configured by AKHQ). Vert.x uses its own VertxTrustManagerFactory extends JDK TrustManagerFactory (vertx SslContextProvider.java:188) and Micronaut client uses JDK PKIX factories (X509ExtendedTrustManager, no wrap)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#59",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-75596",
+            "GHSA-fccg-mwvh-qqg4"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: Fragmented ClientHello records trigger quadratic pre-handshake reassembly in default SNI parsing \u2014 ### Summary\n\nNetty's default SNI entrypoint reparses and recopies previously received ClientHello fragments on every additional TLS handshake record. A remote peer can send a small first record that advertises a large ClientHello length and then drip the body in many tiny records, causing **superlinear (quadratic) CPU work** before the handshake completes. With 4095 one-byte fragments, the handler recopies **8,386,560 bytes** from only **24,579 bytes** on the wire \u2014 a **341\u00d7 amplification*",
+        "vuln_symbols": [
+          "io.netty.handler.ssl.SniHandler",
+          "io.netty.handler.ssl.SslClientHelloHandler",
+          "SniHandler"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.137.Final",
+          "4.2.17.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 56: SniHandler/SslClientHelloHandler only used by Vert.x server-side SNI, and no Vert.x/Netty SNI server runs in AKHQ."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#60",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.118.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45416",
+            "GHSA-x4gw-5cx5-pgmh"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: SNI handler pre-allocates up to 16 MiB from nine attacker bytes \u2014 SslClientHelloHandler.decode() reads the 24-bit TLS handshake length and, when the ClientHello does not fit in the first record, eagerly allocates `ctx.alloc().buffer(handshakeLength)` (line 161). The guard at line 140 is `handshakeLength > maxClientHelloLength && maxClientHelloLength != 0`, and the commonly-used SniHandler/AbstractSniHandler constructors (SniHandler(Mapping), SniHandler(AsyncMapping), AbstractSniHandler()) pass maxClientHelloLength=0 and handshakeTimeoutMillis=0, so the length guard is disabled and no ti",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as row 56: SslClientHelloHandler pre-allocation only in server SNI handlers (Vert.x SslChannelProvider/VertxSniHandler), not run in AKHQ."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#61",
+      "facts": {
+        "package": "io.netty:netty-handler-proxy",
+        "version": "4.1.108.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42578",
+            "GHSA-45q3-82m4-75jr"
+          ],
+          [
+            "io.netty:netty-handler-proxy"
+          ]
+        ],
+        "advisory_summary": "Netty has HTTP Header Injection via HttpProxyHandler Disabled Validation (Incomplete Fix CVE-2025-67735) \u2014 # Security Vulnerability Report: HTTP Header Injection via HttpProxyHandler Disabled Validation in Netty\n\n## 1. Vulnerability Summary\n\n| Field | Value |\n|-------|-------|\n| **Product** | Netty |\n| **Version** | 4.2.12.Final (and all prior versions) |\n| **Component** | `io.netty.handler.proxy.HttpProxyHandler` |\n| **Vulnerability Type** | CWE-113: Improper Neutralization of CRLF Sequences in HTTP Headers |\n| **Impact** | HTTP Header Injection in CONNECT Proxy Requests |\n| **CVSS 3.1 Score*",
+        "vuln_symbols": [
+          "io.netty.handler.proxy.HttpProxyHandler",
+          "newInitialMessage",
+          "HttpProxyHandler",
+          "outboundHeaders",
+          "validateRequestLineTokens",
+          "DefaultHttpRequest"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final",
+          "4.2.13.Final"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HttpProxyHandler used by Micronaut client ConnectionManager (micronaut.http.client.proxy-type: http) and Vert.x ChannelProvider (ProxyOptions; ksqldb ClientOptions sets none, KafkaModule.java:370-375). AKHQ docs/config never mention an outbound HTTP proxy (grep docs, application*.yml), and proxy headers/target come from operator config, not attacker input.",
+        "requires": "micronaut.http.client.proxy-type: http (undocumented by AKHQ)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#62",
+      "facts": {
+        "package": "io.netty:netty-resolver-dns",
+        "version": "4.1.108.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47691",
+            "GHSA-5pvg-856g-cp85"
+          ],
+          [
+            "io.netty:netty-resolver-dns"
+          ]
+        ],
+        "advisory_summary": "Netty has Insufficient Bailiwick Validation for NS Records \u2014 ### Summary\nNetty's `DnsResolveContext` insufficiently validates the bailiwick of NS records, enabling DNS Cache Poisoning. An attacker controlling an authoritative name server for a subdomain can poison the cache for parent domains (like `.co.uk`).\n\n### Details\nIn `io.netty.resolver.dns.DnsResolveContext.AuthoritativeNameServerList#add` method accepts any NS record from the AUTHORITY section as long as the record's name is a suffix of the questionName.\n\nThis means if the resolver queries evil.co.uk., it will accept an NS record clai",
+        "vuln_symbols": [
+          "DnsResolveContext",
+          "handleWithAdditional",
+          "authoritativeDnsServerCache"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty DnsNameResolver is used only by Vert.x (io/vertx/core/spi/resolver/ResolverProvider.java:38 default unless -Dvertx.disableDnsResolver; DnsResolverProvider.java:124-162) inside ksqldb-api-client, created per configured ksqlDB (KafkaModule.java:370-379, documented brokers.md:20-24). NS bailiwick poisoning needs the resolver to query a domain whose authoritative server the attacker controls; AKHQ's Vert.x only resolves the operator-configured ksqlDB hostname via the system recursive resolver, so attacker-controlled authority data is not solicited.",
+        "requires": "akhq.connections.<c>.ksqldb configured"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#63",
+      "facts": {
+        "package": "io.netty:netty-resolver-dns",
+        "version": "4.1.108.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45674",
+            "GHSA-676x-f7gg-47vc"
+          ],
+          [
+            "io.netty:netty-resolver-dns"
+          ]
+        ],
+        "advisory_summary": "Netty Vulnerable to DNS Cache Poisoning via Missing Bailiwick Checks in CNAME Records \u2014 ### Summary\nNetty's DnsResolveContext fails to validate the origin (bailiwick) of CNAME records in DNS responses.\n\n### Details\nIn `io.netty.resolver.dns.DnsResolveContext#buildAliasMap`, the resolver processes the ANSWER section of a DNS response and blindly caches all CNAME records it finds.\n\nAccording to https://datatracker.ietf.org/doc/html/rfc5452#section-6 \n\n```\nCare must be taken to only accept\n   data if it is known that the originator is authoritative for the\n   QNAME or a parent of the QNAME.\n   On",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty DnsNameResolver is used only by Vert.x (io/vertx/core/spi/resolver/ResolverProvider.java:38 default unless -Dvertx.disableDnsResolver; DnsResolverProvider.java:124-162) inside ksqldb-api-client, created per configured ksqlDB (KafkaModule.java:370-379, documented brokers.md:20-24). CNAME bailiwick poisoning (buildAliasMap DnsResolveContext.java:995) needs a response from an attacker-controlled nameserver for a queried name; only operator-configured ksqlDB hostnames are resolved.",
+        "requires": "akhq.connections.<c>.ksqldb configured"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#64",
+      "facts": {
+        "package": "io.netty:netty-resolver-dns",
+        "version": "4.1.108.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45673",
+            "GHSA-xmv7-r254-6q78"
+          ],
+          [
+            "io.netty:netty-resolver-dns"
+          ]
+        ],
+        "advisory_summary": "Netty: DNS Cache Poisoning due to Predictable PRNG and Default Static Source Port \u2014 ### Summary\nNetty's DNS resolver uses a predictable PRNG for generating DNS transaction IDs and defaults to a static UDP source port. This combination reduces the entropy of DNS queries, enabling DNS Cache Poisoning (Kaminsky attack).\n\n### Details\nTwo factors contribute to this vulnerability in io.netty.resolver.dns:\n- Predictable Query IDs: `DnsQueryIdSpace` manages 16-bit transaction IDs in buckets of 16,384 IDs. It initializes only the first bucket. When an ID is returned, it is pushed back into the bucket a",
+        "vuln_symbols": [
+          "DnsQueryIdSpace",
+          "DnsNameResolverBuilder",
+          "channelStrategy",
+          "ChannelPerResolver"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Netty DnsNameResolver is used only by Vert.x (io/vertx/core/spi/resolver/ResolverProvider.java:38 default unless -Dvertx.disableDnsResolver; DnsResolverProvider.java:124-162) inside ksqldb-api-client, created per configured ksqlDB (KafkaModule.java:370-379, documented brokers.md:20-24). Shipped 4.1.108 DnsQueryIdSpace (class dated 2024-03 in jar) and a single datagram channel per resolver (DnsResolverProvider.java:154) give the predictable ID/static port condition; an off-path attacker can spoof responses for the ksqlDB hostname lookups.",
+        "requires": "akhq.connections.<c>.ksqldb configured (documented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#65",
+      "facts": {
+        "package": "io.netty:netty-transport-native-epoll",
+        "version": "4.1.108.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45536",
+            "GHSA-w573-9ffj-6ff9"
+          ],
+          [
+            "io.netty:netty-transport-native-epoll"
+          ]
+        ],
+        "advisory_summary": "Netty: Unix-socket fd receive leaks descriptors when peer sends two at once \u2014 netty_unix_socket_recvFd sets msg_control to `char control[CMSG_SPACE(sizeof(int))]` (line 940) \u2014 24 bytes on 64-bit Linux. A peer-sent SCM_RIGHTS cmsg carrying two ints has cmsg_len = CMSG_LEN(8) = 24, which fits exactly with no MSG_CTRUNC, so the kernel installs both fds in the receiving process. The subsequent check `cmsg->cmsg_len == CMSG_LEN(sizeof(int))` (line 972, expected 20) fails, the branch that would read the fd is skipped, and neither installed fd is closed. The for(;;) loop calls recvmsg again (non-bloc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No libnetty_transport_native_epoll*.so is bundled in akhq-0.26.0-all.jar (only jansi/zstd natives), so Epoll is unavailable and netty_unix_socket_recvFd never runs; fd passing over unix sockets is also never used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#66",
+      "facts": {
+        "package": "io.vertx:vertx-core",
+        "version": "4.4.6",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-6860",
+            "GHSA-3g76-f9xq-8vp6"
+          ],
+          [
+            "io.vertx:vertx-core"
+          ]
+        ],
+        "advisory_summary": "Vert.x has a DoS via unbounded server-side SNI SslContext cache growth \u2014 Potential unbounded server-side SNI `SslContext` cache growth in Vert.x TLS handling, with = resource-exhaustion / DoS impact. On affected versions, matching server-side SNI names are cached via `computeIfAbsent(serverName, ...)` in a serverName-keyed `SslContext` cache.\n\nThe implementation differs slightly by branch, but the same sink appears to be present in released versions `4.3.4` through `5.0.11`:\n- `4.3.x`: `SSLHelper`\n- `4.4.x` / `4.5.x`: `SslChannelProvider`\n- `5.0.x` and current `master`: `SslContextProvider`\n\nW",
+        "vuln_symbols": [
+          "SslContext",
+          "SSLHelper",
+          "SslChannelProvider",
+          "master",
+          "SslContextProvider",
+          "origin"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.5.27",
+          "5.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Server-side SNI SslContext cache (SslChannelProvider). Vert.x is only used as an HTTP client by ksqldb-api-client; no class outside io/vertx creates an HttpServer/NetServer (byte-scan)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#67",
+      "facts": {
+        "package": "io.vertx:vertx-core",
+        "version": "4.4.6",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-1023",
+            "GHSA-5667-3wch-7q7w"
+          ],
+          [
+            "io.vertx:vertx-core"
+          ]
+        ],
+        "advisory_summary": "Eclipse Vert.x memory leak \u2014 A vulnerability in the Eclipse Vert.x toolkit results in a memory leak due to using Netty FastThreadLocal data structures. Specifically, when the Vert.x HTTP client establishes connections to different hosts, triggering the memory leak. The leak can be accelerated with intimate runtime knowledge, allowing an attacker to exploit this vulnerability. For instance, a server accepting arbitrary internet addresses could serve as an attack vector by connecting to these addresses, thereby accelerating the memory leak.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.4.7",
+          "4.5.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Leak grows per distinct host the Vert.x HTTP client connects to; the only Vert.x client (ksqldb-api-client, KafkaModule.java:368-379) connects only to operator-configured ksqlDB URLs, so an attacker cannot drive connections to arbitrary hosts.",
+        "requires": "akhq.connections.<c>.ksqldb configured"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#68",
+      "facts": {
+        "package": "io.vertx:vertx-core",
+        "version": "4.4.6",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-1300",
+            "GHSA-9ph3-v2vh-3qx7"
+          ],
+          [
+            "io.vertx:vertx-core"
+          ]
+        ],
+        "advisory_summary": "Eclipse Vert.x vulnerable to a memory leak in TCP servers \u2014 A vulnerability in the Eclipse Vert.x toolkit causes a memory leak in TCP servers configured with TLS and SNI support. When processing an unknown SNI server name assigned the default certificate instead of a mapped certificate, the SSL context is erroneously cached in the server name map, leading to memory exhaustion. This flaw allows attackers to send TLS client hello messages with fake server names, triggering a JVM out-of-memory error.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.4.8",
+          "4.5.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "TCP server with TLS+SNI leak; no Vert.x server is started in AKHQ (only ksqldb-api-client client usage)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#69",
+      "facts": {
+        "package": "io.vertx:vertx-core",
+        "version": "4.4.6",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1002",
+            "GHSA-cphf-4846-3xx9"
+          ],
+          [
+            "io.vertx:vertx-core"
+          ]
+        ],
+        "advisory_summary": "Vert.x Web static handler component cache can be manipulated to deny the access to static files \u2014 The Vert.x Web static handler component cache can be manipulated to deny the access to static files served by the handler using specifically crafted request URI.\n\n\nThe issue comes from an improper implementation of the C. rule of section 5.2.4 of RFC3986 and is fixed in Vert.x Core component (used by Vert.x Web):  https://github.com/eclipse-vertx/vert.x/pull/5895 \n\n\n\nSteps to reproduce\nGiven a file served by the static handler, craft an URI that introduces a string like bar%2F..%2F after the last ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.5.24",
+          "5.0.7"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Vert.x Web StaticHandler cache issue; vertx-web is not in the jar (0 io/vertx/ext/web entries) and AKHQ serves static files via Micronaut (application.yml router.static-resources)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#70",
+      "facts": {
+        "package": "org.apache.commons:commons-lang3",
+        "version": "3.14.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-48924",
+            "GHSA-j288-q9x7-2f5v"
+          ],
+          [
+            "org.apache.commons:commons-lang3"
+          ]
+        ],
+        "advisory_summary": "Apache Commons Lang is vulnerable to Uncontrolled Recursion when processing long inputs \u2014 Uncontrolled Recursion vulnerability in Apache Commons Lang.\n\nThis issue affects Apache Commons Lang: Starting with\u00a0commons-lang:commons-lang\u00a02.0 to 2.6, and, from org.apache.commons:commons-lang3 3.0 before\u00a03.18.0.\n\nThe methods ClassUtils.getClass(...) can throw\u00a0StackOverflowError on very long inputs. Because an Error is usually not handled by applications and libraries, a StackOverflowError could\u00a0cause an application to stop.\n\nUsers are recommended to upgrade to version 3.18.0, which fixes the issue.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "commons-lang3 ClassUtils is referenced only by other org/apache/commons/lang3 classes (byte-scan of jar), and none of them call ClassUtils.getClass(String) (only defined at ClassUtils.java:513-575); AKHQ code does not use it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#71",
+      "facts": {
+        "package": "org.apache.zookeeper:zookeeper",
+        "version": "3.8.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24281",
+            "BIT-zookeeper-2026-24281",
+            "GHSA-7xrh-hqfc-g7qr"
+          ],
+          [
+            "org.apache.zookeeper:zookeeper"
+          ]
+        ],
+        "advisory_summary": "Apache ZooKeeper: Reverse-DNS fallback enables hostname verification bypass in ZooKeeper ZKTrustManager \u2014 Hostname verification in Apache ZooKeeper ZKTrustManager falls back to reverse DNS (PTR) when IP SAN validation fails, allowing attackers who control or spoof PTR records to impersonate ZooKeeper servers or clients with a valid certificate for the PTR name. It's important to note that attacker must present a certificate which is trusted by ZKTrustManager which makes the attack vector harder to exploit. Users are recommended to upgrade to version 3.8.6 or 3.9.5, which fixes this issue by in",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.8.6",
+          "3.9.5"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ZooKeeper (and ZKTrustManager via X509Util) is used only by Kafka broker/ZK-admin classes bundled with kafka core (kafka/zk, kafka/server); AKHQ uses kafka core only for GroupMetadataManager/TransactionLog decoding (src/main/java/org/akhq/models/Record.java:14-16), never a ZooKeeper client/server."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#72",
+      "facts": {
+        "package": "org.apache.zookeeper:zookeeper",
+        "version": "3.8.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24308",
+            "BIT-zookeeper-2026-24308",
+            "GHSA-crhr-qqj8-rpxc"
+          ],
+          [
+            "org.apache.zookeeper:zookeeper"
+          ]
+        ],
+        "advisory_summary": "Apache ZooKeeper has improper handling of configuration values \u2014 Improper handling of configuration values in ZKConfig in Apache ZooKeeper 3.8.5 and 3.9.4 on all platforms allows an attacker to expose sensitive information stored in client configuration in the client's logfile. Configuration values are exposed at INFO level logging rendering potential production systems affected by the issue.\u00a0Users are recommended to upgrade to version 3.8.6 or 3.9.5 which fixes this issue.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.8.6",
+          "3.9.5"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ZooKeeper client config (ZKConfig) never loaded: no ZooKeeper client used by AKHQ (see row 70); also advisory names 3.8.5/3.9.4 while 3.8.4 ships."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#73",
+      "facts": {
+        "package": "org.bitbucket.b_c:jose4j",
+        "version": "0.9.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-29371",
+            "GHSA-3677-xxcr-wjqv"
+          ],
+          [
+            "org.bitbucket.b_c:jose4j"
+          ]
+        ],
+        "advisory_summary": "jose4j is vulnerable to DoS via compressed JWE content \u2014 In jose4j before 0.9.6, an attacker can cause a Denial-of-Service (DoS) condition by crafting a malicious JSON Web Encryption (JWE) token with an exceptionally high compression ratio. When this token is processed by the server, it results in significant memory allocation and processing time during decompression.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.9.6"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jose4j used only by Kafka broker-side OAuthBearerValidatorCallbackHandler/ValidatorAccessTokenValidator and Confluent client plugins (io/confluent/kafka/clients/plugins/auth/*) that need explicit sasl.login.callback.handler.class; AKHQ's documented OAuth uses Strimzi (brokers.md:122) and Kafka's client LoginAccessTokenValidator does not use jose4j. AKHQ's own JWT uses Micronaut/Nimbus. No attacker JWE is processed by jose4j."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#74",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "9.4.53.v20231009",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-2332",
+            "GHSA-355h-qmc2-wpwf"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "Jetty has HTTP Request Smuggling via Chunked Extension Quoted-String Parsing \u2014 ### Description (as reported)\n\nJetty incorrectly parses quoted strings in HTTP/1.1 chunked transfer encoding extension values, enabling request smuggling attacks.\n\n### Background\n\nThis vulnerability is a new variant discovered while researching the \"Funky Chunks\" HTTP request smuggling techniques:\n- https://w4ke.info/2025/06/18/funky-chunks.html\n- https://w4ke.info/2025/10/29/funky-chunks-2.html\n\nThe original research tested various chunk extension parsing differentials but did not test quoted-string handling within",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.0.28",
+          "11.0.29",
+          "12.0.33",
+          "12.1.7",
+          "9.4.60"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jetty-http 9.4.53 (with jetty-client/io/util) has no runtime users: outside Jetty it is referenced only by ZooKeeper JettyAdminServer (needs absent jetty-server, ZK server never run) and passive Micrometer jetty binders; no Jetty server/client is created by AKHQ (Micronaut Netty runtime, build.gradle:69). Chunked-extension parsing (HttpParser) never runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#75",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "9.4.53.v20231009",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-6763",
+            "GHSA-qh8g-58pp-2wxh"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty URI parsing of invalid authority \u2014 ## Summary\n\nEclipse Jetty is a lightweight, highly scalable, Java-based web server and Servlet engine . It includes a utility class, `HttpURI`, for URI/URL parsing.\n\nThe `HttpURI` class does insufficient validation on the authority segment of a URI.  However the behaviour of `HttpURI` differs from the common browsers in how it handles a URI that would be considered invalid if fully validated against the RRC.  Specifically `HttpURI` and the browser may differ on the value of the host extracted from an invalid URI and thus a combination of Jetty a",
+        "vuln_symbols": [
+          "HttpURI",
+          "org.eclipse.jetty.http.HttpURI",
+          "Browser",
+          "vulndetector.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jetty-http 9.4.53 (with jetty-client/io/util) has no runtime users: outside Jetty it is referenced only by ZooKeeper JettyAdminServer (needs absent jetty-server, ZK server never run) and passive Micrometer jetty binders; no Jetty server/client is created by AKHQ (Micronaut Netty runtime, build.gradle:69). HttpURI never parses attacker URIs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-akhq#76",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "9.4.53.v20231009",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-11143",
+            "GHSA-wjpw-4j6x-6rwh"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "org.eclipse.jetty:jetty-http has different parsing of invalid URIs \u2014 The Jetty URI parser has some key differences compared to other common parsers when evaluating invalid or unusual URIs. Specifically:\n\n#### Invalid Scheme\n| URI | Jetty | uri-js (nodejs) | node-url(nodejs) |\n|---|---|---| --- |\n| `https>://vulndetector.com/path` | scheme=`http>`| scheme=`https` | invalid URI |\n\n#### Improper IPv4 mapped IPv6\n\n| URI | Jetty | System.Uri(CSharp) | curl(C) |\n|---|---|---| --- |\n| `http://[0:0:0:0:0:ffff:127.0.0.1]` | invalid | host=`[::ffff:127.0.0.1]` | host=`[::ffff:127.0.0.1]` | \n| `http://[:",
+        "vuln_symbols": [
+          "https",
+          "normal.com",
+          "vulndetector.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.31",
+          "12.1.5"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jetty-http 9.4.53 (with jetty-client/io/util) has no runtime users: outside Jetty it is referenced only by ZooKeeper JettyAdminServer (needs absent jetty-server, ZK server never run) and passive Micrometer jetty binders; no Jetty server/client is created by AKHQ (Micronaut Netty runtime, build.gradle:69). HttpURI never parses attacker URIs."
+      }
+    }
+  ]
+}

@@ -37,7 +37,7 @@ _BATCH = 500
 class Dep:
     name: str
     version: str
-    ecosystem: str          # OSV ecosystem name: npm | PyPI | crates.io | Go
+    ecosystem: str          # OSV ecosystem name: npm | PyPI | crates.io | Go | Maven
     direct: bool = False
     dev: bool = False
 
@@ -145,8 +145,25 @@ def parse_gomod(repo: Path) -> list[Dep]:
                    for m in b.modules.values() if not m.local), key=lambda d: (d.name, d.version))
 
 
-def find_deps(repo: Path) -> tuple[list[Dep], list[str]]:
+def parse_artifact(artifact: dict) -> list[Dep]:
+    """A JVM release's deployed classpath (`jvmjars`): `artifact` = {"paths": [...] (an image's
+    layers in order), "include"/"exclude": globs on archive paths, "first_party": group
+    prefixes}. Every jar shipped runs as production, so nothing is dev; nothing is marked
+    direct (a classpath has no declared roots)."""
+    from . import jvmjars
+    cp = jvmjars.scan(*[Path(p) for p in artifact["paths"]])
+    if artifact.get("identify", True):
+        jvmjars.identify(cp)
+    got = jvmjars.deployed(cp, artifact.get("include") or (), artifact.get("exclude") or (),
+                           artifact.get("first_party") or ())
+    return sorted((Dep(c.name, c.version, "Maven") for c in got), key=lambda d: (d.name, d.version))
+
+
+def find_deps(repo: Path, artifact: dict | None = None) -> tuple[list[Dep], list[str]]:
     deps, used = [], []
+    if artifact:
+        deps += parse_artifact(artifact)
+        used.append("artifact:" + ",".join(Path(p).name for p in artifact["paths"]))
     if (repo / "go.mod").is_file():
         deps += parse_gomod(repo)
         used.append("go.mod")
@@ -345,9 +362,10 @@ _NOT_VULNS = {"unmaintained", "notice"}
 
 
 def candidates(repo: Path, name: str, *, include_dev: bool = True, offline: bool = False,
-               ) -> tuple[list[dict], dict]:
-    """Sweep records for every (package version, merged advisory) in the repo's lockfiles."""
-    deps, manifests = find_deps(repo)
+               artifact: dict | None = None) -> tuple[list[dict], dict]:
+    """Sweep records for every (package version, merged advisory) in the repo's lockfiles
+    (and a JVM release artifact's classpath, when given)."""
+    deps, manifests = find_deps(repo, artifact)
     if not include_dev:
         deps = [d for d in deps if not d.dev]
     by_key = {(d.ecosystem, d.name, d.version): d for d in deps}
