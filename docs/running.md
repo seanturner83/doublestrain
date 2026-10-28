@@ -41,7 +41,7 @@ The base install is `uv sync` (Python >= 3.11); network use is OSV, KEV and EPSS
 | `govulncheck` | A Go toolchain ([go.dev/dl](https://go.dev/dl/) or `brew install go`), then `GOBIN=~/.cache/ssvc-triage/gotools/bin go install golang.org/x/vuln/cmd/govulncheck@v1.9.0` | Go |
 | `jelly` | Node >= 22, then `mkdir -p ~/.cache/ssvc-triage/jstools && cd ~/.cache/ssvc-triage/jstools && npm install --ignore-scripts @cs-au-dk/jelly@0.13.0`; run with `SSVC_PKGSRC=1` | npm |
 | `local` / `<name>` | Any OpenAI-compatible `/v1/chat/completions` server that supports JSON-schema structured output (measured with LM Studio). The measured model is `qwen/qwen3.8-27b` at Q4; any other model gets its role's defaults, which means a second read before its `not_reachable` counts | all |
-| `split`, `shape`, `claude` | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and logged in (`claude` on PATH); `SSVC_PKGSRC=1` for dependency source. Spend is capped per run by `--claude-budget` (default $5) | npm, Go, Cargo (`shape`: npm) |
+| `split`, `shape`, `claude` | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and logged in (`claude` on PATH); `SSVC_PKGSRC=1` for dependency source. Spend is capped per run by `--claude-budget` (default $5) | npm, Go, Cargo, pip, Maven (`shape`: npm) |
 | `jev` | Optional hosted classifier: a TypeSafe API key | all |
 
 Cascades that make sense, by what you have. `workstation` stands for any endpoint you
