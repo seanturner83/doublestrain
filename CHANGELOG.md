@@ -1,6 +1,30 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.2.0 (2026-10-29)
+
+Python, Rust and JVM, each measured on blind-labelled real apps (see the README's Results).
+
+- **Settling rules:** pip, Cargo and Maven settle `not_reachable` only as the `split` +
+  `claude` pair (Opus by default for these ecosystems); every other tier stays held there.
+  Maven uses split's `not_reachable` from 0.90 (a per-ecosystem floor,
+  `not_reachable_by_ecosystem` in `floors.toml`), and on Maven a Java deserialization
+  gadget (`readObject`/`readResolve`/`readExternal`) never settles.
+- **Python:** what the app's Dockerfile installs counts as production, whatever the group,
+  extra or requirements file is called (`imagedeps`); local projects it installs beside the
+  app are app code (`approots`); notes on who imports and calls the vulnerable package.
+- **Rust:** Cargo feature resolution over the manifests (`cargofeat`), so a locked crate the
+  deployed binary never compiles is known as such; Dockerfile `cargo build` lines, including
+  cross-build wrappers.
+- **JVM:** the deployed classpath read from the release artifact (`jvmjars`; tarballs, zips,
+  fat jars, wars), every jar identified by its Maven coordinates or a Maven Central sha1
+  match; `doublestrain scan --artifact`; Central-verified `-sources.jar`s and published `.pom`
+  edges for the judges; a bytecode call graph from the advisory's classes back to the app's
+  code (`jvmcallers`).
+- **Package names:** one rule per ecosystem for "is this the same package?" (`names`).
+- **Cases:** Python, Rust and JVM apps, labelled blind with a re-review; four JVM cases
+  are not published yet.
+
+## 0.1.0 (2026-10-23)
 
 First public release.
 

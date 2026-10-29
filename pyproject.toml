@@ -1,6 +1,6 @@
 [project]
 name = "doublestrain"
-version = "0.1.0"
+version = "0.2.0"
 description = "SSVC Act/Attend/Track grading for dependency advisories, with measured reachability judges (static analysis, local and hosted models) and a run harness"
 readme = "README.md"
 authors = [{ name = "Sean Turner" }]
