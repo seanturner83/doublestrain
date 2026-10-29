@@ -6,6 +6,8 @@ verdict that clears its asymmetric acceptance floor (`judges.accept`).
 """
 from __future__ import annotations
 
+import re
+
 from . import accounting, advisory_notes
 from .judges import JudgeResult, ReachQuery, Verdict, accept
 from .judges.base import needs_corroboration, policy, role
@@ -29,6 +31,18 @@ def query_for(c: Candidate, repo_path: str, cve: str) -> ReachQuery:
                       import_name=c.import_name, version=c.version)
 
 
+# A Java deserialization gadget: the advisory's code is a library class's own readObject /
+# readResolve / readExternal, which the JDK's deserializer calls by class name from whatever
+# stream it is reading (jv3: guava's CompactHashMap behind kafka-ui's JMX-over-RMI client).
+# No call graph sees that dispatch, so on maven a not_reachable for one never settles.
+_GADGET = re.compile(r"readObject\s*\(|\breadResolve\b|\breadExternal\b|native deserializ"
+                     r"|java (?:native |object )?deserializ|\bObjectInputStream\b", re.I)
+
+
+def deserialization_gadget(c: Candidate) -> bool:
+    return bool(_GADGET.search(f"{c.advisory_summary} {' '.join(c.vuln_symbols)}"))
+
+
 def resolve_reachability(c: Candidate, judge, repo_path: str | None,
                          cve: str = "") -> JudgeResult | None:
     """Ask `judge` about `c` (if its reachability is still open) and apply an accepted
@@ -38,14 +52,17 @@ def resolve_reachability(c: Candidate, judge, repo_path: str | None,
         return None     # malware isn't a reachability question (see ssvc.Candidate.malicious)
     with accounting.tag(cve=cve, package=c.bumped_package):
         r = judge.judge(query_for(c, repo_path, cve))
-    if (accept(r) and r.verdict == Verdict.NOT_REACHABLE and r.source != "govulncheck"
-            and nr_held(c.ecosystem, role(r.source))
-            and all(nr_held(c.ecosystem, role(s)) for s in r.corroborates.split(",") if s)):
+    eco = c.ecosystem
+    if (accept(r, eco) and r.verdict == Verdict.NOT_REACHABLE and r.source != "govulncheck"
+            and nr_held(eco, role(r.source))
+            and all(nr_held(eco, role(s)) for s in r.corroborates.split(",") if s)):
         return r        # no measured floor for this ecosystem: a tier that skips the guard can't settle it
-    if (accept(r) and needs_corroboration(r, c.ecosystem) and not r.corroborates
+    if (accept(r, eco) and needs_corroboration(r, eco) and not r.corroborates
             and not policy(r).get("corroborate")):
         return r        # measured on this ecosystem only as a pair (pypi: split, then claude): alone it settles nothing
-    if accept(r):
+    if accept(r, eco) and r.verdict == Verdict.NOT_REACHABLE and eco == "maven" and deserialization_gadget(c):
+        return r        # a deserialization gadget: dispatched by class name, invisible to the call graph
+    if accept(r, eco):
         c.reachability = (Reachability.REACHABLE if r.verdict == Verdict.REACHABLE
                           else Reachability.UNREACHABLE)
         c.reach_source = r.source

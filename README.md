@@ -106,10 +106,15 @@ the `not_reachable`; coverage is the share of `not_reachable` labels it settles:
 | JVM dev (jv1, published cases) | 4 / 422 | 130 / 2 | 0.369 |
 | JVM (jv2, published cases) | 3 / 288 | 100 / 1 | 0.395 |
 | JVM jv2 after the call-graph fixes, split >= 0.90 | 3 / 288 | 178 / 0 | 0.704 |
+| JVM held-out (jv3, published cases), split >= 0.90 | 4 / 246 | 129 / 1 | 0.620 |
+| the same, with the deserialization-gadget rule | 4 / 246 | 129 / 0 | 0.620 |
 
-pip and Cargo now settle as that pair only; Maven is still held for every tier until a
-held-out set on the current code. Three JVM cases from these sets are not published yet,
-so the JVM rows above count only the published ones. Every change and its measurement is
+pip, Cargo and Maven now settle as that pair only (Maven with split at 0.90). On Maven a
+`not_reachable` never settles for a Java deserialization gadget (the advisory's code is a
+`readObject`/`readResolve`/`readExternal`): the JDK calls those by class name, which no call
+graph sees; jv3's one miss was such a gadget, so that rule is not yet measured on a fresh
+set. Four JVM cases from these sets are not published yet, so the JVM rows above count only
+the published ones. Every change and its measurement is
 in `docs/design.md`.
 
 ## Labels and data
@@ -139,9 +144,8 @@ in `docs/design.md`.
 - **AI-made labels** (see "Labels and data"): measured error rates are agreement with
   them.
 - **Ecosystems differ in how far they are measured.** npm: every tier. Go: govulncheck
-  and `split` measured. pip and Cargo: `split` with `claude` agreeing (see Results); every
-  other tier's `not_reachable` is held there. Maven: held for every tier
-  (`SSVC_NR_UNMEASURED`) until a held-out set on the current code.
+  and `split` measured. pip, Cargo and Maven: `split` with `claude` agreeing (see Results);
+  every other tier's `not_reachable` is held there (`SSVC_NR_UNMEASURED`).
 - **JVM inventory needs the release.** A checkout alone doesn't say which jars ship, so
   `--artifact` takes the distribution, fat jar or war the app releases. Jars are
   identified by their embedded coordinates or a Central sha1 match; a rebuilt jar is kept,

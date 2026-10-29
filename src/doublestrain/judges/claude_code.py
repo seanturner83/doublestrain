@@ -420,8 +420,8 @@ def refusal_note(out: dict) -> str:
 # advisory's "the model field isn't affected" even with the callers note naming the line;
 # Opus read django and found the route with or without the note. About 2.7x the cost, and
 # 0-4 points of coverage. npm and go settle mostly on static tools and stay on the default.
-# cargo: every Rust measurement (rs1-rs3) corroborated split with opus, so that is what is measured.
-MODEL_BY_ECOSYSTEM = {"pypi": "opus", "cargo": "opus"}
+# cargo and maven: every Rust (rs1-rs3) and JVM (jv1-jv3) measurement corroborated split with opus.
+MODEL_BY_ECOSYSTEM = {"pypi": "opus", "cargo": "opus", "maven": "opus"}
 
 
 class ClaudeCodeJudge:

@@ -1,0 +1,820 @@
+{
+  "id": "real-jv-jenkins",
+  "description": "Jenkins 2.504.3 LTS core (executable war): JVM held-out (jv3), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "artifact": {
+    "paths": [
+      "artifact/jenkins.war"
+    ],
+    "include": [],
+    "exclude": [],
+    "first_party": [
+      "org.jenkins-ci.main"
+    ]
+  },
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#1",
+      "facts": {
+        "package": "com.google.guava:guava",
+        "version": "33.4.5-jre",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102554",
+            "GHSA-xxph-c9ww-hj94"
+          ],
+          [
+            "com.google.guava:guava"
+          ]
+        ],
+        "advisory_summary": "Google Guava: CompactHashMap/CompactHashSet/MapMakerInternalMap deserialization triggers uncontrolled memory allocation \u2014 # CompactHashMap/CompactHashSet/MapMakerInternalMap native deserialization triggers uncontrolled memory allocation\n\n## Summary\n\n`CompactHashMap`, `CompactHashSet`, and `MapMakerInternalMap` implement `readObject(ObjectInputStream)` by reading an attacker-controlled `elementCount` or `initialCapacity` from the stream. On the very first insertion during or after deserialization (for the `CompactHash*` collections, inside `allocArrays()`) or immediately during deserialization ",
+        "vuln_symbols": [
+          "CompactHashMap",
+          "CompactHashSet",
+          "MapMakerInternalMap",
+          "elementCount",
+          "initialCapacity",
+          "allocArrays"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "33.7.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "guava-33.4.5-jre.jar in WEB-INF/lib. Only attacker-fed deserialization paths are remoting (agents) and XStream2; both use ClassFilterImpl (core/src/main/java/jenkins/security/ClassFilterImpl.java:127-186, XStream2.java:333/657 BlacklistedTypesConverter) which rejects classes from non-core/non-plugin jars unless in whitelisted-classes.txt; CompactHashMap/CompactHashSet/MapMakerInternalMap are not listed (whitelisted-classes.txt:1-31 only Immutable*/HashMultimap/HashMultiset etc.), and the whitelisted HashMultimap/HashMultiset readObject build java.util.HashMap, not Compact* (guava HashMultimap.java:149, HashMultiset.java:92, Platform.java:37). Escape hatch SUPPRESS_WHITELIST is a non-default security-weakening flag."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#2",
+      "facts": {
+        "package": "commons-beanutils:commons-beanutils",
+        "version": "1.10.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-48734",
+            "GHSA-wxr5-93ph-8wr9"
+          ],
+          [
+            "commons-beanutils:commons-beanutils"
+          ]
+        ],
+        "advisory_summary": "Apache Commons Improper Access Control vulnerability \u2014 Improper Access Control vulnerability in Apache Commons.\n\n\n\nA special BeanIntrospector class was added in version 1.9.2. This can be used to stop attackers from using the declared class property of Java enum objects to get access to the classloader. However this protection was not enabled by default. PropertyUtilsBean (and consequently BeanUtilsBean) now disallows declared class level property access by default.\n\n\n\n\n\nReleases 1.11.0 and 2.0.0-M2 address a potential security issue when accessing enum properties in an uncontrolled way. If an",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.11.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "commons-beanutils-1.10.1.jar. Bug needs attacker-chosen nested property path through an enum-typed property (declaringClass.classLoader). Attacker-named property paths only reach Stapler RequestImpl.bindParameters on HudsonPrivateSecurityRealm.SignupInfo (HudsonPrivateSecurityRealm.java:637; bean has only public String fields + HashMap, no enum getters; 'class' suppressed by default, PropertyUtilsBean.java:1480) and json-lib toBean for @JsonBody RevokeAllSelectedModel (admin-only, String fields; LegacyApiTokenAdministrativeMonitor.java:171,199-207) / signed update-center tool lists (DownloadFromUrlInstaller.java:157). Jelly BeanUtils use (CustomJellyContext, SetTag) is template-driven; ReflectionUtils.getPublicProperty has no core caller."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#3",
+      "facts": {
+        "package": "commons-lang:commons-lang",
+        "version": "2.6",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-48924",
+            "GHSA-j288-q9x7-2f5v"
+          ],
+          [
+            "commons-lang:commons-lang"
+          ]
+        ],
+        "advisory_summary": "Apache Commons Lang is vulnerable to Uncontrolled Recursion when processing long inputs \u2014 Uncontrolled Recursion vulnerability in Apache Commons Lang.\n\nThis issue affects Apache Commons Lang: Starting with\u00a0commons-lang:commons-lang\u00a02.0 to 2.6, and, from org.apache.commons:commons-lang3 3.0 before\u00a03.18.0.\n\nThe methods ClassUtils.getClass(...) can throw\u00a0StackOverflowError on very long inputs. Because an Error is usually not handled by applications and libraries, a StackOverflowError could\u00a0cause an application to stop.\n\nUsers are recommended to upgrade to version 3.18.0, which fixes the issue.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "commons-lang-2.6.jar. ClassUtils.getClass(String) is only called inside ClassUtils itself (ClassUtils.java:766,790,822); bytecode scan of every WEB-INF/lib jar finds no reference to org/apache/commons/lang/ClassUtils except the cli jar's own shaded copy (client). Core imports only org.apache.commons.lang.time; core's ClassUtils use (ExtensionFinder.java) is Spring's."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#4",
+      "facts": {
+        "package": "net.i2p.crypto:eddsa",
+        "version": "0.3.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2020-36843",
+            "GHSA-p53j-g8pw-4w5f"
+          ],
+          [
+            "net.i2p.crypto:eddsa"
+          ]
+        ],
+        "advisory_summary": "Ed25519 Signature Malleability in ed25519-java Due to Missing Scalar Range Check \u2014 The implementation of EdDSA in EdDSA-Java (aka ed25519-java) through 0.3.0 exhibits signature malleability and does not satisfy the SUF-CMA (Strong Existential Unforgeability under Chosen Message Attacks) property. This allows attackers to create new valid signatures different from previous signatures for a known message.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "eddsa 0.3.0 is present only shaded inside WEB-INF/lib/cli-2.504.3.jar (io/jenkins/cli/shaded/net/i2p/crypto/eddsa/*), declared optional in cli/pom.xml:46-51 for the CLI client's -ssh mode (cli/src/main/java/hudson/cli/SSHCLI.java), and excluded from core (core/pom.xml:515); the server never uses the shaded SSH client. The server-side sshd module is a detached plugin (WEB-INF/detached-plugins/sshd.hpi, eddsa-api.hpi), not core. Also malleability only yields alternative signatures for already-signed messages, no forgery."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#5",
+      "facts": {
+        "package": "org.apache.commons:commons-fileupload2-core",
+        "version": "2.0.0-M2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-48976",
+            "GHSA-vv7r-c36w-3prj"
+          ],
+          [
+            "org.apache.commons:commons-fileupload2-core"
+          ]
+        ],
+        "advisory_summary": "Apache Commons FileUpload, Apache Commons FileUpload: FileUpload DoS via part headers \u2014 Allocation of resources for multipart headers with insufficient limits enabled a DoS vulnerability in Apache Commons FileUpload.\n\nThis issue affects Apache Commons FileUpload: from 1.0 before 1.6; from 2.0.0-M1 before 2.0.0-M4.\n\nUsers are recommended to upgrade to versions 1.6 or 2.0.0-M4, which fix the issue.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.0-M4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "commons-fileupload2-core-2.0.0-M2 (+jakarta-servlet5) parse multipart bodies in core: MultipartFormDataParser.java:90,132 (JakartaServletDiskFileUpload, sets file count/size limits but no part-header limit, which M2 lacks), used by Jenkins.doDoFingerprintCheck (Jenkins.java:4477-4480, @RequirePOST, any user with Overall/Read) and PluginManager upload (PluginManager.java:1942); Stapler RequestImpl also parses multipart forms for getSubmittedForm/getFileItem. Authenticated low-privilege user controls part headers -> header allocation DoS."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#6",
+      "facts": {
+        "package": "org.springframework.security:spring-security-core",
+        "version": "6.4.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-41248",
+            "GHSA-8v5q-rhf3-jphm"
+          ],
+          [
+            "org.springframework.security:spring-security-core"
+          ]
+        ],
+        "advisory_summary": "Spring Security annotation detection mechanism has authorization bypass \u2014 The Spring Security annotation detection mechanism may not correctly resolve annotations on methods within type hierarchies with a parameterized super type with unbounded generics. This can be an issue when using @PreAuthorize\u00a0and other method security annotations, resulting in an authorization bypass.\n\nYour application may be affected by this if you are using Spring Security's @EnableMethodSecurity\u00a0feature.\n\nYou are not affected by this if you are not using @EnableMethodSecurity\u00a0or if you do not use security annotations",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.4.10",
+          "6.5.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires @EnableMethodSecurity with method security annotations. Jenkins core uses no Spring method security (no @PreAuthorize/EnableMethodSecurity or ApplicationContext in core/src/main; no non-Spring jar in the war references org/springframework/security/authorization/method). Authorization is Jenkins ACL."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#7",
+      "facts": {
+        "package": "org.springframework.security:spring-security-core",
+        "version": "6.4.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-41232",
+            "GHSA-9pp5-9c7g-4r83"
+          ],
+          [
+            "org.springframework.security:spring-security-core"
+          ]
+        ],
+        "advisory_summary": "Spring Security authorization bypass for method security annotations on private methods \u2014 Spring Security Aspects may not correctly locate method security annotations on private methods. This can cause an authorization bypass.\n\nYour application may be affected by this if the following are true:\n\n  *  You are using @EnableMethodSecurity(mode=ASPECTJ)\u00a0and spring-security-aspects, and\n  *  You have Spring Security method annotations on a private method\nIn that case, the target method may be able to be invoked without proper authorization.\n\nYou are not affected if:\n\n  *  You are not using @EnableM",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.4.6"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires @EnableMethodSecurity(mode=ASPECTJ) and spring-security-aspects; neither is in the war or used by core (no method security annotations in core/src/main)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#8",
+      "facts": {
+        "package": "org.springframework.security:spring-security-core",
+        "version": "6.4.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-22234",
+            "GHSA-vqxh-445g-37fc"
+          ],
+          [
+            "org.springframework.security:spring-security-core"
+          ]
+        ],
+        "advisory_summary": "Spring Security has a broken timing attack mitigation implemented in DaoAuthenticationProvide \u2014 The fix applied in CVE-2025-22228 inadvertently broke the timing attack mitigation implemented in DaoAuthenticationProvider. This can allow attackers to infer valid usernames or other authentication behavior via response-time differences under certain configurations.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.3.9",
+          "6.4.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Timing mitigation is in DaoAuthenticationProvider, which Jenkins does not use: core authenticates via AbstractPasswordBasedSecurityRealm.Authenticator extends AbstractUserDetailsAuthenticationProvider with password check in its own retrieveUser/doAuthenticate (AbstractPasswordBasedSecurityRealm.java:186-199); no reference to DaoAuthenticationProvider in core or any non-Spring jar."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#9",
+      "facts": {
+        "package": "org.springframework.security:spring-security-core",
+        "version": "6.4.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-22746",
+            "GHSA-vxf7-qj7q-83fh"
+          ],
+          [
+            "org.springframework.security:spring-security-core"
+          ]
+        ],
+        "advisory_summary": "Spring Security Vulnerable to User Attribute Enumeration when Using DaoAuthenticationProvider \u2014 Vulnerability in Spring Spring Security. If an application is using the\u00a0UserDetails#isEnabled,\u00a0#isAccountNonExpired, or\u00a0#isAccountNonLocked\u00a0user attributes, to enable, expire, or lock users, then\u00a0DaoAuthenticationProvider's timing attack defense can be bypassed for users who are disabled, expired, or locked. This issue affects Spring Security: from 5.7.0 through 5.7.22, from 5.8.0 through 5.8.24, from 6.3.0 through 6.3.15, from 6.5.0 through 6.5.9, from 7.0.0 through 7.0.4.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.5.10",
+          "7.0.5"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs DaoAuthenticationProvider plus users disabled/expired/locked via UserDetails flags. Jenkins uses its own Authenticator (AbstractPasswordBasedSecurityRealm.java:186-199), not DaoAuthenticationProvider, and HudsonPrivateSecurityRealm.Details always returns true for isEnabled/isAccountNonExpired/isAccountNonLocked (HudsonPrivateSecurityRealm.java:722-736). Also 6.4.x not in the advisory's listed ranges."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#10",
+      "facts": {
+        "package": "org.springframework.security:spring-security-core",
+        "version": "6.4.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-22751",
+            "GHSA-x2wq-9x2f-fhj7"
+          ],
+          [
+            "org.springframework.security:spring-security-core"
+          ]
+        ],
+        "advisory_summary": "Spring Security Core has a TOCTOU race condition when One-Time Token login with\u00a0JdbcOneTimeTokenService\u00a0is configured \u2014 Vulnerability in Spring Spring Security. Applications that explicitly configure One-Time Token login with\u00a0JdbcOneTimeTokenService\u00a0are vulnerable to a Time-of-check Time-of-use (TOCTOU) race condition.\u00a0This issue affects Spring Security: from 6.4.0 through 6.4.15, from 6.5.0 through 6.5.9, from 7.0.0 through 7.0.4.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.5.10",
+          "7.0.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires One-Time Token login with JdbcOneTimeTokenService; Jenkins core configures no OTT login and no JDBC (no reference in core or any non-Spring jar)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#11",
+      "facts": {
+        "package": "org.springframework.security:spring-security-web",
+        "version": "6.4.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47838",
+            "GHSA-293q-567p-wmwq"
+          ],
+          [
+            "org.springframework.security:spring-security-web"
+          ]
+        ],
+        "advisory_summary": "Spring Security Vulnerable to Unauthorized User Impersonation when Using X.509 Client Certificates \u2014 In Spring Security Web, `SubjectDnX509PrincipalExtractor` does not correctly handle certain malformed X.509 certificate CN values, which can lead to reading the wrong value for the username. In a carefully crafted certificate, this can lead to an attacker impersonating another user.\n\n`SubjectDnX509PrincipalExtractor` is deprecated by this CVE and replaced with `SubjectX500PrincipalExtractor`. As part of updating, you should also migrate to `SubjectX500PrincipalExtractor`.\n\nAffected versions:\nSp",
+        "vuln_symbols": [
+          "SubjectDnX509PrincipalExtractor",
+          "SubjectX500PrincipalExtractor"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.5.11"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SubjectDnX509PrincipalExtractor / X.509 client-cert authentication not used: core's X509 use is JDK classes only (JnlpSlaveAgentProtocol4, JSONSignatureValidator); no non-Spring jar references X509PrincipalExtractor."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#12",
+      "facts": {
+        "package": "org.springframework.security:spring-security-web",
+        "version": "6.4.4",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-22732",
+            "GHSA-mf92-479x-3373"
+          ],
+          [
+            "org.springframework.security:spring-security-web"
+          ]
+        ],
+        "advisory_summary": "Spring Security HTTP Headers Are not Written Under Some Conditions \u2014 When applications specify HTTP response headers for servlet applications using Spring Security, there is the possibility that the HTTP Headers will not be written.\u00a0\nThis issue affects Spring Security: from 5.7.0 through 5.7.21, from 5.8.0 through 5.8.23, from 6.3.0 through 6.3.14, from 6.4.0 through 6.4.14, from 6.5.0 through 6.5.8, from 7.0.0 through 7.0.3.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.5.9",
+          "7.0.4"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bug is in Spring Security's HTTP header writing (HeaderWriterFilter/HeaderWriter) configured by the app; Jenkins builds its own filter chain (AuthenticationProcessingFilter2, RememberMe, ExceptionTranslationFilter etc.) and sets security headers itself; no reference to org/springframework/security/web/header from core or any non-Spring jar."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#13",
+      "facts": {
+        "package": "org.springframework:spring-context",
+        "version": "6.2.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-22233",
+            "GHSA-4wp7-92pw-q264"
+          ],
+          [
+            "org.springframework:spring-context"
+          ]
+        ],
+        "advisory_summary": "Spring Framework DataBinder Case Sensitive Match Exception \u2014 CVE-2024-38820 ensured Locale-independent, lowercase conversion for both the configured disallowedFields patterns and for request parameter names. However, there are still cases where it is possible to bypass the disallowedFields checks.\n\nAffected Spring Products and Versions\n\nSpring Framework:\n  *  6.2.0 - 6.2.6\n\n  *  6.1.0 - 6.1.19\n\n  *  6.0.0 - 6.0.27\n\n  *  5.3.0 - 5.3.42\n  *  Older, unsupported versions are also affected\n\n\n\nMitigation\n\nUsers of affected versions should upgrade to the corresponding fixed version.\n\n| Affected versi",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.1.20",
+          "6.2.7"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DataBinder disallowedFields bypass needs Spring web data binding; Jenkins binds requests via Stapler, never Spring DataBinder (no reference to org/springframework/validation/DataBinder or web/bind from core or any non-Spring jar; no ApplicationContext in core)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#14",
+      "facts": {
+        "package": "org.springframework:spring-core",
+        "version": "6.2.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41848",
+            "GHSA-659m-px2c-25wj"
+          ],
+          [
+            "org.springframework:spring-core"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Denial of Service via AntPathMatcher \u2014 Applications may be vulnerable to a Regular Expression Denial of Service (ReDoS) attack if an attacker is able to provide a pattern which is then directly or indirectly supplied to one of the following methods in AntPathMatcher: match(String pattern, String path), matchStart(String pattern, String path), extractUriTemplateVariables(String pattern, String path).\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs attacker-supplied AntPathMatcher pattern. Only use is AntPathRequestMatcher with the fixed pattern '/j_spring_security_check' (AuthenticationProcessingFilter2.java:59 -> AntPathRequestMatcher.java:167 SpringAntMatcher); attacker controls only the path, not the pattern."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#15",
+      "facts": {
+        "package": "org.springframework:spring-core",
+        "version": "6.2.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-41249",
+            "GHSA-jmp9-x22r-554x"
+          ],
+          [
+            "org.springframework:spring-core"
+          ]
+        ],
+        "advisory_summary": "Spring Framework annotation detection mechanism may result in improper authorization \u2014 The Spring Framework annotation detection mechanism may not correctly resolve annotations on methods within type hierarchies with a parameterized super type with unbounded generics. This can be an issue if such annotations are used for authorization decisions.\n\nYour application may be affected by this if you are using Spring Security's @EnableMethodSecurity\u00a0feature.\n\nYou are not affected by this if you are not using @EnableMethodSecurity\u00a0or if you do not use security annotations on methods in generic supercl",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.11"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Annotation-resolution issue only matters for Spring method-security annotations (@EnableMethodSecurity); Jenkins core uses none (see core/src/main imports; no Spring ApplicationContext)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#16",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "6.2.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41852",
+            "GHSA-9f52-rjqv-25qv"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Arbitrary Method Invocation in SpEL Expressions \u2014 A vulnerability in Spring Expression Language (SpEL) evaluation logic allows for arbitrary zero-argument method invocation, even within restricted or read-only contexts, which may allow an attacker to invoke unintended application logic.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jenkins evaluates no SpEL: no reference to org/springframework/expression from core or any non-Spring jar; Spring Security expression handlers (WebExpressionVoter etc.) are not configured in Jenkins' hand-built filter chain."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#17",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "6.2.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41850",
+            "GHSA-r5w3-xv2f-j59q"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Algorithmic Denial of Service via SpEL Expressions \u2014 Applications that evaluate user-supplied Spring Expression Language (SpEL) expressions are vulnerable to an Algorithmic Denial of Service (DoS). By providing a specially crafted expression, an attacker can trigger excessive resource consumption during evaluation, leading to application degradation or unavailability.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No SpEL evaluation of user-supplied expressions anywhere in core or non-Spring jars (bytecode scan for org/springframework/expression found nothing)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#18",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "6.2.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41851",
+            "GHSA-wxpp-56q6-5pcg"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Denial of Service via Unbounded Cache in SpEL \u2014 Applications which accept user-supplied Spring Expression Language (SpEL) expressions may be vulnerable to a Denial of Service (DoS) attack if the evaluation of a SpEL expression triggers unbounded cache growth.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No SpEL evaluation in Jenkins (no org/springframework/expression references outside Spring jars; no ApplicationContext)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#19",
+      "facts": {
+        "package": "org.springframework:spring-web",
+        "version": "6.2.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-41234",
+            "GHSA-6r3c-xf4w-jxjm"
+          ],
+          [
+            "org.springframework:spring-web"
+          ]
+        ],
+        "advisory_summary": "Spring Framework vulnerable to a reflected file download (RFD) \u2014 ### Description\n\nIn Spring Framework, versions 6.0.x as of 6.0.5, versions 6.1.x and 6.2.x, an application is vulnerable to a reflected file download (RFD) attack when it sets a \u201cContent-Disposition\u201d header with a non-ASCII charset, where the filename attribute is derived from user-supplied input.\n\nSpecifically, an application is vulnerable when all the following are true:\n\n  -  The header is prepared with `org.springframework.http.ContentDisposition`.\n  -  The filename is set via `ContentDisposition.Builder#filename(String, Char",
+        "vuln_symbols": [
+          "org.springframework.http.ContentDisposition"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.1.21",
+          "6.2.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "org.springframework.http.ContentDisposition is never used by core or any non-Spring jar (bytecode scan); Jenkins sets Content-Disposition via Stapler/servlet APIs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-jenkins#20",
+      "facts": {
+        "package": "org.springframework:spring-web",
+        "version": "6.2.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41854",
+            "GHSA-7m2p-62gw-p8qq"
+          ],
+          [
+            "org.springframework:spring-web"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Server-Side Request Forgery via UriComponentsBuilder \u2014 Due to incorrect host parsing, applications that rely on UriComponentsBuilder to parse and validate an externally provided URL string may be exposed to a server-side request forgery (SSRF) attack.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "UriComponentsBuilder not used by core or any non-Spring jar; inside spring-security-web it only appears in request-cache/redirect helpers that do not fetch URLs, so no SSRF sink."
+      }
+    }
+  ]
+}

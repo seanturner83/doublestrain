@@ -1,0 +1,2404 @@
+{
+  "id": "real-jv-solr",
+  "description": "Apache Solr 9.8.1 (search server, core without optional modules): JVM held-out (jv3), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "artifact": {
+    "paths": [
+      "artifact/solr-9.8.1.tgz"
+    ],
+    "include": [],
+    "exclude": [
+      "*/modules/*",
+      "*/cross-dc-manager/*",
+      "*/example/*"
+    ],
+    "first_party": [
+      "org.apache.solr"
+    ]
+  },
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#1",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-18401",
+            "GHSA-72hv-8253-57qq"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition \u2014 ### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent",
+        "vuln_symbols": [
+          "maxNumberLength",
+          "StreamReadConstraints",
+          "NonBlockingUtf8JsonParserBase",
+          "_finishNumberIntegralPart",
+          "TextBuffer",
+          "_valueComplete"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.6",
+          "2.21.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Async (non-blocking) JSON parser never used: no jar outside jackson-core/databind/smile references createNonBlocking*/ByteArrayFeeder (class-constant scan of WEB-INF/lib); Jersey JacksonJsonProvider and Solr ObjectMappers use blocking InputStream/byte[] parsers (MessageBodyReaders.java:46, AnnotatedApi.java:296). Smile's own async parser is a different class."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#2",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89425",
+            "GHSA-7hhh-6rmp-j9qf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: UTF8DataInputJsonParser._reportInvalidToken() missing maxErrorTokenLength limit -> unbounded StringBuilder growth (DoS) \u2014 ## Status\n\n**FULLY REPRODUCED.** A malformed token fed through `createParser(DataInput)` produced a\n20,000,109-character exception message from a 20-million-character attacker payload, while the\nidentical payload fed through `createParser(InputStream)` produced a correctly bounded\n367-character message.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed against:** `jackson-core-2.20.2`\n- **Affected file:** ",
+        "vuln_symbols": [
+          "UTF8DataInputJsonParser._reportInvalidToken",
+          "StringBuilder",
+          "ErrorReportConfiguration.getMaxErrorTokenLength",
+          "UTF8StreamJsonParser",
+          "ReaderBasedJsonParser",
+          "NonBlockingUtf8JsonParserBase"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bug is only in UTF8DataInputJsonParser (createParser(DataInput)/readValue(DataInput)); no class outside jackson references the DataInput parser/readValue overloads (scan of WEB-INF/lib for '(Ljava/io/DataInput;...)'). Solr JSON input goes via InputStream/byte[]/String (UTF8StreamJsonParser/ReaderBasedJsonParser, which bound the token)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#3",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89407",
+            "GHSA-p6pp-m3f8-5c89"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": " jackson-core: ReDoS: quadratic backtracking in NumberInput.PATTERN_FLOAT via looksLikeValidNumber() \u2014 ## Status\n\n**FULLY REPRODUCED** with a clean, textbook empirical signature: measured runtime grew almost\nexactly 4x for every doubling of input size across five consecutive doublings (5,000 \u2192 160,000\ncharacters), confirming O(n\u00b2) behavior. A single 160,000-character string (smaller than a typical\nHTTP request body) took **74.4 seconds** for one call to `NumberInput.looksLikeValidNumber()`.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed",
+        "vuln_symbols": [
+          "NumberInput.looksLikeValidNumber",
+          "PATTERN_FLOAT",
+          "PATTERN_FLOAT_TRAILING_DOT",
+          "looksLikeValidNumber",
+          "Pattern",
+          "Matcher"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "looksLikeValidNumber is only invoked by databind String->float/double/BigDecimal/Number coercion (jackson-databind 2.18.0 StdDeserializer.java:1068,1086,1203+, NumberDeserializers.java:656,759,867,1050). Jackson databind use on attacker data: Jersey V2 request bodies via SolrJacksonMapper (solr/core/src/java/org/apache/solr/jersey/SolrJacksonMapper.java:47, plain ObjectMapper) + MessageBodyReaders.java:46 JacksonJsonProvider; AnnotatedApi.java:296 readValue into solrj request beans; ContainerPluginsRegistry.java:156,451 PluginMeta/plugin config; target types are solr/api model + solrj request/beans classes. None of these target classes has a float/double/Float/Double/BigDecimal/Number field fed from requests (request beans/RequestBody/config classes have String/Integer/Long/Boolean/Map/Object only, e.g. RateLimiterPayload.java:27-35, AffinityPlacementConfig.java:82-142, InactiveShardRemoverConfig.java:31-35); Double fields exist only in response classes (CollectionBackupDetails.java:30). Untyped Object/Map values do not call it. CborLoader.java:110 uses parser tokens directly."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#4",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68494",
+            "GHSA-r7wm-3cxj-wff9"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Async parser maxNumberLength bypass via chunked digit accumulation (incomplete fix for GHSA-72hv-8253-57qq) \u2014 ## Summary\n\nThe fix released in jackson-core `2.18.6` and `2.21.1` for [GHSA-72hv-8253-57qq](https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq) (Number Length Constraint Bypass in Async Parser, published 2026-02-28) is incomplete. The fix commit `b0c428e6` (#1555) wired `validateIntegerLength` into a new `_setIntLength` helper and called it at every place where the integer portion of a number is *decided* (terminator byte arrived, `.` / `e/",
+        "vuln_symbols": [
+          "b0c428e6",
+          "validateIntegerLength",
+          "_setIntLength",
+          "MINOR_NUMBER_INTEGER_DIGITS",
+          "NOT_AVAILABLE",
+          "_textBuffer.expandCurrentSegment"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as GHSA-72hv: the jackson-core async JSON parser (NonBlockingUtf8JsonParserBase) is never instantiated; no caller of createNonBlocking*/feeder outside jackson in the deployed classpath."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#5",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59888",
+            "GHSA-3pjw-73gf-8qr5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonIgnore on a Record property is bypassed with a PropertyNamingStrategy \u2014 ## Summary\nFor Java Records, `POJOPropertiesCollector._removeUnwantedIgnorals()` records a `@JsonIgnore`-annotated component under its original implicit name before `_renameUsing()` applies the `PropertyNamingStrategy`. After the rename, `_ignoredPropertyNames` still holds only the pre-rename name, so `_ignorableProps` is built from the stale key. The renamed JSON key passes `IgnorePropertiesUtil.shouldIgnore()` and is assigned to the Record's constructor parameter, defeating the `@JsonIgnore`.\n\n## I",
+        "vuln_symbols": [
+          "POJOPropertiesCollector._removeUnwantedIgnorals",
+          "_renameUsing",
+          "PropertyNamingStrategy",
+          "_ignoredPropertyNames",
+          "_ignorableProps",
+          "IgnorePropertiesUtil.shouldIgnore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson databind use on attacker data: Jersey V2 request bodies via SolrJacksonMapper (solr/core/src/java/org/apache/solr/jersey/SolrJacksonMapper.java:47, plain ObjectMapper) + MessageBodyReaders.java:46 JacksonJsonProvider; AnnotatedApi.java:296 readValue into solrj request beans; ContainerPluginsRegistry.java:156,451 PluginMeta/plugin config; target types are solr/api model + solrj request/beans classes. No Java records and no PropertyNamingStrategy/@JsonNaming anywhere in Solr non-test sources (grep); SolrJacksonMapper sets none."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#6",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59889",
+            "GHSA-5gvw-p9qm-jgwh"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonView bypassed for @JsonUnwrapped container properties on deserialization \u2014 ## Summary\n`UnwrappedPropertyHandler.processUnwrapped()` replays the buffered JSON for a `@JsonUnwrapped` property by iterating its properties and calling `prop.deserializeAndSet()` with **no `prop.visibleInView(ctxt.getActiveView())` guard** \u2014 the exact guard `processUnwrappedCreatorProperties()` received in the #5971 / GHSA-rcqc-6cw3-h962 fix, and the guard `BeanDeserializer.deserializeWithUnwrapped` applies to directly-matched properties. As a result, a property annotated with both `@JsonView(P",
+        "vuln_symbols": [
+          "UnwrappedPropertyHandler.processUnwrapped",
+          "prop.deserializeAndSet",
+          "processUnwrappedCreatorProperties",
+          "BeanDeserializer.deserializeWithUnwrapped",
+          "BeanDeserializer",
+          "PublicView"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson databind use on attacker data: Jersey V2 request bodies via SolrJacksonMapper (solr/core/src/java/org/apache/solr/jersey/SolrJacksonMapper.java:47, plain ObjectMapper) + MessageBodyReaders.java:46 JacksonJsonProvider; AnnotatedApi.java:296 readValue into solrj request beans; ContainerPluginsRegistry.java:156,451 PluginMeta/plugin config; target types are solr/api model + solrj request/beans classes. No @JsonView or @JsonUnwrapped in any deserialized Solr type (annotation census of solr/api, solrj, core: only JsonProperty/JsonIgnore/JsonAnyGetter/Setter/JsonTypeInfo/JsonSubTypes)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#7",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54515",
+            "GHSA-5jmj-h7xm-6q6v"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has case-insensitive deserialization bypasses per-property @JsonIgnoreProperties \u2014 ## Summary\nIn `BeanDeserializerBase.createContextual()`, per-property `@JsonIgnoreProperties` exclusions are applied by `_handleByNameInclusion()`, producing a `contextual` deserializer whose `BeanPropertyMap` has the ignored properties removed. The subsequent per-property case-insensitivity block (triggered by `@JsonFormat(ACCEPT_CASE_INSENSITIVE_PROPERTIES)`) rebuilds from `this._beanProperties` (the original, unfiltered map) instead of `contextual._beanProperties`, then overwrites the filtere",
+        "vuln_symbols": [
+          "BeanDeserializerBase.createContextual",
+          "_handleByNameInclusion",
+          "contextual",
+          "BeanPropertyMap",
+          "this._beanProperties",
+          "contextual._beanProperties"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson databind use on attacker data: Jersey V2 request bodies via SolrJacksonMapper (solr/core/src/java/org/apache/solr/jersey/SolrJacksonMapper.java:47, plain ObjectMapper) + MessageBodyReaders.java:46 JacksonJsonProvider; AnnotatedApi.java:296 readValue into solrj request beans; ContainerPluginsRegistry.java:156,451 PluginMeta/plugin config; target types are solr/api model + solrj request/beans classes. No @JsonIgnoreProperties or @JsonFormat(ACCEPT_CASE_INSENSITIVE_PROPERTIES) in Solr types and mapper does not enable case-insensitivity."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#8",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91777",
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind quadratic forward-reference completion  \u2014 ### Summary\n\nWhen an `@JsonIdentityInfo` collection or map first creates N unresolved\nobject-ID references and later resolves the same IDs in reverse order,\njackson-databind scans the remaining pending-reference accumulator for each\nresolution. A shallow JSON document whose size grows linearly can therefore\ncause quadratic CPU work during deserialization.\n\n### Details\n\nThe affected path is forward-reference completion in\n`CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference()`\nand the corresponding map implemen",
+        "vuln_symbols": [
+          "CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference",
+          "equals"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson databind use on attacker data: Jersey V2 request bodies via SolrJacksonMapper (solr/core/src/java/org/apache/solr/jersey/SolrJacksonMapper.java:47, plain ObjectMapper) + MessageBodyReaders.java:46 JacksonJsonProvider; AnnotatedApi.java:296 readValue into solrj request beans; ContainerPluginsRegistry.java:156,451 PluginMeta/plugin config; target types are solr/api model + solrj request/beans classes. No @JsonIdentityInfo in any Solr type, so no forward-reference accumulator is used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#9",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-83557",
+            "GHSA-gx83-3vf8-gh7j"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Comparable missing from DefaultBaseTypeLimitingValidator's unsafe base types (incomplete PolymorphicTypeValidator denylist) \u2014 ### Summary\n`DefaultBaseTypeLimitingValidator` \u2014 the `PolymorphicTypeValidator` used automatically whenever `@JsonTypeInfo` is applied without an explicitly configured custom validator \u2014 denies polymorphic resolution only for nine specific \"unsafe base types\" (`Object`, `Serializable`, `Closeable`, `AutoCloseable`, `Cloneable`, `Runnable`, `java.util.logging.Handler`, `javax.naming.Referenceable`, `javax.sql.DataSource`). Its `isSafeSubType()` returns ",
+        "vuln_symbols": [
+          "DefaultBaseTypeLimitingValidator",
+          "PolymorphicTypeValidator",
+          "Serializable",
+          "Closeable",
+          "AutoCloseable",
+          "Cloneable"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only polymorphic type is RoutedAliasProperties (solr/api/.../RoutedAliasProperties.java:23) with JsonTypeInfo.Id.NAME and fixed @JsonSubTypes; name-based ids resolve only registered subtypes, the PTV/DefaultBaseTypeLimitingValidator (class-name resolution) is not involved; no default typing enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#10",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54514",
+            "GHSA-hgj6-7826-r7m5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: InetSocketAddress deserialization triggers eager DNS resolution (SSRF) \u2014 ## Summary\n`JDKFromStringDeserializer` constructed `InetSocketAddress` with `new InetSocketAddress(host, port)`, which performs eager DNS name resolution for hostname inputs at deserialization time. An application that binds untrusted JSON into a type containing an `InetSocketAddress` field issues an attacker-chosen DNS query during `readValue`, before any application-level validation or connect logic. The fix uses `InetSocketAddress.createUnresolved(host, port)`, deferring DNS to an explicit connect.\n\n#",
+        "vuln_symbols": [
+          "JDKFromStringDeserializer",
+          "InetSocketAddress",
+          "readValue"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson databind use on attacker data: Jersey V2 request bodies via SolrJacksonMapper (solr/core/src/java/org/apache/solr/jersey/SolrJacksonMapper.java:47, plain ObjectMapper) + MessageBodyReaders.java:46 JacksonJsonProvider; AnnotatedApi.java:296 readValue into solrj request beans; ContainerPluginsRegistry.java:156,451 PluginMeta/plugin config; target types are solr/api model + solrj request/beans classes. No InetSocketAddress-typed field in any deserialized type (grep of api models, request beans, plugin configs)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#11",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54512",
+            "GHSA-j3rv-43j4-c7qm"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has a PolymorphicTypeValidator bypass via generic type parameters that allows arbitrary class instantiation \u2014 `jackson-databind`'s `PolymorphicTypeValidator` (PTV) is the primary safety mechanism guarding polymorphic deserialization. When polymorphic typing is enabled and a type identifier contains generic parameters (i.e. the type ID string contains `<`), `DatabindContext._resolveAndValidateGeneric()` validates **only the raw container class name** (the substring before `<`) against the configured PTV.\n\nIf the container type is approved, the method parses the full canonical t",
+        "vuln_symbols": [
+          "PolymorphicTypeValidator",
+          "DatabindContext._resolveAndValidateGeneric",
+          "TypeFactory.constructFromCanonical",
+          "java.util.ArrayList",
+          "com.evil.Gadget",
+          "BasicPolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs class-name polymorphic ids (Id.CLASS/default typing) to reach _resolveAndValidateGeneric; Solr's only @JsonTypeInfo is Id.NAME with fixed subtypes (RoutedAliasProperties.java:23), no activateDefaultTyping anywhere."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#12",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-mhm7-754m-9p8w"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: `@JsonView` bypass for creator properties with `@JsonTypeInfo(include=As.EXTERNAL_PROPERTY)` \u2014 ## Summary\n\nIn `BeanDeserializer.deserializeUsingPropertyBasedWithExternalTypeId`, the active-view (`@JsonView`) filter was applied only to the regular bean-property branch; the creator-property branch performed no `creatorProp.visibleInView(activeView)` check. A constructor parameter annotated with both `@JsonView(RestrictedView.class)` and `@JsonTypeInfo(use=Id.NAME,\n  include=As.EXTERNAL_PROPERTY)` is populated from attacker JSON even when a more restrictive view is active.\n\n  Th",
+        "vuln_symbols": [
+          "BeanDeserializer.deserializeUsingPropertyBasedWithExternalTypeId",
+          "deserializeUsingPropertyBasedWithExternalTypeId",
+          "creatorProp.isInjectionOnly"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson databind use on attacker data: Jersey V2 request bodies via SolrJacksonMapper (solr/core/src/java/org/apache/solr/jersey/SolrJacksonMapper.java:47, plain ObjectMapper) + MessageBodyReaders.java:46 JacksonJsonProvider; AnnotatedApi.java:296 readValue into solrj request beans; ContainerPluginsRegistry.java:156,451 PluginMeta/plugin config; target types are solr/api model + solrj request/beans classes. No @JsonView and no EXTERNAL_PROPERTY type info (only As.PROPERTY at RoutedAliasProperties.java:23)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#13",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68497",
+            "GHSA-q4xh-88c3-wmh7"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Duration XMLGregorianCalendar Unbounded Number Parse DoS \u2014 ### Summary\n`jackson-databind` 3.2.1 deserializes a JSON **string** bound to a `javax.xml.datatype.Duration` or `javax.xml.datatype.XMLGregorianCalendar` field by passing the raw string verbatim to `DatatypeFactory.newDuration(value)` / `newXMLGregorianCalendar(value)`. Per the XML-Schema lexical grammar these factory methods accept numeric components of arbitrary length, which the JDK materializes into `java.math.BigInteger` / `BigDecimal` using the native `BigInteger(String)` constructor (an O(n\u00b2) parser). Because t",
+        "vuln_symbols": [
+          "javax.xml.datatype.Duration",
+          "javax.xml.datatype.XMLGregorianCalendar",
+          "java.math.BigInteger",
+          "BigDecimal",
+          "StreamReadConstraints.maxNumberLength",
+          "maxStringLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson databind use on attacker data: Jersey V2 request bodies via SolrJacksonMapper (solr/core/src/java/org/apache/solr/jersey/SolrJacksonMapper.java:47, plain ObjectMapper) + MessageBodyReaders.java:46 JacksonJsonProvider; AnnotatedApi.java:296 readValue into solrj request beans; ContainerPluginsRegistry.java:156,451 PluginMeta/plugin config; target types are solr/api model + solrj request/beans classes. No javax.xml.datatype Duration/XMLGregorianCalendar fields in any deserialized type (grep)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#14",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54513",
+            "GHSA-rmj7-2vxq-3g9f"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has an array subtype allowlist bypass in BasicPolymorphicTypeValidator (allowIfSubTypeIsArray) \u2014 ## Summary\n`BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray()` allowlists any array type based only on `clazz.isArray()`, without validating the array's component (element) type against the configured allowlist. A PTV built with `allowIfSubTypeIsArray()` plus an explicit concrete-type allowlist therefore still permits `EvilType[]` even though `EvilType` is not allowlisted. When Jackson deserializes the elements and no per-element type IDs are present, it instantiates th",
+        "vuln_symbols": [
+          "BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray",
+          "clazz.isArray",
+          "allowIfSubTypeIsArray",
+          "EvilType",
+          "BasicPolymorphicTypeValidator",
+          "PolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "BasicPolymorphicTypeValidator/allowIfSubTypeIsArray never built by Solr; no class-based polymorphic typing (only Id.NAME at RoutedAliasProperties.java:23)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#15",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-77310",
+            "GHSA-vvgp-rfg2-7rr6"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Incomplete fix for CVE-2026-54514: eager DNS resolution (SSRF) still present in InetAddress deserialization \u2014 ### Summary\nCVE-2026-54514 (GHSA-hgj6-7826-r7m5) fixed an eager-DNS-resolution / SSRF issue in jackson-databind's deserialization of `java.net.InetSocketAddress` by switching to `InetSocketAddress.createUnresolved(...)` (PR #5951, commit 1f5a1037, released in 2.18.8 / 2.21.4 / 3.1.4). That fix did not cover the sibling `java.net.InetAddress` branch in the very same `FromStringDeserializer.Std._deserialize()` switch statement, which still calls `InetAddress.getByName(v",
+        "vuln_symbols": [
+          "java.net.InetSocketAddress",
+          "java.net.InetAddress",
+          "FromStringDeserializer.Std._deserialize",
+          "InetAddress",
+          "address.isUnresolved",
+          "InetAddress.getByName"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson databind use on attacker data: Jersey V2 request bodies via SolrJacksonMapper (solr/core/src/java/org/apache/solr/jersey/SolrJacksonMapper.java:47, plain ObjectMapper) + MessageBodyReaders.java:46 JacksonJsonProvider; AnnotatedApi.java:296 readValue into solrj request beans; ContainerPluginsRegistry.java:156,451 PluginMeta/plugin config; target types are solr/api model + solrj request/beans classes. No InetAddress-typed field in any deserialized type."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#16",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-19032",
+            "GHSA-wjgm-6hv5-3cvf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Path Deserialization Missing Scheme Allowlist for FileSystemProvider Resolution \u2014 ### Summary\n\nA `java.nio.file.Path` field bound from untrusted JSON reaches `JDKFromStringDeserializer.NioPathHelper.deserialize`. The attacker string flows through `new URI(value)` \u2192 `Path.of(uri)`, then on `FileSystemNotFoundException` into a `ServiceLoader<FileSystemProvider>` enumeration that calls `provider.getPath(uri)` on the first scheme-matching provider. No scheme is rejected, so untrusted JSON can drive an arbitrary registered provider under the default `JsonMapper.builder().build()`.",
+        "vuln_symbols": [
+          "java.nio.file.Path",
+          "JDKFromStringDeserializer.NioPathHelper.deserialize",
+          "FileSystemNotFoundException",
+          "file",
+          "jar",
+          "Path"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson databind use on attacker data: Jersey V2 request bodies via SolrJacksonMapper (solr/core/src/java/org/apache/solr/jersey/SolrJacksonMapper.java:47, plain ObjectMapper) + MessageBodyReaders.java:46 JacksonJsonProvider; AnnotatedApi.java:296 readValue into solrj request beans; ContainerPluginsRegistry.java:156,451 PluginMeta/plugin config; target types are solr/api model + solrj request/beans classes. No java.nio.file.Path/File/URI field in any deserialized type (Path is used widely in core but never as a Jackson-bound field)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#17",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91776",
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind retains every unknown raw type ID  \u2014 ### Summary\n\nWith `@JsonTypeInfo(use = Id.NAME, defaultImpl = ...)`, every distinct unknown\nraw type ID selects the same fallback deserializer but is retained as a\nseparate key in `TypeDeserializerBase._deserializers`. An attacker who can\nrepeatedly supply new unknown type IDs can grow this process-lifetime cache\nwithout a configured bound.\n\n### Details\n\nThe affected path is `TypeDeserializerBase._findDeserializer()`. After an\nunknown name-based type ID resolves to the configured fallback/default\nimplementation, jackson-databind caches the ",
+        "vuln_symbols": [
+          "TypeDeserializerBase._deserializers",
+          "TypeDeserializerBase._findDeserializer",
+          "typeId",
+          "_deserializers",
+          "defaultImpl"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only polymorphic base RoutedAliasProperties.java:23 uses Id.NAME without defaultImpl, so unknown type ids fail (FAIL_ON_INVALID_SUBTYPE default) rather than selecting a cached fallback; the advisory requires defaultImpl."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#18",
+      "facts": {
+        "package": "com.google.guava:guava",
+        "version": "33.1.0-jre",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102554",
+            "GHSA-xxph-c9ww-hj94"
+          ],
+          [
+            "com.google.guava:guava"
+          ]
+        ],
+        "advisory_summary": "Google Guava: CompactHashMap/CompactHashSet/MapMakerInternalMap deserialization triggers uncontrolled memory allocation \u2014 # CompactHashMap/CompactHashSet/MapMakerInternalMap native deserialization triggers uncontrolled memory allocation\n\n## Summary\n\n`CompactHashMap`, `CompactHashSet`, and `MapMakerInternalMap` implement `readObject(ObjectInputStream)` by reading an attacker-controlled `elementCount` or `initialCapacity` from the stream. On the very first insertion during or after deserialization (for the `CompactHash*` collections, inside `allocArrays()`) or immediately during deserialization ",
+        "vuln_symbols": [
+          "CompactHashMap",
+          "CompactHashSet",
+          "MapMakerInternalMap",
+          "elementCount",
+          "initialCapacity",
+          "allocArrays"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "33.7.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Java native deserialization (ObjectInputStream) of Guava collections; Solr server code has no ObjectInputStream on network data (only solr/modules/analytics AnalyticsShardResponseParser.java:67, out of scope); javabin/TransactionLog readObject are Solr's own codecs (TransactionLog.java:155), not Java serialization."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#19",
+      "facts": {
+        "package": "io.netty:netty-codec",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58057",
+            "GHSA-3p8m-j85q-pgmj"
+          ],
+          [
+            "io.netty:netty-codec"
+          ]
+        ],
+        "advisory_summary": "Netty's decoders vulnerable to DoS via zip bomb style attack \u2014 ### Summary\n\nWith specially crafted input, `BrotliDecoder` and some other decompressing decoders will allocate a large number of reachable byte buffers, which can lead to denial of service.\n\n### Details\n\n`BrotliDecoder.decompress` has no limit in how often it calls `pull`, decompressing data 64K bytes at a time. The buffers are saved in the output list, and remain reachable until OOM is hit. This is basically a zip bomb.\n\nTested on 4.1.118, but there were no changes to the decoder since.\n\n### PoC\n\nRun this test case with `-Xmx1G`:\n",
+        "vuln_symbols": [
+          "BrotliDecoder",
+          "BrotliDecoder.decompress",
+          "pull"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.125.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty jars are on the classpath only as ZooKeeper deps (poms: only zookeeper-3.9.2.jar declares io.netty); Solr code never imports io.netty (grep of solr/ non-test: only modules build.gradle). ZK uses Netty only when zookeeper.clientCnxnSocket=ClientCnxnSocketNetty / serverCnxnFactory=NettyServerCnxnFactory is set; defaults are NIO, embedded ZK zoo.cfg (solr/server/solr/zoo.cfg) sets none, and Solr docs/solr.in.sh never document these (ZK-only setting => undocumented by app). No Netty pipeline/SslHandler/SniHandler/IpSubnetFilter/compression decoder runs. BrotliDecoder never in a pipeline."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#20",
+      "facts": {
+        "package": "io.netty:netty-codec",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59901",
+            "GHSA-558v-64gr-wgg4"
+          ],
+          [
+            "io.netty:netty-codec"
+          ]
+        ],
+        "advisory_summary": "Netty: [Bzip2Decoder] Infinite Loop in RLE State Machine Leads to Event-Loop Thread Hang \u2014 The `Bzip2Decoder` handler in Netty's compression codec pipeline is vulnerable to a denial-of-service attack through a malformed bzip2 stream that permanently captures the event-loop thread in an infinite loop. The vulnerability exists in the run-length encoding (RLE) state machine within [`Bzip2BlockDecompressor.read()`]",
+        "vuln_symbols": [
+          "Bzip2Decoder",
+          "Bzip2BlockDecompressor.read"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.136.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty jars are on the classpath only as ZooKeeper deps (poms: only zookeeper-3.9.2.jar declares io.netty); Solr code never imports io.netty (grep of solr/ non-test: only modules build.gradle). ZK uses Netty only when zookeeper.clientCnxnSocket=ClientCnxnSocketNetty / serverCnxnFactory=NettyServerCnxnFactory is set; defaults are NIO, embedded ZK zoo.cfg (solr/server/solr/zoo.cfg) sets none, and Solr docs/solr.in.sh never document these (ZK-only setting => undocumented by app). No Netty pipeline/SslHandler/SniHandler/IpSubnetFilter/compression decoder runs. Bzip2Decoder never in a pipeline."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#21",
+      "facts": {
+        "package": "io.netty:netty-codec",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42583",
+            "GHSA-mj4r-2hfc-f8p6"
+          ],
+          [
+            "io.netty:netty-codec"
+          ]
+        ],
+        "advisory_summary": "Netty Lz4FrameDecoder is vulnerable to resource exhaustion  \u2014 ### Summary\nLz4FrameDecoder allocates a ByteBuf of size `decompressedLength` (up to 32 MB per block) before LZ4 runs. A peer only needs a 21-byte header plus `compressedLength` payload bytes - 22 bytes if `compressedLength == 1` - to force that allocation.\n\n### Details\nio.netty.handler.codec.compression.Lz4FrameDecoder#decode\nHeader fields are trusted for sizing. On the compressed path, after `readableBytes >= compressedLength`, the decoder does `ctx.alloc().buffer(decompressedLength, decompressedLength)` then decompresses.\n\n### PoC",
+        "vuln_symbols": [
+          "decompressedLength",
+          "compressedLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.133.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty jars are on the classpath only as ZooKeeper deps (poms: only zookeeper-3.9.2.jar declares io.netty); Solr code never imports io.netty (grep of solr/ non-test: only modules build.gradle). ZK uses Netty only when zookeeper.clientCnxnSocket=ClientCnxnSocketNetty / serverCnxnFactory=NettyServerCnxnFactory is set; defaults are NIO, embedded ZK zoo.cfg (solr/server/solr/zoo.cfg) sets none, and Solr docs/solr.in.sh never document these (ZK-only setting => undocumented by app). No Netty pipeline/SslHandler/SniHandler/IpSubnetFilter/compression decoder runs. Lz4FrameDecoder never in a pipeline."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#22",
+      "facts": {
+        "package": "io.netty:netty-common",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-25193",
+            "GHSA-389x-839f-4rhx"
+          ],
+          [
+            "io.netty:netty-common"
+          ]
+        ],
+        "advisory_summary": "Denial of Service attack on windows app using Netty \u2014 ### Summary\nAn unsafe reading of environment file could potentially cause a denial of service in Netty.\nWhen loaded on an Windows application, Netty attemps to load a file that does not exist. If an attacker creates such a large file, the Netty application crash.\n\n### Details\nA similar issue was previously reported in https://github.com/netty/netty/security/advisories/GHSA-xq3w-v528-46rv\nThis issue was fixed, but the fix was incomplete in that null-bytes were not counted against the input limit.\n\n\n### PoC\nThe PoC is the same as for https://",
+        "vuln_symbols": [
+          "InputStreamReader",
+          "BufferedReader.readLine"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.118.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Windows-only local-file DoS during netty PlatformDependent init; attacker must write a local file on the Windows host (not a network attacker), and Netty is only loaded if ZooKeeper is switched to its Netty transport. Netty jars are on the classpath only as ZooKeeper deps (poms: only zookeeper-3.9.2.jar declares io.netty); Solr code never imports io.netty (grep of solr/ non-test: only modules build.gradle). ZK uses Netty only when zookeeper.clientCnxnSocket=ClientCnxnSocketNetty / serverCnxnFactory=NettyServerCnxnFactory is set; defaults are NIO, embedded ZK zoo.cfg (solr/server/solr/zoo.cfg) sets none, and Solr docs/solr.in.sh never document these (ZK-only setting => undocumented by app). No Netty pipeline/SslHandler/SniHandler/IpSubnetFilter/compression decoder runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#23",
+      "facts": {
+        "package": "io.netty:netty-common",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-47535",
+            "GHSA-xq3w-v528-46rv"
+          ],
+          [
+            "io.netty:netty-common"
+          ]
+        ],
+        "advisory_summary": "Denial of Service attack on windows app using netty \u2014 ### Summary\n\nAn unsafe reading of environment file could potentially cause a denial of service in Netty.\nWhen loaded on an Windows application, Netty attemps to load a file that does not exist. If an attacker creates such a large file, the Netty application crash.\n\n\n### Details\n\nWhen the library netty is loaded in a java windows application, the library tries to identify the system environnement in which it is executed.\n\nAt this stage, Netty tries to load both `/etc/os-release` and `/usr/lib/os-release` even though it is in a Windows enviro",
+        "vuln_symbols": [
+          "normalizeOs"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.115.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same Windows-only local os-release file DoS as GHSA-389x; requires local file write and Netty loading. Netty jars are on the classpath only as ZooKeeper deps (poms: only zookeeper-3.9.2.jar declares io.netty); Solr code never imports io.netty (grep of solr/ non-test: only modules build.gradle). ZK uses Netty only when zookeeper.clientCnxnSocket=ClientCnxnSocketNetty / serverCnxnFactory=NettyServerCnxnFactory is set; defaults are NIO, embedded ZK zoo.cfg (solr/server/solr/zoo.cfg) sets none, and Solr docs/solr.in.sh never document these (ZK-only setting => undocumented by app). No Netty pipeline/SslHandler/SniHandler/IpSubnetFilter/compression decoder runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#24",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44249",
+            "GHSA-3qp7-7mw8-wx86"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty has an IPv6 Subnet Filter Bypass via Incorrect Comparator Masking \u2014 ### Summary\nAn attacker can bypass IPv6 subnet rules due to an incorrect masking operation in IpSubnetFilterRule.compareTo(). Valid public IP addresses can bypass the restrictions.\n\n### Details\n`io.netty.handler.ipfilter.IpSubnetFilterRule#compareTo(java.net.InetSocketAddress)` method performs a bitwise AND between the incoming IP address and the configured networkAddress, instead of the subnetMask.\n\n### Impact\nAccess Control Bypass. Attacker can bypass IpSubnetFilter IPv6 access controls.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty jars are on the classpath only as ZooKeeper deps (poms: only zookeeper-3.9.2.jar declares io.netty); Solr code never imports io.netty (grep of solr/ non-test: only modules build.gradle). ZK uses Netty only when zookeeper.clientCnxnSocket=ClientCnxnSocketNetty / serverCnxnFactory=NettyServerCnxnFactory is set; defaults are NIO, embedded ZK zoo.cfg (solr/server/solr/zoo.cfg) sets none, and Solr docs/solr.in.sh never document these (ZK-only setting => undocumented by app). No Netty pipeline/SslHandler/SniHandler/IpSubnetFilter/compression decoder runs. IpSubnetFilter never used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#25",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-24970",
+            "GHSA-4g8c-wm8x-jfhw"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "SslHandler doesn't correctly validate packets which can lead to native crash when using native SSLEngine \u2014 ### Impact\nWhen a special crafted packet is received via SslHandler it doesn't correctly handle validation of such a packet in all cases which can lead to a native crash.\n\n### Workarounds\nAs workaround its possible to either disable the usage of the native SSLEngine or changing the code from:\n\n```\nSslContext context = ...;\nSslHandler handler = context.newHandler(....);\n```\n\nto:\n\n```\nSslContext context = ...;\nSSLEngine engine = context.newEngine(....);\nSslHandler handler = new SslHandler(e",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.118.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty jars are on the classpath only as ZooKeeper deps (poms: only zookeeper-3.9.2.jar declares io.netty); Solr code never imports io.netty (grep of solr/ non-test: only modules build.gradle). ZK uses Netty only when zookeeper.clientCnxnSocket=ClientCnxnSocketNetty / serverCnxnFactory=NettyServerCnxnFactory is set; defaults are NIO, embedded ZK zoo.cfg (solr/server/solr/zoo.cfg) sets none, and Solr docs/solr.in.sh never document these (ZK-only setting => undocumented by app). No Netty pipeline/SslHandler/SniHandler/IpSubnetFilter/compression decoder runs. No Netty SslHandler with native SSLEngine; Solr TLS is Jetty/JSSE."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#26",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-75595",
+            "GHSA-c4c3-7fpv-j4q5"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: SNI Routing Bypass via Fragmented TLS ClientHello Causing Fallback to Default SslContext \u2014 ### Summary\nA fragmented TLS ClientHello whose handshake header spans multiple records makes Netty silently fall back to the default SslContext; where per-SNI selection is the sole mTLS gate, an unauthenticated attacker can bypass the route's mTLS requirement.\n\n### Details\nIn `io.netty.handler.ssl.SslClientHelloHandler#decode` the guard that should wait for the 4-byte handshake header checks the wrong offset - it ignores the 5-byte record header that precedes it - and therefore never fires:\n\n```ja",
+        "vuln_symbols": [
+          "SslContext"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.137.Final",
+          "4.2.17.Final"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty jars are on the classpath only as ZooKeeper deps (poms: only zookeeper-3.9.2.jar declares io.netty); Solr code never imports io.netty (grep of solr/ non-test: only modules build.gradle). ZK uses Netty only when zookeeper.clientCnxnSocket=ClientCnxnSocketNetty / serverCnxnFactory=NettyServerCnxnFactory is set; defaults are NIO, embedded ZK zoo.cfg (solr/server/solr/zoo.cfg) sets none, and Solr docs/solr.in.sh never document these (ZK-only setting => undocumented by app). No Netty pipeline/SslHandler/SniHandler/IpSubnetFilter/compression decoder runs. No SniHandler/SslClientHelloHandler used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#27",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-50010",
+            "GHSA-c653-97m9-rcg9"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: Wrapping plain trust manager silently disables hostname verification \u2014 SimpleTrustManagerFactory.engineGetTrustManagers() and related paths wrap any user-supplied plain X509TrustManager in X509TrustManagerWrapper, which extends X509ExtendedTrustManager but implements the 3-arg checkServerTrusted(chain, authType, SSLEngine) by discarding the SSLEngine and calling the 2-arg delegate. Because the object now IS an X509ExtendedTrustManager, neither SunJSSE's internal AbstractTrustManagerWrapper nor Netty's own OpenSslX509TrustManagerWrapper will re-wrap it to add endpoint-identification. Con",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty jars are on the classpath only as ZooKeeper deps (poms: only zookeeper-3.9.2.jar declares io.netty); Solr code never imports io.netty (grep of solr/ non-test: only modules build.gradle). ZK uses Netty only when zookeeper.clientCnxnSocket=ClientCnxnSocketNetty / serverCnxnFactory=NettyServerCnxnFactory is set; defaults are NIO, embedded ZK zoo.cfg (solr/server/solr/zoo.cfg) sets none, and Solr docs/solr.in.sh never document these (ZK-only setting => undocumented by app). No Netty pipeline/SslHandler/SniHandler/IpSubnetFilter/compression decoder runs. Netty SimpleTrustManagerFactory/X509TrustManagerWrapper not used; ZK Netty TLS also undocumented by Solr."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#28",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-75596",
+            "GHSA-fccg-mwvh-qqg4"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: Fragmented ClientHello records trigger quadratic pre-handshake reassembly in default SNI parsing \u2014 ### Summary\n\nNetty's default SNI entrypoint reparses and recopies previously received ClientHello fragments on every additional TLS handshake record. A remote peer can send a small first record that advertises a large ClientHello length and then drip the body in many tiny records, causing **superlinear (quadratic) CPU work** before the handshake completes. With 4095 one-byte fragments, the handler recopies **8,386,560 bytes** from only **24,579 bytes** on the wire \u2014 a **341\u00d7 amplification*",
+        "vuln_symbols": [
+          "io.netty.handler.ssl.SniHandler",
+          "io.netty.handler.ssl.SslClientHelloHandler",
+          "SniHandler"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.137.Final",
+          "4.2.17.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty jars are on the classpath only as ZooKeeper deps (poms: only zookeeper-3.9.2.jar declares io.netty); Solr code never imports io.netty (grep of solr/ non-test: only modules build.gradle). ZK uses Netty only when zookeeper.clientCnxnSocket=ClientCnxnSocketNetty / serverCnxnFactory=NettyServerCnxnFactory is set; defaults are NIO, embedded ZK zoo.cfg (solr/server/solr/zoo.cfg) sets none, and Solr docs/solr.in.sh never document these (ZK-only setting => undocumented by app). No Netty pipeline/SslHandler/SniHandler/IpSubnetFilter/compression decoder runs. No SniHandler."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#29",
+      "facts": {
+        "package": "io.netty:netty-handler",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45416",
+            "GHSA-x4gw-5cx5-pgmh"
+          ],
+          [
+            "io.netty:netty-handler"
+          ]
+        ],
+        "advisory_summary": "Netty: SNI handler pre-allocates up to 16 MiB from nine attacker bytes \u2014 SslClientHelloHandler.decode() reads the 24-bit TLS handshake length and, when the ClientHello does not fit in the first record, eagerly allocates `ctx.alloc().buffer(handshakeLength)` (line 161). The guard at line 140 is `handshakeLength > maxClientHelloLength && maxClientHelloLength != 0`, and the commonly-used SniHandler/AbstractSniHandler constructors (SniHandler(Mapping), SniHandler(AsyncMapping), AbstractSniHandler()) pass maxClientHelloLength=0 and handshakeTimeoutMillis=0, so the length guard is disabled and no ti",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Netty jars are on the classpath only as ZooKeeper deps (poms: only zookeeper-3.9.2.jar declares io.netty); Solr code never imports io.netty (grep of solr/ non-test: only modules build.gradle). ZK uses Netty only when zookeeper.clientCnxnSocket=ClientCnxnSocketNetty / serverCnxnFactory=NettyServerCnxnFactory is set; defaults are NIO, embedded ZK zoo.cfg (solr/server/solr/zoo.cfg) sets none, and Solr docs/solr.in.sh never document these (ZK-only setting => undocumented by app). No Netty pipeline/SslHandler/SniHandler/IpSubnetFilter/compression decoder runs. No SniHandler/AbstractSniHandler."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#30",
+      "facts": {
+        "package": "io.netty:netty-transport-native-epoll",
+        "version": "4.1.114.Final",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45536",
+            "GHSA-w573-9ffj-6ff9"
+          ],
+          [
+            "io.netty:netty-transport-native-epoll"
+          ]
+        ],
+        "advisory_summary": "Netty: Unix-socket fd receive leaks descriptors when peer sends two at once \u2014 netty_unix_socket_recvFd sets msg_control to `char control[CMSG_SPACE(sizeof(int))]` (line 940) \u2014 24 bytes on 64-bit Linux. A peer-sent SCM_RIGHTS cmsg carrying two ints has cmsg_len = CMSG_LEN(8) = 24, which fits exactly with no MSG_CTRUNC, so the kernel installs both fds in the receiving process. The subsequent check `cmsg->cmsg_len == CMSG_LEN(sizeof(int))` (line 972, expected 20) fails, the branch that would read the fd is skipped, and neither installed fd is closed. The for(;;) loop calls recvmsg again (non-bloc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.135.Final",
+          "4.2.15.Final"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "netty-transport-native-epoll ships in WEB-INF/lib only as a ZooKeeper transitive; netty_unix_socket_recvFd runs only for Epoll domain-socket channels in DomainSocketReadMode.FILE_DESCRIPTORS. No Solr code imports io.netty (grep solr/**/src/java: none outside modules/); ZK client uses ClientCnxnSocketNIO by default (no zookeeper.clientCnxnSocket set in bin/solr or docs) and nothing opens unix domain sockets."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#31",
+      "facts": {
+        "package": "org.apache.commons:commons-lang3",
+        "version": "3.15.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-48924",
+            "GHSA-j288-q9x7-2f5v"
+          ],
+          [
+            "org.apache.commons:commons-lang3"
+          ]
+        ],
+        "advisory_summary": "Apache Commons Lang is vulnerable to Uncontrolled Recursion when processing long inputs \u2014 Uncontrolled Recursion vulnerability in Apache Commons Lang.\n\nThis issue affects Apache Commons Lang: Starting with\u00a0commons-lang:commons-lang\u00a02.0 to 2.6, and, from org.apache.commons:commons-lang3 3.0 before\u00a03.18.0.\n\nThe methods ClassUtils.getClass(...) can throw\u00a0StackOverflowError on very long inputs. Because an Error is usually not handled by applications and libraries, a StackOverflowError could\u00a0cause an application to stop.\n\nUsers are recommended to upgrade to version 3.18.0, which fixes the issue.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only solr-core references commons-lang3 among server jars (byte scan of all WEB-INF/lib, server/lib, lib/ext classes): LocaleUtils.java:29 (LocaleUtils.toLocale) and SubstringBytesRefFilter.java:55 (StringUtils.containsIgnoreCase). No class anywhere references org/apache/commons/lang3/ClassUtils, so ClassUtils.getClass never runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#32",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-api",
+        "version": "2.21.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-49844",
+            "GHSA-qv9r-c865-cp47"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-api"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j API: Improper encoding of non-finite floating-point values during MapMessage JSON serialization \u2014 Improper encoding of non-finite floating-point values during MapMessage JSON serialization in Apache Log4j API produces output that is not valid JSON. This issue affects Apache Log4j API versions 2.13.1 through 2.25.4 and version 2.26.0.\n\nThe fix for CVE-2026-34481 did not cover all code paths: when a MapMessage contains a non-finite IEEE 754 value (NaN, Infinity, or -Infinity), MapMessage.asJson() emits the corresponding bare token. RFC 8259 does not permit these tokens, so a conform",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.5",
+          "2.26.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "MapMessage.asJson only runs for MapMessage events. No server jar besides log4j itself creates MapMessage (byte scan: log4j refs only in netty-common logger, simplemagic backend, solr-core Log4j2Watcher/StartupLoggingUtils/PackageTool); Solr logs via SLF4J ParameterizedMessage. Default log4j2.xml uses PatternLayout only."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#33",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-core",
+        "version": "2.21.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-34480",
+            "GHSA-3pxv-7cmr-fjr4"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-core"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j Core: Silent log event loss in XmlLayout due to unescaped XML 1.0 forbidden characters \u2014 Apache Log4j Core's [`XmlLayout`](https://logging.apache.org/log4j/2.x/manual/layouts.html#XmlLayout), in versions up to and including 2.25.3, fails to sanitize characters forbidden by the [XML 1.0 specification](https://www.w3.org/TR/xml/#charsets), producing invalid XML output whenever a log message or MDC value contains such characters.\n\nThe impact depends on the StAX implementation in use:\n\n  *  **JRE built-in StAX**: Forbidden characters are silently written to the output, producing malfo",
+        "vuln_symbols": [
+          "XmlLayout"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Default server/resources/log4j2.xml and log4j2-console.xml use PatternLayout only; Solr docs (configuring-logging.adoc:130) mention only PatternLayout and JsonTemplateLayout. XmlLayout is documented only by Log4j (framework-documented => undocumented).",
+        "requires": "custom log4j2.xml with <XmlLayout> (not documented by Solr)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#34",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-core",
+        "version": "2.21.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-34478",
+            "GHSA-445c-vh5m-36rj"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-core"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j Core: log injection in `Rfc5424Layout` due to silent configuration incompatibility \u2014 Apache Log4j Core's [`Rfc5424Layout`](https://logging.apache.org/log4j/2.x/manual/layouts.html#RFC5424Layout), in versions 2.21.0 through 2.25.3, is vulnerable to log injection via CRLF sequences due to undocumented renames of security-relevant configuration attributes.\n\nTwo distinct issues affect users of stream-based syslog services who configure Rfc5424Layout directly:\n\n  *  The `newLineEscape` attribute was silently renamed, causing newline escaping to stop working for users of TCP framing (RF",
+        "vuln_symbols": [
+          "Rfc5424Layout",
+          "newLineEscape",
+          "useTlsMessageFormat",
+          "SyslogAppender"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No Syslog appender / Rfc5424Layout in default log4j2.xml; Solr docs never mention Syslog/Rfc5424 (grep solr-ref-guide). Framework-documented only.",
+        "requires": "custom log4j2.xml with SyslogAppender/Rfc5424Layout (not documented by Solr)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#35",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-core",
+        "version": "2.21.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-34477",
+            "GHSA-6hg6-v5c8-fphq"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-core"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j Core: `verifyHostName` attribute silently ignored in TLS configuration \u2014 The fix for  CVE-2025-68161 was incomplete: it addressed hostname verification only when enabled via the  [`log4j2.sslVerifyHostName`](https://logging.apache.org/log4j/2.x/manual/systemproperties.html#log4j2.sslVerifyHostName) system property, but not when configured through the [`verifyHostName`](https://logging.apache.org/log4j/2.x/manual/appenders/network.html#SslConfiguration-attr-verifyHostName) attribute of the `<Ssl>` element.\n\nAlthough the `verifyHostName` configuration attribute was introduced in Log",
+        "vuln_symbols": [
+          "verifyHostName",
+          "log4j2.sslVerifyHostName",
+          "verifyHostname"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires a Socket/Syslog appender with <Ssl verifyHostName>; default log4j2.xml has only Console + RollingRandomAccessFile; no Solr doc mentions socket appenders or <Ssl>.",
+        "requires": "custom log4j2.xml with TLS Socket appender (not documented by Solr)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#36",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-core",
+        "version": "2.21.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-34479",
+            "GHSA-h383-gmxw-35v2"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-core"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j 1 to Log4j 2 bridge: silent log event loss in Log4j1XmlLayout due to unescaped XML 1.0 forbidden characters \u2014 The `Log4j1XmlLayout` from the Apache Log4j 1-to-Log4j 2 bridge fails to escape characters forbidden by the XML 1.0 standard, producing malformed XML output. Conforming XML parsers are required to reject documents containing such characters with a fatal error, which may cause downstream log processing systems to drop or fail to index affected records.\n\nTwo groups of users are affected:\n\n* Those using `Log4j1XmlLayout` directly in a Log4j Core 2 configuration file.\n* Those ",
+        "vuln_symbols": [
+          "Log4j1XmlLayout",
+          "org.apache.log4j.xml.XMLLayout"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Log4j1XmlLayout (log4j-1.2-api in server/lib/ext) only used if configured directly or via a Log4j 1 config with log4j1.compatibility; Solr ships log4j2.xml with PatternLayout and documents no Log4j1 config or XMLLayout.",
+        "requires": "Log4j1 XMLLayout / Log4j1XmlLayout config (not documented by Solr)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#37",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-core",
+        "version": "2.21.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-68161",
+            "GHSA-vc5p-v9hr-52mj"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-core"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j does not verify the TLS hostname in its Socket Appender \u2014 The Socket Appender in Apache Log4j Core versions 2.0-beta9 through 2.25.2 does not perform TLS hostname verification of the peer certificate, even when the  [verifyHostName](https://logging.apache.org/log4j/2.x/manual/appenders/network.html#SslConfiguration-attr-verifyHostName)  configuration attribute or the  [log4j2.sslVerifyHostName](https://logging.apache.org/log4j/2.x/manual/systemproperties.html#log4j2.sslVerifyHostName) system property is set to true.\n\nThis issue may allow a man-in-the-middle attacker to intercept o",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Socket appender TLS hostname verification: no Socket appender in default log4j2.xml (Console, RollingRandomAccessFile only) and none documented in Solr ref guide.",
+        "requires": "custom log4j2.xml with TLS Socket appender (not documented by Solr)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#38",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-layout-template-json",
+        "version": "2.21.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-34481",
+            "GHSA-w35j-pv5h-q9q9"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-layout-template-json"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j JSON Template Layout: Improper serialization of non-finite floating-point values in JsonTemplateLayout \u2014 Apache Log4j's [`JsonTemplateLayout`](https://logging.apache.org/log4j/2.x/manual/json-template-layout.html), in versions up to and including 2.25.3, produces invalid JSON output when log events contain non-finite floating-point values (`NaN`, `Infinity`, or `-Infinity`), which are prohibited by RFC 8259. This may cause downstream log processing systems to reject or fail to index affected records.\n\nAn attacker can exploit this issue only if both of the following conditions are ",
+        "vuln_symbols": [
+          "JsonTemplateLayout",
+          "NaN",
+          "Infinity",
+          "MapMessage"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "JsonTemplateLayout is shipped (server/build.gradle:72) and documented (configuring-logging.adoc:130), but non-finite numbers are only emitted for MapMessage/ObjectMessage values or messageParameter resolvers (JsonWriter.java:720-763). Solr logs only SLF4J ParameterizedMessage (rendered to string) and string MDC; no server jar creates MapMessage/ObjectMessage, so no NaN/Infinity number reaches the writer.",
+        "requires": "JsonTemplateLayout configured in log4j2.xml (documented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#39",
+      "facts": {
+        "package": "org.apache.zookeeper:zookeeper",
+        "version": "3.9.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-58457",
+            "BIT-zookeeper-2025-58457",
+            "GHSA-2hmj-97jw-28jh"
+          ],
+          [
+            "org.apache.zookeeper:zookeeper"
+          ]
+        ],
+        "advisory_summary": "Apache ZooKeeper: Insufficient Permission Check in AdminServer Snapshot/Restore Commands \u2014 Improper permission checks in the AdminServer allow an authenticated client with insufficient privileges to invoke the `snapshot` and `restore` commands. The intended requirement is authentication and authorization on the root path (`/`) with **ALL** permission for these operations; however, affected versions permit invocation without that level of authorization. The primary risk is disclosure of cluster state via snapshots to a lesser-privileged client.\n\n*   **Affected:** `org.apache.zookeeper:zookeeper",
+        "vuln_symbols": [
+          "snapshot",
+          "restore",
+          "admin.snapshot.enabled",
+          "admin.restore.enabled",
+          "admin.enableServer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.9.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "snapshot/restore are ZooKeeper AdminServer commands. Solr's only ZK server is the embedded one (SolrZkServer.java:140-146, ZooKeeperServerMain/QuorumPeerMain.runFromConfig) and its shipped config server/solr/zoo.cfg:34 sets admin.enableServer=false, so no AdminServer runs. An external ZK ensemble is a separate binary, out of scope.",
+        "requires": "admin.enableServer=true in zoo.cfg (default config disables it)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#40",
+      "facts": {
+        "package": "org.apache.zookeeper:zookeeper",
+        "version": "3.9.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24281",
+            "BIT-zookeeper-2026-24281",
+            "GHSA-7xrh-hqfc-g7qr"
+          ],
+          [
+            "org.apache.zookeeper:zookeeper"
+          ]
+        ],
+        "advisory_summary": "Apache ZooKeeper: Reverse-DNS fallback enables hostname verification bypass in ZooKeeper ZKTrustManager \u2014 Hostname verification in Apache ZooKeeper ZKTrustManager falls back to reverse DNS (PTR) when IP SAN validation fails, allowing attackers who control or spoof PTR records to impersonate ZooKeeper servers or clients with a valid certificate for the PTR name. It's important to note that attacker must present a certificate which is trusted by ZKTrustManager which makes the attack vector harder to exploit. Users are recommended to upgrade to version 3.8.6 or 3.9.5, which fixes this issue by in",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.8.6",
+          "3.9.5"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ZKTrustManager (X509Util) runs only with ZK TLS: client needs zookeeper.client.secure + ClientCnxnSocketNetty, server needs secureClientPort/ssl.quorum. Solr sets none (no clientCnxnSocket/zookeeper.ssl in bin/solr, solr.in.sh, SolrZkServer, ZkClientConnectionStrategy.java:129 uses plain new ZooKeeper). Solr docs only say ZK 3.7 'allows' TLS (major-changes-in-solr-9.adoc:331) with no settings; the settings are ZooKeeper-documented only. Also ZK hosts are operator-chosen and the attack needs PTR control plus a trusted cert.",
+        "requires": "ZooKeeper TLS (zookeeper.client.secure/clientCnxnSocket) - documented only by ZooKeeper"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#41",
+      "facts": {
+        "package": "org.apache.zookeeper:zookeeper",
+        "version": "3.9.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24308",
+            "BIT-zookeeper-2026-24308",
+            "GHSA-crhr-qqj8-rpxc"
+          ],
+          [
+            "org.apache.zookeeper:zookeeper"
+          ]
+        ],
+        "advisory_summary": "Apache ZooKeeper has improper handling of configuration values \u2014 Improper handling of configuration values in ZKConfig in Apache ZooKeeper 3.8.5 and 3.9.4 on all platforms allows an attacker to expose sensitive information stored in client configuration in the client's logfile. Configuration values are exposed at INFO level logging rendering potential production systems affected by the issue.\u00a0Users are recommended to upgrade to version 3.8.6 or 3.9.5 which fixes this issue.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.8.6",
+          "3.9.5"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Advisory affects 3.8.5/3.9.4 logging in ZKConfig. In shipped 3.9.2, ZKConfig logs properties only in the File constructor (ZKConfig.java:81-85); Solr creates clients via new ZooKeeper(addr,timeout,watcher) (ZkClientConnectionStrategy.java:129) -> new ZKClientConfig() default ctor (ZooKeeper.java:643, ZKClientConfig.java:68), which does not log; no zookeeper.client.config file set. Also the leak needs log-file access, not network input."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#42",
+      "facts": {
+        "package": "org.apache.zookeeper:zookeeper",
+        "version": "3.9.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-51504",
+            "BIT-zookeeper-2024-51504",
+            "GHSA-g93m-8x6h-g5gv"
+          ],
+          [
+            "org.apache.zookeeper:zookeeper"
+          ]
+        ],
+        "advisory_summary": "Apache ZooKeeper: Authentication bypass with IP-based authentication in Admin Server \u2014 When using IPAuthenticationProvider in ZooKeeper Admin Server there is a possibility of Authentication Bypass by Spoofing -- this only impacts IP based authentication implemented in ZooKeeper Admin Server. Default configuration of client's IP address detection in\u00a0IPAuthenticationProvider, which uses HTTP request headers, is weak\u00a0and allows an attacker to bypass authentication via spoofing client's IP address in request headers. Default configuration honors X-Forwarded-For HTTP header to read client's IP addr",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.9.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "IP-auth bypass is in ZooKeeper AdminServer only; embedded ZK uses server/solr/zoo.cfg with admin.enableServer=false (zoo.cfg:34), so no AdminServer/IPAuthenticationProvider HTTP path exists in Solr.",
+        "requires": "admin.enableServer=true in zoo.cfg"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#43",
+      "facts": {
+        "package": "org.eclipse.jetty.http2:http2-common",
+        "version": "10.0.22",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-5115",
+            "GHSA-mmxm-8w33-wc4h"
+          ],
+          [
+            "org.eclipse.jetty.http2:http2-common"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty affected by MadeYouReset HTTP/2 vulnerability \u2014 ## Technical Details \nBelow is a technical explanation of a newly discovered vulnerability in HTTP/2, which we refer to as \u201cMadeYouReset.\u201d\n\n### MadeYouReset Vulnerability Summary\nThe MadeYouReset DDoS vulnerability is a logical vulnerability in the HTTP/2 protocol, that uses malformed HTTP/2 control frames in order to break the max concurrent streams limit - which results in resource exhaustion and distributed denial of service.\n\n### Mechanism\nThe vulnerability uses malformed HTTP/2 control frames, or malformed flow, in order to mak",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.0.26",
+          "11.0.26",
+          "9.4.58"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Default HTTP connector server/etc/jetty-http.xml installs HTTP2CServerConnectionFactory (h2c) alongside HTTP/1.1 on port 8983 (also HTTP2ServerConnectionFactory in jetty-https.xml); http2-common 10.0.22 in server/lib/ext. Any client can send malformed control frames/RST-provoking frames (MadeYouReset)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#44",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "10.0.22",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-2332",
+            "GHSA-355h-qmc2-wpwf"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "Jetty has HTTP Request Smuggling via Chunked Extension Quoted-String Parsing \u2014 ### Description (as reported)\n\nJetty incorrectly parses quoted strings in HTTP/1.1 chunked transfer encoding extension values, enabling request smuggling attacks.\n\n### Background\n\nThis vulnerability is a new variant discovered while researching the \"Funky Chunks\" HTTP request smuggling techniques:\n- https://w4ke.info/2025/06/18/funky-chunks.html\n- https://w4ke.info/2025/10/29/funky-chunks-2.html\n\nThe original research tested various chunk extension parsing differentials but did not test quoted-string handling within",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.0.28",
+          "11.0.29",
+          "12.0.33",
+          "12.1.7",
+          "9.4.60"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "jetty-http 10.0.22 (server/lib/ext) HttpParser.java:1812-1832 CHUNK_PARAMS state ends chunk extension on any LF and ignores quoting, the vulnerable behaviour. Solr's HTTP/1.1 connector (jetty-http.xml HttpConnectionFactory) parses chunked request bodies from any client (update handlers accept POST bodies)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#45",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "10.0.22",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-6763",
+            "GHSA-qh8g-58pp-2wxh"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty URI parsing of invalid authority \u2014 ## Summary\n\nEclipse Jetty is a lightweight, highly scalable, Java-based web server and Servlet engine . It includes a utility class, `HttpURI`, for URI/URL parsing.\n\nThe `HttpURI` class does insufficient validation on the authority segment of a URI.  However the behaviour of `HttpURI` differs from the common browsers in how it handles a URI that would be considered invalid if fully validated against the RRC.  Specifically `HttpURI` and the browser may differ on the value of the host extracted from an invalid URI and thus a combination of Jetty a",
+        "vuln_symbols": [
+          "HttpURI",
+          "org.eclipse.jetty.http.HttpURI",
+          "Browser",
+          "vulndetector.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): jetty-http 10.0.22 is Solr's server Jetty (server/lib). Every HTTP/1 request target, absolute-form authority included, is parsed by the unfixed lax HttpURI.parse: jetty-server HttpChannelOverHttp.java:720 _uriBuilder.uri(method, uri) calls HttpURI.java:978 parse(), with HOST/IPV6/PORT states at :1126-1181. 10.x was never fixed (fix is 12.0.12). The parsed host feeds Request.getServerName (Request.java:1333-1335) and the authority/Host check (Request.java:1756-1774). So attacker-controlled URIs on the unauthenticated port 8983 reach the vulnerable parser. Practical impact is low: Solr's own code never uses HttpURI (no hits outside tests). getServerName is used only to build Jersey's base URI (ContainerRequestUtils.java:105-110) and the AuditEvent URL (AuditEvent.java:139). Outbound SolrJ/Jetty-client requests resolve the host with java.net.URI (jetty-client HttpClient.java:450) and use HttpURI only for the path (HttpSenderOverHTTP.java:74), so there is no shards/allowlist SSRF differential. Labelled reachable because the vulnerable parse runs on attacker input."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#46",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "10.0.22",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-11143",
+            "GHSA-wjpw-4j6x-6rwh"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "org.eclipse.jetty:jetty-http has different parsing of invalid URIs \u2014 The Jetty URI parser has some key differences compared to other common parsers when evaluating invalid or unusual URIs. Specifically:\n\n#### Invalid Scheme\n| URI | Jetty | uri-js (nodejs) | node-url(nodejs) |\n|---|---|---| --- |\n| `https>://vulndetector.com/path` | scheme=`http>`| scheme=`https` | invalid URI |\n\n#### Improper IPv4 mapped IPv6\n\n| URI | Jetty | System.Uri(CSharp) | curl(C) |\n|---|---|---| --- |\n| `http://[0:0:0:0:0:ffff:127.0.0.1]` | invalid | host=`[::ffff:127.0.0.1]` | host=`[::ffff:127.0.0.1]` | \n| `http://[:",
+        "vuln_symbols": [
+          "https",
+          "normal.com",
+          "vulndetector.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.31",
+          "12.1.5"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Same class and path as row 44: jetty-http 10.0.22 HttpURI.parse (HttpURI.java:978, scheme/host/IPv6/port states at :1126-1181) parses every request target arriving at Solr's Jetty on 8983 (HttpChannelOverHttp.java:720), so the invalid-scheme and IPv4-mapped-IPv6 parsing differences in this advisory run on attacker input. No 10.x fix exists (fixed only in 12.0.31/12.1.5). As in row 44, nothing in Solr makes a security decision from HttpURI's scheme or host: no HttpURI use in Solr code, and outbound client host resolution goes through java.net.URI. Impact is a parser differential with no Solr consumer found. Labelled reachable because the vulnerable code runs on attacker data and a false not_reachable is the costlier error."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#47",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-security",
+        "version": "10.0.22",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-10050",
+            "GHSA-2fvj-hgj9-j2gr"
+          ],
+          [
+            "org.eclipse.jetty:jetty-security"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty Digest Authentication: ISO-8859-1 lossy encoding allows authentication bypass via character substitution \u2014 ### Summary\nThe `DigestAuthentication.apply()` method in Jetty's HTTP client uses `getBytes(StandardCharsets.ISO_8859_1)` at three locations (lines 171, 179, 196) to compute Digest auth response hashes. ISO-8859-1 silently replaces any character above U+00FF (Chinese, Japanese, Cyrillic, Arabic, Emoji, etc.) with 0x3F (`?`), causing all such characters to produce identical hash contributions. An attacker who knows a victim's username can bypass Digest authentication by repla",
+        "vuln_symbols": [
+          "DigestAuthentication.apply",
+          "apply"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.0.31",
+          "11.0.31",
+          "12.0.36",
+          "12.1.10",
+          "9.4.63"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Digest auth is not used: WEB-INF/web.xml has security-constraints (lines 68-82) but no login-config, so no Jetty Authenticator/DigestAuthenticator is installed; Solr authentication is via its own security.json plugins (none by default). Client-side DigestAuthentication (jetty-client) is never registered: Solr only adds Basic/SPNEGO to HttpAuthenticationStore (PreemptiveBasicAuthClientBuilderFactory.java:94, Krb5HttpClientBuilder.java:130)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#48",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-server",
+        "version": "10.0.22",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-6790",
+            "GHSA-7p3p-8qv8-m2vh"
+          ],
+          [
+            "org.eclipse.jetty:jetty-server"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty: HTTP Authority/Host mismatch \u2014 #### Summary\n\nJetty currently accepts HTTP/2 and HTTP/3 requests where the regular\nHost header and the pseudo-header :authority\ndo not match. As a result, the same request can carry two different host identities\nthrough Jetty:\n\n- logic based on `HttpURI` / `Request.getServerName(request)` uses `:authority`\n- logic based on raw request headers continues to use `Host`\n\nThis creates a host/authority confusion condition that can break\nsecurity assumptions in higher layers.\n\nJetty already performs an explicit authority/Host consistency check on\nthe HTTP",
+        "vuln_symbols": [
+          "HttpURI",
+          "Host",
+          "MISMATCHED_AUTHORITY",
+          "Forwarded"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.35",
+          "12.1.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Solr's default connector enables cleartext HTTP/2 (h2c): server/etc/jetty-http.xml:35 HTTP2CServerConnectionFactory, next to HttpConnectionFactory on 8983 with no auth. In 10.0.22, HPACK decodes :authority into AuthorityHttpField (HpackDecoder.java:277-278) but decodes the Host header as a plain HttpField (default branch, HpackDecoder.java:287-289; MetaDataBuilder.java:172-173). MetaData.Request then builds an absolute HttpURI from :authority (MetaData.java:154-157). The mismatch check in Request.setMetaData (jetty-server Request.java:1756-1774) only fires when 'host instanceof HostPortHttpField', so an HTTP/2 request whose Host differs from :authority is accepted. getServerName then returns the :authority host (Request.java:1335), while raw header readers see Host. Any client on 8983 can send this over h2c prior-knowledge. Solr itself does not appear to make security decisions on the Host header (getServerName feeds only Jersey's base URI, ContainerRequestUtils.java:110, and audit logging), so practical impact is limited. The vulnerable acceptance path runs by default on attacker requests."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#49",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-server",
+        "version": "10.0.22",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-7708",
+            "GHSA-9299-c6m4-mjhc"
+          ],
+          [
+            "org.eclipse.jetty:jetty-server"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty: DoS attack triggering OutOfMemory with 100-Continue requests \u2014 ### Impact\nThe original report:\n\n> Server handling of 100-Continue requests can lead to memory leak that can be abused to cause a Denial of Service state.\n\nAfter investigation, turns out that every request that has a body, but reading the body may end up in reading 0 bytes, leaks a buffer.\nThis is particularly the case for 100-Continue, but any request where the network is slow can leak.\n\n### Affected Versions\n\n* Jetty 11.0.0-11.0.22 (EOL)\n* Jetty 10.0.0-10.0.22 (EOL)\n\n### Patched Versions\n\n* Jetty 11.0.23\n* Jetty 10",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.0.23",
+          "11.0.23"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "jetty-server 10.0.22 (server/lib/ext) is in the affected 10.0.0-10.0.22 range; any request with a body (e.g. POST /solr/<core>/update with Expect: 100-continue or a slow body) on the default 8983 HTTP/1.1 connector hits the leaking read path. No auth by default."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#50",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-server",
+        "version": "10.0.22",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-8184",
+            "GHSA-g8m5-722r-8whq"
+          ],
+          [
+            "org.eclipse.jetty:jetty-server"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty's ThreadLimitHandler.getRemote() vulnerable to remote DoS attacks \u2014 ### Impact\nRemote DOS attack can cause out of memory \n\n### Description\nThere exists a security vulnerability in Jetty's `ThreadLimitHandler.getRemote()` which\ncan be exploited by unauthorized users to cause remote denial-of-service (DoS) attack.  By\nrepeatedly sending crafted requests, attackers can trigger OutofMemory errors and exhaust the\nserver's memory.\n\n### Affected Versions\n\n* Jetty 12.0.0-12.0.8 (Supported)\n* Jetty 11.0.0-11.0.23 (EOL)\n* Jetty 10.0.0-10.0.23 (EOL)\n* Jetty 9.3.12-9.4.55 (EOL)\n\n### Patched ",
+        "vuln_symbols": [
+          "ThreadLimitHandler.getRemote",
+          "ThreadLimitHandler",
+          "QoSHandler"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.0.24",
+          "11.0.24",
+          "12.0.9",
+          "9.4.56"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ThreadLimitHandler/QoSHandler are not configured: server/etc/jetty.xml handler chain is RewriteHandler -> InetAccessHandler -> ContextHandlerCollection/InstrumentedHandler/DefaultHandler (jetty.xml:88-201), and no Solr code or doc references ThreadLimitHandler."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#51",
+      "facts": {
+        "package": "org.glassfish.jersey.core:jersey-client",
+        "version": "3.1.9",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-12383",
+            "GHSA-7p63-w6x9-6gr7"
+          ],
+          [
+            "org.glassfish.jersey.core:jersey-client"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jersey has a Race Condition \u2014 In Eclipse Jersey versions 2.45, 3.0.16, 3.1.9 a race condition can cause ignoring of critical SSL configurations - such as mutual authentication, custom key/trust stores, and other security settings. This issue may result in SSLHandshakeException under normal circumstances, but under certain conditions, it could lead to unauthorized trust in insecure servers (see PoC)",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.46",
+          "3.0.17",
+          "3.1.10"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jersey-client is only a transitive of jersey-server; Solr uses Jersey server-side for V2 APIs and Jetty HttpClient (Http2SolrClient) for outbound calls. Byte scan of all server jars: only jersey-server WebTargetValueParamProvider references Jersey client classes (for @Uri injection, unused by Solr); no Solr code uses ClientBuilder/WebTarget, so the SSL-config race never runs."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#52",
+      "facts": {
+        "package": "org.xerial.snappy:snappy-java",
+        "version": "1.1.10.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-93451",
+            "GHSA-gwq9-9ffj-mvrv"
+          ],
+          [
+            "org.xerial.snappy:snappy-java"
+          ]
+        ],
+        "advisory_summary": "snappy-java: Heap buffer overflow in Snappy.uncompress*Array typed-array methods \u2014 ### Impact\n`Snappy.uncompressCharArray`, `uncompressShortArray`, `uncompressIntArray`, `uncompressLongArray`, `uncompressFloatArray` and `uncompressDoubleArray` sized the result array by dividing the declared uncompressed byte length by the element size, but native code wrote the full byte length. If the declared length is not a multiple of the element size, up to 7 bytes are written past the end of the Java array, corrupting the heap.\n\n### Patches\nFixed in 1.1.10.9 ([#739](https://github.com/xerial/snappy-java/",
+        "vuln_symbols": [
+          "Snappy.uncompressCharArray",
+          "uncompressShortArray",
+          "uncompressIntArray",
+          "uncompressLongArray",
+          "uncompressFloatArray",
+          "uncompressDoubleArray"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.10.9"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "snappy-java is shipped only for embedded ZooKeeper (core/build.gradle:136-137); ZK uses it solely in SnapStream.java:111/147 (SnappyInputStream/OutputStream for local snapshot files when zookeeper.snapshot.compression.method=snappy, off by default). Typed-array uncompress*Array methods are never called; no other server jar references snappy."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#53",
+      "facts": {
+        "package": "org.xerial.snappy:snappy-java",
+        "version": "1.1.10.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-108106",
+            "GHSA-q233-g92q-qxp6"
+          ],
+          [
+            "org.xerial.snappy:snappy-java"
+          ]
+        ],
+        "advisory_summary": "snappy-java: Unbounded memory allocation from attacker-declared uncompressed lengtha \u2014 ### Impact\nSeveral decompression paths in snappy-java allocate an output buffer sized by the uncompressed length declared in the first bytes of the compressed data, before decompressing or validating it. A few bytes of crafted input can therefore force an allocation of up to 2 GB, causing `OutOfMemoryError` (denial of service), or a `NegativeArraySizeException` for declared lengths of 2^31 or more.\n\nAffected entry points include `Snappy.uncompress(byte[])`, `Snappy.uncompressString`, the `Snappy.uncompress*A",
+        "vuln_symbols": [
+          "OutOfMemoryError",
+          "NegativeArraySizeException",
+          "Snappy.uncompressString",
+          "SnappyInputStream",
+          "SnappyFramedInputStream",
+          "maxChunkSize"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.10.9"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only consumer is ZooKeeper SnapStream (SnapStream.java:111) reading the embedded ZK's own local snapshot files (trusted, operator disk) and only when snapshot compression=snappy (default none). No network data reaches SnappyInputStream/Snappy.uncompress.",
+        "requires": "zookeeper.snapshot.compression.method=snappy (ZK-only setting)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-solr#54",
+      "facts": {
+        "package": "org.xerial.snappy:snappy-java",
+        "version": "1.1.10.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-116590",
+            "GHSA-xqrx-qh46-34m7"
+          ],
+          [
+            "org.xerial.snappy:snappy-java"
+          ]
+        ],
+        "advisory_summary": "snappy-java: JVM crash from unchecked ranges in Snappy.arrayCopy and SnappyOutputStream.rawWrite \u2014 ### Impact\n`Snappy.arrayCopy(Object src, int offset, int byteLength, Object dest, int destOffset)` called a native `memcpy` without validating the ranges. A negative or oversized `byteLength` or offset read or wrote outside the arrays and crashed the JVM. `SnappyOutputStream.rawWrite` and `SnappyInputStream.rawRead`, and therefore the typed-array `write`/`read` methods, pass caller-supplied ranges to this method.\n\n### Patches\nFixed in 1.1.10.9 (#741). `Snappy.arrayCopy` checks both ranges before ",
+        "vuln_symbols": [
+          "memcpy",
+          "byteLength",
+          "SnappyOutputStream.rawWrite",
+          "SnappyInputStream.rawRead",
+          "write",
+          "read"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.1.10.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Snappy.arrayCopy is reached only via typed-array SnappyOutputStream.write/SnappyInputStream.read with caller-supplied ranges; ZooKeeper SnapStream (the only user, SnapStream.java:111/147) uses byte streams on local snapshots, with internal ranges, and only when snappy compression is enabled (off by default)."
+      }
+    }
+  ]
+}

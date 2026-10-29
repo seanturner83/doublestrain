@@ -1,0 +1,2706 @@
+{
+  "id": "real-jv-gitbucket",
+  "description": "GitBucket 4.43.0 (Git hosting, executable war): JVM held-out (jv3), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "artifact": {
+    "paths": [
+      "artifact/gitbucket.war"
+    ],
+    "include": [],
+    "exclude": [],
+    "first_party": [
+      "io.github.gitbucket"
+    ]
+  },
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#1",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.5.18",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-11226",
+            "GHSA-25qh-j22f-pwp8"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "QOS.CH logback-core is vulnerable to Arbitrary Code Execution through file processing \u2014 QOS.CH logback-core versions up to 1.5.18 contain an ACE vulnerability in conditional configuration file processing in Java applications. This vulnerability allows an attacker to execute arbitrary code by compromising an existing logback configuration file or by injecting a malicious environment variable before program execution.\n\nA successful attack requires the Janino library and Spring Framework to be present on the user's class path. Additionally, the attacker must have write access to a configuration f",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.16",
+          "1.5.19"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs attacker write access to logback config/env plus Janino; no janino jar in WEB-INF/lib. Config is the fixed logback.xml (ConsoleAppender only, repo/src/main/resources/logback.xml); no conditional processing reachable from requests."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#2",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.5.18",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-10532",
+            "GHSA-jhq6-gfmj-v8fx"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "Logback vulnerable to Object Injection through HardenedObjectInputStream modules \u2014 Deserialization of untrusted data vulnerability in QOS.CH Sarl logback logback-core (HardenedObjectInputStream (logback-core) modules) allows Object Injection, albeit heavily restricted.\n\nMore precisely, an attacker able to influence serialized data sent to SimpleSocketServer or SimpleSSLSocketServer can instantiate Proxy objects.\n\n\nAlthough deserialization is heavily restricted by HardenedObjectInputStream and no practical way to achieve remote code execution or significant privilege  escalation has been identi",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.5.34"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs SimpleSocketServer/SimpleSSLSocketServer (HardenedObjectInputStream receiving serialized events). The app never starts a logback socket server or receiver; logback.xml only configures ConsoleAppender."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#3",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.5.18",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-9828",
+            "GHSA-p47f-322f-whfh"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "QOS.CH Sarl logback logback-core has a deserialization of untrusted data vulnerability \u2014 Deserialization of untrusted data vulnerability in QOS.CH Sarl logback logback-core (HardenedObjectInputStream (logback-core) modules) allows Object Injection albeit heavily restricted.\n\nMore precisely, an attacker able to influence serialized data sent to SimpleSocketServer or SimpleSSLSocketServer can instantiate objects from classes in the java.lang and java.util packages that are not explicitly blocked.\n\nAlthough deserialization is heavily restricted by HardenedObjectInputStream and no practical way to",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.5.33"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as CVE-2026-10532: needs logback SimpleSocketServer/receiver, which GitBucket never starts (logback.xml: ConsoleAppender only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#4",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.5.18",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1225",
+            "GHSA-qqpg-mvqg-649v"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "Logback allows an attacker to instantiate classes already present on the class path \u2014 ACE vulnerability in configuration file processing  by QOS.CH logback-core up to and including version 1.5.24 in Java applications, allows an attacker to instantiate classes already present on the class path by compromising an existing logback configuration file.\n\nThe instantiation of a potentially malicious Java class requires that said class is present on the user's class-path. In addition, the attacker must  have write access to a configuration file. However, after successful instantiation, the instance is",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.5.25"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a compromised logback configuration file (operator-trusted). Shipped logback.xml is static; nothing reachable from requests loads attacker config."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#5",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-18401",
+            "GHSA-72hv-8253-57qq"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition \u2014 ### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent",
+        "vuln_symbols": [
+          "maxNumberLength",
+          "StreamReadConstraints",
+          "NonBlockingUtf8JsonParserBase",
+          "_finishNumberIntegralPart",
+          "TextBuffer",
+          "_valueComplete"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.6",
+          "2.21.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Async (NonBlocking) parser only. GitBucket parses JSON via json4s-jackson JsonMethods (ObjectMapper/ObjectReader over InputStream/String: sync parsers); no createNonBlocking* use in json4s-jackson-core, gitbucket core jar or plugins."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#6",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89425",
+            "GHSA-7hhh-6rmp-j9qf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: UTF8DataInputJsonParser._reportInvalidToken() missing maxErrorTokenLength limit -> unbounded StringBuilder growth (DoS) \u2014 ## Status\n\n**FULLY REPRODUCED.** A malformed token fed through `createParser(DataInput)` produced a\n20,000,109-character exception message from a 20-million-character attacker payload, while the\nidentical payload fed through `createParser(InputStream)` produced a correctly bounded\n367-character message.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed against:** `jackson-core-2.20.2`\n- **Affected file:** ",
+        "vuln_symbols": [
+          "UTF8DataInputJsonParser._reportInvalidToken",
+          "StringBuilder",
+          "ErrorReportConfiguration.getMaxErrorTokenLength",
+          "UTF8StreamJsonParser",
+          "ReaderBasedJsonParser",
+          "NonBlockingUtf8JsonParserBase"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs createParser(DataInput) -> UTF8DataInputJsonParser. json4s JsonMethods / scalatra-json read from String/InputStream/Reader only; no DataInput use found in app or json4s classes."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#7",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89407",
+            "GHSA-p6pp-m3f8-5c89"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": " jackson-core: ReDoS: quadratic backtracking in NumberInput.PATTERN_FLOAT via looksLikeValidNumber() \u2014 ## Status\n\n**FULLY REPRODUCED** with a clean, textbook empirical signature: measured runtime grew almost\nexactly 4x for every doubling of input size across five consecutive doublings (5,000 \u2192 160,000\ncharacters), confirming O(n\u00b2) behavior. A single 160,000-character string (smaller than a typical\nHTTP request body) took **74.4 seconds** for one call to `NumberInput.looksLikeValidNumber()`.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed",
+        "vuln_symbols": [
+          "NumberInput.looksLikeValidNumber",
+          "PATTERN_FLOAT",
+          "PATTERN_FLOAT_TRAILING_DOT",
+          "looksLikeValidNumber",
+          "Pattern",
+          "Matcher"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "NumberInput.looksLikeValidNumber is only called from databind's String->Number coercion deserializers (NumberDeserializers.java:656,759,867,1050; StdDeserializer.java:1068,1086). App deserializes only into json4s JValue via custom JValueDeserializer (VALUE_STRING -> JString; numbers via getDecimalValue/BigInt(getText)); no bean/Number-typed databind deserialization."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#8",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68494",
+            "GHSA-r7wm-3cxj-wff9"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Async parser maxNumberLength bypass via chunked digit accumulation (incomplete fix for GHSA-72hv-8253-57qq) \u2014 ## Summary\n\nThe fix released in jackson-core `2.18.6` and `2.21.1` for [GHSA-72hv-8253-57qq](https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq) (Number Length Constraint Bypass in Async Parser, published 2026-02-28) is incomplete. The fix commit `b0c428e6` (#1555) wired `validateIntegerLength` into a new `_setIntLength` helper and called it at every place where the integer portion of a number is *decided* (terminator byte arrived, `.` / `e/",
+        "vuln_symbols": [
+          "b0c428e6",
+          "validateIntegerLength",
+          "_setIntLength",
+          "MINOR_NUMBER_INTEGER_DIGITS",
+          "NOT_AVAILABLE",
+          "_textBuffer.expandCurrentSegment"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Async parser incomplete fix; no non-blocking parser used anywhere (see row 4)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#9",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59888",
+            "GHSA-3pjw-73gf-8qr5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonIgnore on a Record property is bypassed with a PropertyNamingStrategy \u2014 ## Summary\nFor Java Records, `POJOPropertiesCollector._removeUnwantedIgnorals()` records a `@JsonIgnore`-annotated component under its original implicit name before `_renameUsing()` applies the `PropertyNamingStrategy`. After the rename, `_ignoredPropertyNames` still holds only the pre-rename name, so `_ignorableProps` is built from the stale key. The renamed JSON key passes `IgnorePropertiesUtil.shouldIgnore()` and is assigned to the Record's constructor parameter, defeating the `@JsonIgnore`.\n\n## I",
+        "vuln_symbols": [
+          "POJOPropertiesCollector._removeUnwantedIgnorals",
+          "_renameUsing",
+          "PropertyNamingStrategy",
+          "_ignoredPropertyNames",
+          "_ignorableProps",
+          "IgnorePropertiesUtil.shouldIgnore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs databind bean deserialization of Java Records with @JsonIgnore + PropertyNamingStrategy. App uses databind only through json4s JValueDeserializer (org/json4s/jackson/JValueDeserializer); Scala case-class extraction is json4s Extraction, not databind."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#10",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59889",
+            "GHSA-5gvw-p9qm-jgwh"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonView bypassed for @JsonUnwrapped container properties on deserialization \u2014 ## Summary\n`UnwrappedPropertyHandler.processUnwrapped()` replays the buffered JSON for a `@JsonUnwrapped` property by iterating its properties and calling `prop.deserializeAndSet()` with **no `prop.visibleInView(ctxt.getActiveView())` guard** \u2014 the exact guard `processUnwrappedCreatorProperties()` received in the #5971 / GHSA-rcqc-6cw3-h962 fix, and the guard `BeanDeserializer.deserializeWithUnwrapped` applies to directly-matched properties. As a result, a property annotated with both `@JsonView(P",
+        "vuln_symbols": [
+          "UnwrappedPropertyHandler.processUnwrapped",
+          "prop.deserializeAndSet",
+          "processUnwrappedCreatorProperties",
+          "BeanDeserializer.deserializeWithUnwrapped",
+          "BeanDeserializer",
+          "PublicView"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonView + @JsonUnwrapped bean deserialization; not used (json4s JValue only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#11",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54515",
+            "GHSA-5jmj-h7xm-6q6v"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has case-insensitive deserialization bypasses per-property @JsonIgnoreProperties \u2014 ## Summary\nIn `BeanDeserializerBase.createContextual()`, per-property `@JsonIgnoreProperties` exclusions are applied by `_handleByNameInclusion()`, producing a `contextual` deserializer whose `BeanPropertyMap` has the ignored properties removed. The subsequent per-property case-insensitivity block (triggered by `@JsonFormat(ACCEPT_CASE_INSENSITIVE_PROPERTIES)`) rebuilds from `this._beanProperties` (the original, unfiltered map) instead of `contextual._beanProperties`, then overwrites the filtere",
+        "vuln_symbols": [
+          "BeanDeserializerBase.createContextual",
+          "_handleByNameInclusion",
+          "contextual",
+          "BeanPropertyMap",
+          "this._beanProperties",
+          "contextual._beanProperties"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonIgnoreProperties + ACCEPT_CASE_INSENSITIVE_PROPERTIES bean deserialization; not used (json4s JValue only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#12",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91777",
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind quadratic forward-reference completion  \u2014 ### Summary\n\nWhen an `@JsonIdentityInfo` collection or map first creates N unresolved\nobject-ID references and later resolves the same IDs in reverse order,\njackson-databind scans the remaining pending-reference accumulator for each\nresolution. A shallow JSON document whose size grows linearly can therefore\ncause quadratic CPU work during deserialization.\n\n### Details\n\nThe affected path is forward-reference completion in\n`CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference()`\nand the corresponding map implemen",
+        "vuln_symbols": [
+          "CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference",
+          "equals"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonIdentityInfo collections in databind beans; not used (json4s JValue only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#13",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-83557",
+            "GHSA-gx83-3vf8-gh7j"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Comparable missing from DefaultBaseTypeLimitingValidator's unsafe base types (incomplete PolymorphicTypeValidator denylist) \u2014 ### Summary\n`DefaultBaseTypeLimitingValidator` \u2014 the `PolymorphicTypeValidator` used automatically whenever `@JsonTypeInfo` is applied without an explicitly configured custom validator \u2014 denies polymorphic resolution only for nine specific \"unsafe base types\" (`Object`, `Serializable`, `Closeable`, `AutoCloseable`, `Cloneable`, `Runnable`, `java.util.logging.Handler`, `javax.naming.Referenceable`, `javax.sql.DataSource`). Its `isSafeSubType()` returns ",
+        "vuln_symbols": [
+          "DefaultBaseTypeLimitingValidator",
+          "PolymorphicTypeValidator",
+          "Serializable",
+          "Closeable",
+          "AutoCloseable",
+          "Cloneable"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs polymorphic typing (@JsonTypeInfo/default typing); no such types or activateDefaultTyping in app/json4s."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#14",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54514",
+            "GHSA-hgj6-7826-r7m5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: InetSocketAddress deserialization triggers eager DNS resolution (SSRF) \u2014 ## Summary\n`JDKFromStringDeserializer` constructed `InetSocketAddress` with `new InetSocketAddress(host, port)`, which performs eager DNS name resolution for hostname inputs at deserialization time. An application that binds untrusted JSON into a type containing an `InetSocketAddress` field issues an attacker-chosen DNS query during `readValue`, before any application-level validation or connect logic. The fix uses `InetSocketAddress.createUnresolved(host, port)`, deferring DNS to an explicit connect.\n\n#",
+        "vuln_symbols": [
+          "JDKFromStringDeserializer",
+          "InetSocketAddress",
+          "readValue"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs databind binding of InetSocketAddress fields from untrusted JSON; app binds only JValue via JValueDeserializer."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#15",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54512",
+            "GHSA-j3rv-43j4-c7qm"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has a PolymorphicTypeValidator bypass via generic type parameters that allows arbitrary class instantiation \u2014 `jackson-databind`'s `PolymorphicTypeValidator` (PTV) is the primary safety mechanism guarding polymorphic deserialization. When polymorphic typing is enabled and a type identifier contains generic parameters (i.e. the type ID string contains `<`), `DatabindContext._resolveAndValidateGeneric()` validates **only the raw container class name** (the substring before `<`) against the configured PTV.\n\nIf the container type is approved, the method parses the full canonical t",
+        "vuln_symbols": [
+          "PolymorphicTypeValidator",
+          "DatabindContext._resolveAndValidateGeneric",
+          "TypeFactory.constructFromCanonical",
+          "java.util.ArrayList",
+          "com.evil.Gadget",
+          "BasicPolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PTV bypass needs polymorphic typing enabled; none in app/json4s."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#16",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-mhm7-754m-9p8w"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: `@JsonView` bypass for creator properties with `@JsonTypeInfo(include=As.EXTERNAL_PROPERTY)` \u2014 ## Summary\n\nIn `BeanDeserializer.deserializeUsingPropertyBasedWithExternalTypeId`, the active-view (`@JsonView`) filter was applied only to the regular bean-property branch; the creator-property branch performed no `creatorProp.visibleInView(activeView)` check. A constructor parameter annotated with both `@JsonView(RestrictedView.class)` and `@JsonTypeInfo(use=Id.NAME,\n  include=As.EXTERNAL_PROPERTY)` is populated from attacker JSON even when a more restrictive view is active.\n\n  Th",
+        "vuln_symbols": [
+          "BeanDeserializer.deserializeUsingPropertyBasedWithExternalTypeId",
+          "deserializeUsingPropertyBasedWithExternalTypeId",
+          "creatorProp.isInjectionOnly"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonView + EXTERNAL_PROPERTY creator properties in databind beans; not used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#17",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68497",
+            "GHSA-q4xh-88c3-wmh7"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Duration XMLGregorianCalendar Unbounded Number Parse DoS \u2014 ### Summary\n`jackson-databind` 3.2.1 deserializes a JSON **string** bound to a `javax.xml.datatype.Duration` or `javax.xml.datatype.XMLGregorianCalendar` field by passing the raw string verbatim to `DatatypeFactory.newDuration(value)` / `newXMLGregorianCalendar(value)`. Per the XML-Schema lexical grammar these factory methods accept numeric components of arbitrary length, which the JDK materializes into `java.math.BigInteger` / `BigDecimal` using the native `BigInteger(String)` constructor (an O(n\u00b2) parser). Because t",
+        "vuln_symbols": [
+          "javax.xml.datatype.Duration",
+          "javax.xml.datatype.XMLGregorianCalendar",
+          "java.math.BigInteger",
+          "BigDecimal",
+          "StreamReadConstraints.maxNumberLength",
+          "maxStringLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs databind binding into javax.xml.datatype.Duration/XMLGregorianCalendar fields; not used (json4s JValue only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#18",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54513",
+            "GHSA-rmj7-2vxq-3g9f"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has an array subtype allowlist bypass in BasicPolymorphicTypeValidator (allowIfSubTypeIsArray) \u2014 ## Summary\n`BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray()` allowlists any array type based only on `clazz.isArray()`, without validating the array's component (element) type against the configured allowlist. A PTV built with `allowIfSubTypeIsArray()` plus an explicit concrete-type allowlist therefore still permits `EvilType[]` even though `EvilType` is not allowlisted. When Jackson deserializes the elements and no per-element type IDs are present, it instantiates th",
+        "vuln_symbols": [
+          "BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray",
+          "clazz.isArray",
+          "allowIfSubTypeIsArray",
+          "EvilType",
+          "BasicPolymorphicTypeValidator",
+          "PolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs BasicPolymorphicTypeValidator.allowIfSubTypeIsArray + polymorphic typing; not used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#19",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-77310",
+            "GHSA-vvgp-rfg2-7rr6"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Incomplete fix for CVE-2026-54514: eager DNS resolution (SSRF) still present in InetAddress deserialization \u2014 ### Summary\nCVE-2026-54514 (GHSA-hgj6-7826-r7m5) fixed an eager-DNS-resolution / SSRF issue in jackson-databind's deserialization of `java.net.InetSocketAddress` by switching to `InetSocketAddress.createUnresolved(...)` (PR #5951, commit 1f5a1037, released in 2.18.8 / 2.21.4 / 3.1.4). That fix did not cover the sibling `java.net.InetAddress` branch in the very same `FromStringDeserializer.Std._deserialize()` switch statement, which still calls `InetAddress.getByName(v",
+        "vuln_symbols": [
+          "java.net.InetSocketAddress",
+          "java.net.InetAddress",
+          "FromStringDeserializer.Std._deserialize",
+          "InetAddress",
+          "address.isUnresolved",
+          "InetAddress.getByName"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs databind binding into InetAddress fields; not used (json4s JValue only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#20",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-19032",
+            "GHSA-wjgm-6hv5-3cvf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Path Deserialization Missing Scheme Allowlist for FileSystemProvider Resolution \u2014 ### Summary\n\nA `java.nio.file.Path` field bound from untrusted JSON reaches `JDKFromStringDeserializer.NioPathHelper.deserialize`. The attacker string flows through `new URI(value)` \u2192 `Path.of(uri)`, then on `FileSystemNotFoundException` into a `ServiceLoader<FileSystemProvider>` enumeration that calls `provider.getPath(uri)` on the first scheme-matching provider. No scheme is rejected, so untrusted JSON can drive an arbitrary registered provider under the default `JsonMapper.builder().build()`.",
+        "vuln_symbols": [
+          "java.nio.file.Path",
+          "JDKFromStringDeserializer.NioPathHelper.deserialize",
+          "FileSystemNotFoundException",
+          "file",
+          "jar",
+          "Path"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs databind binding into java.nio.file.Path fields; not used (json4s JValue only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#21",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.18.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91776",
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind retains every unknown raw type ID  \u2014 ### Summary\n\nWith `@JsonTypeInfo(use = Id.NAME, defaultImpl = ...)`, every distinct unknown\nraw type ID selects the same fallback deserializer but is retained as a\nseparate key in `TypeDeserializerBase._deserializers`. An attacker who can\nrepeatedly supply new unknown type IDs can grow this process-lifetime cache\nwithout a configured bound.\n\n### Details\n\nThe affected path is `TypeDeserializerBase._findDeserializer()`. After an\nunknown name-based type ID resolves to the configured fallback/default\nimplementation, jackson-databind caches the ",
+        "vuln_symbols": [
+          "TypeDeserializerBase._deserializers",
+          "TypeDeserializerBase._findDeserializer",
+          "typeId",
+          "_deserializers",
+          "defaultImpl"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonTypeInfo(use=NAME, defaultImpl) types; not used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#22",
+      "facts": {
+        "package": "com.sun.mail:jakarta.mail",
+        "version": "1.6.7",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-7962",
+            "GHSA-9342-92gg-6v29"
+          ],
+          [
+            "com.sun.mail:jakarta.mail"
+          ]
+        ],
+        "advisory_summary": "Jakarta Mail vulnerable to SMTP Injection \u2014 In Jakarta Mail 2.2 it is possible to preform a SMTP Injection by utilizing the\u00a0\\r and \\n UTF-8 characters to separate different messages.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.6.8",
+          "2.0.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Notification/password-reset mail goes through commons-email HtmlEmail -> javax.mail SMTPTransport (Mailer.scala:20,33,44-75; AccountController.scala:627-629). Subject is CRLF-stripped by commons-email Email.setSubject:1898, but recipient addresses are user-chosen account mail (AccountController.scala:79,91: text(required,maxlength(100)), no format check) and InternetAddress validation in 1.6.7 allows CR/LF inside quoted local part (InternetAddress.java:1306-1320) which is then sent raw in 'RCPT TO:' (SMTPTransport.java:1886). Exact fix scope uncertain; chose reachable per unsure rule. SMTP + notifications are documented admin system settings, off by default.",
+        "requires": "System settings: notification email enabled + SMTP configured (off by default; documented in admin UI)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#23",
+      "facts": {
+        "package": "net.i2p.crypto:eddsa",
+        "version": "0.3.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2020-36843",
+            "GHSA-p53j-g8pw-4w5f"
+          ],
+          [
+            "net.i2p.crypto:eddsa"
+          ]
+        ],
+        "advisory_summary": "Ed25519 Signature Malleability in ed25519-java Due to Missing Scalar Range Check \u2014 The implementation of EdDSA in EdDSA-Java (aka ed25519-java) through 0.3.0 exhibits signature malleability and does not satisfy the SUF-CMA (Strong Existential Unforgeability under Chosen Message Attacks) property. This allows attackers to create new valid signatures different from previous signatures for a known message.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "sshd-common prefers net.i2p EdDSA provider when present (SecurityUtils.java:620-633, EdDSASecurityProviderRegistrar); GitBucket's SSH server (ssh/SshServerListener.scala, PublicKeyAuthenticator.scala) verifies client ed25519 signatures with EdDSAEngine (missing S<L check). Impact is malleability only, but code runs on client-supplied signatures. SSH is documented (README 'ssh access', system settings ssh.enabled) but off by default.",
+        "requires": "System settings: SSH access enabled (ssh.enabled, off by default)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#24",
+      "facts": {
+        "package": "org.apache.commons:commons-lang3",
+        "version": "3.17.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-48924",
+            "GHSA-j288-q9x7-2f5v"
+          ],
+          [
+            "org.apache.commons:commons-lang3"
+          ]
+        ],
+        "advisory_summary": "Apache Commons Lang is vulnerable to Uncontrolled Recursion when processing long inputs \u2014 Uncontrolled Recursion vulnerability in Apache Commons Lang.\n\nThis issue affects Apache Commons Lang: Starting with\u00a0commons-lang:commons-lang\u00a02.0 to 2.6, and, from org.apache.commons:commons-lang3 3.0 before\u00a03.18.0.\n\nThe methods ClassUtils.getClass(...) can throw\u00a0StackOverflowError on very long inputs. Because an Error is usually not handled by applications and libraries, a StackOverflowError could\u00a0cause an application to stop.\n\nUsers are recommended to upgrade to version 3.18.0, which fixes the issue.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ClassUtils.getClass only called by commons-text ConstantStringLookup in the classpath (opencsv/liquibase/compress don't call it); GitBucket never uses commons-lang3/commons-text StringSubstitutor on input (no lang3 imports in src/main/scala)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#25",
+      "facts": {
+        "package": "org.apache.sshd:sshd-git",
+        "version": "2.15.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48827",
+            "GHSA-mw4m-qhpg-j82m"
+          ],
+          [
+            "org.apache.sshd:sshd-git"
+          ]
+        ],
+        "advisory_summary": "Apache MINA SSHD bundle sshd-git has a path traversal vulnerability \u2014 There is a path traversal vulnerability in Apache MINA SSHD bundle sshd-git. Lack of path validation in git-upload-pack, git-receive-pack, and other git operations allows users authenticated over SSH access to git repositories outside the configured git server root directory.\n\nApplications are affected if they use org.apache.sshd:sshd-git. Applications not using sshd-git are not affected.\n\nUsers are advised to upgrade affected applications to Apche MINA SSHD 2.18.0, which fixes the issue.\n\nThe issue also is present in the pr",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.0",
+          "3.0.0-M4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "GitBucket implements its own SSH CommandFactory (ssh/GitCommand.scala imports org.apache.sshd.server.command only); no org.apache.sshd.git classes referenced in gitbucket core jar or plugins. sshd-git jar is only pulled in by the apache-sshd aggregate."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#26",
+      "facts": {
+        "package": "org.apache.tika:tika-core",
+        "version": "3.2.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66516",
+            "GHSA-f58c-gq56-vjjf"
+          ],
+          [
+            "org.apache.tika:tika-core"
+          ]
+        ],
+        "advisory_summary": "Apache Tika has XXE vulnerability \u2014 Critical XXE in Apache Tika tika-core (1.13-3.2.1), tika-pdf-module (2.0.0-3.2.1) and tika-parsers (1.13-1.28.5) modules on all platforms allows an attacker to carry out XML External Entity injection via a crafted XFA file inside of a PDF. \n\nThis CVE covers the same vulnerability as in\u00a0CVE-2025-54988. However, this CVE expands the scope of affected packages in two ways. \n\nFirst, while the entrypoint for the vulnerability was the tika-parser-pdf-module as reported in CVE-2025-54988, the vulnerability and its fix were in tika-core. Users who upgraded the tika-",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.2.2"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "XXE via XFA in PDFs needs tika-parser-pdf-module (not in WEB-INF/lib). Tika only used as new Tika().detect(name) by filename (util/FileUtil.scala:10-16), no content parsing/XML."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#27",
+      "facts": {
+        "package": "org.bouncycastle:bcpg-jdk18on",
+        "version": "1.80",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-3505",
+            "GHSA-cj8j-37rh-8475"
+          ],
+          [
+            "org.bouncycastle:bcpg-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle Uncontrolled Resource Consumption vulnerability \u2014 Allocation of resources without limits or throttling vulnerability in Legion of the Bouncy Castle Inc. BC-JAVA bcpg on all (pg modules). This issue affects BC-JAVA before 1.84.\n\nUnbounded PGP AEAD chunk size leads to pre-auth resource exhaustion.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.84"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AEAD chunk size used only in decryption (BcAEADUtil.java:84,189,244; JceAEADUtil). App's bcpg use (util/GpgUtil.scala) only parses public key rings and verifies signatures; never decrypts PGP data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#28",
+      "facts": {
+        "package": "org.bouncycastle:bcpkix-jdk18on",
+        "version": "1.80",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-5588",
+            "GHSA-wg6q-6289-32hp"
+          ],
+          [
+            "org.bouncycastle:bcpkix-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle Crypto Package For Java: Use of a Broken or Risky Cryptographic Algorithm vulnerability in bcpkix modules \u2014 : Use of a Broken or Risky Cryptographic Algorithm vulnerability in Legion of the Bouncy Castle Inc. BC-JAVA bcpkix on all (pkix modules).\n\n\nPKIX draft CompositeVerifier accepts empty signature sequence as valid.\n\n\nThis issue affects BC-JAVA: from 1.49 before 1.84.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.84"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PKIX draft CompositeVerifier (composite signatures via bcpkix ContentVerifier) is never used; app uses bcpg only for OpenPGP signatures; TLS/cert validation is JDK."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#29",
+      "facts": {
+        "package": "org.bouncycastle:bcprov-jdk18on",
+        "version": "1.80",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-14813",
+            "GHSA-574f-3g2m-x479"
+          ],
+          [
+            "org.bouncycastle:bcprov-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle for Java GOST 28147 CTR mode reuses keystream after 255 blocks \u2014 The GOST 28147-2015 CTR mode implementation (`G3413CTRBlockCipher`) in the Legion of the Bouncy Castle BC-JAVA `bcprov` core module only increments the final byte of the counter, so the counter wraps after 255 blocks and the keystream is reused. Reusing CTR keystream allows an attacker who can observe two ciphertexts produced with the same key/IV to recover the XOR of the plaintexts, breaking confidentiality. Affects BC-JAVA from 1.59 before 1.84 (with backported fixes in 1.80.2 and 1.81.1).",
+        "vuln_symbols": [
+          "G3413CTRBlockCipher",
+          "bcprov"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.80.2",
+          "1.81.1",
+          "1.84"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "GOST 28147 G3413CTRBlockCipher never used: not an SSH cipher in sshd, not used by bcpg verification or JSSE."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#30",
+      "facts": {
+        "package": "org.bouncycastle:bcprov-jdk18on",
+        "version": "1.80",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-8763",
+            "GHSA-9pwp-9qqc-pr26"
+          ],
+          [
+            "org.bouncycastle:bcprov-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle: Name Constraints bypass via trailing dot in rfc822Name and URI \u2014 In Bouncy Castle for Java before 1.85, Name Constraints bypass via trailing dot in rfc822Name and URI. This issue also affects Bouncy Castle for Java LTS before 2.73.12, and Bouncy Castle for Java FIPS (BC-FJA) before bc-fips 1.0.2.7 (1.0.X series), 2.0.2 (2.0.X series) and 2.1.3 (2.1.X series).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.85"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs BC PKIX cert-path validation with name constraints. App's TLS (webhooks/OIDC/LDAP/SMTP) uses JDK PKIX; sshd only appends BC provider (Security.addProvider, SecurityProviderRegistrar.java:328) after SUN; no BC CertPathValidator use."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#31",
+      "facts": {
+        "package": "org.bouncycastle:bcprov-jdk18on",
+        "version": "1.80",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-0636",
+            "GHSA-c3fc-8qff-9hwx"
+          ],
+          [
+            "org.bouncycastle:bcprov-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle has an LDAP injection \u2014 Improper neutralization of special elements used in an LDAP query ('LDAP injection') vulnerability in Legion of the Bouncy Castle Inc. BC-JAVA bcprov on all (prov modules). This vulnerability is associated with program files LDAPStoreHelper.\n\nThis issue affects BC-JAVA: from 1.74 before 1.84.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.84"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "LDAPStoreHelper (BC X509 LDAP cert store) never used; GitBucket LDAP sign-in uses jldap (com.novell.ldap)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#32",
+      "facts": {
+        "package": "org.bouncycastle:bcprov-jdk18on",
+        "version": "1.80",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-13506",
+            "GHSA-qp49-qgx5-5m26"
+          ],
+          [
+            "org.bouncycastle:bcprov-jdk18on"
+          ]
+        ],
+        "advisory_summary": "Bouncy Castle: Lazy ASN.1 sequence forcing resets nesting-depth guard \u2014 In Bouncy Castle for Java before 1.85, Lazy ASN.1 sequence forcing resets nesting-depth guard. This issue also affects Bouncy Castle for Java LTS before 2.73.12, and Bouncy Castle for Java FIPS (BC-FJA) before bc-fips 1.0.2.7 (1.0.X series), 2.0.2 (2.0.X series) and 2.1.3 (2.1.X series).",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.85"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs BC ASN.1 lazy sequence parsing of attacker data (BC provider cert/CMS parsing). App's BC use is bcpg OpenPGP key/signature parsing (GpgUtil.scala), which uses PGP packets/MPIs, not lazy ASN.1 sequences; certs parsed by JDK; BC provider appended last by sshd."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#33",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "10.0.25",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-2332",
+            "GHSA-355h-qmc2-wpwf"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "Jetty has HTTP Request Smuggling via Chunked Extension Quoted-String Parsing \u2014 ### Description (as reported)\n\nJetty incorrectly parses quoted strings in HTTP/1.1 chunked transfer encoding extension values, enabling request smuggling attacks.\n\n### Background\n\nThis vulnerability is a new variant discovered while researching the \"Funky Chunks\" HTTP request smuggling techniques:\n- https://w4ke.info/2025/06/18/funky-chunks.html\n- https://w4ke.info/2025/10/29/funky-chunks-2.html\n\nThe original research tested various chunk extension parsing differentials but did not test quoted-string handling within",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.0.28",
+          "11.0.29",
+          "12.0.33",
+          "12.1.7",
+          "9.4.60"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "jetty-http-10.0.25 serves all HTTP via JettyLauncher.java:150 (HttpConnectionFactory, HTTP/1.1). HttpParser.java:1812 CHUNK_PARAMS ignores quoted-string semantics (any LF ends the chunk header), so chunked request bodies from anonymous clients (e.g. git smart-HTTP push) hit the vulnerable parser; smuggling impact needs a front proxy but the code runs on attacker bytes."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#34",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "10.0.25",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-6763",
+            "GHSA-qh8g-58pp-2wxh"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty URI parsing of invalid authority \u2014 ## Summary\n\nEclipse Jetty is a lightweight, highly scalable, Java-based web server and Servlet engine . It includes a utility class, `HttpURI`, for URI/URL parsing.\n\nThe `HttpURI` class does insufficient validation on the authority segment of a URI.  However the behaviour of `HttpURI` differs from the common browsers in how it handles a URI that would be considered invalid if fully validated against the RRC.  Specifically `HttpURI` and the browser may differ on the value of the host extracted from an invalid URI and thus a combination of Jetty a",
+        "vuln_symbols": [
+          "HttpURI",
+          "org.eclipse.jetty.http.HttpURI",
+          "Browser",
+          "vulndetector.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "HttpURI parses every request-target (incl. absolute-form authority) in jetty-server/http 10.0.25. GitBucket has no own HttpURI use, but with baseUrl unset (default) SystemSettingsService.scala:243-247 builds baseUrl from req.getRequestURL (host from Jetty's URI/authority parsing), so Jetty's lax authority parsing feeds app-generated URLs. Impact speculative; chose reachable because parser runs on attacker input."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#35",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "10.0.25",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-11143",
+            "GHSA-wjpw-4j6x-6rwh"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "org.eclipse.jetty:jetty-http has different parsing of invalid URIs \u2014 The Jetty URI parser has some key differences compared to other common parsers when evaluating invalid or unusual URIs. Specifically:\n\n#### Invalid Scheme\n| URI | Jetty | uri-js (nodejs) | node-url(nodejs) |\n|---|---|---| --- |\n| `https>://vulndetector.com/path` | scheme=`http>`| scheme=`https` | invalid URI |\n\n#### Improper IPv4 mapped IPv6\n\n| URI | Jetty | System.Uri(CSharp) | curl(C) |\n|---|---|---| --- |\n| `http://[0:0:0:0:0:ffff:127.0.0.1]` | invalid | host=`[::ffff:127.0.0.1]` | host=`[::ffff:127.0.0.1]` | \n| `http://[:",
+        "vuln_symbols": [
+          "https",
+          "normal.com",
+          "vulndetector.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.31",
+          "12.1.5"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Same as CVE-2024-6763: HttpURI parsing of attacker request-targets runs on every request (JettyLauncher.java:150); host flows into baseUrl via getRequestURL when baseUrl unset (SystemSettingsService.scala:243-247). Differential-only impact; reachable by unsure rule."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#36",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-security",
+        "version": "10.0.25",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-10050",
+            "GHSA-2fvj-hgj9-j2gr"
+          ],
+          [
+            "org.eclipse.jetty:jetty-security"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty Digest Authentication: ISO-8859-1 lossy encoding allows authentication bypass via character substitution \u2014 ### Summary\nThe `DigestAuthentication.apply()` method in Jetty's HTTP client uses `getBytes(StandardCharsets.ISO_8859_1)` at three locations (lines 171, 179, 196) to compute Digest auth response hashes. ISO-8859-1 silently replaces any character above U+00FF (Chinese, Japanese, Cyrillic, Arabic, Emoji, etc.) with 0x3F (`?`), causing all such characters to produce identical hash contributions. An attacker who knows a victim's username can bypass Digest authentication by repla",
+        "vuln_symbols": [
+          "DigestAuthentication.apply",
+          "apply"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.0.31",
+          "11.0.31",
+          "12.0.36",
+          "12.1.10",
+          "9.4.63"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Advisory targets Jetty HTTP client DigestAuthentication.apply (jetty-client, not in the war). Server-side jetty-security DigestAuthenticator (DigestAuthenticator.java:345-376) is never installed: web.xml has no login-config/security-constraint and JettyLauncher.java only adds SecuredRedirectHandler/StatisticsHandler; GitBucket does its own auth."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#37",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-server",
+        "version": "10.0.25",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-6790",
+            "GHSA-7p3p-8qv8-m2vh"
+          ],
+          [
+            "org.eclipse.jetty:jetty-server"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty: HTTP Authority/Host mismatch \u2014 #### Summary\n\nJetty currently accepts HTTP/2 and HTTP/3 requests where the regular\nHost header and the pseudo-header :authority\ndo not match. As a result, the same request can carry two different host identities\nthrough Jetty:\n\n- logic based on `HttpURI` / `Request.getServerName(request)` uses `:authority`\n- logic based on raw request headers continues to use `Host`\n\nThis creates a host/authority confusion condition that can break\nsecurity assumptions in higher layers.\n\nJetty already performs an explicit authority/Host consistency check on\nthe HTTP",
+        "vuln_symbols": [
+          "HttpURI",
+          "Host",
+          "MISMATCHED_AUTHORITY",
+          "Forwarded"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.35",
+          "12.1.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Host vs :authority mismatch exists only for HTTP/2 and HTTP/3; JettyLauncher.java:150,175-177 configures only HTTP/1.1 connection factories and no jetty-http2/http3 jars are in the war. Also fixed only in 12.0.x line."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#38",
+      "facts": {
+        "package": "org.jsoup:jsoup",
+        "version": "1.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-75140",
+            "GHSA-65r4-943x-97jj"
+          ],
+          [
+            "org.jsoup:jsoup"
+          ]
+        ],
+        "advisory_summary": "jsoup XmlTreeBuilder vulnerable to memory exhaustion through deeply nested namespace declarations \u2014 jsoup through 1.23.2, fixed in commit 862ba2f, contains an uncontrolled resource consumption vulnerability in XmlTreeBuilder that allows remote attackers to exhaust JVM heap memory by supplying a deeply nested XML document with uniquely-namespaced elements. The builder copies the entire inherited namespace map on every start element, causing quadratic time and memory complexity, which attackers can exploit to trigger an OutOfMemoryError and terminate the application.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.23.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jsoup is used only by markedj (Marked.class calls Jsoup.clean(html, Safelist)), which uses the HTML parser; neither GitBucket jar nor bundled plugins reference org.jsoup, and no XmlTreeBuilder/Parser.xmlParser use exists."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#39",
+      "facts": {
+        "package": "org.jsoup:jsoup",
+        "version": "1.17.2",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-71497",
+            "GHSA-pmhh-3w7g-xqp8"
+          ],
+          [
+            "org.jsoup:jsoup"
+          ]
+        ],
+        "advisory_summary": "jsoup: Cleaner may expose markup with custom raw-text elements \u2014 When a custom `Safelist` permits certain raw-text elements, jsoup may incorrectly sanitize malformed HTML containing a tag name that ends in a control character. The tag may acquire the parsing behavior of a different element, causing content that should remain text to be emitted as active markup after serialization and potentially allowing XSS.\n\njsoup\u2019s built-in Safelists are unaffected.\n\n## Patches\n\nUpgrade to jsoup 1.23.1.\n\n## Workarounds\n\nUntil upgrading, do not permit raw-text elements in custom Safelists used to clean untru",
+        "vuln_symbols": [
+          "Safelist",
+          "style"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.23.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only Safelist use is markedj Options.class (used from gitbucket/core/view/Markdown.scala:44-59 via Marked.marked -> Jsoup.clean). Its custom safelist tags are blockquote,br,caption,cite,code,...,table,input,del,hr,svg,path plus single-letter tags; no raw-text elements (script/style/textarea/title/xmp/iframe/noscript) are permitted ('style'/'title' appear only as attributes), which the advisory requires."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#40",
+      "facts": {
+        "package": "org.mariadb.jdbc:mariadb-java-client",
+        "version": "2.7.12",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55856",
+            "GHSA-g9jj-cgmh-9f38"
+          ],
+          [
+            "org.mariadb.jdbc:mariadb-java-client"
+          ]
+        ],
+        "advisory_summary": "MariaDB has cleartext password disclosure to a MITM on the initial-handshake \u2014 ### Summary\n\nWhen a Java application connects with sslMode=verify-full (or verify-ca) and a password but does not pin a server certificate, Connector/J deliberately accepts an untrusted/self-signed certificate at the TLS layer (the \"MITM-proof without a CA\" feature) and proves the server's identity afterwards by binding the certificate fingerprint into the authentication exchange. That fingerprint enforcement is applied to the OK-packet and auth-switch paths but not to the initial-handshake path. An active man-in-th",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.7.14",
+          "3.3.5",
+          "3.4.3",
+          "3.5.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs sslMode=verify-full/verify-ca with the 'MITM-proof without CA' fingerprint feature; mariadb 2.7.12 has no sslMode/fingerprint code (only useSsl/trustServerCertificate/serverSslCert, DefaultOptions.java:218). GitBucket never enables TLS for the DB: DatabaseConfig.scala:40-50 only passes the operator db.url; TLS options are driver-documented only.",
+        "requires": "db.url jdbc:mysql/mariadb with driver TLS options (undocumented by GitBucket)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#41",
+      "facts": {
+        "package": "org.mariadb.jdbc:mariadb-java-client",
+        "version": "2.7.12",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55857",
+            "GHSA-qxvw-fvwx-5cp7"
+          ],
+          [
+            "org.mariadb.jdbc:mariadb-java-client"
+          ]
+        ],
+        "advisory_summary": "org.mariadb.jdbc:mariadb-java-client has Cleartext Transmission of Sensitive Information and Insufficiently Protected Credentials \u2014 ###\u00a0Summary\n\nWhen PAM (dialog) authentication is used, the connector can be coerced into sending the account password in cleartext over an insecure connection. A hostile or man-in-the-middle server can trigger this with the default configuration, disclosing the user's password.\n\n### Details\n\nThe mysql_clear_password plugin is gated behind a secure connection: the driver refuses to transmit the password in cleartext over plain TCP. The sibling PAM plugin handler (S",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.7.14",
+          "3.3.5",
+          "3.4.3",
+          "3.5.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "MySQL/MariaDB is a documented backend (DatabaseConfig.scala:89-115, driver org.mariadb.jdbc.Driver). A hostile server or MITM (no TLS by default) can auth-switch to the PAM 'dialog' plugin; SendPamAuthPacket.java:109-129 sends the password in cleartext with no secure-connection gate under default options.",
+        "requires": "database.conf db.url = jdbc:mysql:/jdbc:mariadb: (documented external DB)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#42",
+      "facts": {
+        "package": "org.mariadb.jdbc:mariadb-java-client",
+        "version": "2.7.12",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-61700",
+            "GHSA-wxmm-q36w-r9xj"
+          ],
+          [
+            "org.mariadb.jdbc:mariadb-java-client"
+          ]
+        ],
+        "advisory_summary": "MariaDB Connector/J does not enforce allowLocalInfile=false  on server-initiated LOCAL INFILE requests \u2014 ## Summary\n\nMariaDB Connector/J does not enforce `allowLocalInfile=false` when \nprocessing server-initiated LOCAL INFILE requests (protocol packet \ntype `0xfb`). However, exploitation is constrained: the server can \nonly request the exact filename the client already included in its \n`LOAD DATA LOCAL INFILE` query, it cannot redirect to arbitrary paths.\n\n## Details\n\nWhen a client executes `LOAD DATA LOCAL INFILE '/path/to/file'`, the \nconnector sends the filename to the server as part of the",
+        "vuln_symbols": [
+          "allowLocalInfile"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.7.14",
+          "3.3.5",
+          "3.4.3",
+          "3.5.9"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "In 2.7.12 AbstractQueryProtocol.java:1712-1760 does enforce allowLocalInfile and also validates the requested filename against the issued LOAD DATA LOCAL INFILE query; GitBucket (Slick/Liquibase) never issues LOAD DATA LOCAL INFILE, so a server request is rejected (results.getSql/validateFileName).",
+        "requires": "database.conf db.url = jdbc:mysql:/jdbc:mariadb:"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#43",
+      "facts": {
+        "package": "org.mariadb.jdbc:mariadb-java-client",
+        "version": "2.7.12",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55858",
+            "GHSA-xvr9-35cr-46v9"
+          ],
+          [
+            "org.mariadb.jdbc:mariadb-java-client"
+          ]
+        ],
+        "advisory_summary": "org.mariadb.jdbc:mariadb-java-client has Inappropriate Encoding for Output Context \u2014 ### Summary\n\nThe connector encodes and decodes all character data assuming the connection character set is UTF-8. A server can change character_set_client mid-session to a non-UTF-8 charset, after which the driver and server interpret the same bytes under different encodings, causing silent data corruption and a client/server charset-confusion mismatch.\n\n### Details\n\nThe driver encodes and decodes all character data on the assumption that the connection character set is UTF-8. \nCharset can be changed by comman",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.7.14",
+          "3.3.5",
+          "3.4.3",
+          "3.5.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "With a documented MySQL/MariaDB backend (DatabaseConfig.scala:89-115), the driver decodes all server responses assuming UTF-8; a hostile/MITM DB server (plaintext by default) can change character_set_client mid-session. Driver code runs on server-controlled data; impact is data corruption only.",
+        "requires": "database.conf db.url = jdbc:mysql:/jdbc:mariadb: (documented external DB)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#44",
+      "facts": {
+        "package": "org.postgresql:postgresql",
+        "version": "42.7.7",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-42198",
+            "BIT-postgresql-jdbc-driver-2026-42198",
+            "GHSA-98qh-xjc8-98pq"
+          ],
+          [
+            "org.postgresql:postgresql"
+          ]
+        ],
+        "advisory_summary": "pgjdbc: Unbounded PBKDF2 iterations in SCRAM authentication allows CPU exhaustion DoS \u2014 ## Summary\npgjdbc is vulnerable to a client-side denial of service during SCRAM-SHA-256 authentication.\n\n### Impact\nA malicious server can instruct the driver to perform SCRAM authentication with a very large iteration count.\nWith a large enough value, the client spends an unbounded amount of CPU time inside PBKDF2 before authentication can fail.\nA single attempt ties up a CPU core. Repeated or concurrent attempts exhaust client CPU and can wedge connection pools.\n\nIn affected versions, `loginTimeout` did n",
+        "vuln_symbols": [
+          "loginTimeout",
+          "sslmode",
+          "scramMaxIterations"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "42.7.11"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "PostgreSQL is a documented backend (DatabaseConfig.scala:93,119 org.postgresql.Driver2 extends Driver). SCRAM auth via ScramAuthenticator.java:14,50-58 (bundled com.ongres scram-client 3.1) uses server-supplied iteration count with no cap in 42.7.7; a hostile server or MITM (default sslmode=prefer, no cert verification) can force unbounded PBKDF2.",
+        "requires": "database.conf db.url = jdbc:postgresql: (documented external DB)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#45",
+      "facts": {
+        "package": "org.postgresql:postgresql",
+        "version": "42.7.7",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54291",
+            "BIT-postgresql-jdbc-driver-2026-54291",
+            "GHSA-j92g-9f8w-j867"
+          ],
+          [
+            "org.postgresql:postgresql"
+          ]
+        ],
+        "advisory_summary": "PostgreSQL JDBC Driver: Silent channel-binding authentication downgrade via unsupported certificate algorithms \u2014 ### Impact\n\n`channelBinding=require` connections can be silently downgraded from `SCRAM-SHA-256-PLUS` (with channel binding) to plain `SCRAM-SHA-256` (without it), losing the man-in-the-middle protection the setting is meant to guarantee. An attacker who can intercept the TLS connection triggers the downgrade with a certificate whose signature algorithm has no `tls-server-end-point` channel-binding hash. Examples are `Ed25519`, `Ed448`, and post-quantum algorithms.\n\nTwo issues combi",
+        "vuln_symbols": [
+          "Ed25519",
+          "Ed448",
+          "ScramAuthenticator",
+          "prefer",
+          "allow",
+          "disable"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "42.7.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Downgrade only defeats channelBinding=require (PGProperty.java:155-158 default 'prefer'); GitBucket never sets it and only documents a plain db.url (DatabaseConfig.scala:20-30); setting is driver-documented only.",
+        "requires": "db.url jdbc:postgresql with channelBinding=require&ssl (driver-only setting)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#46",
+      "facts": {
+        "package": "org.springframework.integration:spring-integration-file",
+        "version": "5.5.7",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40987",
+            "GHSA-792x-6vq6-j8r9"
+          ],
+          [
+            "org.springframework.integration:spring-integration-file"
+          ]
+        ],
+        "advisory_summary": "Spring Integration File Support: FTP/SFTP/SMB server can write arbitrary files anywhere on the client filesystem \u2014 A malicious or compromised FTP/SFTP/SMB server can write arbitrary files anywhere on the client filesystem (outside the configured local-directory) with attacker-controlled content.\n\nAffected versions:\nSpring Integration 7.0.0 through 7.0.4; 6.5.0 through 6.5.8; 6.4.0 through 6.4.11; 6.3.0 through 6.3.14; 5.5.0 through 5.5.20.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.5.9",
+          "7.0.5"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "spring-integration-file is only a transitive dep of sshd-spring-sftp (pulled by apache-sshd aggregate, build.sbt). No class in gitbucket_2.13 jar or bundled plugins references org.springframework or sshd spring-sftp; GitBucket runs no FTP/SFTP inbound file sync."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#47",
+      "facts": {
+        "package": "org.springframework.retry:spring-retry",
+        "version": "1.3.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41710",
+            "GHSA-2827-2mxx-j8pv"
+          ],
+          [
+            "org.springframework.retry:spring-retry"
+          ]
+        ],
+        "advisory_summary": "Spring Retry has Cache Exhaustion in Stateful Retries that leads to Denial of Service \u2014 An attacker can craft a large number of unique requests that trigger a failure, exhausting the capacity of the application-wide stateful retry cache. Once the cache is full, it permanently rejects any further updates, causing all later stateful retries and circuit breakers in the application to fail.\n\nAffected versions:\nSpring Retry 2.0.0 through 2.0.12; 1.3.0 through 1.3.4.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.0.13"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "spring-retry only referenced by spring-integration (unused); no Spring context or stateful retry in GitBucket (no org.springframework references in app or plugin jars)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#48",
+      "facts": {
+        "package": "org.springframework:spring-beans",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-22965",
+            "GHSA-36p3-wjmg-h94x"
+          ],
+          [
+            "org.springframework:spring-beans"
+          ]
+        ],
+        "advisory_summary": "Remote Code Execution in Spring Framework \u2014 Spring Framework prior to versions 5.2.20 and 5.3.18 contains a remote code execution vulnerability known as `Spring4Shell`. \n\n## Impact\n\nA Spring MVC or Spring WebFlux application running on JDK 9+ may be vulnerable to remote code execution (RCE) via data binding. The specific exploit requires the application to run on Tomcat as a WAR deployment. If the application is deployed as a Spring Boot executable jar, i.e. the default, it is not vulnerable to the exploit. However, the nature of the vulnerability is more general, and there may be other ways t",
+        "vuln_symbols": [
+          "Spring4Shell",
+          "disallowedFields",
+          "WebDataBinder",
+          "RequestMappingHandlerAdapter",
+          "WebMvcRegistrations",
+          "WebFluxRegistrations"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.20.RELEASE",
+          "5.3.18"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Spring4Shell needs Spring MVC/WebFlux data binding; GitBucket is Scalatra, no Spring MVC jars, no DataBinder use. spring-beans present only via unused sshd-spring-sftp/spring-integration chain."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#49",
+      "facts": {
+        "package": "org.springframework:spring-beans",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-22970",
+            "GHSA-hh26-6xwr-ggv7"
+          ],
+          [
+            "org.springframework:spring-beans"
+          ]
+        ],
+        "advisory_summary": "Denial of service in Spring Framework \u2014 In spring framework versions prior to 5.3.20+ , 5.2.22+ and old unsupported versions, applications that handle file uploads are vulnerable to DoS attack if they rely on data binding to set a MultipartFile or javax.servlet.Part to a field in a model object.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.22.RELEASE",
+          "5.3.20"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Spring data binding of MultipartFile; uploads handled by Scalatra (FileUploadSupport), no Spring web stack."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#50",
+      "facts": {
+        "package": "org.springframework:spring-context",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-38820",
+            "GHSA-4gc7-5j7h-4qph"
+          ],
+          [
+            "org.springframework:spring-context"
+          ]
+        ],
+        "advisory_summary": "Spring Framework DataBinder Case Sensitive Match Exception \u2014 The fix for CVE-2022-22968 made disallowedFields\u00a0patterns in DataBinder\u00a0case insensitive. However, String.toLowerCase()\u00a0has some Locale dependent exceptions that could potentially result in fields not protected as expected.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.1.14"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DataBinder disallowedFields never used: no Spring binding in GitBucket (Scalatra), spring-context only via unused sshd-spring-sftp chain."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#51",
+      "facts": {
+        "package": "org.springframework:spring-context",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-22233",
+            "GHSA-4wp7-92pw-q264"
+          ],
+          [
+            "org.springframework:spring-context"
+          ]
+        ],
+        "advisory_summary": "Spring Framework DataBinder Case Sensitive Match Exception \u2014 CVE-2024-38820 ensured Locale-independent, lowercase conversion for both the configured disallowedFields patterns and for request parameter names. However, there are still cases where it is possible to bypass the disallowedFields checks.\n\nAffected Spring Products and Versions\n\nSpring Framework:\n  *  6.2.0 - 6.2.6\n\n  *  6.1.0 - 6.1.19\n\n  *  6.0.0 - 6.0.27\n\n  *  5.3.0 - 5.3.42\n  *  Older, unsupported versions are also affected\n\n\n\nMitigation\n\nUsers of affected versions should upgrade to the corresponding fixed version.\n\n| Affected versi",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.1.20",
+          "6.2.7"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as above: no DataBinder/disallowedFields use; Spring not loaded by the app."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#52",
+      "facts": {
+        "package": "org.springframework:spring-context",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-22968",
+            "GHSA-g5mm-vmx4-3rg7"
+          ],
+          [
+            "org.springframework:spring-context"
+          ]
+        ],
+        "advisory_summary": "Improper handling of case sensitivity in Spring Framework \u2014 In Spring Framework versions 5.3.0 - 5.3.18, 5.2.0 - 5.2.20, and older unsupported versions, the patterns for disallowedFields on a DataBinder are case sensitive which means a field is not effectively protected unless it is listed with both upper and lower case for the first character of the field, including upper and lower case for the first character of all nested fields within the property path. Versions 5.3.19 and 5.2.21 contain a patch for this issue.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.21.RELEASE",
+          "5.3.19"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Same as above: no DataBinder/disallowedFields use; Spring not loaded by the app."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#53",
+      "facts": {
+        "package": "org.springframework:spring-core",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41848",
+            "GHSA-659m-px2c-25wj"
+          ],
+          [
+            "org.springframework:spring-core"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Denial of Service via AntPathMatcher \u2014 Applications may be vulnerable to a Regular Expression Denial of Service (ReDoS) attack if an attacker is able to provide a pattern which is then directly or indirectly supplied to one of the following methods in AntPathMatcher: match(String pattern, String path), matchStart(String pattern, String path), extractUriTemplateVariables(String pattern, String path).\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AntPathMatcher with attacker patterns never used: no references to org.springframework in gitbucket or plugin jars; only sshd-spring-sftp (unused) depends on Spring."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#54",
+      "facts": {
+        "package": "org.springframework:spring-core",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-41249",
+            "GHSA-jmp9-x22r-554x"
+          ],
+          [
+            "org.springframework:spring-core"
+          ]
+        ],
+        "advisory_summary": "Spring Framework annotation detection mechanism may result in improper authorization \u2014 The Spring Framework annotation detection mechanism may not correctly resolve annotations on methods within type hierarchies with a parameterized super type with unbounded generics. This can be an issue if such annotations are used for authorization decisions.\n\nYour application may be affected by this if you are using Spring Security's @EnableMethodSecurity\u00a0feature.\n\nYou are not affected by this if you are not using @EnableMethodSecurity\u00a0or if you do not use security annotations on methods in generic supercl",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.11"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Spring Security @EnableMethodSecurity; absent. Spring not used by app."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#55",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-22950",
+            "GHSA-558x-2xjg-6232"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Allocation of Resources Without Limits or Throttling in Spring Framework \u2014 In Spring Framework versions 5.3.0 - 5.3.16, 5.2.0.RELEASE - 5.2.19.RELEASE, and older unsupported versions, it is possible for a user to provide a specially crafted SpEL expression that may cause a denial of service condition.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.20.RELEASE",
+          "5.3.17"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No SpEL evaluation anywhere: app/plugins reference no org.springframework classes; spring-expression only on the unused spring-integration chain."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#56",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-20861",
+            "GHSA-564r-hj7v-mcr5"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework vulnerable to denial of service via specially crafted SpEL expression \u2014 In Spring Framework versions 6.0.0 - 6.0.6, 5.3.0 - 5.3.25, 5.2.0.RELEASE - 5.2.22.RELEASE, and older unsupported versions, it is possible for a user to provide a specially crafted SpEL expression that may cause a denial-of-service (DoS) condition.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.23.RELEASE",
+          "5.3.26",
+          "6.0.7"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No SpEL evaluation of user input; Spring unused by GitBucket."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#57",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41849",
+            "GHSA-775g-4xr8-78h8"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Denial of Service via Integer Overflow in SpEL Expressions \u2014 An integer overflow vulnerability exists in the evaluation logic of the Spring Expression Language (SpEL). An attacker can exploit this by supplying a specially crafted SpEL expression that triggers excessive resource consumption, resulting in a Denial of Service (DoS).\n\nAffected versions:\nSpring Framework 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No SpEL evaluation of user input; Spring unused by GitBucket."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#58",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-38808",
+            "GHSA-9cmq-m9j5-mvww"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework vulnerable to Denial of Service \u2014 In Spring Framework versions 5.3.0 - 5.3.38 and older unsupported versions, it is possible for a user to provide a specially crafted Spring Expression Language (SpEL) expression that may cause a denial of service (DoS) condition. Older, unsupported versions are also affected.\n\nSpecifically, an application is vulnerable when the following is true:\n\n  *  The application evaluates user-supplied SpEL expressions.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.3.39"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires app evaluating user-supplied SpEL; none in GitBucket."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#59",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41852",
+            "GHSA-9f52-rjqv-25qv"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Arbitrary Method Invocation in SpEL Expressions \u2014 A vulnerability in Spring Expression Language (SpEL) evaluation logic allows for arbitrary zero-argument method invocation, even within restricted or read-only contexts, which may allow an attacker to invoke unintended application logic.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No SpEL evaluation; Spring unused by GitBucket."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#60",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41850",
+            "GHSA-r5w3-xv2f-j59q"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Algorithmic Denial of Service via SpEL Expressions \u2014 Applications that evaluate user-supplied Spring Expression Language (SpEL) expressions are vulnerable to an Algorithmic Denial of Service (DoS). By providing a specially crafted expression, an attacker can trigger excessive resource consumption during evaluation, leading to application degradation or unavailability.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No SpEL evaluation; Spring unused by GitBucket."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#61",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41851",
+            "GHSA-wxpp-56q6-5pcg"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Denial of Service via Unbounded Cache in SpEL \u2014 Applications which accept user-supplied Spring Expression Language (SpEL) expressions may be vulnerable to a Denial of Service (DoS) attack if the evaluation of a SpEL expression triggers unbounded cache growth.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No SpEL evaluation; Spring unused by GitBucket."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#62",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2023-20863",
+            "GHSA-wxqc-pxw9-g2p8"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework vulnerable to denial of service \u2014 In Spring Framework versions prior to 5.2.24.release+ , 5.3.27+ and 6.0.8+ , it is possible for a user to provide a specially crafted Spring Expression Language (SpEL) expression that may cause a denial-of-service (DoS) condition.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.24.RELEASE",
+          "5.3.27",
+          "6.0.8"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No SpEL evaluation; Spring unused by GitBucket."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-gitbucket#63",
+      "facts": {
+        "package": "org.springframework:spring-messaging",
+        "version": "5.3.14",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2022-22971",
+            "GHSA-rqph-vqwm-22vc"
+          ],
+          [
+            "org.springframework:spring-messaging"
+          ]
+        ],
+        "advisory_summary": "Allocation of Resources Without Limits or Throttling in Spring Framework \u2014 In spring framework versions prior to 5.3.20+ , 5.2.22+ and old unsupported versions, application with a STOMP over WebSocket endpoint is vulnerable to a denial of service attack by an authenticated user.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.2.22.RELEASE",
+          "5.3.20"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires a STOMP-over-WebSocket endpoint; GitBucket has no Spring messaging/WebSocket (no jetty websocket, no Spring context)."
+      }
+    }
+  ]
+}

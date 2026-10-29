@@ -98,8 +98,13 @@ not_reachable = 0.95
 # (Kellnr gix-worktree, reachable only with the opt-in docs.enabled; accepted as an edge
 # case, 2026-10-27) and rs3 166 / 0 (2026-10-27), all re-reviewed blind. Split
 # alone was 164 / 1, 172 / 2 and 174 / 5, so alone it still settles nothing on cargo.
-measured_ecosystems = ["go", "pypi", "cargo"]
-corroborate_ecosystems = ["pypi", "cargo"]
+# maven likewise only as the pair, with split's floor at 0.90 there (the jvmcallers notes make
+# split say 0.90 where it said 0.95). jv2 (re-run as a dev set after the call-graph fixes) 327 / 0
+# at 0.90; held-out jv3 (2026-10-29, five apps, 306 blind labels, re-reviewed) 159 / 1, coverage
+# 0.619: the miss a deserialization gadget, which reach.py now never lets settle on maven.
+measured_ecosystems = ["go", "pypi", "cargo", "maven"]
+corroborate_ecosystems = ["pypi", "cargo", "maven"]
+not_reachable_by_ecosystem = { maven = 0.90 }
 corroborate_by = ["claude"]
 
 [role.shape]

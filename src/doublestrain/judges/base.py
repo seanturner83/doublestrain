@@ -126,14 +126,17 @@ def floors(source: str, model: str = "") -> tuple[float, float]:
     return p["reachable"], p["not_reachable"]
 
 
-def accept(r: JudgeResult | None) -> bool:
-    """Is this verdict strong enough to hand to the grader as a fact?"""
+def accept(r: JudgeResult | None, ecosystem: str = "") -> bool:
+    """Is this verdict strong enough to hand to the grader as a fact? A role can set its
+    not_reachable floor per ecosystem (floors.toml `not_reachable_by_ecosystem`: split on
+    maven, measured as a pair with claude at 0.90)."""
     if r is None or r.verdict == Verdict.UNSURE:
         return False
     p = policy(r)
     if r.verdict == Verdict.REACHABLE:
         return r.confidence >= p["reachable"]
-    return r.confidence >= p["not_reachable"]
+    floor = (p.get("not_reachable_by_ecosystem") or {}).get(ecosystem, p["not_reachable"])
+    return r.confidence >= float(floor)
 
 
 def needs_corroboration(r: "JudgeResult", ecosystem: str = "") -> bool:

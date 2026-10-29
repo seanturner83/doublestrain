@@ -100,7 +100,7 @@ class CascadeJudge:
             if r is None:
                 trail.append({"source": t.name, "verdict": None, "note": "unavailable"})
                 continue
-            nr = accept(r) and r.verdict == Verdict.NOT_REACHABLE
+            nr = accept(r, q.ecosystem) and r.verdict == Verdict.NOT_REACHABLE
             if (nr and escalate_disagreement_on() and i < len(self.tiers) - 1
                     and any(e.get("verdict") == Verdict.REACHABLE.value for e in trail)):
                 trail.append(_strip(r, "not_reachable escalated: an earlier tier said reachable"))
@@ -124,7 +124,7 @@ class CascadeJudge:
                 trail.append(_strip(r, f"not_reachable held: {r.model or r.source} needs a second read "
                                        f"({', '.join(policy(r)['corroborate_by']) or 'none allowed'})"))
                 continue
-            if accept(r):
+            if accept(r, q.ecosystem):
                 r.trail = trail + r.trail
                 return r
             trail.append(_strip(r))

@@ -1111,9 +1111,29 @@ def test_cargo_settles_only_split_then_claude(app):
     assert not settles(sp, weak) and not settles(ws, cl) and not settles(sp) and not settles(cl)
 
 
+def test_maven_settles_only_split_090_then_claude_and_never_a_gadget(app):
+    # jv3 (2026-10-29, held-out): split not_reachable >= 0.90 with opus >= 0.7 agreeing, 159 / 1;
+    # the miss a deserialization gadget, which never settles on maven
+    from doublestrain.reach import resolve_reachability
+    nr = lambda name, c, src, m="": lambda: _Fixed(name, JudgeResult(Verdict.NOT_REACHABLE, c, src, model=m))  # noqa: E731
+    sp90, sp85, cl = nr("split", 0.90, "split:workstation", QWEN), nr("split", 0.85, "split:workstation", QWEN), nr("claude", 0.8, "claude")
+
+    def settles(*tiers, eco="maven", summary=""):
+        c = _cand(bumped_package="io.netty:netty-codec-http", ecosystem=eco)
+        c.advisory_summary = summary
+        resolve_reachability(c, CascadeJudge([t() for t in tiers]) if len(tiers) > 1 else tiers[0](), str(app), "CVE-1")
+        return c.reachability == Reachability.UNREACHABLE
+
+    assert settles(sp90, cl) and not settles(sp85, cl) and not settles(sp90) and not settles(cl)
+    assert not settles(sp90, cl, eco="cargo")                     # cargo keeps split's 0.95 floor
+    gadget = "CompactHashMap implements readObject(ObjectInputStream) reading an attacker-controlled count"
+    assert not settles(sp90, cl, summary=gadget)
+    assert settles(sp90, cl, eco="cargo", summary="") is False and not settles(sp90, cl, summary="Java native deserialization of X")
+
+
 def test_cargo_and_pypi_default_to_opus(monkeypatch):
     from doublestrain.judges.claude_code import MODEL_BY_ECOSYSTEM
-    assert MODEL_BY_ECOSYSTEM == {"pypi": "opus", "cargo": "opus"}
+    assert MODEL_BY_ECOSYSTEM == {"pypi": "opus", "cargo": "opus", "maven": "opus"}
 
 
 def test_cache_fills_in_the_answering_model(app, tmp_path, monkeypatch):
