@@ -1005,7 +1005,9 @@ def test_usage_limit_reset_time_and_wait(monkeypatch, tmp_path):
     calls, slept = [], []
     answers = [("limit", now), ("ok", {"verdict": "unsure"}, {"total_cost_usd": 0}, 1.0)]
     monkeypatch.setattr(cc, "_invoke", lambda *a, **k: (calls.append(1), answers[len(calls) - 1])[1])
-    monkeypatch.setattr(cc.time, "sleep", slept.append)
+    # stub the wall-clock wait itself: with only time.sleep stubbed, _sleep_until spins until the
+    # reset (a minute of busy loop, millions of list appends: CI runners were killed for it)
+    monkeypatch.setattr(cc, "_sleep_until", slept.append)
     monkeypatch.setenv("SSVC_CLAUDE_WAIT_ON_LIMIT", "1")
     assert cc.run_claude("claude", "p", "s", {}, cwd=tmp_path, model="m", timeout=1)[0] == {"verdict": "unsure"}
     assert len(calls) == 2 and slept
