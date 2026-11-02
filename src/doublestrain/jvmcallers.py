@@ -35,6 +35,7 @@ from pathlib import Path
 from . import jvmjars
 
 GRAPH_V = "1"
+NOTE_V = "2"      # 2: the deserialization-sink section for gadget advisories
 MAX_CLASS = 4 * 2**20
 MAX_CLASSES = 400_000
 MAX_DEPTH = 10
@@ -414,6 +415,129 @@ def chains(repo, dependency: str, symbols, limit: int = 6):
     return out, via, len(tgt)
 
 
+# --- deserialization sinks: code that builds objects of a class the input names ----------------
+# A "gadget" advisory (a library class's own readObject / readResolve / readExternal) runs only
+# when something deserializes attacker bytes: no call reaches it, the JDK dispatches by name.
+# So for those the question is whether the app reaches one of these entry points.
+SINKS = {
+    "Java serialization": ["java/io/ObjectInputStream#readObject", "java/io/ObjectInputStream#readUnshared",
+                           "org/apache/commons/lang3/SerializationUtils#deserialize",
+                           "org/apache/commons/lang/SerializationUtils#deserialize",
+                           "org/springframework/util/SerializationUtils#deserialize"],
+    "RMI / JMX": ["javax/management/remote/JMXConnectorFactory#connect",
+                  "javax/management/remote/JMXConnectorFactory#newJMXConnector",
+                  "javax/management/remote/JMXConnector#connect", "java/rmi/Naming#lookup",
+                  "java/rmi/registry/Registry#lookup", "java/rmi/registry/LocateRegistry#getRegistry"],
+    "JNDI lookup": ["javax/naming/Context#lookup", "javax/naming/InitialContext#lookup",
+                    "javax/naming/directory/DirContext#lookup", "javax/naming/directory/InitialDirContext#lookup"],
+    "XMLDecoder": ["java/beans/XMLDecoder#readObject"],
+    "XStream": ["com/thoughtworks/xstream/XStream#fromXML", "com/thoughtworks/xstream/XStream#unmarshal"],
+    "SnakeYAML": ["org/yaml/snakeyaml/Yaml#load", "org/yaml/snakeyaml/Yaml#loadAll", "org/yaml/snakeyaml/Yaml#loadAs"],
+    "Hessian": ["com/caucho/hessian/io/HessianInput#readObject", "com/caucho/hessian/io/Hessian2Input#readObject"],
+    "Kryo": ["com/esotericsoftware/kryo/Kryo#readClassAndObject", "com/esotericsoftware/kryo/Kryo#readObject"],
+    "Jackson default typing": ["com/fasterxml/jackson/databind/ObjectMapper#activateDefaultTyping",
+                               "com/fasterxml/jackson/databind/ObjectMapper#enableDefaultTyping",
+                               "com/fasterxml/jackson/databind/ObjectMapper#activateDefaultTypingAsProperty",
+                               "com/fasterxml/jackson/databind/ObjectMapper#enableDefaultTypingAsProperty"],
+}
+# calls that restrict what a stream may name (evidence a sink is guarded, not proof)
+FILTERS = ["java/io/ObjectInputStream#setObjectInputFilter", "java/io/ObjectInputFilter$Config#setSerialFilter",
+           "java/io/ObjectInputFilter$Config#createFilter", "java/io/ObjectInputFilter$Config#setSerialFilterFactory"]
+GADGET_METHODS = ("readObject", "readResolve", "readExternal", "readObjectNoData")
+
+
+def is_gadget(g, tgt) -> bool:
+    """Is one of the advisory's target methods a class's own deserialization hook? (Naming a
+    class targets all its methods, its readObject included; `Class.put` targets only put.)"""
+    return any(m in GADGET_METHODS for _c, m in tgt)
+
+
+def sink_chains(repo, limit: int = 2) -> dict | None:
+    """{sink kind: [chain from an app method to the sink call, ...]} for the deserialization
+    entry points the app's own code reaches through direct calls (library code in between
+    included), plus {"filters": [classes that call a serial-filter API]}."""
+    a = jvmjars.artifact_for(repo)
+    if a is None:
+        return None
+    rv = _reverse(repr(sorted(a["paths"])), str(Path(repo).expanduser().resolve()))
+    if rv is None:
+        return None
+    g, rev, subs = rv
+    out = {}
+    for kind, keys in SINKS.items():
+        prev, q = {}, deque()
+        for k in keys:
+            for caller in rev.get(k, ()):
+                if caller not in prev:
+                    prev[caller] = ("<sink>", k)
+                    q.append((caller, 0))
+        apps = []
+        while q and len(prev) < MAX_VISIT and len(apps) < limit * 4:
+            (c, m), d = q.popleft()
+            if g["cls"].get(c, ["?"])[0] == "app":
+                apps.append((c, m))
+                continue
+            if d >= MAX_DEPTH:
+                continue
+            ks = {f"{c}#{m}"}
+            if m not in ("<init>", "<clinit>"):
+                ks |= {f"{s}#{m}" for s in subs.get(c, ()) if m not in g["cls"].get(s, [0, 0, 0, {}])[3]}
+            for k2 in ks:
+                for caller in rev.get(k2, ()):
+                    if caller not in prev:
+                        prev[caller] = (c, m)
+                        q.append((caller, d + 1))
+        chains_, seen = [], set()
+        for node in apps:
+            if node[0] in seen:
+                continue
+            seen.add(node[0])
+            path, cur, hops = [], node, 0
+            while cur is not None and cur[0] != "<sink>" and hops <= MAX_DEPTH + 1:
+                path.append((cur[0], cur[1], g["cls"].get(cur[0], ["?"])[0]))
+                cur, hops = prev.get(cur), hops + 1
+            if cur is not None and cur[0] == "<sink>":
+                o, _, mm = cur[1].partition("#")
+                path.append((o, mm, "jdk" if o.startswith(("java/", "javax/")) else "lib"))
+            chains_.append(path)
+            if len(chains_) >= limit:
+                break
+        if chains_:
+            out[kind] = chains_
+    # the allowlist pattern: an ObjectInputStream subclass overriding resolveClass (Jenkins'
+    # ClassFilter, commons-io ValidatingObjectInputStream, ...)
+    ois = {c for c in g["cls"] if "java/io/ObjectInputStream" in _supers(g, c) or g["cls"][c][1] == "java/io/ObjectInputStream"}
+    resolving = {c for c in ois if "resolveClass" in g["cls"][c][3]}
+    out["filter_api"] = sorted({c for k in FILTERS for c, _m in rev.get(k, ())})[:6]
+    out["filters"] = sorted(resolving)[:8]
+    return out
+
+
+def sinks_section(repo) -> str:
+    got = sink_chains(repo)
+    if got is None:
+        return ""
+    filters = got.pop("filters")
+    api = got.pop("filter_api", [])
+    head = ("DESERIALIZATION SINKS the app's code reaches (jvmcallers; the advisory's code is a class's own "
+            "deserialization hook, which no call reaches: it runs only when one of these reads data an "
+            "attacker controls and names that class):")
+    if not got:
+        return head + ("\n  none found through bytecode calls (evidence, not proof: frameworks, reflection and "
+                       "configured caches or session stores can still deserialize).")
+    lines = [head]
+    for kind, paths in got.items():
+        for p in paths:
+            lines.append(f"  {kind}: " + " -> ".join(
+                f"{_fmt(c, m)} [{'app' if o == 'app' else o.split(':')[-1]}]" for c, m, o in p))
+    lines.append("  serial-filter API calls (ObjectInputFilter) in the classpath: "
+                 + (", ".join(c.rsplit("/", 1)[-1] for c in api) if api else "none"))
+    if filters:
+        lines.append("  ObjectInputStream subclasses overriding resolveClass (an allowlist, or only a class-loader "
+                     "choice: read them): " + ", ".join(c.rsplit("/", 1)[-1] for c in filters))
+    return "\n".join(lines)
+
+
 def _fmt(c: str, m: str) -> str:
     return f"{c.rsplit('/', 1)[-1]}.{m}"
 
@@ -425,18 +549,23 @@ def callers_note(repo_path: str, ecosystem: str, dependency: str, version: str, 
     if got is None:
         return ""
     paths, via, ntgt = got
+    a = jvmjars.artifact_for(repo_path)
+    rv = _reverse(repr(sorted(a["paths"])), str(Path(repo_path).expanduser().resolve())) if a else None
+    sinks = sinks_section(repo_path) if rv and is_gadget(rv[0], targets(rv[0], dependency, symbols)) else ""
     head = (f"CALLERS IN THE DEPLOYED CLASSPATH (jvmcallers: bytecode call graph over the release's classes; "
             f"a call to a supertype counts for its overrides; reflection and framework dispatch not followed) "
             f"of {ntgt} {dependency} method(s) the advisory names:")
     if not paths:
         return head + ("\n  no method of the app's own classes reaches them through bytecode calls"
-                       " (evidence, not proof: frameworks can still dispatch by name).")
+                       " (evidence, not proof: frameworks can still dispatch by name).") + (f"\n{sinks}" if sinks else "")
     lines = [head]
     for p, disp in paths:
         lines.append("  " + " -> ".join(f"{_fmt(c, m)} [{'app' if o == 'app' else o.split(':')[-1]}]" for c, m, o in p)
                      + ("   (through a call on a supertype: possible, not certain)" if disp else ""))
     if via:
         lines.append(f"  libraries on these paths (their source is provided when available): {', '.join(via)}")
+    if sinks:
+        lines.append(sinks)
     return "\n".join(lines)
 
 

@@ -354,6 +354,25 @@ def test_local_judge_autodetects_model_and_sends_context(app, fake_local):
     assert "node_modules" not in user
 
 
+def test_endpoint_sends_extra_headers(monkeypatch):
+    # a hosted endpoint's zero-retention switch is a header (Wafer-ZDR); the key stays separate
+    from doublestrain.judges import LocalJudge
+    from doublestrain.judges import local as local_mod
+    sent = []
+
+    class R:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self): return b'{"data": [{"id": "m"}]}'
+
+    monkeypatch.setattr(local_mod.urllib.request, "urlopen", lambda req, timeout: sent.append(req) or R())
+    monkeypatch.setenv("SSVC_LOCAL_HEADERS", '{"Wafer-ZDR": "required"}')
+    monkeypatch.setenv("SSVC_LOCAL_API_KEY", "k")
+    LocalJudge().probe()
+    h = {k.lower(): v for k, v in sent[0].header_items()}
+    assert h["wafer-zdr"] == "required" and h["authorization"] == "Bearer k"
+
+
 def test_local_judge_strips_think_and_finds_json(app, fake_local):
     from doublestrain.judges import LocalJudge
     _, reply = fake_local
@@ -1210,3 +1229,17 @@ def test_local_judge_keys_a_non_baseline_quant(monkeypatch):
     assert base.endswith("@ctx" + str(__import__("doublestrain.judges.local", fromlist=["x"]).CONTEXT_VERSION))  # baseline: older keys
     quant["q"] = "Q6_K"
     assert OpenAIJudge("workstation").fingerprint() == base + "@qQ6_K"
+
+
+def test_open_world_guard_skipped_where_the_pair_corroborates(monkeypatch):
+    # the pair's code-reading second judge answers the open world; it was measured without the guard
+    from doublestrain.judges.usage import Usage, guard_not_reachable
+    monkeypatch.setenv("SSVC_NR_UNMEASURED", "cargo,go,pypi,maven")
+    for eco in ("maven", "pypi"):
+        u = Usage(ecosystem=eco, dynamic_sites=["src/A.java:3: Class.forName(name)"])
+        assert guard_not_reachable(Verdict.NOT_REACHABLE, u, role="split") == (Verdict.NOT_REACHABLE, "")
+        v, note = guard_not_reachable(Verdict.NOT_REACHABLE, u)          # a single summary read keeps it
+        assert v == Verdict.UNSURE
+    u = Usage(ecosystem="npm", dynamic_sites=["src/a.js:3: require(x)"])
+    v, note = guard_not_reachable(Verdict.NOT_REACHABLE, u, role="split")
+    assert v == Verdict.UNSURE and "open world" in note

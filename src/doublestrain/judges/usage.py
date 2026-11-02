@@ -425,14 +425,24 @@ def unmeasured_ecosystems() -> set[str]:
     return {e.strip() for e in os.environ.get("SSVC_NR_UNMEASURED", "cargo,go,pypi,maven").split(",") if e.strip()}
 
 
-def measured_for(role: str) -> set[str]:
-    """Ecosystems where this judge role's not_reachable has been measured on labels and
-    may settle a row despite the ecosystem's hold (floors.toml `measured_ecosystems`)."""
+def _role_set(role: str, key: str) -> set[str]:
     if not role:
         return set()
     from .base import _FLOORS_FILE, _table
     roles, _ = _table(os.environ.get("SSVC_FLOORS_FILE") or str(_FLOORS_FILE))
-    return set((roles.get(role) or {}).get("measured_ecosystems") or [])
+    return set((roles.get(role) or {}).get(key) or [])
+
+
+def measured_for(role: str) -> set[str]:
+    """Ecosystems where this judge role's not_reachable has been measured on labels and
+    may settle a row despite the ecosystem's hold (floors.toml `measured_ecosystems`)."""
+    return _role_set(role, "measured_ecosystems")
+
+
+def corroborated_for(role: str) -> set[str]:
+    """Ecosystems where this role's not_reachable settles only with a second, code-reading
+    judge agreeing (floors.toml `corroborate_ecosystems`)."""
+    return _role_set(role, "corroborate_ecosystems")
 
 
 def nr_held(ecosystem: str, role: str = "") -> bool:
@@ -444,7 +454,11 @@ def guard_not_reachable(verdict, u: Usage, role: str = ""):
     escalates to a judge that reads the code (it never flips a verdict).
 
     - not_reachable on an open-world summary (dynamic access): absence of symbol
-      mentions proves nothing.
+      mentions proves nothing. Not where the role's not_reachable needs a corroborating
+      read anyway (`corroborate_ecosystems`): that judge reads the code, and the pair was
+      measured without this guard (the ecosystem hold came first while it was measured,
+      2026-11-02: jv4 found it downgrading 218 of ~230 maven not_reachable, since nearly
+      every JVM app loads some class by a computed name).
     - reachable when every vulnerable-symbol mention is in test code: the summary
       holds no runtime evidence for it.
     """
@@ -452,7 +466,7 @@ def guard_not_reachable(verdict, u: Usage, role: str = ""):
     if verdict == Verdict.NOT_REACHABLE and nr_held(u.ecosystem, role):
         return Verdict.UNSURE, (f"not_reachable held: no measured floor for {u.ecosystem} yet "
                                 "(the model's not_reachable is kept here for calibration)")
-    if verdict == Verdict.NOT_REACHABLE and not u.closed_world:
+    if verdict == Verdict.NOT_REACHABLE and not u.closed_world and u.ecosystem not in corroborated_for(role):
         return Verdict.UNSURE, "not_reachable downgraded: pre-pass found dynamic access (open world)"
     if (verdict == Verdict.REACHABLE and u.symbol_sites
             and all(s.endswith("(test code)") for s in u.symbol_sites)):

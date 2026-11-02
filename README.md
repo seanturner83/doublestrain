@@ -41,7 +41,8 @@ What's in the box:
   - `local` / any named OpenAI-compatible endpoint (LM Studio, llama.cpp, Ollama, vLLM):
     a grep summary plus numbered source excerpts, one JSON-schema verdict, no tools.
     Endpoints never settle `reachable`; an off-network endpoint is refused unless it is
-    https and `SSVC_<NAME>_ALLOW_CODE_EGRESS=1`.
+    https and `SSVC_<NAME>_ALLOW_CODE_EGRESS=1`. `SSVC_<NAME>_HEADERS` (a JSON object) adds
+    request headers, e.g. a hosted endpoint's zero-retention switch.
   - `split`: claude reads only the dependency's verified source and writes a trigger
     spec; a local endpoint matches it against the app. App code stays on your machine.
   - `shape`: claude sees the dependency source plus abstracted call shapes from the app.

@@ -90,3 +90,29 @@ def test_hostile_class_files_are_skipped():
             raise AssertionError("parsed junk")
         except jvmcallers._Bad:
             pass
+
+
+def test_gadget_advisories_get_the_deserialization_sinks(tmp_path, monkeypatch):
+    # jv3's miss: guava's CompactHashMap.readObject runs only when something deserializes;
+    # kafka-ui's JMX metrics client does, over RMI
+    monkeypatch.setenv("SSVC_JUDGE_CACHE", str(tmp_path / "cache"))
+    jvmjars._REGISTRY.clear()
+    jvmcallers._reverse.cache_clear()
+    gu = _jar({"META-INF/maven/com.google.guava/guava/pom.properties": "groupId=com.google.guava\nartifactId=guava\nversion=32.1.3\n",
+               "com/google/common/collect/CompactHashMap.class": _class("com/google/common/collect/CompactHashMap",
+                                                                         methods=[("readObject", []), ("put", [])])})
+    app = _jar({"BOOT-INF/classes/io/x/Jmx.class": _class("io/x/Jmx", methods=[
+                    ("scrape", [("javax/management/remote/JMXConnectorFactory", "connect", "static")])]),
+                "BOOT-INF/classes/io/x/Safe.class": _class("io/x/Safe", methods=[
+                    ("read", [("java/io/ObjectInputStream", "setObjectInputFilter", "virtual")])]),
+                "BOOT-INF/lib/guava-32.1.3.jar": gu})
+    art = tmp_path / "app.jar"; art.write_bytes(app)
+    repo = tmp_path / "repo"; repo.mkdir()
+    jvmjars.register(repo, {"paths": [str(art)], "identify": False})
+    note = jvmcallers.callers_note(str(repo), "maven", "com.google.guava:guava", "32.1.3", ["CompactHashMap"])
+    assert "DESERIALIZATION SINKS" in note
+    assert "RMI / JMX: Jmx.scrape [app] -> JMXConnectorFactory.connect [jdk]" in note
+    assert "(ObjectInputFilter) in the classpath: Safe" in note
+    # an ordinary (non-gadget) advisory on the same class gets no sink section
+    assert "DESERIALIZATION SINKS" not in jvmcallers.callers_note(str(repo), "maven", "com.google.guava:guava", "32.1.3",
+                                                                   ["CompactHashMap.put"])

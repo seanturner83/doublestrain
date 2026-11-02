@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+- **Fix: Maven settled almost nothing in 0.2.0.** A guard downgraded split's `not_reachable`
+  to `unsure` whenever the app loads any class by a computed name (`Class.forName`,
+  `loadClass`, `ServiceLoader.load`), and nearly every JVM app does: on a held-out set of
+  five JVM apps it caught 218 of ~230 split `not_reachable` answers, so the Maven pair
+  rarely ran. The pair's measurements never met the guard (the ecosystem hold was checked
+  first while they ran), so the numbers in the README stand; the code now matches them.
+  The guard is skipped where split's `not_reachable` needs the code-reading `claude`
+  judge to agree anyway (pip, Cargo, Maven) and stays for a single read. Cargo was
+  unaffected (the guard has no Rust patterns); pip's guard only looked at files importing
+  the package, so it caught fewer rows there.
+- **JVM:** for deserialization-gadget advisories, the call-graph note lists the
+  deserialization entry points the app reaches (Java serialization, RMI/JMX, JNDI,
+  XMLDecoder, XStream, SnakeYAML, Hessian, Kryo, Jackson default typing) with the path,
+  and any `ObjectInputFilter` or `resolveClass` allowlisting. Evidence for the judges;
+  gadgets still never settle on Maven.
+- **Endpoints:** `SSVC_<NAME>_HEADERS` sends extra request headers (JSON object).
+
 ## 0.2.0 (2026-10-29)
 
 Python, Rust and JVM, each measured on blind-labelled real apps (see the README's Results).

@@ -25,6 +25,8 @@ SSVC_LOCAL_MODEL (default: the server's first listed model), SSVC_LOCAL_API_KEY
 budget, default 24000), SSVC_LOCAL_REASONING_EFFORT (default "none": local thinking
 models reason on every call unless it is sent explicitly, which is pure latency on a
 bounded classification; set it empty to omit the field for servers that reject it),
+SSVC_LOCAL_HEADERS (optional JSON object of extra request headers, e.g.
+'{"Wafer-ZDR": "required"}' for a hosted endpoint's zero-retention mode),
 SSVC_<NAME>_ALLOW_CODE_EGRESS (see above).
 """
 from __future__ import annotations
@@ -289,6 +291,8 @@ class OpenAIJudge:
         headers = {"Content-Type": "application/json"}
         if key := env(self.name, "API_KEY").strip():
             headers["Authorization"] = f"Bearer {key}"
+        if extra := env(self.name, "HEADERS").strip():
+            headers.update({str(k): str(v) for k, v in json.loads(extra).items()})
         req = urllib.request.Request(  # noqa: S310 — configured, egress-checked base URL
             f"{self.base_url if root is None else root}{path}", headers=headers,
             data=json.dumps(payload).encode() if payload is not None else None,
