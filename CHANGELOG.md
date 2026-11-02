@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.1 (2026-11-02)
 
 - **Fix: Maven settled almost nothing in 0.2.0.** A guard downgraded split's `not_reachable`
   to `unsure` whenever the app loads any class by a computed name (`Class.forName`,
