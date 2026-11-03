@@ -109,14 +109,17 @@ the `not_reachable`; coverage is the share of `not_reachable` labels it settles:
 | JVM jv2 after the call-graph fixes, split >= 0.90 | 3 / 288 | 178 / 0 | 0.704 |
 | JVM held-out (jv3, published cases), split >= 0.90 | 4 / 246 | 129 / 1 | 0.620 |
 | the same, with the deserialization-gadget rule | 4 / 246 | 129 / 0 | 0.620 |
+| JVM held-out (jv4, published cases), split >= 0.90, gadget rule | 4 / 261 | 131 / 0 | 0.575 |
 
 pip, Cargo and Maven now settle as that pair only (Maven with split at 0.90). On Maven a
 `not_reachable` never settles for a Java deserialization gadget (the advisory's code is a
 `readObject`/`readResolve`/`readExternal`): the JDK calls those by class name, which no call
-graph sees; jv3's one miss was such a gadget, so that rule is not yet measured on a fresh
-set. Four JVM cases from these sets are not published yet, so the JVM rows above count only
-the published ones. Every change and its measurement is
-in `docs/design.md`.
+graph sees. jv3's one miss was such a gadget; on jv4, the first fresh set for the rule, it
+caught nothing and held back one right answer. jv4's matcher was the same Qwen 3.8 27B
+served by a hosted endpoint (zero data retention) rather than the local box; on jv3 the
+two agreed on 81% of rows and the hosted one settled slightly more, with the same one
+miss. Five JVM cases from these sets are not published yet, so the JVM rows above count
+only the published ones. Every change and its measurement is in `docs/design.md`.
 
 ## Labels and data
 

@@ -1,0 +1,2414 @@
+{
+  "id": "real-jv-activemq",
+  "description": "Apache ActiveMQ Classic 6.1.7 (message broker, distribution): JVM held-out (jv4), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "artifact": {
+    "paths": [
+      "artifact/apache-activemq-6.1.7-bin.tar.gz"
+    ],
+    "include": [],
+    "exclude": [],
+    "first_party": [
+      "org.apache.activemq"
+    ]
+  },
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#1",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-18401",
+            "GHSA-72hv-8253-57qq"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition \u2014 ### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent",
+        "vuln_symbols": [
+          "maxNumberLength",
+          "StreamReadConstraints",
+          "NonBlockingUtf8JsonParserBase",
+          "_finishNumberIntegralPart",
+          "TextBuffer",
+          "_valueComplete"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.6",
+          "2.21.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Async parser (NonBlockingUtf8JsonParserBase) is created only by createNonBlocking*Parser; outside jackson the only caller in the classpath is spring-web Jackson2Tokenizer (WebFlux codecs), which nothing runs. readValue(String) uses ReaderBasedJsonParser."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#2",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89425",
+            "GHSA-7hhh-6rmp-j9qf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: UTF8DataInputJsonParser._reportInvalidToken() missing maxErrorTokenLength limit -> unbounded StringBuilder growth (DoS) \u2014 ## Status\n\n**FULLY REPRODUCED.** A malformed token fed through `createParser(DataInput)` produced a\n20,000,109-character exception message from a 20-million-character attacker payload, while the\nidentical payload fed through `createParser(InputStream)` produced a correctly bounded\n367-character message.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed against:** `jackson-core-2.20.2`\n- **Affected file:** ",
+        "vuln_symbols": [
+          "UTF8DataInputJsonParser._reportInvalidToken",
+          "StringBuilder",
+          "ErrorReportConfiguration.getMaxErrorTokenLength",
+          "UTF8StreamJsonParser",
+          "ReaderBasedJsonParser",
+          "NonBlockingUtf8JsonParserBase"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. UTF8DataInputJsonParser is only used for createParser(DataInput)/readValue(DataInput); no class in the release calls that (grep of all jars: only ObjectMapper/ObjectReader inside jackson-databind). String input uses ReaderBasedJsonParser."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#3",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89407",
+            "GHSA-p6pp-m3f8-5c89"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": " jackson-core: ReDoS: quadratic backtracking in NumberInput.PATTERN_FLOAT via looksLikeValidNumber() \u2014 ## Status\n\n**FULLY REPRODUCED** with a clean, textbook empirical signature: measured runtime grew almost\nexactly 4x for every doubling of input size across five consecutive doublings (5,000 \u2192 160,000\ncharacters), confirming O(n\u00b2) behavior. A single 160,000-character string (smaller than a typical\nHTTP request body) took **74.4 seconds** for one call to `NumberInput.looksLikeValidNumber()`.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed",
+        "vuln_symbols": [
+          "NumberInput.looksLikeValidNumber",
+          "PATTERN_FLOAT",
+          "PATTERN_FLOAT_TRAILING_DOT",
+          "looksLikeValidNumber",
+          "Pattern",
+          "Matcher"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. NumberInput.looksLikeValidNumber is called only from databind NumberDeserializers (lines 656,759,867,1050) and StdDeserializer:1071,1089 when coercing a JSON string to float/double/BigDecimal targets; DestinationsViewFilter has no numeric properties and DestinationView (only ctor DestinationView(ManagedRegionBroker,Destination), DestinationView.java:66) cannot be instantiated, so no numeric coercion runs on attacker input. No core parser path calls it."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#4",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68494",
+            "GHSA-r7wm-3cxj-wff9"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Async parser maxNumberLength bypass via chunked digit accumulation (incomplete fix for GHSA-72hv-8253-57qq) \u2014 ## Summary\n\nThe fix released in jackson-core `2.18.6` and `2.21.1` for [GHSA-72hv-8253-57qq](https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq) (Number Length Constraint Bypass in Async Parser, published 2026-02-28) is incomplete. The fix commit `b0c428e6` (#1555) wired `validateIntegerLength` into a new `_setIntLength` helper and called it at every place where the integer portion of a number is *decided* (terminator byte arrived, `.` / `e/",
+        "vuln_symbols": [
+          "b0c428e6",
+          "validateIntegerLength",
+          "_setIntLength",
+          "MINOR_NUMBER_INTEGER_DIGITS",
+          "NOT_AVAILABLE",
+          "_textBuffer.expandCurrentSegment"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Same as GHSA-72hv: only the async/non-blocking parser is affected and it is never used (only Spring WebFlux Jackson2Tokenizer references it)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#5",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59888",
+            "GHSA-3pjw-73gf-8qr5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonIgnore on a Record property is bypassed with a PropertyNamingStrategy \u2014 ## Summary\nFor Java Records, `POJOPropertiesCollector._removeUnwantedIgnorals()` records a `@JsonIgnore`-annotated component under its original implicit name before `_renameUsing()` applies the `PropertyNamingStrategy`. After the rename, `_ignoredPropertyNames` still holds only the pre-rename name, so `_ignorableProps` is built from the stale key. The renamed JSON key passes `IgnorePropertiesUtil.shouldIgnore()` and is assigned to the Record's constructor parameter, defeating the `@JsonIgnore`.\n\n## I",
+        "vuln_symbols": [
+          "POJOPropertiesCollector._removeUnwantedIgnorals",
+          "_renameUsing",
+          "PropertyNamingStrategy",
+          "_ignoredPropertyNames",
+          "_ignorableProps",
+          "IgnorePropertiesUtil.shouldIgnore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs Java Records with @JsonIgnore plus a PropertyNamingStrategy; the deserialized type is a plain class and the mapper is new ObjectMapper() with no naming strategy."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#6",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59889",
+            "GHSA-5gvw-p9qm-jgwh"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonView bypassed for @JsonUnwrapped container properties on deserialization \u2014 ## Summary\n`UnwrappedPropertyHandler.processUnwrapped()` replays the buffered JSON for a `@JsonUnwrapped` property by iterating its properties and calling `prop.deserializeAndSet()` with **no `prop.visibleInView(ctxt.getActiveView())` guard** \u2014 the exact guard `processUnwrappedCreatorProperties()` received in the #5971 / GHSA-rcqc-6cw3-h962 fix, and the guard `BeanDeserializer.deserializeWithUnwrapped` applies to directly-matched properties. As a result, a property annotated with both `@JsonView(P",
+        "vuln_symbols": [
+          "UnwrappedPropertyHandler.processUnwrapped",
+          "prop.deserializeAndSet",
+          "processUnwrappedCreatorProperties",
+          "BeanDeserializer.deserializeWithUnwrapped",
+          "BeanDeserializer",
+          "PublicView"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs @JsonView + @JsonUnwrapped on a deserialized type; none exist and no active view is set."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#7",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54515",
+            "GHSA-5jmj-h7xm-6q6v"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has case-insensitive deserialization bypasses per-property @JsonIgnoreProperties \u2014 ## Summary\nIn `BeanDeserializerBase.createContextual()`, per-property `@JsonIgnoreProperties` exclusions are applied by `_handleByNameInclusion()`, producing a `contextual` deserializer whose `BeanPropertyMap` has the ignored properties removed. The subsequent per-property case-insensitivity block (triggered by `@JsonFormat(ACCEPT_CASE_INSENSITIVE_PROPERTIES)`) rebuilds from `this._beanProperties` (the original, unfiltered map) instead of `contextual._beanProperties`, then overwrites the filtere",
+        "vuln_symbols": [
+          "BeanDeserializerBase.createContextual",
+          "_handleByNameInclusion",
+          "contextual",
+          "BeanPropertyMap",
+          "this._beanProperties",
+          "contextual._beanProperties"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs per-property @JsonIgnoreProperties with @JsonFormat(ACCEPT_CASE_INSENSITIVE_PROPERTIES); no Jackson annotations on DestinationsViewFilter."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#8",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91777",
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind quadratic forward-reference completion  \u2014 ### Summary\n\nWhen an `@JsonIdentityInfo` collection or map first creates N unresolved\nobject-ID references and later resolves the same IDs in reverse order,\njackson-databind scans the remaining pending-reference accumulator for each\nresolution. A shallow JSON document whose size grows linearly can therefore\ncause quadratic CPU work during deserialization.\n\n### Details\n\nThe affected path is forward-reference completion in\n`CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference()`\nand the corresponding map implemen",
+        "vuln_symbols": [
+          "CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference",
+          "equals"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs @JsonIdentityInfo collections/maps; not used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#9",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-83557",
+            "GHSA-gx83-3vf8-gh7j"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Comparable missing from DefaultBaseTypeLimitingValidator's unsafe base types (incomplete PolymorphicTypeValidator denylist) \u2014 ### Summary\n`DefaultBaseTypeLimitingValidator` \u2014 the `PolymorphicTypeValidator` used automatically whenever `@JsonTypeInfo` is applied without an explicitly configured custom validator \u2014 denies polymorphic resolution only for nine specific \"unsafe base types\" (`Object`, `Serializable`, `Closeable`, `AutoCloseable`, `Cloneable`, `Runnable`, `java.util.logging.Handler`, `javax.naming.Referenceable`, `javax.sql.DataSource`). Its `isSafeSubType()` returns ",
+        "vuln_symbols": [
+          "DefaultBaseTypeLimitingValidator",
+          "PolymorphicTypeValidator",
+          "Serializable",
+          "Closeable",
+          "AutoCloseable",
+          "Cloneable"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs @JsonTypeInfo polymorphic typing; none on deserialized types and default typing not enabled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#10",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54514",
+            "GHSA-hgj6-7826-r7m5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: InetSocketAddress deserialization triggers eager DNS resolution (SSRF) \u2014 ## Summary\n`JDKFromStringDeserializer` constructed `InetSocketAddress` with `new InetSocketAddress(host, port)`, which performs eager DNS name resolution for hostname inputs at deserialization time. An application that binds untrusted JSON into a type containing an `InetSocketAddress` field issues an attacker-chosen DNS query during `readValue`, before any application-level validation or connect logic. The fix uses `InetSocketAddress.createUnresolved(host, port)`, deferring DNS to an explicit connect.\n\n#",
+        "vuln_symbols": [
+          "JDKFromStringDeserializer",
+          "InetSocketAddress",
+          "readValue"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs an InetSocketAddress property in a deserialized type; none."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#11",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54512",
+            "GHSA-j3rv-43j4-c7qm"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has a PolymorphicTypeValidator bypass via generic type parameters that allows arbitrary class instantiation \u2014 `jackson-databind`'s `PolymorphicTypeValidator` (PTV) is the primary safety mechanism guarding polymorphic deserialization. When polymorphic typing is enabled and a type identifier contains generic parameters (i.e. the type ID string contains `<`), `DatabindContext._resolveAndValidateGeneric()` validates **only the raw container class name** (the substring before `<`) against the configured PTV.\n\nIf the container type is approved, the method parses the full canonical t",
+        "vuln_symbols": [
+          "PolymorphicTypeValidator",
+          "DatabindContext._resolveAndValidateGeneric",
+          "TypeFactory.constructFromCanonical",
+          "java.util.ArrayList",
+          "com.evil.Gadget",
+          "BasicPolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs polymorphic typing with a PolymorphicTypeValidator; not enabled anywhere."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#12",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68497",
+            "GHSA-q4xh-88c3-wmh7"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Duration XMLGregorianCalendar Unbounded Number Parse DoS \u2014 ### Summary\n`jackson-databind` 3.2.1 deserializes a JSON **string** bound to a `javax.xml.datatype.Duration` or `javax.xml.datatype.XMLGregorianCalendar` field by passing the raw string verbatim to `DatatypeFactory.newDuration(value)` / `newXMLGregorianCalendar(value)`. Per the XML-Schema lexical grammar these factory methods accept numeric components of arbitrary length, which the JDK materializes into `java.math.BigInteger` / `BigDecimal` using the native `BigInteger(String)` constructor (an O(n\u00b2) parser). Because t",
+        "vuln_symbols": [
+          "javax.xml.datatype.Duration",
+          "javax.xml.datatype.XMLGregorianCalendar",
+          "java.math.BigInteger",
+          "BigDecimal",
+          "StreamReadConstraints.maxNumberLength",
+          "maxStringLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs javax.xml.datatype.Duration/XMLGregorianCalendar targets; none."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#13",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54513",
+            "GHSA-rmj7-2vxq-3g9f"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has an array subtype allowlist bypass in BasicPolymorphicTypeValidator (allowIfSubTypeIsArray) \u2014 ## Summary\n`BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray()` allowlists any array type based only on `clazz.isArray()`, without validating the array's component (element) type against the configured allowlist. A PTV built with `allowIfSubTypeIsArray()` plus an explicit concrete-type allowlist therefore still permits `EvilType[]` even though `EvilType` is not allowlisted. When Jackson deserializes the elements and no per-element type IDs are present, it instantiates th",
+        "vuln_symbols": [
+          "BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray",
+          "clazz.isArray",
+          "allowIfSubTypeIsArray",
+          "EvilType",
+          "BasicPolymorphicTypeValidator",
+          "PolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs a BasicPolymorphicTypeValidator built with allowIfSubTypeIsArray(); none in the release code."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#14",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-77310",
+            "GHSA-vvgp-rfg2-7rr6"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Incomplete fix for CVE-2026-54514: eager DNS resolution (SSRF) still present in InetAddress deserialization \u2014 ### Summary\nCVE-2026-54514 (GHSA-hgj6-7826-r7m5) fixed an eager-DNS-resolution / SSRF issue in jackson-databind's deserialization of `java.net.InetSocketAddress` by switching to `InetSocketAddress.createUnresolved(...)` (PR #5951, commit 1f5a1037, released in 2.18.8 / 2.21.4 / 3.1.4). That fix did not cover the sibling `java.net.InetAddress` branch in the very same `FromStringDeserializer.Std._deserialize()` switch statement, which still calls `InetAddress.getByName(v",
+        "vuln_symbols": [
+          "java.net.InetSocketAddress",
+          "java.net.InetAddress",
+          "FromStringDeserializer.Std._deserialize",
+          "InetAddress",
+          "address.isUnresolved",
+          "InetAddress.getByName"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs an InetAddress property in a deserialized type; none."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#15",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-19032",
+            "GHSA-wjgm-6hv5-3cvf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Path Deserialization Missing Scheme Allowlist for FileSystemProvider Resolution \u2014 ### Summary\n\nA `java.nio.file.Path` field bound from untrusted JSON reaches `JDKFromStringDeserializer.NioPathHelper.deserialize`. The attacker string flows through `new URI(value)` \u2192 `Path.of(uri)`, then on `FileSystemNotFoundException` into a `ServiceLoader<FileSystemProvider>` enumeration that calls `provider.getPath(uri)` on the first scheme-matching provider. No scheme is rejected, so untrusted JSON can drive an arbitrary registered provider under the default `JsonMapper.builder().build()`.",
+        "vuln_symbols": [
+          "java.nio.file.Path",
+          "JDKFromStringDeserializer.NioPathHelper.deserialize",
+          "FileSystemNotFoundException",
+          "file",
+          "jar",
+          "Path"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs a java.nio.file.Path property in a deserialized type; none."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#16",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.1",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91776",
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind retains every unknown raw type ID  \u2014 ### Summary\n\nWith `@JsonTypeInfo(use = Id.NAME, defaultImpl = ...)`, every distinct unknown\nraw type ID selects the same fallback deserializer but is retained as a\nseparate key in `TypeDeserializerBase._deserializers`. An attacker who can\nrepeatedly supply new unknown type IDs can grow this process-lifetime cache\nwithout a configured bound.\n\n### Details\n\nThe affected path is `TypeDeserializerBase._findDeserializer()`. After an\nunknown name-based type ID resolves to the configured fallback/default\nimplementation, jackson-databind caches the ",
+        "vuln_symbols": [
+          "TypeDeserializerBase._deserializers",
+          "TypeDeserializerBase._findDeserializer",
+          "typeId",
+          "_deserializers",
+          "defaultImpl"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Jackson use in the server: only activemq-broker DestinationsViewFilter.create (activemq-broker/src/main/java/org/apache/activemq/broker/jmx/DestinationsViewFilter.java:102-111, readerFor(DestinationsViewFilter.class).readValue(String)) reached from BrokerView.queryQueues/queryTopics (BrokerView.java:289-298) via JMX/Jolokia by console users; plus writeValue of results (DestinationsViewFilter.java:132-143, PersistenceAdapterView.java:101). Target bean has only String fields (name, filter, sortColumn, sortOrder) and a Map<ObjectName,DestinationView>; no annotations, no default typing. Web console is Spring MVC with bean-name controllers, no JSON converters/@RequestBody (activemq-web-console/.../WEB-INF/dispatcher-servlet.xml:24-44); Jolokia 2.1.2 uses its own JSON. Needs @JsonTypeInfo(use=Id.NAME, defaultImpl=...); not used."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#17",
+      "facts": {
+        "package": "org.apache.camel:camel-activemq",
+        "version": "4.10.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-43866",
+            "GHSA-f755-xp6r-8q84"
+          ],
+          [
+            "org.apache.camel:camel-activemq"
+          ]
+        ],
+        "advisory_summary": "Apache Camel JMS deserialization filter bypass \u2014 Deserialization of Untrusted Data vulnerability in Apache Camel, Apache Camel JMS component.\n\nJmsBinding.extractBodyFromJms() in camel-jms - and the equivalent JmsBinding in camel-sjms - deserializes the payload of an incoming JMS ObjectMessage via jakarta.jms.ObjectMessage.getObject() whenever the mapJmsMessage option is enabled (the default) and Camel acts as a JMS consumer. The CVE-2026-40860 hardening added a post-deserialization class check that rejects classes outside the default allow-list java.**;javax.**;org.apache.camel.**;!*. However ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.14.8",
+          "4.18.3",
+          "4.21.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Camel is off by default but documented: examples/conf/camel.xml ('Include this file in your configuration to enable Camel', imported by examples/conf/activemq-demo.xml:211 and commented in activemq-stomp.xml:126-129). Its route from activemq:example.A uses org.apache.camel.component.jms.JmsComponent on vm://amq-broker, so messages any unauthenticated client publishes to example.A on 61616/5672/61613/1883 are consumed by camel-jms JmsBinding (camel-jms-4.10.5.jar JmsBinding.class, mapJmsMessage default true). The vulnerable JmsBinding.extractBodyFromJms lives in camel-jms (camel-activemq-4.10.5.jar has only ActiveMQComponent/Endpoint/converters, no binding); camel-activemq is the activemq component built on it and ships in lib/camel. ObjectMessage.getObject on attacker messages runs (ActiveMQ trusted-packages filter of ActiveMQObjectMessage still applies). Chose reachable as the advisory's code path runs on attacker messages when Camel is enabled; camel-activemq's own classes are not used by the example (bean id activemq is a JmsComponent).",
+        "requires": "import camel.xml (examples/conf/camel.xml) into conf/activemq.xml"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#18",
+      "facts": {
+        "package": "org.apache.camel:camel-activemq",
+        "version": "4.10.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40860",
+            "GHSA-m5vh-3fw5-5wgh"
+          ],
+          [
+            "org.apache.camel:camel-activemq"
+          ]
+        ],
+        "advisory_summary": "Apache camel-jms, camel-sjms, camel-sjms2 and camel-amqp: Unsafe Deserialization of JMS ObjectMessage \u2014 JmsBinding.extractBodyFromJms() in camel-jms, and the equivalent JmsBinding class in camel-sjms, deserialized the payload of incoming JMS ObjectMessage values via javax.jms.ObjectMessage.getObject() without applying any ObjectInputFilter, class allowlist or class denylist. Because this code path is reached whenever the mapJmsMessage option is enabled (the default) and Camel acts as a JMS consumer, an attacker able to publish a crafted ObjectMessage to a queue or topic consumed by a Camel app",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.14.7",
+          "4.18.2",
+          "4.20.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Camel is off by default but documented: examples/conf/camel.xml ('Include this file in your configuration to enable Camel', imported by examples/conf/activemq-demo.xml:211 and commented in activemq-stomp.xml:126-129). Its route from activemq:example.A uses org.apache.camel.component.jms.JmsComponent on vm://amq-broker, so messages any unauthenticated client publishes to example.A on 61616/5672/61613/1883 are consumed by camel-jms JmsBinding (camel-jms-4.10.5.jar JmsBinding.class, mapJmsMessage default true). Unfiltered ObjectMessage.getObject in camel-jms JmsBinding runs on attacker-published messages; camel-activemq (lib/camel/camel-activemq-4.10.5.jar) only adds ActiveMQComponent on top of camel-jms and is not itself the vulnerable class; ActiveMQ's trusted-packages check in ActiveMQObjectMessage still limits classes. Labelled reachable for the shared code path.",
+        "requires": "import camel.xml (examples/conf/camel.xml) into conf/activemq.xml"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#19",
+      "facts": {
+        "package": "org.apache.camel:camel-jms",
+        "version": "4.10.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-43866",
+            "GHSA-f755-xp6r-8q84"
+          ],
+          [
+            "org.apache.camel:camel-jms"
+          ]
+        ],
+        "advisory_summary": "Apache Camel JMS deserialization filter bypass \u2014 Deserialization of Untrusted Data vulnerability in Apache Camel, Apache Camel JMS component.\n\nJmsBinding.extractBodyFromJms() in camel-jms - and the equivalent JmsBinding in camel-sjms - deserializes the payload of an incoming JMS ObjectMessage via jakarta.jms.ObjectMessage.getObject() whenever the mapJmsMessage option is enabled (the default) and Camel acts as a JMS consumer. The CVE-2026-40860 hardening added a post-deserialization class check that rejects classes outside the default allow-list java.**;javax.**;org.apache.camel.**;!*. However ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.14.8",
+          "4.18.3",
+          "4.21.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Camel is off by default but documented: examples/conf/camel.xml ('Include this file in your configuration to enable Camel', imported by examples/conf/activemq-demo.xml:211 and commented in activemq-stomp.xml:126-129). Its route from activemq:example.A uses org.apache.camel.component.jms.JmsComponent on vm://amq-broker, so messages any unauthenticated client publishes to example.A on 61616/5672/61613/1883 are consumed by camel-jms JmsBinding (camel-jms-4.10.5.jar JmsBinding.class, mapJmsMessage default true). JmsBinding.extractBodyFromJms deserializes ObjectMessage bodies from attacker-published messages (4.10.5 precedes the CVE-2026-40860 hardening, so the bypassed check is not even present; ActiveMQObjectMessage trusted-packages filter still applies).",
+        "requires": "import camel.xml (examples/conf/camel.xml) into conf/activemq.xml"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#20",
+      "facts": {
+        "package": "org.apache.camel:camel-jms",
+        "version": "4.10.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40453",
+            "GHSA-jg2m-9x48-3gvj"
+          ],
+          [
+            "org.apache.camel:camel-jms"
+          ]
+        ],
+        "advisory_summary": "Apache Camel has an incomplete fix for CVE-2025-27636 \u2014 The fix for CVE-2025-27636 added setLowerCase(true) to HttpHeaderFilterStrategy so that case-variant header names such as 'CAmelExecCommandExecutable' are filtered out alongside 'CamelExecCommandExecutable'. The same setLowerCase(true) call was not applied to five non-HTTP HeaderFilterStrategy implementations: JmsHeaderFilterStrategy and ClassicJmsHeaderFilterStrategy in camel-jms, SjmsHeaderFilterStrategy in camel-sjms, CoAPHeaderFilterStrategy in camel-coap, and GooglePubsubHeaderFilterStrategy in camel-google-pubsub. Because those stra",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.14.6",
+          "4.18.2",
+          "4.20.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Camel is off by default but documented: examples/conf/camel.xml ('Include this file in your configuration to enable Camel', imported by examples/conf/activemq-demo.xml:211 and commented in activemq-stomp.xml:126-129). Its route from activemq:example.A uses org.apache.camel.component.jms.JmsComponent on vm://amq-broker, so messages any unauthenticated client publishes to example.A on 61616/5672/61613/1883 are consumed by camel-jms JmsBinding (camel-jms-4.10.5.jar JmsBinding.class, mapJmsMessage default true). JmsHeaderFilterStrategy/ClassicJmsHeaderFilterStrategy (camel-jms-4.10.5.jar) filter inbound JMS properties of attacker messages without lowercase matching, so case-variant Camel* headers (e.g. CamelJmsDestinationName variants honoured by the activemq:example.B producer) pass the filter.",
+        "requires": "import camel.xml (examples/conf/camel.xml) into conf/activemq.xml"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#21",
+      "facts": {
+        "package": "org.apache.camel:camel-jms",
+        "version": "4.10.5",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40860",
+            "GHSA-m5vh-3fw5-5wgh"
+          ],
+          [
+            "org.apache.camel:camel-jms"
+          ]
+        ],
+        "advisory_summary": "Apache camel-jms, camel-sjms, camel-sjms2 and camel-amqp: Unsafe Deserialization of JMS ObjectMessage \u2014 JmsBinding.extractBodyFromJms() in camel-jms, and the equivalent JmsBinding class in camel-sjms, deserialized the payload of incoming JMS ObjectMessage values via javax.jms.ObjectMessage.getObject() without applying any ObjectInputFilter, class allowlist or class denylist. Because this code path is reached whenever the mapJmsMessage option is enabled (the default) and Camel acts as a JMS consumer, an attacker able to publish a crafted ObjectMessage to a queue or topic consumed by a Camel app",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.14.7",
+          "4.18.2",
+          "4.20.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Camel is off by default but documented: examples/conf/camel.xml ('Include this file in your configuration to enable Camel', imported by examples/conf/activemq-demo.xml:211 and commented in activemq-stomp.xml:126-129). Its route from activemq:example.A uses org.apache.camel.component.jms.JmsComponent on vm://amq-broker, so messages any unauthenticated client publishes to example.A on 61616/5672/61613/1883 are consumed by camel-jms JmsBinding (camel-jms-4.10.5.jar JmsBinding.class, mapJmsMessage default true). JmsBinding.extractBodyFromJms calls ObjectMessage.getObject without Camel-side filtering on attacker-published messages (only ActiveMQ's own trusted-packages check in ActiveMQObjectMessage applies).",
+        "requires": "import camel.xml (examples/conf/camel.xml) into conf/activemq.xml"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#22",
+      "facts": {
+        "package": "org.apache.commons:commons-lang3",
+        "version": "3.14.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-48924",
+            "GHSA-j288-q9x7-2f5v"
+          ],
+          [
+            "org.apache.commons:commons-lang3"
+          ]
+        ],
+        "advisory_summary": "Apache Commons Lang is vulnerable to Uncontrolled Recursion when processing long inputs \u2014 Uncontrolled Recursion vulnerability in Apache Commons Lang.\n\nThis issue affects Apache Commons Lang: Starting with\u00a0commons-lang:commons-lang\u00a02.0 to 2.6, and, from org.apache.commons:commons-lang3 3.0 before\u00a03.18.0.\n\nThe methods ClassUtils.getClass(...) can throw\u00a0StackOverflowError on very long inputs. Because an Error is usually not handled by applications and libraries, a StackOverflowError could\u00a0cause an application to stop.\n\nUsers are recommended to upgrade to version 3.18.0, which fixes the issue.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.18.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "commons-lang3-3.14.0.jar is in lib/optional; its only user is velocity-engine-core-2.4.1.jar, and no class in the release outside commons-lang3 references org/apache/commons/lang3/ClassUtils (archive grep); ActiveMQ main code does not import lang3 (only activemq-perf-maven-plugin tooling). ClassUtils.getClass never runs on attacker input."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#23",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-api",
+        "version": "2.24.3",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-49844",
+            "GHSA-qv9r-c865-cp47"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-api"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j API: Improper encoding of non-finite floating-point values during MapMessage JSON serialization \u2014 Improper encoding of non-finite floating-point values during MapMessage JSON serialization in Apache Log4j API produces output that is not valid JSON. This issue affects Apache Log4j API versions 2.13.1 through 2.25.4 and version 2.26.0.\n\nThe fix for CVE-2026-34481 did not cover all code paths: when a MapMessage contains a non-finite IEEE 754 value (NaN, Infinity, or -Infinity), MapMessage.asJson() emits the corresponding bare token. RFC 8259 does not permit these tokens, so a conform",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.5",
+          "2.26.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "MapMessage.asJson only runs when a MapMessage is formatted as JSON; no class in the release outside log4j creates MapMessage/StringMapMessage (archive grep), and conf/log4j2.properties uses only PatternLayout (%m) for Console, RollingFile and AuditLog appenders."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#24",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-core",
+        "version": "2.24.3",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-34480",
+            "GHSA-3pxv-7cmr-fjr4"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-core"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j Core: Silent log event loss in XmlLayout due to unescaped XML 1.0 forbidden characters \u2014 Apache Log4j Core's [`XmlLayout`](https://logging.apache.org/log4j/2.x/manual/layouts.html#XmlLayout), in versions up to and including 2.25.3, fails to sanitize characters forbidden by the [XML 1.0 specification](https://www.w3.org/TR/xml/#charsets), producing invalid XML output whenever a log message or MDC value contains such characters.\n\nThe impact depends on the StAX implementation in use:\n\n  *  **JRE built-in StAX**: Forbidden characters are silently written to the output, producing malfo",
+        "vuln_symbols": [
+          "XmlLayout"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "conf/log4j2.properties and examples/conf/log4j2.properties configure only PatternLayout (Console, RollingRandomAccessFile); XmlLayout appears nowhere in the checkout docs/config."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#25",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-core",
+        "version": "2.24.3",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-34478",
+            "GHSA-445c-vh5m-36rj"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-core"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j Core: log injection in `Rfc5424Layout` due to silent configuration incompatibility \u2014 Apache Log4j Core's [`Rfc5424Layout`](https://logging.apache.org/log4j/2.x/manual/layouts.html#RFC5424Layout), in versions 2.21.0 through 2.25.3, is vulnerable to log injection via CRLF sequences due to undocumented renames of security-relevant configuration attributes.\n\nTwo distinct issues affect users of stream-based syslog services who configure Rfc5424Layout directly:\n\n  *  The `newLineEscape` attribute was silently renamed, causing newline escaping to stop working for users of TCP framing (RF",
+        "vuln_symbols": [
+          "Rfc5424Layout",
+          "newLineEscape",
+          "useTlsMessageFormat",
+          "SyslogAppender"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Rfc5424Layout/SyslogAppender not configured or documented (conf/log4j2.properties uses PatternLayout only; no Syslog/Rfc5424 in checkout outside tests)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#26",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-core",
+        "version": "2.24.3",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-34477",
+            "GHSA-6hg6-v5c8-fphq"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-core"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j Core: `verifyHostName` attribute silently ignored in TLS configuration \u2014 The fix for  CVE-2025-68161 was incomplete: it addressed hostname verification only when enabled via the  [`log4j2.sslVerifyHostName`](https://logging.apache.org/log4j/2.x/manual/systemproperties.html#log4j2.sslVerifyHostName) system property, but not when configured through the [`verifyHostName`](https://logging.apache.org/log4j/2.x/manual/appenders/network.html#SslConfiguration-attr-verifyHostName) attribute of the `<Ssl>` element.\n\nAlthough the `verifyHostName` configuration attribute was introduced in Log",
+        "vuln_symbols": [
+          "verifyHostName",
+          "log4j2.sslVerifyHostName",
+          "verifyHostname"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a log4j Socket/Syslog appender with <Ssl> configuration; conf/log4j2.properties has only Console and rolling file appenders and ActiveMQ docs/config never mention a log4j SSL socket appender (verifyHostName hits in the checkout are ActiveMQ's own transport option)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#27",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-core",
+        "version": "2.24.3",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-34479",
+            "GHSA-h383-gmxw-35v2"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-core"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j 1 to Log4j 2 bridge: silent log event loss in Log4j1XmlLayout due to unescaped XML 1.0 forbidden characters \u2014 The `Log4j1XmlLayout` from the Apache Log4j 1-to-Log4j 2 bridge fails to escape characters forbidden by the XML 1.0 standard, producing malformed XML output. Conforming XML parsers are required to reject documents containing such characters with a fatal error, which may cause downstream log processing systems to drop or fail to index affected records.\n\nTwo groups of users are affected:\n\n* Those using `Log4j1XmlLayout` directly in a Log4j Core 2 configuration file.\n* Those ",
+        "vuln_symbols": [
+          "Log4j1XmlLayout",
+          "org.apache.log4j.xml.XMLLayout"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.95
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Log4j1XmlLayout belongs to the log4j-1.2-api bridge, which is not in the release lib/; no XMLLayout configured (PatternLayout only)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#28",
+      "facts": {
+        "package": "org.apache.logging.log4j:log4j-core",
+        "version": "2.24.3",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-68161",
+            "GHSA-vc5p-v9hr-52mj"
+          ],
+          [
+            "org.apache.logging.log4j:log4j-core"
+          ]
+        ],
+        "advisory_summary": "Apache Log4j does not verify the TLS hostname in its Socket Appender \u2014 The Socket Appender in Apache Log4j Core versions 2.0-beta9 through 2.25.2 does not perform TLS hostname verification of the peer certificate, even when the  [verifyHostName](https://logging.apache.org/log4j/2.x/manual/appenders/network.html#SslConfiguration-attr-verifyHostName)  configuration attribute or the  [log4j2.sslVerifyHostName](https://logging.apache.org/log4j/2.x/manual/systemproperties.html#log4j2.sslVerifyHostName) system property is set to true.\n\nThis issue may allow a man-in-the-middle attacker to intercept o",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.25.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a log4j Socket Appender with TLS; only Console and RollingRandomAccessFile appenders are configured (conf/log4j2.properties) and no socket appender is documented."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#29",
+      "facts": {
+        "package": "org.apache.shiro:shiro-core",
+        "version": "1.13.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-23901",
+            "GHSA-c4qc-4q9p-m9q9"
+          ],
+          [
+            "org.apache.shiro:shiro-core"
+          ]
+        ],
+        "advisory_summary": "Apache Shiro Affected by an Observable Timing Discrepancy Vulnerability \u2014 Observable Timing Discrepancy vulnerability in Apache Shiro.\n\nThis issue affects Apache Shiro: from 1.*, 2.* before 2.0.7.\n\nUsers are recommended to upgrade to version 2.0.7 or later, which fixes the issue.\n\nPrior to Shiro 2.0.7, code paths for non-existent vs. existing users are different enough,\nthat a brute-force attack may be able to tell, by timing the requests only, determine if\nthe request failed because of a non-existent user vs. wrong password.\n\nThe most likely attack vector is a local attack only.\nShiro securit",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.1.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "shiro-core 1.13.0 in lib/optional, used only by activemq-shiro (ShiroPlugin). Not in default conf/activemq.xml (no <plugins>, line 34ff), but the Shiro plugin is a documented ActiveMQ security option. With it, AuthenticationFilter.java:104 subject.login(token) on every client CONNECT (username/password from OpenWire/STOMP/AMQP/MQTT clients) -> AuthenticatingRealm.getAuthenticationInfo (AuthenticatingRealm.java:569-581: unknown user returns before assertCredentialsMatch), the timing difference the advisory describes; remote clients on transport ports can measure it.",
+        "requires": "shiroPlugin in activemq.xml <plugins> (off by default; documented ActiveMQ Shiro security plugin)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#30",
+      "facts": {
+        "package": "org.apache.shiro:shiro-core",
+        "version": "1.13.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-43827",
+            "GHSA-fcvm-3cpj-f9qx"
+          ],
+          [
+            "org.apache.shiro:shiro-core"
+          ]
+        ],
+        "advisory_summary": "Apache Shiro has a session fixation vulnerability \u2014 Default configurations of Apache Shiro have a session fixation vulnerability.\n\nThis issue affects Apache Shiro from 1.0 to 2.1.0, and 3.0.0-alpha-1.\n\nUsers are recommended to upgrade to version 2.1.1, or 3.0.0-alpha-2 or later, which fixes the issue.\n\nIn the affected versions, when a session already exists, it is not invalidated upon successful login, nor is a new session being generated with a new ID.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.2.0",
+          "3.0.0-alpha-2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Session fixation needs Shiro sessions surviving login. ActiveMQ's DefaultActiveMqSecurityManager.java:33 sets DisabledSessionManager and disables session storage; Shiro is not used for web console auth at all (conf/jetty.xml:130 Jetty BasicAuthenticator + JAAS). No Shiro web/session path exists."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#31",
+      "facts": {
+        "package": "org.apache.shiro:shiro-core",
+        "version": "1.13.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-49268",
+            "GHSA-x96m-rh44-vgv8"
+          ],
+          [
+            "org.apache.shiro:shiro-core"
+          ]
+        ],
+        "advisory_summary": "Apache Shiro: LDAP DN Injection in DefaultLdapRealm \u2014 A remote attacker can inject LDAP special characters into the Distinguished Name (DN) construction in DefaultLdapRealm class. User-supplied username input is directly concatenated into the LDAP DN template without any escaping of RFC 2253 special characters. This allows an attacker to manipulate the DN structure used for LDAP bind authentication, potentially bypassing authentication or impersonating other users.\n\nThis issue affects all Apache Shiro versions through 2.2.0, and 3.0.0-alpha-1 when using\u00a0DefaultLdapRealm\nUpgrade to Apache Shiro",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.2.1",
+          "3.0.0-alpha-2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): shiro-core-1.13.0 (lib/optional) contains the vulnerable DefaultLdapRealm.getUserDn (DefaultLdapRealm.java:227-251 concatenates principal into userDnTemplate unescaped), and ActiveMQ's ShiroPlugin would feed it the client-supplied ConnectionInfo username (activemq-shiro DefaultAuthenticationTokenFactory.java:49-57). But the ShiroPlugin is not in the default conf/activemq.xml, and choosing a Shiro LDAP realm (DefaultLdapRealm/JndiLdapRealm + userDnTemplate) is only possible via the generic Shiro iniConfig/environment pass-through (ShiroPlugin.java:149-158). No LDAP-realm Shiro config is documented anywhere in the checkout or release (no shiro/ldap mention in conf/, examples/conf, docs/, README; activemq-shiro src/main has no 'ldap'). ActiveMQ's own documented LDAP auth is JAAS LDAPLoginModule / LDAP authorization map, not Shiro. Treated as a library-documented setting under the framework rule. Low confidence: the project website Shiro page (not in checkout) might show an LDAP realm example; if so this flips to reachable."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#32",
+      "facts": {
+        "package": "org.apache.shiro:shiro-spring",
+        "version": "1.13.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-23903",
+            "GHSA-c244-p6m5-vqj6"
+          ],
+          [
+            "org.apache.shiro:shiro-spring"
+          ]
+        ],
+        "advisory_summary": "Apache Shiro has an Authentication Bypass \u2014 ### Impact\n\n**Authentication Bypass:**\nA vulnerability exists in Apache Shiro that allows authentication bypass for static files when served from a case-insensitive filesystem (such as the default configuration on macOS or Windows).\n\nThe issue arises when Shiro's URL filters are configured with lower-case rules (a common default), but the underlying operating system treats mixed-case filenames as identical. An attacker can access protected static resources by varying the capitalization of the filename in the request (e.g., requesting `/SECRET.TXT` to",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.1.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bypass is in Shiro web URL filters (ShiroFilterFactoryBean/path matching). shiro-spring jar is shipped in lib/optional but nothing uses it: activemq-shiro imports no org.apache.shiro.spring/web classes; admin and api web.xml declare no Shiro filter (only ApplicationContextFilter, SessionFilter, RequestContextFilter, AuditFilter); console auth is Jetty ConstraintSecurityHandler/BasicAuthenticator (jetty.xml:130)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#33",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "11.0.25",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-2332",
+            "GHSA-355h-qmc2-wpwf"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "Jetty has HTTP Request Smuggling via Chunked Extension Quoted-String Parsing \u2014 ### Description (as reported)\n\nJetty incorrectly parses quoted strings in HTTP/1.1 chunked transfer encoding extension values, enabling request smuggling attacks.\n\n### Background\n\nThis vulnerability is a new variant discovered while researching the \"Funky Chunks\" HTTP request smuggling techniques:\n- https://w4ke.info/2025/06/18/funky-chunks.html\n- https://w4ke.info/2025/10/29/funky-chunks-2.html\n\nThe original research tested various chunk extension parsing differentials but did not test quoted-string handling within",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.0.28",
+          "11.0.29",
+          "12.0.33",
+          "12.1.7",
+          "9.4.60"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "jetty-http 11.0.25 HttpParser CHUNK_PARAMS state (HttpParser.java:1812-1830) skips everything until LF with no quoted-string handling (the vulnerable behaviour). Every Jetty HTTP/1.1 connector parses attacker request bodies: the default ws://0.0.0.0:61614 transport (WSTransportServer.java:71-96, Jetty Server+HttpConnectionFactory) and the console on 8161 (jetty.xml:175 HttpConnectionFactory, bound 127.0.0.1 at jetty.xml:146 unless jetty.host changed). Smuggling impact needs a front proxy but the parse runs on attacker bytes."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#34",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "11.0.25",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2024-6763",
+            "GHSA-qh8g-58pp-2wxh"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty URI parsing of invalid authority \u2014 ## Summary\n\nEclipse Jetty is a lightweight, highly scalable, Java-based web server and Servlet engine . It includes a utility class, `HttpURI`, for URI/URL parsing.\n\nThe `HttpURI` class does insufficient validation on the authority segment of a URI.  However the behaviour of `HttpURI` differs from the common browsers in how it handles a URI that would be considered invalid if fully validated against the RRC.  Specifically `HttpURI` and the browser may differ on the value of the host extracted from an invalid URI and thus a combination of Jetty a",
+        "vuln_symbols": [
+          "HttpURI",
+          "org.eclipse.jetty.http.HttpURI",
+          "Browser",
+          "vulndetector.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): jetty-http-11.0.25 (lib/web) is unfixed (fix only in 12.0.12). Jetty parses every inbound request-target, including absolute-form authority, with HttpURI: jetty-server HttpChannelOverHttp.java:707,720 (_uriBuilder.uri(method, uri)); Request.getServerName uses _uri.getHost() (Request.java:1330-1333) for redirect/URL building (Request.java:1294,1319). Attacker-controlled data reaches it on the WebSocket transport bound to 0.0.0.0:61614 (conf/activemq.xml:111, Jetty-based) and the console on 8161 (jetty.xml:146 binds 127.0.0.1 by default). Caveat: the advisory's impact needs HttpURI's host to be used for a security decision against another parser (allow-list/redirect/SSRF); ActiveMQ code never uses HttpURI (no hits in checkout) and no host-based Jetty handlers are configured, so practical impact is minimal; labelled reachable because the vulnerable parser runs on attacker input and the instructions favour reachable when unsure."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#35",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-http",
+        "version": "11.0.25",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-11143",
+            "GHSA-wjpw-4j6x-6rwh"
+          ],
+          [
+            "org.eclipse.jetty:jetty-http"
+          ]
+        ],
+        "advisory_summary": "org.eclipse.jetty:jetty-http has different parsing of invalid URIs \u2014 The Jetty URI parser has some key differences compared to other common parsers when evaluating invalid or unusual URIs. Specifically:\n\n#### Invalid Scheme\n| URI | Jetty | uri-js (nodejs) | node-url(nodejs) |\n|---|---|---| --- |\n| `https>://vulndetector.com/path` | scheme=`http>`| scheme=`https` | invalid URI |\n\n#### Improper IPv4 mapped IPv6\n\n| URI | Jetty | System.Uri(CSharp) | curl(C) |\n|---|---|---| --- |\n| `http://[0:0:0:0:0:ffff:127.0.0.1]` | invalid | host=`[::ffff:127.0.0.1]` | host=`[::ffff:127.0.0.1]` | \n| `http://[:",
+        "vuln_symbols": [
+          "https",
+          "normal.com",
+          "vulndetector.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.31",
+          "12.1.5"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Same code path as row 33: jetty-http-11.0.25 HttpURI (unfixed; fixes only in 12.0.31/12.1.5) parses every request-target incl. scheme and IPv6/authority (jetty-server HttpChannelOverHttp.java:720) on the 0.0.0.0:61614 ws transport (conf/activemq.xml:111) and console 8161. Caveat: the differential (odd scheme, IPv4-mapped IPv6 rejection) only matters if HttpURI results are trusted against another parser; ActiveMQ never uses HttpURI itself and only Jetty's own request handling consumes it. Reachable at low confidence per the unsure-means-reachable rule."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#36",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-security",
+        "version": "11.0.25",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-10050",
+            "GHSA-2fvj-hgj9-j2gr"
+          ],
+          [
+            "org.eclipse.jetty:jetty-security"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty Digest Authentication: ISO-8859-1 lossy encoding allows authentication bypass via character substitution \u2014 ### Summary\nThe `DigestAuthentication.apply()` method in Jetty's HTTP client uses `getBytes(StandardCharsets.ISO_8859_1)` at three locations (lines 171, 179, 196) to compute Digest auth response hashes. ISO-8859-1 silently replaces any character above U+00FF (Chinese, Japanese, Cyrillic, Arabic, Emoji, etc.) with 0x3F (`?`), causing all such characters to produce identical hash contributions. An attacker who knows a victim's username can bypass Digest authentication by repla",
+        "vuln_symbols": [
+          "DigestAuthentication.apply",
+          "apply"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.0.31",
+          "11.0.31",
+          "12.0.36",
+          "12.1.10",
+          "9.4.63"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Advisory is Digest auth hashing with ISO-8859-1. jetty-client (DigestAuthentication.apply) is not in the release. jetty-security's server DigestAuthenticator.java:345-376 has the same pattern but ActiveMQ configures only BasicAuthenticator (conf/jetty.xml:130); no DigestAuthenticator/DIGEST in the checkout or configs; WS transport has no authenticator."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#37",
+      "facts": {
+        "package": "org.eclipse.jetty:jetty-server",
+        "version": "11.0.25",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-6790",
+            "GHSA-7p3p-8qv8-m2vh"
+          ],
+          [
+            "org.eclipse.jetty:jetty-server"
+          ]
+        ],
+        "advisory_summary": "Eclipse Jetty: HTTP Authority/Host mismatch \u2014 #### Summary\n\nJetty currently accepts HTTP/2 and HTTP/3 requests where the regular\nHost header and the pseudo-header :authority\ndo not match. As a result, the same request can carry two different host identities\nthrough Jetty:\n\n- logic based on `HttpURI` / `Request.getServerName(request)` uses `:authority`\n- logic based on raw request headers continues to use `Host`\n\nThis creates a host/authority confusion condition that can break\nsecurity assumptions in higher layers.\n\nJetty already performs an explicit authority/Host consistency check on\nthe HTTP",
+        "vuln_symbols": [
+          "HttpURI",
+          "Host",
+          "MISMATCHED_AUTHORITY",
+          "Forwarded"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.0.35",
+          "12.1.9"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Host vs :authority mismatch applies only to HTTP/2 and HTTP/3. No http2-server/http3 jars in lib/web; Jetty connectors use only HttpConnectionFactory (HTTP/1.1) (jetty.xml:175, WSTransportServer.java:71)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#38",
+      "facts": {
+        "package": "org.springframework:spring-core",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41848",
+            "GHSA-659m-px2c-25wj"
+          ],
+          [
+            "org.springframework:spring-core"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Denial of Service via AntPathMatcher \u2014 Applications may be vulnerable to a Regular Expression Denial of Service (ReDoS) attack if an attacker is able to provide a pattern which is then directly or indirectly supplied to one of the following methods in AntPathMatcher: match(String pattern, String path), matchStart(String pattern, String path), extractUriTemplateVariables(String pattern, String path).\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ReDoS needs an attacker-supplied pattern in AntPathMatcher.match/matchStart/extractUriTemplateVariables. ActiveMQ code never uses AntPathMatcher; Spring MVC BeanNameUrlHandlerMapping uses only registered bean-name patterns from dispatcher-servlet.xml (AbstractUrlHandlerMapping.java:246,381: match(registeredPattern, lookupPath)); other uses (resource pattern resolution of config locations) are operator data."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#39",
+      "facts": {
+        "package": "org.springframework:spring-core",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-41249",
+            "GHSA-jmp9-x22r-554x"
+          ],
+          [
+            "org.springframework:spring-core"
+          ]
+        ],
+        "advisory_summary": "Spring Framework annotation detection mechanism may result in improper authorization \u2014 The Spring Framework annotation detection mechanism may not correctly resolve annotations on methods within type hierarchies with a parameterized super type with unbounded generics. This can be an issue if such annotations are used for authorization decisions.\n\nYour application may be affected by this if you are using Spring Security's @EnableMethodSecurity\u00a0feature.\n\nYou are not affected by this if you are not using @EnableMethodSecurity\u00a0or if you do not use security annotations on methods in generic supercl",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.11"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Spring Security @EnableMethodSecurity with security annotations; no spring-security jar in the release and no such annotations in the checkout."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#40",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41852",
+            "GHSA-9f52-rjqv-25qv"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Arbitrary Method Invocation in SpEL Expressions \u2014 A vulnerability in Spring Expression Language (SpEL) evaluation logic allows for arbitrary zero-argument method invocation, even within restricted or read-only contexts, which may allow an attacker to invoke unintended application logic.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SpEL is only evaluated on operator config (#{systemProperties[...]} in conf/jetty.xml:181 via bean expression resolver). No SpelExpressionParser/EvaluationContext use in ActiveMQ code; Camel SpEL language only in operator-written routes (camel.xml not imported). No attacker-supplied expressions."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#41",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41850",
+            "GHSA-r5w3-xv2f-j59q"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Algorithmic Denial of Service via SpEL Expressions \u2014 Applications that evaluate user-supplied Spring Expression Language (SpEL) expressions are vulnerable to an Algorithmic Denial of Service (DoS). By providing a specially crafted expression, an attacker can trigger excessive resource consumption during evaluation, leading to application degradation or unavailability.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs evaluation of user-supplied SpEL; only operator config expressions are evaluated (conf/jetty.xml:181); no SpEL parser use in ActiveMQ sources."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#42",
+      "facts": {
+        "package": "org.springframework:spring-expression",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41851",
+            "GHSA-wxpp-56q6-5pcg"
+          ],
+          [
+            "org.springframework:spring-expression"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Denial of Service via Unbounded Cache in SpEL \u2014 Applications which accept user-supplied Spring Expression Language (SpEL) expressions may be vulnerable to a Denial of Service (DoS) attack if the evaluation of a SpEL expression triggers unbounded cache growth.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs evaluation of user-supplied SpEL; only operator config expressions (conf/jetty.xml:181); none from clients or console requests."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#43",
+      "facts": {
+        "package": "org.springframework:spring-jms",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41855",
+            "GHSA-x863-p983-p4f7"
+          ],
+          [
+            "org.springframework:spring-jms"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Unsafe Deserialization via Jackson JMS Converters \u2014 In an untrusted JMS environment, org.springframework.jms.support.converter.MappingJackson2MessageConverter and org.springframework.jms.support.converter.JacksonJsonMessageConverter allow arbitrary class instantiation, which can lead to unauthorized actions via gadget class deserialization.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "MappingJackson2MessageConverter/JacksonJsonMessageConverter never referenced in ActiveMQ code or configs; broker does not use spring-jms message converters on client messages; Camel (not enabled by default) uses camel-jms JmsBinding, not these converters."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#44",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41845",
+            "GHSA-3chg-m5w7-qfv5"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Cross-site Scripting via JavaScriptUtils \u2014 Due to incorrect escaping, the use of JavaScriptUtils.javaScriptEscape() may lead to JavaScript code injection in the browser, potentially resulting in a cross-site scripting (XSS) vulnerability.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "JavaScriptUtils.javaScriptEscape is used by Spring JSP tags (javaScriptEscape attr). Web console JSPs use only JSTL and their own tagdir tags (WEB-INF/jspf/headertags.jspf:17-20; tags/form/escape.tag uses URLEncoder); no Spring taglib or JavaScriptUtils use."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#45",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-22737",
+            "GHSA-4773-3jfm-qmx3"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Improper Path Limitation with Script View Templates \u2014 Use of Java scripting engine enabled (e.g. JRuby, Jython) template views in Spring MVC and Spring WebFlux applications can result in disclosure of content from files outside the configured locations for script template views.\u00a0This issue affects Spring Framework: from 7.0.0 through 7.0.5, from 6.2.0 through 6.2.16, from 6.1.0 through 6.1.25, from 5.3.0 through 5.3.46.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.17",
+          "7.0.6"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No ScriptTemplateView/ScriptTemplateConfigurer configured; dispatcher-servlet.xml defines only BindingBeanNameUrlHandlerMapping, *.action controllers and SimpleMappingExceptionResolver."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#46",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-22735",
+            "GHSA-6hcq-hmm3-jj3c"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring MVC and WebFlux has Server Sent Event stream corruption \u2014 Spring MVC and WebFlux applications are vulnerable to stream corruption when using Server-Sent Events (SSE).\u00a0This issue affects Spring Foundation: from 7.0.0 through 7.0.5, from 6.2.0 through 6.2.16, from 6.1.0 through 6.1.25, from 5.3.0 through 5.3.46.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.17",
+          "7.0.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No SseEmitter/Server-Sent Events usage in ActiveMQ code; controllers return ModelAndView redirects."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#47",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-22745",
+            "GHSA-6p4f-wcwh-5vvm"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring MVC and WebFlux applications are vulnerable to Denial of Service attacks when resolving static resources \u2014 Spring MVC and WebFlux applications are vulnerable to Denial of Service attacks when resolving static resources.\n\n\nMore precisely, an application can be vulnerable when all the following are true:\n\n  *  the application is using Spring MVC or Spring WebFlux\n  *  the application is serving static resources from the file system\n  *  the application is running on a Windows platform\n\n\nWhen all the conditions above are met, the attacker can send malicious requests that are slow to resolv",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.18",
+          "7.0.7"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Spring MVC static resource handling (ResourceHttpRequestHandler) on Windows; console static files are served by Jetty's default servlet/ResourceHandler (jetty.xml:111), not Spring; DispatcherServlet mapped only to *.action (admin web.xml)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#48",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41843",
+            "GHSA-72pg-x5f8-j25j"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Path Traversal via Versioned Static Resources in Spring MVC and WebFlux \u2014 Spring MVC and WebFlux applications are vulnerable to Path Traversal attacks when resolving static resources.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Spring versioned static resource resolution; no ResourceHttpRequestHandler/resource chain configured; DispatcherServlet only handles *.action controllers."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#49",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41846",
+            "GHSA-957g-f97v-vppc"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Cross-site Scripting via JSP Form Tags \u2014 Spring MVC applications which accept user-supplied values in the cssClass, cssErrorClass, or cssStyle attributes of JSP form tags allow arbitrary HTML/JavaScript code injection, potentially resulting in a cross-site scripting (XSS) vulnerability.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Spring form JSP tags (cssClass/cssErrorClass/cssStyle). Console uses its own tagdir /WEB-INF/tags/form (headertags.jspf:17), not Spring's form taglib."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#50",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41853",
+            "GHSA-cjpg-rgq5-fr37"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Multipart Request Smuggling in Spring MVC and WebFlux \u2014 Spring MVC and WebFlux applications are vulnerable to Multipart request smuggling attacks.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Spring multipart parsing only when a MultipartResolver is configured (DispatcherServlet.checkMultipart); dispatcher-servlet.xml defines none and no ActiveMQ code uses Spring multipart."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#51",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41844",
+            "GHSA-h3qp-gqrc-q736"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Open Redirect in Spring MVC and WebFlux \u2014 A Spring MVC or Spring WebFlux application which configures a mapping for \"/**\" where the view name is not explicitly specified allows an attacker to craft a link resulting in a 302 redirect to an arbitrary external host via the redirect: prefix.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a '/**' mapping with no explicit view name (DefaultRequestToViewNameTranslator). Dispatcher maps only *.action to named controller beans (dispatcher-servlet.xml) which return explicit 'redirect:xxx.jsp' views (e.g. CreateSubscriber.java:54, DeleteJob.java:50); viewNameTranslator bean is commented out."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#52",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41841",
+            "GHSA-mq64-j8f9-9gcj"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Information Disclosure via Static Resource Cache in Spring MVC and WebFlux \u2014 Spring MVC and WebFlux applications are vulnerable to Information Disclosure attacks when resolving static resources.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Spring static resource resolution/cache; not configured, static content served by Jetty."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#53",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47884",
+            "GHSA-pc63-qcmh-9cmg"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Improper Path Limitation in XsltView \u2014 Use of XsltView in a Spring MVC application can result in SSRF and RCE attack if the application has an \"/**\" mapping that results in view rendering, and where the view name is not explicitly specified.\nSpring Framework 7.0.0 - 7.0.8\nSpring Framework 6.2.0 - 6.2.19\nSpring Framework 6.1.0 - 6.1.28\nSpring Framework 6.0.0 - 6.0.30\nSpring Framework 5.3.0 - 5.3.49\nSpring Framework 5.2.25.RELEASE and earlier",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.0.9"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No XsltView configured or referenced; no '/**' view-rendering mapping."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#54",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-41242",
+            "GHSA-r936-gwx5-v52f"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring Framework MVC Applications Path Traversal Vulnerability \u2014 Spring Framework MVC applications can be vulnerable to a \u201cPath Traversal Vulnerability\u201d when deployed on a non-compliant Servlet container.\n\nAn application can be vulnerable when all the following are true:\n\n  *  the application is deployed as a WAR or with an embedded Servlet container\n  *  the Servlet container  does not reject suspicious sequences https://jakarta.ee/specifications/servlet/6.1/jakarta-servlet-spec-6.1.html#uri-path-canonicalization \n  *  the application  serves static resources https://docs.spring.io/spring-fra",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.10"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Spring MVC serving static resources (ResourceHttpRequestHandler); not configured; Jetty serves static files (jetty.xml:111)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#55",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-22741",
+            "GHSA-wg35-8jpf-2xv3"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring MVC and WebFlux applications are vulnerable to cache poisoning when resolving static resources. \u2014 Spring MVC and WebFlux applications are vulnerable to cache poisoning when resolving static resources.\n\n\nMore precisely, an application can be vulnerable when all the following are true:\n\n  *  the application is using Spring MVC or Spring WebFlux\n  *  the application is configuring the\u00a0 resource chain support https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-config/static-resources.html#page-title \u00a0with caching enabled\n  *  the application adds support for encoded resources r",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.18",
+          "7.0.7"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Spring resource chain with caching and encoded resource resolver; not configured."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-activemq#56",
+      "facts": {
+        "package": "org.springframework:spring-webmvc",
+        "version": "6.1.21",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-41842",
+            "GHSA-x23c-287f-qqv5"
+          ],
+          [
+            "org.springframework:spring-webmvc"
+          ]
+        ],
+        "advisory_summary": "Spring Framework Denial of Service via Versioned Resources in Spring MVC and WebFlux \u2014 Spring MVC and WebFlux applications are vulnerable to Denial of Service (DoS) attacks when resolving static resources.\n\nAffected versions:\nSpring Framework 7.0.0 through 7.0.7; 6.2.0 through 6.2.18; 6.1.0 through 6.1.27; 5.3.0 through 5.3.48.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.2.19",
+          "7.0.8"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Spring versioned resource resolution; not configured."
+      }
+    }
+  ]
+}

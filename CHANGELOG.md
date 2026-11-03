@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **Cases:** four held-out JVM apps (Apache ActiveMQ, Guacamole, James, Metabase; 261 rows,
+  blind-labelled, disputed labels re-read 2 of 3). The Maven pair: 131 right, 0 wrong, with
+  the gadget rule (README, Results).
+
 ## 0.2.1 (2026-11-02)
 
 - **Fix: Maven settled almost nothing in 0.2.0.** A guard downgraded split's `not_reachable`

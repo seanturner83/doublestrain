@@ -1,0 +1,981 @@
+{
+  "id": "real-jv-guacamole",
+  "description": "Apache Guacamole 1.6.0 (remote-desktop gateway web app, war): JVM held-out (jv4), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "artifact": {
+    "paths": [
+      "artifact/guacamole-1.6.0.war"
+    ],
+    "include": [],
+    "exclude": [],
+    "first_party": [
+      "org.apache.guacamole"
+    ]
+  },
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#1",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.3.15",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-11226",
+            "GHSA-25qh-j22f-pwp8"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "QOS.CH logback-core is vulnerable to Arbitrary Code Execution through file processing \u2014 QOS.CH logback-core versions up to 1.5.18 contain an ACE vulnerability in conditional configuration file processing in Java applications. This vulnerability allows an attacker to execute arbitrary code by compromising an existing logback configuration file or by injecting a malicious environment variable before program execution.\n\nA successful attack requires the Janino library and Spring Framework to be present on the user's class path. Additionally, the attacker must have write access to a configuration f",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.3.16",
+          "1.5.19"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "logback is configured from a generated config or operator-provided GUACAMOLE_HOME/logback.xml ({R}log/LogModule.java:78-89, log/LogLevel.java:73); attack needs write access to the config/env (operator-trusted) plus Janino and Spring on the classpath; WAR WEB-INF/lib has neither janino nor spring jars."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#2",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.3.15",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-10532",
+            "GHSA-jhq6-gfmj-v8fx"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "Logback vulnerable to Object Injection through HardenedObjectInputStream modules \u2014 Deserialization of untrusted data vulnerability in QOS.CH Sarl logback logback-core (HardenedObjectInputStream (logback-core) modules) allows Object Injection, albeit heavily restricted.\n\nMore precisely, an attacker able to influence serialized data sent to SimpleSocketServer or SimpleSSLSocketServer can instantiate Proxy objects.\n\n\nAlthough deserialization is heavily restricted by HardenedObjectInputStream and no practical way to achieve remote code execution or significant privilege  escalation has been identi",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.5.34"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "logback is configured from a generated config or operator-provided GUACAMOLE_HOME/logback.xml ({R}log/LogModule.java:78-89, log/LogLevel.java:73); SimpleSocketServer/SimpleSSLSocketServer (or receivers) are never started; no socket appender/receiver config; no app code uses HardenedObjectInputStream."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#3",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.3.15",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-9828",
+            "GHSA-p47f-322f-whfh"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "QOS.CH Sarl logback logback-core has a deserialization of untrusted data vulnerability \u2014 Deserialization of untrusted data vulnerability in QOS.CH Sarl logback logback-core (HardenedObjectInputStream (logback-core) modules) allows Object Injection albeit heavily restricted.\n\nMore precisely, an attacker able to influence serialized data sent to SimpleSocketServer or SimpleSSLSocketServer can instantiate objects from classes in the java.lang and java.util packages that are not explicitly blocked.\n\nAlthough deserialization is heavily restricted by HardenedObjectInputStream and no practical way to",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.5.33"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "logback is configured from a generated config or operator-provided GUACAMOLE_HOME/logback.xml ({R}log/LogModule.java:78-89, log/LogLevel.java:73); SimpleSocketServer/SimpleSSLSocketServer are never started; serialized-event input path unused."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#4",
+      "facts": {
+        "package": "ch.qos.logback:logback-core",
+        "version": "1.3.15",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-1225",
+            "GHSA-qqpg-mvqg-649v"
+          ],
+          [
+            "ch.qos.logback:logback-core"
+          ]
+        ],
+        "advisory_summary": "Logback allows an attacker to instantiate classes already present on the class path \u2014 ACE vulnerability in configuration file processing  by QOS.CH logback-core up to and including version 1.5.24 in Java applications, allows an attacker to instantiate classes already present on the class path by compromising an existing logback configuration file.\n\nThe instantiation of a potentially malicious Java class requires that said class is present on the user's class-path. In addition, the attacker must  have write access to a configuration file. However, after successful instantiation, the instance is",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.5.25"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "logback is configured from a generated config or operator-provided GUACAMOLE_HOME/logback.xml ({R}log/LogModule.java:78-89, log/LogLevel.java:73); requires attacker write access to the logback configuration file, which is operator-controlled."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#5",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-18401",
+            "GHSA-72hv-8253-57qq"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition \u2014 ### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent",
+        "vuln_symbols": [
+          "maxNumberLength",
+          "StreamReadConstraints",
+          "NonBlockingUtf8JsonParserBase",
+          "_finishNumberIntegralPart",
+          "TextBuffer",
+          "_valueComplete"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.6",
+          "2.21.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Async parser only via JsonFactory.createNonBlocking*; in the WAR only jackson-databind ObjectMapper/ObjectReader reference it (no caller); Jersey JacksonFeature reads request bodies with the blocking InputStream parser. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#6",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89425",
+            "GHSA-7hhh-6rmp-j9qf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: UTF8DataInputJsonParser._reportInvalidToken() missing maxErrorTokenLength limit -> unbounded StringBuilder growth (DoS) \u2014 ## Status\n\n**FULLY REPRODUCED.** A malformed token fed through `createParser(DataInput)` produced a\n20,000,109-character exception message from a 20-million-character attacker payload, while the\nidentical payload fed through `createParser(InputStream)` produced a correctly bounded\n367-character message.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed against:** `jackson-core-2.20.2`\n- **Affected file:** ",
+        "vuln_symbols": [
+          "UTF8DataInputJsonParser._reportInvalidToken",
+          "StringBuilder",
+          "ErrorReportConfiguration.getMaxErrorTokenLength",
+          "UTF8StreamJsonParser",
+          "ReaderBasedJsonParser",
+          "NonBlockingUtf8JsonParserBase"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bug is only in UTF8DataInputJsonParser (createParser(DataInput)); no class in the WAR outside jackson-core/databind calls Jackson with a DataInput; Jersey provider uses InputStream (bounded error tokens). REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#7",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-89407",
+            "GHSA-p6pp-m3f8-5c89"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": " jackson-core: ReDoS: quadratic backtracking in NumberInput.PATTERN_FLOAT via looksLikeValidNumber() \u2014 ## Status\n\n**FULLY REPRODUCED** with a clean, textbook empirical signature: measured runtime grew almost\nexactly 4x for every doubling of input size across five consecutive doublings (5,000 \u2192 160,000\ncharacters), confirming O(n\u00b2) behavior. A single 160,000-character string (smaller than a typical\nHTTP request body) took **74.4 seconds** for one call to `NumberInput.looksLikeValidNumber()`.\n\n## Affected Component / Version\n\n- **Package:** `com.fasterxml.jackson.core:jackson-core`\n- **Confirmed",
+        "vuln_symbols": [
+          "NumberInput.looksLikeValidNumber",
+          "PATTERN_FLOAT",
+          "PATTERN_FLOAT_TRAILING_DOT",
+          "looksLikeValidNumber",
+          "Pattern",
+          "Matcher"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "looksLikeValidNumber is called only when coercing a JSON String into float/double/Float/Double/BigDecimal/Number (jackson-databind NumberDeserializers.java:656,759,867,1050; StdDeserializer.java:1071,1089); no REST input model has such a field. Date fields use StdDateFormat (no PATTERN_FLOAT). REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#8",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-core",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68494",
+            "GHSA-r7wm-3cxj-wff9"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-core"
+          ]
+        ],
+        "advisory_summary": "jackson-core: Async parser maxNumberLength bypass via chunked digit accumulation (incomplete fix for GHSA-72hv-8253-57qq) \u2014 ## Summary\n\nThe fix released in jackson-core `2.18.6` and `2.21.1` for [GHSA-72hv-8253-57qq](https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq) (Number Length Constraint Bypass in Async Parser, published 2026-02-28) is incomplete. The fix commit `b0c428e6` (#1555) wired `validateIntegerLength` into a new `_setIntLength` helper and called it at every place where the integer portion of a number is *decided* (terminator byte arrived, `.` / `e/",
+        "vuln_symbols": [
+          "b0c428e6",
+          "validateIntegerLength",
+          "_setIntLength",
+          "MINOR_NUMBER_INTEGER_DIGITS",
+          "NOT_AVAILABLE",
+          "_textBuffer.expandCurrentSegment"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Async (non-blocking) parser never used; see row 4. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#9",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59888",
+            "GHSA-3pjw-73gf-8qr5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonIgnore on a Record property is bypassed with a PropertyNamingStrategy \u2014 ## Summary\nFor Java Records, `POJOPropertiesCollector._removeUnwantedIgnorals()` records a `@JsonIgnore`-annotated component under its original implicit name before `_renameUsing()` applies the `PropertyNamingStrategy`. After the rename, `_ignoredPropertyNames` still holds only the pre-rename name, so `_ignorableProps` is built from the stale key. The renamed JSON key passes `IgnorePropertiesUtil.shouldIgnore()` and is assigned to the Record's constructor parameter, defeating the `@JsonIgnore`.\n\n## I",
+        "vuln_symbols": [
+          "POJOPropertiesCollector._removeUnwantedIgnorals",
+          "_renameUsing",
+          "PropertyNamingStrategy",
+          "_ignoredPropertyNames",
+          "_ignorableProps",
+          "IgnorePropertiesUtil.shouldIgnore"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs Java Records with @JsonIgnore plus a PropertyNamingStrategy; no records, no @JsonIgnore, no naming strategy in app. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#10",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59889",
+            "GHSA-5gvw-p9qm-jgwh"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: @JsonView bypassed for @JsonUnwrapped container properties on deserialization \u2014 ## Summary\n`UnwrappedPropertyHandler.processUnwrapped()` replays the buffered JSON for a `@JsonUnwrapped` property by iterating its properties and calling `prop.deserializeAndSet()` with **no `prop.visibleInView(ctxt.getActiveView())` guard** \u2014 the exact guard `processUnwrappedCreatorProperties()` received in the #5971 / GHSA-rcqc-6cw3-h962 fix, and the guard `BeanDeserializer.deserializeWithUnwrapped` applies to directly-matched properties. As a result, a property annotated with both `@JsonView(P",
+        "vuln_symbols": [
+          "UnwrappedPropertyHandler.processUnwrapped",
+          "prop.deserializeAndSet",
+          "processUnwrappedCreatorProperties",
+          "BeanDeserializer.deserializeWithUnwrapped",
+          "BeanDeserializer",
+          "PublicView"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonView + @JsonUnwrapped on deserialized types; none in app. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#11",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54515",
+            "GHSA-5jmj-h7xm-6q6v"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has case-insensitive deserialization bypasses per-property @JsonIgnoreProperties \u2014 ## Summary\nIn `BeanDeserializerBase.createContextual()`, per-property `@JsonIgnoreProperties` exclusions are applied by `_handleByNameInclusion()`, producing a `contextual` deserializer whose `BeanPropertyMap` has the ignored properties removed. The subsequent per-property case-insensitivity block (triggered by `@JsonFormat(ACCEPT_CASE_INSENSITIVE_PROPERTIES)`) rebuilds from `this._beanProperties` (the original, unfiltered map) instead of `contextual._beanProperties`, then overwrites the filtere",
+        "vuln_symbols": [
+          "BeanDeserializerBase.createContextual",
+          "_handleByNameInclusion",
+          "contextual",
+          "BeanPropertyMap",
+          "this._beanProperties",
+          "contextual._beanProperties"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs per-property @JsonIgnoreProperties with ACCEPT_CASE_INSENSITIVE_PROPERTIES; app uses only class-level ignoreUnknown and no case-insensitive config. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#12",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91777",
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind quadratic forward-reference completion  \u2014 ### Summary\n\nWhen an `@JsonIdentityInfo` collection or map first creates N unresolved\nobject-ID references and later resolves the same IDs in reverse order,\njackson-databind scans the remaining pending-reference accumulator for each\nresolution. A shallow JSON document whose size grows linearly can therefore\ncause quadratic CPU work during deserialization.\n\n### Details\n\nThe affected path is forward-reference completion in\n`CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference()`\nand the corresponding map implemen",
+        "vuln_symbols": [
+          "CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference",
+          "equals"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonIdentityInfo collections/maps; none in app (no JAXB @XmlID/IDREF either). REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#13",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-83557",
+            "GHSA-gx83-3vf8-gh7j"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Comparable missing from DefaultBaseTypeLimitingValidator's unsafe base types (incomplete PolymorphicTypeValidator denylist) \u2014 ### Summary\n`DefaultBaseTypeLimitingValidator` \u2014 the `PolymorphicTypeValidator` used automatically whenever `@JsonTypeInfo` is applied without an explicitly configured custom validator \u2014 denies polymorphic resolution only for nine specific \"unsafe base types\" (`Object`, `Serializable`, `Closeable`, `AutoCloseable`, `Cloneable`, `Runnable`, `java.util.logging.Handler`, `javax.naming.Referenceable`, `javax.sql.DataSource`). Its `isSafeSubType()` returns ",
+        "vuln_symbols": [
+          "DefaultBaseTypeLimitingValidator",
+          "PolymorphicTypeValidator",
+          "Serializable",
+          "Closeable",
+          "AutoCloseable",
+          "Cloneable"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonTypeInfo polymorphic types; none in app, no default typing. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#14",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54514",
+            "GHSA-hgj6-7826-r7m5"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: InetSocketAddress deserialization triggers eager DNS resolution (SSRF) \u2014 ## Summary\n`JDKFromStringDeserializer` constructed `InetSocketAddress` with `new InetSocketAddress(host, port)`, which performs eager DNS name resolution for hostname inputs at deserialization time. An application that binds untrusted JSON into a type containing an `InetSocketAddress` field issues an attacker-chosen DNS query during `readValue`, before any application-level validation or connect logic. The fix uses `InetSocketAddress.createUnresolved(host, port)`, deferring DNS to an explicit connect.\n\n#",
+        "vuln_symbols": [
+          "JDKFromStringDeserializer",
+          "InetSocketAddress",
+          "readValue"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs an InetSocketAddress-typed field bound from untrusted JSON; none in REST models. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#15",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54512",
+            "GHSA-j3rv-43j4-c7qm"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has a PolymorphicTypeValidator bypass via generic type parameters that allows arbitrary class instantiation \u2014 `jackson-databind`'s `PolymorphicTypeValidator` (PTV) is the primary safety mechanism guarding polymorphic deserialization. When polymorphic typing is enabled and a type identifier contains generic parameters (i.e. the type ID string contains `<`), `DatabindContext._resolveAndValidateGeneric()` validates **only the raw container class name** (the substring before `<`) against the configured PTV.\n\nIf the container type is approved, the method parses the full canonical t",
+        "vuln_symbols": [
+          "PolymorphicTypeValidator",
+          "DatabindContext._resolveAndValidateGeneric",
+          "TypeFactory.constructFromCanonical",
+          "java.util.ArrayList",
+          "com.evil.Gadget",
+          "BasicPolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs polymorphic typing with a PTV; no @JsonTypeInfo/activateDefaultTyping in app. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#16",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-68497",
+            "GHSA-q4xh-88c3-wmh7"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Duration XMLGregorianCalendar Unbounded Number Parse DoS \u2014 ### Summary\n`jackson-databind` 3.2.1 deserializes a JSON **string** bound to a `javax.xml.datatype.Duration` or `javax.xml.datatype.XMLGregorianCalendar` field by passing the raw string verbatim to `DatatypeFactory.newDuration(value)` / `newXMLGregorianCalendar(value)`. Per the XML-Schema lexical grammar these factory methods accept numeric components of arbitrary length, which the JDK materializes into `java.math.BigInteger` / `BigDecimal` using the native `BigInteger(String)` constructor (an O(n\u00b2) parser). Because t",
+        "vuln_symbols": [
+          "javax.xml.datatype.Duration",
+          "javax.xml.datatype.XMLGregorianCalendar",
+          "java.math.BigInteger",
+          "BigDecimal",
+          "StreamReadConstraints.maxNumberLength",
+          "maxStringLength"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs javax.xml.datatype.Duration/XMLGregorianCalendar fields bound from JSON; none in REST models. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#17",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54513",
+            "GHSA-rmj7-2vxq-3g9f"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind has an array subtype allowlist bypass in BasicPolymorphicTypeValidator (allowIfSubTypeIsArray) \u2014 ## Summary\n`BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray()` allowlists any array type based only on `clazz.isArray()`, without validating the array's component (element) type against the configured allowlist. A PTV built with `allowIfSubTypeIsArray()` plus an explicit concrete-type allowlist therefore still permits `EvilType[]` even though `EvilType` is not allowlisted. When Jackson deserializes the elements and no per-element type IDs are present, it instantiates th",
+        "vuln_symbols": [
+          "BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray",
+          "clazz.isArray",
+          "allowIfSubTypeIsArray",
+          "EvilType",
+          "BasicPolymorphicTypeValidator",
+          "PolymorphicTypeValidator"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.8",
+          "2.21.4",
+          "3.1.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs BasicPolymorphicTypeValidator with allowIfSubTypeIsArray and polymorphic typing; not used. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#18",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-77310",
+            "GHSA-vvgp-rfg2-7rr6"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Incomplete fix for CVE-2026-54514: eager DNS resolution (SSRF) still present in InetAddress deserialization \u2014 ### Summary\nCVE-2026-54514 (GHSA-hgj6-7826-r7m5) fixed an eager-DNS-resolution / SSRF issue in jackson-databind's deserialization of `java.net.InetSocketAddress` by switching to `InetSocketAddress.createUnresolved(...)` (PR #5951, commit 1f5a1037, released in 2.18.8 / 2.21.4 / 3.1.4). That fix did not cover the sibling `java.net.InetAddress` branch in the very same `FromStringDeserializer.Std._deserialize()` switch statement, which still calls `InetAddress.getByName(v",
+        "vuln_symbols": [
+          "java.net.InetSocketAddress",
+          "java.net.InetAddress",
+          "FromStringDeserializer.Std._deserialize",
+          "InetAddress",
+          "address.isUnresolved",
+          "InetAddress.getByName"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.9",
+          "2.21.5",
+          "2.22.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs an InetAddress-typed field bound from untrusted JSON; none in REST models. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#19",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-19032",
+            "GHSA-wjgm-6hv5-3cvf"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind: Path Deserialization Missing Scheme Allowlist for FileSystemProvider Resolution \u2014 ### Summary\n\nA `java.nio.file.Path` field bound from untrusted JSON reaches `JDKFromStringDeserializer.NioPathHelper.deserialize`. The attacker string flows through `new URI(value)` \u2192 `Path.of(uri)`, then on `FileSystemNotFoundException` into a `ServiceLoader<FileSystemProvider>` enumeration that calls `provider.getPath(uri)` on the first scheme-matching provider. No scheme is rejected, so untrusted JSON can drive an arbitrary registered provider under the default `JsonMapper.builder().build()`.",
+        "vuln_symbols": [
+          "java.nio.file.Path",
+          "JDKFromStringDeserializer.NioPathHelper.deserialize",
+          "FileSystemNotFoundException",
+          "file",
+          "jar",
+          "Path"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.10",
+          "2.21.6",
+          "2.22.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a java.nio.file.Path field bound from untrusted JSON; none in REST models. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#20",
+      "facts": {
+        "package": "com.fasterxml.jackson.core:jackson-databind",
+        "version": "2.19.0",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-91776",
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          [
+            "com.fasterxml.jackson.core:jackson-databind"
+          ]
+        ],
+        "advisory_summary": "jackson-databind retains every unknown raw type ID  \u2014 ### Summary\n\nWith `@JsonTypeInfo(use = Id.NAME, defaultImpl = ...)`, every distinct unknown\nraw type ID selects the same fallback deserializer but is retained as a\nseparate key in `TypeDeserializerBase._deserializers`. An attacker who can\nrepeatedly supply new unknown type IDs can grow this process-lifetime cache\nwithout a configured bound.\n\n### Details\n\nThe affected path is `TypeDeserializerBase._findDeserializer()`. After an\nunknown name-based type ID resolves to the configured fallback/default\nimplementation, jackson-databind caches the ",
+        "vuln_symbols": [
+          "TypeDeserializerBase._deserializers",
+          "TypeDeserializerBase._findDeserializer",
+          "typeId",
+          "_deserializers",
+          "defaultImpl"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.18.11",
+          "2.21.7",
+          "2.22.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs @JsonTypeInfo(use=NAME, defaultImpl); none in app. REST bodies bound by Jersey JacksonFeature (guacamole/src/main/java/org/apache/guacamole/GuacamoleApplication.java:72) are APIConnection/APIUser/APIUserGroup/APIConnectionGroup/APISharingProfile/APIUserPasswordUpdate/APIPatch (fields only String, Map<String,String>, int, boolean, Date, enum, nested API types; guacamole/src/main/java/org/apache/guacamole/rest/connection/APIConnection.java:43-85, rest/user/APIUser.java:39-60); only Jackson annotations in main code are @JsonIgnoreProperties(ignoreUnknown)/@JsonInclude/@JsonProperty; other ObjectMappers read operator-supplied extension manifests/protocol JSON (extension/Extension.java:388, guacamole-ext LocalEnvironment.java:213)."
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-jv-guacamole#21",
+      "facts": {
+        "package": "com.google.guava:guava",
+        "version": "32.1.3-jre",
+        "ecosystem": "maven",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102554",
+            "GHSA-xxph-c9ww-hj94"
+          ],
+          [
+            "com.google.guava:guava"
+          ]
+        ],
+        "advisory_summary": "Google Guava: CompactHashMap/CompactHashSet/MapMakerInternalMap deserialization triggers uncontrolled memory allocation \u2014 # CompactHashMap/CompactHashSet/MapMakerInternalMap native deserialization triggers uncontrolled memory allocation\n\n## Summary\n\n`CompactHashMap`, `CompactHashSet`, and `MapMakerInternalMap` implement `readObject(ObjectInputStream)` by reading an attacker-controlled `elementCount` or `initialCapacity` from the stream. On the very first insertion during or after deserialization (for the `CompactHash*` collections, inside `allocArrays()`) or immediately during deserialization ",
+        "vuln_symbols": [
+          "CompactHashMap",
+          "CompactHashSet",
+          "MapMakerInternalMap",
+          "elementCount",
+          "initialCapacity",
+          "allocArrays"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "33.7.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires Java native deserialization (ObjectInputStream) of attacker data; app code (guacamole, guacamole-ext, guacamole-common main) never uses ObjectInputStream, and no library in the WAR deserializes request data natively (only logback socket server/receiver, unused). Servlet-container session persistence is out of artifact and operator-local."
+      }
+    }
+  ]
+}
