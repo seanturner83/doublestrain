@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>doublestrain funnel</title>
+<style>
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --ink: #1b1f24; --muted: #5d6673; --line: #e2e5ea;
+  --accent: #3355cc; --ok: #1d7f4e; --warn: #b26a00; --bad: #c0362c; --held: #7a55b3;
+  --bar-bg: #edf0f4; --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0f1216; --panel: #171b21; --ink: #e6e9ee; --muted: #9aa4b1; --line: #2a3039;
+          --accent: #7f9cff; --ok: #4cc38a; --warn: #e3a33b; --bad: #f0675b; --held: #b18cf0; --bar-bg: #222831; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, Segoe UI, sans-serif; }
+header { display: flex; align-items: center; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--line);
+         background: var(--panel); position: sticky; top: 0; z-index: 2; flex-wrap: wrap; }
+header h1 { font-size: 16px; margin: 0; font-weight: 650; }
+nav { display: flex; gap: 4px; flex-wrap: wrap; }
+nav button { border: 1px solid transparent; background: none; color: var(--muted); padding: 6px 12px; border-radius: 6px;
+             font: inherit; cursor: pointer; }
+nav button.on { color: var(--ink); background: var(--bg); border-color: var(--line); }
+#live { margin-left: auto; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+#dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+#dot.on { background: var(--ok); }
+main { padding: 16px 20px 40px; max-width: 1500px; margin: 0 auto; }
+section { display: none; } section.on { display: block; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.card .k { font-size: 12px; color: var(--muted); } .card .v { font-size: 20px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin-bottom: 16px; overflow-x: auto; }
+.panel h2 { font-size: 14px; margin: 0 0 10px; }
+.panel p.note { color: var(--muted); font-size: 12px; margin: 4px 0 10px; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; vertical-align: middle; }
+th { font-size: 12px; color: var(--muted); font-weight: 600; position: sticky; top: 0; background: var(--panel); }
+td.num, th.num { text-align: right; }
+tr.click { cursor: pointer; } tr.click:hover td { background: var(--bg); } tr.sel td { background: var(--bg); }
+.mono { font-family: var(--mono); font-size: 12px; }
+.pill { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; border: 1px solid var(--line); color: var(--muted); }
+.pill.ok { color: var(--ok); border-color: currentColor; } .pill.bad { color: var(--bad); border-color: currentColor; }
+.pill.warn { color: var(--warn); border-color: currentColor; } .pill.held { color: var(--held); border-color: currentColor; }
+.pill.run { color: var(--accent); border-color: currentColor; }
+.stages { display: flex; gap: 3px; }
+.stage { width: 64px; height: 18px; border-radius: 3px; background: var(--bar-bg); position: relative; overflow: hidden; font-size: 10px; }
+.stage i { position: absolute; inset: 0 auto 0 0; background: var(--accent); opacity: .85; }
+.stage.done i { background: var(--ok); }
+.stage span { position: relative; padding-left: 4px; line-height: 18px; color: var(--ink); }
+.bar { height: 10px; background: var(--bar-bg); border-radius: 3px; overflow: hidden; display: flex; min-width: 160px; }
+.bar i { display: block; height: 100%; }
+.legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin: 6px 0 10px; flex-wrap: wrap; }
+.legend b { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.funnel { display: grid; gap: 8px; }
+.tier { display: grid; grid-template-columns: 200px 1fr 470px; gap: 12px; align-items: center; }
+.tier .name { font-family: var(--mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+.tier .stats { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fsvg { width: 100%; height: auto; display: block; max-width: 1100px; }
+.fsvg text { fill: var(--ink); font: 12px system-ui, sans-serif; }
+.fsvg text.t { font-weight: 650; font-size: 13px; } .fsvg text.m { fill: var(--muted); font-size: 11px; }
+.fsvg text.mono { font-family: var(--mono); font-size: 12px; }
+.flow-new td { animation: flash 2s ease-out; }
+@keyframes flash { from { background: color-mix(in srgb, var(--accent) 25%, transparent); } to { background: transparent; } }
+select, input { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.empty { color: var(--muted); padding: 10px 0; }
+@media (max-width: 760px) {
+  main { padding: 12px 12px 30px; } .tier { grid-template-columns: 1fr; gap: 4px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>doublestrain funnel</h1>
+  <nav>
+    <button data-tab="pipeline" class="on">Pipeline</button>
+    <button data-tab="runs">Runs</button>
+    <button data-tab="inference">Inference</button>
+    <button data-tab="config">Config</button>
+  </nav>
+  <div id="live"><span id="dot"></span><span id="livetext">connecting</span></div>
+</header>
+<main>
+<section id="pipeline" class="on">
+  <div class="cards" id="pipe-cards"></div>
+  <div class="panel"><h2 id="pipe-funnel-title">Funnel</h2><p class="note">Advisory rows narrowing to the not_reachable answers that settled. Widths are row counts; side flows are where rows left.</p><div id="pipe-funnel"></div></div>
+  <div class="panel">
+    <h2>Repositories through the pipeline</h2>
+    <p class="note">checked out → inventoried (advisory rows) → dependency source fetched (verified) → labelled → judged → settled not_reachable, right / wrong against the current labels: the newest full cascade run, or the split + claude pair (split's newest run at its floor, claude's newest agreeing, no maven deserialization gadget), whichever settles more</p>
+    <div class="row"><label>set <select id="set-filter"><option value="">all</option></select></label>
+      <label>ecosystem <select id="eco-filter"><option value="">all</option></select></label></div>
+    <table id="pipe-table"></table>
+  </div>
+  <div class="panel"><h2>Scans (doublestrain scan)</h2><table id="scan-table"></table></div>
+</section>
+
+<section id="runs">
+  <div class="panel">
+    <h2>Runs</h2>
+    <div class="row"><input id="run-filter" placeholder="filter by name, judge or case" size="40"></div>
+    <div style="max-height: 360px; overflow:auto"><table id="runs-table"></table></div>
+  </div>
+  <div class="panel" id="run-detail"><h2>Funnel</h2><div class="empty">pick a run</div></div>
+</section>
+
+<section id="inference">
+  <div class="cards" id="inf-cards"></div>
+  <div class="panel">
+    <h2>Totals by destination</h2>
+    <div class="row"><label>window <select id="win"><option>1h</option><option>24h</option><option selected>7d</option></select></label></div>
+    <table id="inf-totals"></table>
+  </div>
+  <div class="panel">
+    <h2>Calls, live</h2>
+    <p class="note">From the usage ledger: metadata only. The ledger never records prompt or answer text, so this page can't show it.</p>
+    <div style="max-height: 520px; overflow:auto"><table id="inf-calls"></table></div>
+  </div>
+</section>
+
+<section id="config">
+  <div class="panel"><h2>Ecosystems</h2><table id="eco-table"></table></div>
+  <div class="panel"><h2>Acceptance floors by role</h2><p class="note" id="floors-file"></p><table id="role-table"></table></div>
+  <div class="panel"><h2>Per-model floors</h2><table id="model-table"></table></div>
+  <div class="panel"><h2>SSVC_* settings in this server's environment</h2><p class="note">Secrets show as (set).</p><table id="env-table"></table></div>
+</section>
+</main>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+function h(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "class") e.className = v; else if (k === "style") e.style.cssText = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v);
+  }
+  for (const k of kids.flat()) if (k !== null && k !== undefined && k !== false)
+    e.append(k instanceof Node ? k : document.createTextNode(String(k)));
+  return e;
+}
+const fmt = (n, d = 0) => n === null || n === undefined ? "–" : Number(n).toLocaleString(undefined, {maximumFractionDigits: d, minimumFractionDigits: d});
+const usd = (n) => n ? "$" + fmt(n, 2) : "–";
+const bytes = (n) => !n ? "–" : n < 1024 ? n + " B" : n < 1048576 ? fmt(n / 1024, 1) + " KB" : fmt(n / 1048576, 1) + " MB";
+const pct = (n) => n === null || n === undefined ? "–" : fmt(n * 100, 1) + "%";
+const getJSON = (u) => fetch(u, {cache: "no-store"}).then((r) => r.ok ? r.json() : Promise.reject(r.status));
+function table(el, cols, rows, opts = {}) {
+  el.replaceChildren(h("thead", {}, h("tr", {}, cols.map((c) => h("th", {class: c.num ? "num" : ""}, c.t)))));
+  const tb = h("tbody");
+  if (!rows.length) tb.append(h("tr", {}, h("td", {colspan: cols.length, class: "empty"}, opts.empty || "nothing yet")));
+  for (const r of rows) {
+    const tr = h("tr", opts.click ? {class: "click" + (opts.sel && opts.sel(r) ? " sel" : ""), onclick: () => opts.click(r)} : {},
+      cols.map((c) => h("td", {class: (c.num ? "num " : "") + (c.mono ? "mono" : "")}, c.f(r))));
+    tb.append(tr);
+  }
+  el.append(tb);
+}
+function stage(frac, label, done) {
+  const f = Math.max(0, Math.min(1, frac || 0));
+  return h("div", {class: "stage" + (done || f >= 1 ? " done" : ""), title: label}, h("i", {style: `width:${f * 100}%`}), h("span", {}, label));
+}
+
+/* ---------------- tabs ---------------- */
+let tab = location.hash.slice(1) || "pipeline";
+function show(t) {
+  tab = t; location.hash = t;
+  document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("on", b.dataset.tab === t));
+  document.querySelectorAll("section").forEach((s) => s.classList.toggle("on", s.id === t));
+  refresh(t);
+}
+document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => show(b.dataset.tab)));
+
+/* ---------------- pipeline ---------------- */
+let pipe = null;
+async function loadPipeline() {
+  pipe = await getJSON("/api/pipeline");
+  const sets = [...new Set(pipe.cases.map((c) => c.set))].sort();
+  const ecos = [...new Set(pipe.cases.flatMap((c) => Object.keys(c.ecosystems)))].sort();
+  fillSelect($("#set-filter"), sets); fillSelect($("#eco-filter"), ecos);
+  renderPipeline();
+}
+function fillSelect(sel, vals) {
+  const cur = sel.value;
+  sel.replaceChildren(h("option", {value: ""}, "all"), ...vals.map((v) => h("option", {value: v}, v)));
+  sel.value = vals.includes(cur) ? cur : "";
+}
+function renderPipeline() {
+  const sf = $("#set-filter").value, ef = $("#eco-filter").value;
+  const cs = pipe.cases.filter((c) => (!sf || c.set === sf) && (!ef || c.ecosystems[ef]));
+  const tot = (k) => cs.reduce((a, c) => a + (c[k] || 0), 0);
+  $("#pipe-cards").replaceChildren(
+    card("cases", cs.length), card("advisory rows", fmt(tot("rows"))), card("labelled", `${fmt(tot("labelled"))} (${pct(tot("rows") ? tot("labelled") / tot("rows") : null)})`),
+    card("sources fetched", `${fmt(tot("sources"))} / ${fmt(tot("packages"))}`),
+    card("settled NR right / wrong", `${fmt(tot("last_nr_right"))} / ${fmt(tot("last_nr_wrong"))}`));
+  const rows = tot("rows"), withSrc = cs.reduce((a, c) => a + (c.packages ? Math.round(c.rows * c.sources / c.packages) : 0), 0);
+  const lab = tot("labelled"), judged = cs.reduce((a, c) => a + Math.min(c.labelled, c.last_rows_judged || 0), 0);
+  const nrl = tot("last_nr_labels"), right = tot("last_nr_right"), wrong = tot("last_nr_wrong");
+  $("#pipe-funnel-title").textContent = `Funnel: ${sf || "all sets"}${ef ? " · " + ef : ""}`;
+  $("#pipe-funnel").replaceChildren(drawFunnel([
+    {label: "advisory rows", n: rows, outs: [{label: "no verified dependency source", n: rows - withSrc, color: "var(--muted)"}]},
+    {label: "dependency source fetched", n: withSrc, outs: [{label: "not labelled yet", n: withSrc - Math.min(withSrc, lab), color: "var(--muted)"}]},
+    {label: "labelled", n: Math.min(withSrc, lab), outs: [{label: "not judged in a full run", n: Math.max(0, Math.min(withSrc, lab) - judged), color: "var(--muted)"}]},
+    {label: "judged", n: judged, sub: `${fmt(judged)} in · ${fmt(nrl)} labelled not_reachable`,
+      outs: [{label: "reachable or unresolved (graded as reachable)", n: Math.max(0, judged - right - wrong), color: "var(--warn)"}]},
+  ], {label: `settled not_reachable${wrong ? " (" + wrong + " wrong)" : ""}`, n: right + wrong, color: "var(--ok)"}));
+  table($("#pipe-table"), [
+    {t: "case", f: (c) => h("span", {title: c.description}, c.id), mono: true},
+    {t: "set", f: (c) => c.set},
+    {t: "ecosystem", f: (c) => Object.entries(c.ecosystems).map(([e, n]) => `${e} ${n}`).join(", ")},
+    {t: "progress", f: (c) => h("div", {class: "stages"},
+      stage(c.checked_out ? 1 : 0, c.checked_out ? "checkout" : "no checkout"),
+      stage(c.rows ? 1 : 0, `${c.rows} rows`),
+      stage(c.packages ? c.sources / c.packages : 0, `src ${c.sources}/${c.packages}`),
+      stage(c.rows ? c.labelled / c.rows : 0, `lab ${c.labelled}`),
+      stage(c.rows ? (c.last_rows_judged || 0) / c.rows : 0, c.last_run ? `judged ${c.last_rows_judged || 0}` : "not run"),
+      stage(c.last_nr_labels ? (c.last_nr_right || 0) / c.last_nr_labels : 0, c.last_run ? `NR ${c.last_nr_right || 0}` : "–"))},
+    {t: "NR wrong", num: true, f: (c) => c.last_run ? h("span", {class: "pill " + (c.last_nr_wrong ? "bad" : "ok")}, c.last_nr_wrong || 0) : "–"},
+    {t: "coverage", num: true, f: (c) => pct(c.last_coverage)},
+    {t: "runs", num: true, f: (c) => c.runs},
+    {t: "result from", f: (c) => c.last_run ? h("span", {}, h("span", {class: "pill"}, (c.settled_by || "").startsWith("pair") ? "pair" : "cascade"), " ",
+      h("a", {href: "#runs", class: "mono", title: c.settled_by, onclick: () => { selRun = c.last_run; show("runs"); }}, c.last_run)) : "–"},
+  ], cs);
+  table($("#scan-table"), [
+    {t: "scan", mono: true, f: (s) => s.name}, {t: "repo", f: (s) => s.cases.join(", ")}, {t: "judge", mono: true, f: (s) => s.judge},
+    {t: "rows", num: true, f: (s) => s.rows}, {t: "decisions", f: (s) => Object.entries(s.decisions || {}).map(([k, v]) => `${k} ${v}`).join(" · ")},
+    {t: "cost", num: true, f: (s) => usd(s.cost_usd)}, {t: "updated", f: (s) => s.updated},
+  ], pipe.scans.slice(0, 40), {empty: "no scans"});
+}
+const card = (k, v) => h("div", {class: "card"}, h("div", {class: "k"}, k), h("div", {class: "v"}, v));
+$("#set-filter").addEventListener("change", renderPipeline);
+$("#eco-filter").addEventListener("change", renderPipeline);
+
+/* ---------------- funnel drawing ---------------- */
+const NS = "http://www.w3.org/2000/svg";
+function sv(tag, attrs, ...kids) {
+  const e = document.createElementNS(NS, tag);
+  let style = attrs && attrs.style ? attrs.style + ";" : "";
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "style") continue;
+    if ((k === "fill" || k === "stroke") && String(v).includes("var(")) style += `${k}:${v};`;   // CSS variables: style, not attributes
+    else e.setAttribute(k, v);
+  }
+  if (style) e.setAttribute("style", style);
+  for (const k of kids.flat()) if (k !== null && k !== undefined && k !== false) e.append(k instanceof Node ? k : document.createTextNode(String(k)));
+  return e;
+}
+/* stages: [{label, sub, n, outs: [{label, n, color, wrong}], held}]; final: {label, n, color}.
+   Each band's top width is the rows that reached it, its bottom the rows it passed on. */
+function drawFunnel(stages, final) {
+  const W = 1180, cx = 400, half = 270, bandH = 58, gap = 10, top = 14;
+  const max = Math.max(1, ...stages.map((s) => s.n), final.n);
+  const wd = (n) => Math.max(n > 0 ? 6 : 1, (n / max) * half);
+  const outMax = Math.max(1, ...stages.flatMap((s) => (s.outs || []).map((o) => o.n)));
+  const H = top + stages.length * (bandH + gap) + 64;
+  const svg = sv("svg", {viewBox: `0 0 ${W} ${H}`, class: "fsvg", role: "img"});
+  let y = top;
+  stages.forEach((s, i) => {
+    const next = i + 1 < stages.length ? stages[i + 1].n : final.n;
+    const a = wd(s.n), b = wd(next);
+    const op = 0.85 - (i / Math.max(1, stages.length)) * 0.45;
+    svg.append(sv("polygon", {points: `${cx - a},${y} ${cx + a},${y} ${cx + b},${y + bandH} ${cx - b},${y + bandH}`,
+      fill: "var(--accent)", "fill-opacity": op.toFixed(2)}, sv("title", {}, `${s.label}: ${s.n} rows in, ${next} passed on`)));
+    const inside = Math.min(a, b) > 120;          // narrow bands put their text beside them
+    const tx = inside ? cx : cx - Math.max(a, b) - 14, anchor = inside ? "middle" : "end";
+    svg.append(sv("text", {x: tx, y: y + bandH / 2 - 3, "text-anchor": anchor, class: "t", style: inside ? "fill:#fff" : ""}, s.label));
+    svg.append(sv("text", {x: tx, y: y + bandH / 2 + 13, "text-anchor": anchor, class: "m", style: inside ? "fill:#fff;fill-opacity:.85" : ""},
+      s.sub ?? `${fmt(s.n)} in`));
+    if (s.held) svg.append(sv("text", {x: (inside ? cx - Math.max(a, b) - 12 : cx - Math.max(a, b) - 14), y: y + bandH / 2 + (inside ? 4 : 30),
+      "text-anchor": "end", style: "fill:var(--held);font-weight:650"}, `held ${fmt(s.held)}`));
+    // side flows: rows leaving at this stage
+    let oy = y + 12;
+    for (const o of (s.outs || []).filter((o) => o.n > 0)) {
+      const x0 = cx + (a + b) / 2, y0 = y + bandH / 2, x1 = cx + half + 90, sw = Math.max(1.5, (o.n / outMax) * 26);
+      svg.append(sv("path", {d: `M ${x0} ${y0} C ${x0 + 110} ${y0}, ${x1 - 110} ${oy}, ${x1} ${oy}`, fill: "none",
+        stroke: o.color, "stroke-width": sw.toFixed(1), "stroke-opacity": "0.55", "stroke-linecap": "round"}));
+      svg.append(sv("text", {x: x1 + 10, y: oy + 4}, sv("tspan", {style: `fill:${o.color};font-weight:650`}, fmt(o.n)), ` ${o.label}`,
+        o.wrong ? sv("tspan", {style: "fill:var(--bad);font-weight:650"}, `  ${o.wrong} wrong`) : ""));
+      oy += 22;
+    }
+    y += bandH + gap;
+  });
+  const f = wd(final.n);
+  svg.append(sv("rect", {x: cx - f, y: y, width: 2 * f, height: 34, rx: 6, fill: final.color || "var(--muted)", "fill-opacity": "0.35"}));
+  svg.append(sv("text", {x: cx, y: y + 21, "text-anchor": "middle", class: "t"}, `${fmt(final.n)} ${final.label}`));
+  return svg;
+}
+
+/* ---------------- runs ---------------- */
+let runs = [], selRun = new URLSearchParams(location.search).get("run");
+async function loadRuns() {
+  runs = (await getJSON("/api/runs")).filter((r) => r.kind === "run");
+  renderRuns();
+  if (!selRun && runs.length) selRun = runs[0].name;
+  if (selRun) loadRun(selRun);
+}
+function renderRuns() {
+  const q = $("#run-filter").value.toLowerCase();
+  const rs = runs.filter((r) => !q || (r.name + " " + r.judge + " " + r.cases.join(" ")).toLowerCase().includes(q));
+  table($("#runs-table"), [
+    {t: "", f: (r) => r.running ? h("span", {class: "pill run"}, "running") : r.finished ? "" : h("span", {class: "pill warn"}, "stopped")},
+    {t: "run", mono: true, f: (r) => h("span", {title: r.name, style: "display:inline-block;max-width:420px;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom"}, r.name)},
+    {t: "judge", mono: true, f: (r) => h("span", {title: r.judge, style: "display:inline-block;max-width:280px;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom"}, r.judge)},
+    {t: "cases", num: true, f: (r) => h("span", {title: r.cases.join("\n")}, r.cases.length)},
+    {t: "rows", num: true, f: (r) => r.running || r.rows < r.planned ? `${r.rows} / ${r.planned}` : r.rows},
+    {t: "answered NR ✓ / ✗", num: true, f: (r) => h("span", {title: "the final judge answered not_reachable at its floor (held answers included), against the current labels"},
+      `${r.said_right} / `, h("span", {class: r.said_wrong ? "pill bad" : ""}, r.said_wrong))},
+    {t: "settled NR ✓ / ✗", num: true, f: (r) => h("span", {title: "settled not_reachable in this run itself"}, `${r.nr_right} / `,
+      h("span", {class: r.nr_wrong ? "pill bad" : ""}, r.nr_wrong))},
+    {t: "coverage (answered / settled)", num: true, f: (r) => `${pct(r.said_coverage)} / ${pct(r.coverage)}`}, {t: "cost", num: true, f: (r) => usd(r.cost_usd)}, {t: "updated", f: (r) => r.updated},
+  ], rs, {click: (r) => { selRun = r.name; renderRuns(); loadRun(r.name); }, sel: (r) => r.name === selRun});
+}
+$("#run-filter").addEventListener("input", renderRuns);
+const COLORS = {settled_not_reachable: "var(--ok)", settled_reachable: "var(--bad)", held: "var(--held)", escalated: "var(--bar-bg)"};
+async function loadRun(name) {
+  let r;
+  try { r = await getJSON("/api/run?name=" + encodeURIComponent(name)); } catch (e) { return; }
+  const box = $("#run-detail");
+  const max = Math.max(1, ...r.funnel.map((t) => t.entered), r.rows);
+  const tiers = r.funnel.map((t) => {
+    const w = (n) => `width:${(n / max) * 100}%`;
+    const passed = Math.max(0, t.escalated - t.held);
+    return h("div", {class: "tier"},
+      h("div", {class: "name", title: t.tier}, t.tier),
+      h("div", {class: "bar", title: `${t.entered} rows reached this tier`},
+        h("i", {style: w(t.settled_not_reachable) + ";background:" + COLORS.settled_not_reachable}),
+        h("i", {style: w(t.settled_reachable) + ";background:" + COLORS.settled_reachable}),
+        h("i", {style: w(t.held) + ";background:" + COLORS.held}),
+        h("i", {style: w(passed) + ";background:var(--accent);opacity:.35"})),
+      h("div", {class: "stats", title: `answered: not_reachable ${t.not_reachable}, reachable ${t.reachable}, unsure ${t.unsure}, unavailable ${t.unavailable}`},
+        `in ${t.entered} · said NR ${t.not_reachable}/R ${t.reachable} · settled NR ${t.settled_not_reachable}/R ${t.settled_reachable} · held ${t.held} · on ${t.escalated}`,
+        t.wrong ? h("span", {class: "pill bad", style: "margin-left:6px"}, `${t.wrong} wrong`) : "", t.cost_usd ? ` · ${usd(t.cost_usd)}` : ""));
+  });
+  const unresolved = r.rows - r.funnel.reduce((a, t) => a + t.settled_not_reachable + t.settled_reachable, 0);
+  box.replaceChildren(h("h2", {}, "Funnel: ", h("span", {class: "mono"}, r.name)),
+    h("p", {class: "note"}, `${r.judge} · ${r.rows}${r.running ? " of " + r.planned : ""} rows · ${r.cases.length} case(s) · ${usd(r.cost_usd)}`
+      + (r.running ? " · running, updates live" : "")),
+    h("div", {class: "legend"}, h("span", {}, h("b", {style: "background:var(--ok)"}), "settled not_reachable"),
+      h("span", {}, h("b", {style: "background:var(--bad)"}), "settled reachable"), h("span", {}, h("b", {style: "background:var(--held)"}), "held (no measured floor / second read needed)"),
+      h("span", {}, h("b", {style: "background:var(--accent);opacity:.35"}), "passed on")),
+    r.funnel.length ? drawFunnel(r.funnel.map((t) => ({label: t.tier, n: t.entered, held: t.held,
+        sub: `${fmt(t.entered)} in · said NR ${fmt(t.not_reachable)} / R ${fmt(t.reachable)}${t.cost_usd ? " · " + usd(t.cost_usd) : ""}`,
+        outs: [{label: "settled not_reachable", n: t.settled_not_reachable, color: "var(--ok)", wrong: t.wrong_nr},
+               {label: "settled reachable", n: t.settled_reachable, color: "var(--bad)", wrong: t.wrong_r}]})),
+      {label: "unresolved → graded as reachable", n: unresolved}) : h("div", {class: "empty"}, "no tier trail in this run"),
+    h("details", {style: "margin-top:8px"}, h("summary", {class: "note"}, "per-tier numbers"),
+      h("div", {class: "funnel", style: "margin-top:8px"}, tiers)),
+    h("div", {class: "cards", style: "margin-top:14px"}, card("unresolved (graded as reachable)", unresolved), card("answered NR at floor ✓ / ✗", `${r.said_right} / ${r.said_wrong}`), card("settled NR ✓ / ✗", `${r.nr_right} / ${r.nr_wrong}`),
+      card("R right / wrong", `${r.r_right} / ${r.r_wrong}`), card("coverage of NR labels", pct(r.coverage)),
+      card("decisions", Object.entries(r.decisions || {}).map(([k, v]) => `${k} ${v}`).join(" · ") || "–")),
+    h("h2", {style: "margin-top:8px"}, "By case"));
+  const t = h("table");
+  box.append(t);
+  table(t, [{t: "case", mono: true, f: ([c]) => c}, {t: "rows", num: true, f: ([, s]) => s.rows_judged}, {t: "labelled", num: true, f: ([, s]) => s.labelled},
+    {t: "NR right", num: true, f: ([, s]) => s.nr_right}, {t: "NR wrong", num: true, f: ([, s]) => s.nr_wrong}, {t: "coverage", num: true, f: ([, s]) => pct(s.coverage)}],
+    Object.entries(r.by_case));
+}
+
+/* ---------------- inference ---------------- */
+let inf = null, calls = [];
+async function loadInference() {
+  inf = await getJSON("/api/inference?hours=168");
+  calls = inf.calls.slice().reverse();
+  renderInference();
+}
+function renderInference(fresh = 0) {
+  const w = inf.totals[$("#win").value] || [];
+  const sum = (k) => w.reduce((a, r) => a + (r[k] || 0), 0);
+  $("#inf-cards").replaceChildren(card(`calls (${$("#win").value})`, fmt(sum("calls"))), card("cost", usd(sum("cost_usd"))),
+    card("tokens in / out", `${fmt(sum("input_tokens") + sum("cache_read_tokens"))} / ${fmt(sum("output_tokens"))}`),
+    card("bytes sent / received", `${bytes(sum("sent_bytes"))} / ${bytes(sum("recv_bytes"))}`), card("failed calls", fmt(sum("not_ok"))));
+  table($("#inf-totals"), [{t: "destination", f: (r) => r.dest}, {t: "model", mono: true, f: (r) => r.model}, {t: "purpose", f: (r) => r.purpose},
+    {t: "calls", num: true, f: (r) => fmt(r.calls)}, {t: "failed", num: true, f: (r) => r.not_ok ? h("span", {class: "pill bad"}, r.not_ok) : 0},
+    {t: "tokens in", num: true, f: (r) => fmt((r.input_tokens || 0) + (r.cache_read_tokens || 0))}, {t: "tokens out", num: true, f: (r) => fmt(r.output_tokens)},
+    {t: "sent", num: true, f: (r) => bytes(r.sent_bytes)}, {t: "received", num: true, f: (r) => bytes(r.recv_bytes)}, {t: "cost", num: true, f: (r) => usd(r.cost_usd)}], w,
+    {empty: "no calls in this window"});
+  const t = $("#inf-calls");
+  table(t, [{t: "time", f: (r) => r.ts.slice(11, 19)}, {t: "", f: (r) => h("span", {class: "pill " + (r.outcome === "ok" ? "ok" : r.outcome === "limit" ? "warn" : "bad")}, r.outcome || "ok")},
+    {t: "→ destination", f: (r) => r.dest}, {t: "model", mono: true, f: (r) => r.model || ""}, {t: "purpose", f: (r) => r.purpose || ""},
+    {t: "case", mono: true, f: (r) => r.case || ""}, {t: "advisory", mono: true, f: (r) => r.cve || ""}, {t: "package", mono: true, f: (r) => r.package || ""},
+    {t: "sent", num: true, f: (r) => bytes(r.sent_bytes)}, {t: "← recv", num: true, f: (r) => bytes(r.recv_bytes)},
+    {t: "tok in", num: true, f: (r) => fmt((r.input_tokens || 0) + (r.cache_read_tokens || 0))}, {t: "tok out", num: true, f: (r) => fmt(r.output_tokens)},
+    {t: "latency", num: true, f: (r) => r.latency_s ? fmt(r.latency_s, 1) + "s" : "–"}, {t: "cost", num: true, f: (r) => usd(r.cost_usd)},
+    {t: "run", mono: true, f: (r) => r.run || ""}], calls.slice(0, 300), {empty: "no calls in the last 7 days"});
+  [...t.querySelectorAll("tbody tr")].slice(0, fresh).forEach((tr) => tr.classList.add("flow-new"));
+}
+$("#win").addEventListener("change", () => renderInference());
+
+/* ---------------- config ---------------- */
+async function loadConfig() {
+  const c = await getJSON("/api/config");
+  table($("#eco-table"), [{t: "ecosystem", f: (e) => e.ecosystem},
+    {t: "not_reachable", f: (e) => e.held ? (e.measured_by.length ? h("span", {class: "pill held"}, "held except " + e.measured_by.join(", ")) : h("span", {class: "pill held"}, "held for every tier")) : h("span", {class: "pill ok"}, "floors apply")},
+    {t: "settles only as a pair", f: (e) => e.corroborated.map((r) => `${r} + ${(c.roles[r]?.corroborate_by || []).join("/") || "?"}`).join(", ") || "–"},
+    {t: "NR floor override", f: (e) => Object.entries(e.nr_floor_override).map(([r, v]) => `${r} ≥ ${v}`).join(", ") || "–"},
+    {t: "claude model", mono: true, f: (e) => e.claude_model},
+    {t: "case rows", num: true, f: (e) => fmt(e.case_rows)}, {t: "labelled", num: true, f: (e) => `${fmt(e.labelled_rows)} (${pct(e.case_rows ? e.labelled_rows / e.case_rows : null)})`}], c.ecosystems);
+  $("#floors-file").textContent = "from " + c.floors_file + " · dependency source cache " + c.pkgsrc_cache + " · Composer git hosts " + c.composer_git_hosts.join(", ");
+  table($("#role-table"), [{t: "role", mono: true, f: ([r]) => r}, {t: "reachable ≥", num: true, f: ([, p]) => p.reachable ?? "–"},
+    {t: "not_reachable ≥", num: true, f: ([, p]) => p.not_reachable ?? "–"}, {t: "second read", f: ([, p]) => p.corroborate ? h("span", {class: "pill held"}, "required") : "–"},
+    {t: "second read by", f: ([, p]) => (p.corroborate_by || []).join(", ") || "–"},
+    {t: "measured on", f: ([, p]) => (p.measured_ecosystems || []).join(", ") || "–"},
+    {t: "pair-only on", f: ([, p]) => (p.corroborate_ecosystems || []).join(", ") || "–"}], Object.entries(c.roles));
+  const mk = [...new Set(c.models.flatMap((m) => Object.keys(m)))].filter((k) => !["role", "model"].includes(k));
+  table($("#model-table"), [{t: "role", mono: true, f: (m) => m.role}, {t: "model", mono: true, f: (m) => m.model},
+    ...mk.map((k) => ({t: k, f: (m) => m[k] === undefined ? "–" : Array.isArray(m[k]) ? m[k].join(", ") : String(m[k])}))], c.models, {empty: "no per-model entries"});
+  table($("#env-table"), [{t: "variable", mono: true, f: ([k]) => k}, {t: "value", mono: true, f: ([, v]) => v}], Object.entries(c.env), {empty: "no SSVC_* variables set"});
+}
+
+/* ---------------- live updates ---------------- */
+const loaded = {};
+function refresh(t) {
+  const f = {pipeline: loadPipeline, runs: loadRuns, inference: loadInference, config: loadConfig}[t];
+  if (f) f().catch(() => {}).finally(() => { loaded[t] = Date.now(); });
+}
+let pending = null;
+function soon(fn, ms = 1200) { clearTimeout(pending); pending = setTimeout(fn, ms); }
+function connect() {
+  const es = new EventSource("/api/events");
+  es.onopen = () => { $("#dot").classList.add("on"); $("#livetext").textContent = "live"; };
+  es.onerror = () => { $("#dot").classList.remove("on"); $("#livetext").textContent = "reconnecting"; };
+  es.addEventListener("calls", (ev) => {
+    const got = JSON.parse(ev.data);
+    $("#livetext").textContent = `live · ${got.length} call(s) at ${new Date().toLocaleTimeString()}`;
+    if (inf) { calls = got.slice().reverse().concat(calls).slice(0, 400); if (tab === "inference") soon(() => loadInference().then(() => renderInference(got.length)), 300); }
+  });
+  es.addEventListener("runs", () => soon(() => refresh(tab)));
+}
+show(tab);
+if (!new URLSearchParams(location.search).has("nolive")) connect();   // ?nolive: a static snapshot (screenshots)
+else $("#livetext").textContent = "snapshot";
+</script>
+</body>
+</html>

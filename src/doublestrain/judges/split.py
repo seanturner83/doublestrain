@@ -175,18 +175,36 @@ _JVM_SPEC_SYSTEM = SPEC_SYSTEM.replace("third-party npm package's", "third-party
 _JVM_SPEC_ID = hashlib.sha256((SPEC_ID + _JVM_SPEC_SYSTEM).encode()).hexdigest()[:8]
 
 
+# PHP Composer packages: the same prompt. Frameworks wire most library code by class name
+# (service containers, config arrays, route and middleware lists), so a condition is often
+# a registration rather than a call.
+_PHP_SPEC_NOTE = """
+PHP Composer packages: each listed directory is a package's source (`<vendor/package>@<version>`);
+code names it by its autoload namespace (`Symfony\\Component\\HttpFoundation\\Request`), not the
+package name. Entry points are public classes and methods an application calls, and the
+framework pieces it registers by class name: a service, middleware, event subscriber,
+validator constraint, Twig extension or route. A condition can be a configuration key
+(`framework.yaml`, a `config/*.php` array, `.env`), a PHP ini setting or extension
+(`allow_url_fopen`, `ext-intl`), or an option passed to the entry point.
+"""
+_PHP_SPEC_SYSTEM = SPEC_SYSTEM.replace("third-party npm package's", "third-party PHP Composer package's") + _PHP_SPEC_NOTE
+_PHP_SPEC_ID = hashlib.sha256((SPEC_ID + _PHP_SPEC_SYSTEM).encode()).hexdigest()[:8]
+
+
 def spec_system(ecosystem: str) -> tuple[str, str]:
     """(system prompt, id) for the trigger spec in this ecosystem."""
     return {"cargo": (_CARGO_SPEC_SYSTEM, _CARGO_SPEC_ID),
             "go": (_GO_SPEC_SYSTEM, _GO_SPEC_ID),
             "pypi": (_PY_SPEC_SYSTEM, _PY_SPEC_ID),
-            "maven": (_JVM_SPEC_SYSTEM, _JVM_SPEC_ID)}.get(ecosystem, (SPEC_SYSTEM, SPEC_ID))
+            "maven": (_JVM_SPEC_SYSTEM, _JVM_SPEC_ID),
+            "composer": (_PHP_SPEC_SYSTEM, _PHP_SPEC_ID)}.get(ecosystem, (SPEC_SYSTEM, SPEC_ID))
 
 
 # ecosystems split has a spec and match prompt for (and dependency source to derive specs from)
-ECOSYSTEMS = ("npm", "cargo", "go", "pypi", "maven")
+ECOSYSTEMS = ("npm", "cargo", "go", "pypi", "maven", "composer")
 
-_WHAT = {"cargo": "Rust crate", "go": "Go module", "pypi": "Python distribution", "maven": "Maven artifact"}
+_WHAT = {"cargo": "Rust crate", "go": "Go module", "pypi": "Python distribution", "maven": "Maven artifact",
+         "composer": "PHP Composer package"}
 
 
 MATCH_SYSTEM = """\
@@ -259,13 +277,25 @@ see is not proof of no use: answer unsure, not not_reachable, when classpath act
 could reach the trigger.
 """
 _JVM_MATCH_SYSTEM = MATCH_SYSTEM + _JVM_MATCH_NOTE
+_PHP_MATCH_NOTE = """
+PHP: an app uses a package through its namespace (`use Vendor\\Pkg\\Class;`, a fully
+qualified `\\Vendor\\Pkg\\Class`, or a class-name string in config) and through the framework
+that wires it: a Laravel or Symfony service container, middleware and route lists, event
+subscribers, or a bundle the app enables, can run library code the app never names.
+Request input ($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER headers, a framework Request
+object, uploaded files) is attacker-influenced, and PHP form fields like `a[b]=1` arrive as
+arrays. When a framework could route attacker input to a trigger through code you cannot
+see, answer unsure, not not_reachable.
+"""
+_PHP_MATCH_SYSTEM = MATCH_SYSTEM + _PHP_MATCH_NOTE
 # Per-ecosystem prompt ids for the answer cache (`query_salt`): npm's answers stay keyed
 # as before; Rust and Go answers change key when their spec or match prompt changes.
 _SALT = {eco: "-" + hashlib.sha256((sid + mat).encode()).hexdigest()[:8]
          for eco, sid, mat in (("cargo", _CARGO_SPEC_ID, _CARGO_MATCH_SYSTEM),
                                ("go", _GO_SPEC_ID, _GO_MATCH_SYSTEM),
                                ("pypi", _PY_SPEC_ID, _PY_MATCH_SYSTEM),
-                               ("maven", _JVM_SPEC_ID + "jc1", _JVM_MATCH_SYSTEM))}
+                               ("maven", _JVM_SPEC_ID + "jc1", _JVM_MATCH_SYSTEM),
+                               ("composer", _PHP_SPEC_ID, _PHP_MATCH_SYSTEM))}
 
 
 def _spec_cache() -> Path:
@@ -764,7 +794,8 @@ class SplitJudge:
                 f"{app_excerpts(q.repo_path, u, self.matcher.budget)}\n\n"
                 "Does the application reach the vulnerable code as the spec describes?")
         d, err = self.matcher.complete({"cargo": _CARGO_MATCH_SYSTEM, "go": _GO_MATCH_SYSTEM,
-                                        "pypi": _PY_MATCH_SYSTEM, "maven": _JVM_MATCH_SYSTEM}.get(q.ecosystem, MATCH_SYSTEM),
+                                        "pypi": _PY_MATCH_SYSTEM, "maven": _JVM_MATCH_SYSTEM,
+                                        "composer": _PHP_MATCH_SYSTEM}.get(q.ecosystem, MATCH_SYSTEM),
                                        user, VERDICT_SCHEMA, purpose="match")
         if d is None:
             logger.warning("split: matcher %s failed (%s)", self.matcher.name, err)

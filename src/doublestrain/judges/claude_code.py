@@ -304,6 +304,8 @@ def _invoke(binary, prompt, system, schema, *, cwd, add_dirs, model, timeout, pu
             "--permission-prompts", "none"]
     for d in add_dirs:
         argv += ["--add-dir", str(d)]
+    # sizes and the destination only: the ledger never holds prompt or answer text
+    sizes = {"dest": "anthropic (claude CLI)", "sent_bytes": len(prompt.encode()) + len(system.encode())}
     t0 = time.monotonic()
     try:
         with _claude_slot():
@@ -311,7 +313,7 @@ def _invoke(binary, prompt, system, schema, *, cwd, add_dirs, model, timeout, pu
                                   cwd=str(cwd), timeout=timeout)
     except subprocess.TimeoutExpired:
         logger.warning("claude (%s) timed out after %ss; no claim", model, timeout)
-        accounting.record("claude", purpose, model=model, outcome="timeout", latency_s=timeout)
+        accounting.record("claude", purpose, model=model, outcome="timeout", latency_s=timeout, **sizes)
         return ("error",)
     finally:
         Path(sp).unlink(missing_ok=True)
@@ -322,10 +324,11 @@ def _invoke(binary, prompt, system, schema, *, cwd, add_dirs, model, timeout, pu
     except json.JSONDecodeError:
         logger.warning("claude: unparseable output (rc=%s): %s",
                        proc.returncode, (proc.stderr or proc.stdout)[-400:])
-        accounting.record("claude", purpose, model=model, outcome="error", latency_s=latency)
+        accounting.record("claude", purpose, model=model, outcome="error", latency_s=latency, **sizes)
         return ("error",)
     acct = {"model": model, "models": ",".join(models_used(out)), "latency_s": latency,
-            **accounting.claude_fields(out)}
+            **accounting.claude_fields(out), **sizes,
+            "recv_bytes": len(str(out.get("result") or "").encode()) + len(json.dumps(out.get("structured_output") or ""))}
     _spend("usd", float(out.get("total_cost_usd") or 0.0))
     why = refusal(out)
     if why:
@@ -421,7 +424,8 @@ def refusal_note(out: dict) -> str:
 # Opus read django and found the route with or without the note. About 2.7x the cost, and
 # 0-4 points of coverage. npm and go settle mostly on static tools and stay on the default.
 # cargo and maven: every Rust (rs1-rs3) and JVM (jv1-jv3) measurement corroborated split with opus.
-MODEL_BY_ECOSYSTEM = {"pypi": "opus", "cargo": "opus", "maven": "opus"}
+# composer: php1-php4 corroborated split with opus.
+MODEL_BY_ECOSYSTEM = {"pypi": "opus", "cargo": "opus", "maven": "opus", "composer": "opus"}
 
 
 class ClaudeCodeJudge:
@@ -435,7 +439,7 @@ class ClaudeCodeJudge:
         # an explicit model (argument or SSVC_CLAUDE_MODEL) applies everywhere unless
         # SSVC_CLAUDE_MODEL_<ECOSYSTEM> names one for that ecosystem
         self.by_ecosystem = {} if explicit else dict(MODEL_BY_ECOSYSTEM)
-        for eco in ("pypi", "npm", "go", "cargo", "maven"):
+        for eco in ("pypi", "npm", "go", "cargo", "maven", "composer"):
             if v := os.environ.get(f"SSVC_CLAUDE_MODEL_{eco.upper()}"):
                 self.by_ecosystem[eco] = v
         self.timeout = timeout or float(os.environ.get("SSVC_CLAUDE_TIMEOUT", "300"))
@@ -464,7 +468,7 @@ class ClaudeCodeJudge:
     def _sources(self, q: ReachQuery) -> tuple[list[tuple[str, Path]], list[str]]:
         # maven (jv1): JVM rows turn on library internals (codecs, parsers, framework wiring),
         # so claude reads the verified -sources.jars; cargo stays as measured (rs1-rs3), without
-        if not self.pkgsrc or q.ecosystem not in ("npm", "pypi", "maven"):
+        if not self.pkgsrc or q.ecosystem not in ("npm", "pypi", "maven", "composer"):
             return [], []
         # pypi: room for the notes' libraries (importers, callers, up to four dependents) after
         # the package itself; they're directories claude may open, not prompt text

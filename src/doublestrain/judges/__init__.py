@@ -182,6 +182,11 @@ class CachedJudge:
                 from ..jvmcallers import callers_note as jvm_callers
                 cal = jvm_callers(q.repo_path, q.ecosystem, q.dependency, q.version, q.vuln_symbols)
                 salt += "-j" + hashlib.sha256(cal.encode()).hexdigest()[:8] if cal else ""
+            if q.ecosystem == "composer":
+                # and a guzzle row in an app with Laravel's Http client (phpclients: its cookie jar)
+                from .phpclients import http_client_note
+                fw = http_client_note(q.repo_path, q.ecosystem, q.dependency, q.version)
+                salt += "-l" + hashlib.sha256(fw.encode()).hexdigest()[:8] if fw else ""
         # an app whose Dockerfile installs local projects from outside its root (approots:
         # Baserow's premium/) is searched and read with them: only those apps' rows are asked again
         if extra := approots.extra_roots(q.repo_path):

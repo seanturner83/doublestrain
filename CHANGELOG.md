@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- **PHP (Composer):** `composer.lock` (every lock up to three directories deep) to OSV
+  advisories, the dependency graph and `--no-dev` production split, and verified package
+  source at the commit the lock pins (fetched from its git host, never installed; nothing
+  runs `composer`). Composer settles `not_reachable` only as the `split` + `claude` pair, with
+  split at 0.95 (held-out php4: 118 right, 0 wrong; README, Results).
+- **Laravel HTTP client note:** for Guzzle advisories, the judges are told that Laravel's
+  `Http::` client builds every Guzzle client with a cookie jar (cited from the installed
+  framework's source), with the call sites in the app and its installed production packages.
+- **Cases:** thirteen PHP apps (php1-php4; blind-labelled, disputed labels re-read 2 of 3).
+- **Dashboard:** `doublestrain dashboard`, a live view of runs, each tier's funnel, scores
+  against the current labels, and the model-call ledger (metadata only), on 127.0.0.1.
 - **Cases:** four held-out JVM apps (Apache ActiveMQ, Guacamole, James, Metabase; 261 rows,
   blind-labelled, disputed labels re-read 2 of 3). The Maven pair: 131 right, 0 wrong, with
   the gadget rule (README, Results).

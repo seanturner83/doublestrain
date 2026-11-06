@@ -28,6 +28,7 @@ _EXTS = {
     "go": (".go",),
     "cargo": (".rs",),
     "maven": (".java", ".kt", ".kts", ".scala", ".groovy"),
+    "composer": (".php", ".phtml", ".inc"),
 }
 _SKIP_DIRS = {".git", "node_modules", "vendor", "dist", "build", ".venv", "venv",
               "__pycache__", ".tox", "coverage", ".next"}
@@ -37,7 +38,7 @@ _MAX_FILE_BYTES = 512 * 1024
 PREPASS_VERSION = 8
 
 _TEST_DIRS = {"test", "tests", "__tests__", "spec", "specs", "testing", "e2e"}
-_TEST_FILE = re.compile(r"(\.(test|spec)\.[cm]?[jt]sx?$|^test_.*\.py$|_test\.(py|go)$|^conftest\.py$)")
+_TEST_FILE = re.compile(r"(\.(test|spec)\.[cm]?[jt]sx?$|^test_.*\.py$|_test\.(py|go)$|^conftest\.py$|Test\.php$)")
 
 
 @dataclass
@@ -50,6 +51,7 @@ class Usage:
     importers: str = ""                                       # pypi: who imports it, when the chain misses a route
     callers: str = ""                                         # pypi: who calls the advisory's functions (pycallers)
     dependents: str = ""                                      # pypi: libraries the app uses that call the package
+    framework: str = ""                                       # composer: framework defaults (phpclients)
     entry_sites: list[str] = field(default_factory=list)     # where the app imports chain tops
     files_scanned: int = 0
     text: str = ""
@@ -66,8 +68,8 @@ def is_test_path(rel: Path) -> bool:
 
 def _bindings(ecosystem: str, line: str, import_name: str, dep: str) -> list[str]:
     """Local names an import line binds the dependency to (for dynamic-access checks)."""
-    if ecosystem in ("cargo", "go", "maven"):
-        return []       # no runtime name lookup to bind (JVM reflection is caught by _dynamic_res)
+    if ecosystem in ("cargo", "go", "maven", "composer"):
+        return []       # no runtime name lookup to bind (JVM reflection, PHP `new $class`: _dynamic_res)
     if ecosystem == "pypi":
         for mod in _py_modules(dep, import_name):
             m = re.match(rf"\s*import\s+{re.escape(mod)}(?:\s+as\s+(\w+))?", line)
@@ -133,6 +135,8 @@ def rust_test_lines(lines) -> set[int]:
 
 def _is_comment(ecosystem: str, ln: str) -> bool:
     t = ln.lstrip()
+    if ecosystem == "composer":                # `#` comments, but `#[Attribute]` is code
+        return t.startswith(("//", "/*", "*")) or (t.startswith("#") and not t.startswith("#["))
     return t.startswith("#") if ecosystem == "pypi" else t.startswith(("//", "/*", "*"))
 
 
@@ -145,6 +149,9 @@ def _dynamic_res(ecosystem: str, names: list[str]) -> list[re.Pattern[str]]:
     elif ecosystem == "maven":
         # reflection and service loading pick classes by name at run time
         pats.append(re.compile(r"\bClass\.forName\(\s*(?!\")|\.loadClass\(\s*(?!\")|\bServiceLoader\.load\("))
+    elif ecosystem == "composer":
+        # classes named at run time: `new $class`, `$class::make()`, call_user_func, reflection
+        pats.append(re.compile(r"\bnew\s+\$|\$\w+\s*::\s*\w|\bcall_user_func(?:_array)?\(|\bnew\s+\\?ReflectionClass\(\s*\$"))
     elif ecosystem not in ("go", "cargo"):
         pats.append(re.compile(r"""\b(?:require|import)\(\s*(?!['"`]|\))"""))   # non-literal require()/import()
         if names:
@@ -171,6 +178,17 @@ def _import_re(ecosystem: str, dep: str, import_name: str, root: Path | None = N
             return re.compile(r"(?!x)x")                         # unknown packages: no import sites claimed
         alt = "|".join(re.escape(p) for p in sorted(pk, key=len, reverse=True))
         return re.compile(rf"(?<![\w.])(?:{alt})\.(?:[A-Z_*$]|\{{)")
+    if ecosystem == "composer":
+        # a Composer package is named by its autoload namespaces (from composer.lock):
+        # `use Monolog\Logger;`, `use Monolog\{Logger, Handler};`, `\Monolog\Logger::` or
+        # `new \Monolog\Logger(` in code, and class-name strings in config ('Monolog\\Logger')
+        from .. import composer
+        lock = composer.load(root) if root is not None and not import_name else None
+        ns = [p for p in import_name.split("|") if p] if import_name else lock.namespaces_of(dep) if lock else []
+        if not ns:
+            return re.compile(r"(?!x)x")                         # classmap/files autoload: no import sites claimed
+        alt = "|".join(re.escape(n) for n in ns) + "|" + "|".join(re.escape(n.replace("\\", "\\\\")) for n in ns)
+        return re.compile(rf"(?<![\w\\])\\?(?:{alt})\\")
     if ecosystem == "pypi":
         # `import yaml`, `import os, yaml as y`, `import yaml.constructor`, `from yaml import x`,
         # `from yaml.loader import x`; a distribution may provide several modules
@@ -220,9 +238,9 @@ def _chain_section(u: Usage, root: Path, ecosystem: str, dependency: str, versio
                    exts, max_sites: int) -> list[str]:
     """Lockfile dependency chains + where the app imports each chain's top-level package."""
     from . import depgraph
-    if ecosystem not in ("npm", "cargo", "go", "pypi", "maven"):
+    if ecosystem not in ("npm", "cargo", "go", "pypi", "maven", "composer"):
         return []
-    lockname = {"cargo": "Cargo.lock", "go": "go.mod", "pypi": "the Python lock",
+    lockname = {"cargo": "Cargo.lock", "go": "go.mod", "pypi": "the Python lock", "composer": "composer.lock",
                 "maven": "the release classpath (each jar's embedded pom.xml)"}.get(ecosystem, "package-lock.json")
     g = depgraph.load(root, ecosystem)
     if g is None:
@@ -255,7 +273,7 @@ def _chain_section(u: Usage, root: Path, ecosystem: str, dependency: str, versio
                 flines = f.read_text(errors="replace").splitlines()
                 tl = rust_test_lines(flines) if ecosystem == "cargo" else set()
                 for i, ln in enumerate(flines, 1):
-                    if imp.search(ln) and not (ecosystem == "cargo" and _is_comment(ecosystem, ln)):
+                    if imp.search(ln) and not (ecosystem in ("cargo", "composer") and _is_comment(ecosystem, ln)):
                         tag = " (test code)" if is_test_path(rel) or i in tl else ""
                         sites.append(f"{rel}:{i}: {ln.strip()[:160]}{tag}")
             except OSError:
@@ -277,7 +295,7 @@ def copies_note(repo_path: str, ecosystem: str, dependency: str, version: str) -
     copy those imports resolve to. "" when only one version is installed. No app source:
     lockfile paths, names and versions only (it goes to the shape tier too)."""
     from . import depgraph
-    if not version or ecosystem not in ("npm", "cargo", "go", "pypi"):
+    if not version or ecosystem not in ("npm", "cargo", "go", "pypi", "composer"):
         return ""
     g = depgraph.load(Path(repo_path).expanduser(), ecosystem)
     if g is None:
@@ -343,7 +361,7 @@ def usage_summary(repo_path: str, ecosystem: str, dependency: str, vuln_symbols=
         tl = rust_test_lines(lines) if ecosystem == "cargo" and not tag else set()
         site = lambda i, ln: f"{rel}:{i}: {ln.strip()[:160]}{tag or (' (test code)' if i in tl else '')}"  # noqa: E731
         imports = [(i, ln) for i, ln in enumerate(lines, 1) if imp.search(ln)
-                   and not (ecosystem == "cargo" and _is_comment(ecosystem, ln))]   # `///` docs name paths
+                   and not (ecosystem in ("cargo", "composer") and _is_comment(ecosystem, ln))]   # `///` docs name paths
         u.import_sites += [site(i, ln) for i, ln in imports]
         names = [n for _, ln in imports for n in _bindings(ecosystem, ln, import_name, dependency)]
         dyn = _dynamic_res(ecosystem, names) if imports or ecosystem != "pypi" else []
@@ -355,7 +373,7 @@ def usage_summary(repo_path: str, ecosystem: str, dependency: str, vuln_symbols=
                 continue
             # JVM reflection loads by name from any file, whatever it imports
             if any(d.search(ln) for d in dyn) and (imports or "require" in ln or "import" in ln
-                                                   or ecosystem == "maven"):
+                                                   or ecosystem in ("maven", "composer")):
                 if (_LOCAL_LOAD.search(ln) or (local_fn and local_fn.search(ln))) and not any(
                         d.search(ln) for d in dyn[1:]):     # path-built local file load only
                     continue
@@ -406,6 +424,13 @@ def usage_summary(repo_path: str, ecosystem: str, dependency: str, vuln_symbols=
         u.callers = jvm_callers(repo_path, ecosystem, dependency, version, vuln_symbols)
         if u.callers:
             parts.append(u.callers)
+    if ecosystem == "composer":
+        # framework defaults the app's code doesn't show (php2: Laravel's Http client turns
+        # Guzzle's cookie jar on; judges read "no withCookies" as no jar)
+        from .phpclients import http_client_note
+        u.framework = http_client_note(repo_path, ecosystem, dependency, version)
+        if u.framework:
+            parts.append(u.framework)
     parts += _chain_section(u, root, ecosystem, dependency, version, exts, max_sites)
     if u.dynamic_sites:
         parts.append(f"DYNAMIC ACCESS ({len(u.dynamic_sites)} site(s)) — computed member access or "
@@ -422,7 +447,7 @@ def unmeasured_ecosystems() -> set[str]:
     held from 2026-10-19: three small fixtures were its only labels). Override
     with SSVC_NR_UNMEASURED (comma-separated; empty = none). govulncheck isn't held: it is
     a call graph, not a model judging from excerpts (`reach.resolve_reachability`)."""
-    return {e.strip() for e in os.environ.get("SSVC_NR_UNMEASURED", "cargo,go,pypi,maven").split(",") if e.strip()}
+    return {e.strip() for e in os.environ.get("SSVC_NR_UNMEASURED", "cargo,go,pypi,maven,composer").split(",") if e.strip()}
 
 
 def _role_set(role: str, key: str) -> set[str]:

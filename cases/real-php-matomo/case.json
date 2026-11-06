@@ -1,0 +1,1104 @@
+{
+  "id": "real-php-matomo",
+  "description": "Matomo 5.4.0 (web analytics): PHP held-out set (php2), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#1",
+      "facts": {
+        "package": "phpunit/phpunit",
+        "version": "8.5.44",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24765",
+            "GHSA-vvj3-c3rp-c85p"
+          ],
+          [
+            "phpunit/phpunit"
+          ]
+        ],
+        "advisory_summary": "PHPUnit Vulnerable to Unsafe Deserialization in PHPT Code Coverage Handling \u2014 ### Overview\n\nA vulnerability has been discovered involving unsafe deserialization of code coverage data in PHPT test execution. The vulnerability exists in the `cleanupForCoverage()` method, which deserializes code coverage files without validation, potentially allowing remote code execution if malicious `.coverage` files are present prior to the execution of the PHPT test.\n\n### Technical Details\n\n**Affected Component:** PHPT test runner, method `cleanupForCoverage()`\n**Affected Versions:** <= 8.5.51, <= 9.6.32, <= ",
+        "vuln_symbols": [
+          "cleanupForCoverage",
+          "allowed_classes",
+          "__wakeup"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.5.62",
+          "11.5.50",
+          "12.5.8",
+          "8.5.52",
+          "9.6.33"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "phpunit/phpunit Dev-only; release package built by .github/scripts/build-package.sh:91 'composer install --no-dev' (invoked from .github/workflows/release.yml:174), so not installed in production. PHPT coverage runner is test tooling anyway.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#2",
+      "facts": {
+        "package": "squizlabs/php_codesniffer",
+        "version": "3.13.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67434",
+            "GHSA-hmqg-cxww-wqhq"
+          ],
+          [
+            "squizlabs/php_codesniffer"
+          ]
+        ],
+        "advisory_summary": "PHP_CodeSniffer gitblame report command injection via crafted filename \u2014 ### Impact\n\nPHP_CodeSniffer versions before v3.13.6 and v4.0.2 contain a command injection vulnerability in the code creating the `Gitblame`, `Hgblame` and `Svnblame` report(s).\n\nAs a result, running PHP_CodeSniffer over untrusted files, for example, in a CI pipeline that scans pull requests, or on a developer machine reviewing third-party code, could result in attacker-controlled shell commands being executed when the `Gitblame`, `Hgblame` or `Svnblame` report(s) would process a file whose name contains shell metacharact",
+        "vuln_symbols": [
+          "Gitblame",
+          "Hgblame",
+          "Svnblame",
+          "Full"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.13.6",
+          "4.0.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "squizlabs/php_codesniffer pulled in only by dev packages (matomo-coding-standards, slevomat, dealerdirect installer). Dev-only; release package built by .github/scripts/build-package.sh:91 'composer install --no-dev' (invoked from .github/workflows/release.yml:174), so not installed in production.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#3",
+      "facts": {
+        "package": "symfony/http-foundation",
+        "version": "5.4.48",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-64500",
+            "GHSA-3rg7-wf37-54rm"
+          ],
+          [
+            "symfony/http-foundation"
+          ]
+        ],
+        "advisory_summary": "Symfony's incorrect parsing of PATH_INFO can lead to limited authorization bypass \u2014 ### Description\n\nThe `Request` class improperly interprets some `PATH_INFO` in a way that leads to representing some URLs with a path that doesn't start with a `/`. This can allow bypassing some access control rules that are built with this `/`-prefix assumption.\n\n### Resolution\n\nThe `Request` class now ensures that URL paths always start with a `/`.\n\nThe patch for this issue is available [here](https://github.com/symfony/symfony/commit/9962b91b12bb791322fa73836b350836b6db7cac) for branch 5.4.\n\n### Credits\n\nWe ",
+        "vuln_symbols": [
+          "Request",
+          "PATH_INFO"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.50",
+          "6.4.29",
+          "7.3.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "symfony/http-foundation installed only as a dependency of symfony/http-kernel (via monolog-bridge). Matomo never builds a Symfony Request: no HttpFoundation/HttpKernel reference in core/, plugins/, libs/, config/. Monolog bridge use is limited to Handler\\ConsoleHandler and Formatter\\ConsoleFormatter (plugins/Monolog/config/cli.php:6,25; plugins/Monolog/Formatter/ConsoleFormatter.php:12; core/Console.php:20), which do not touch Request; Matomo routing uses its own core/FrontController and \\$_SERVER.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#4",
+      "facts": {
+        "package": "symfony/http-foundation",
+        "version": "5.4.48",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-108082",
+            "GHSA-r925-mgvr-h9cc"
+          ],
+          [
+            "symfony/http-foundation"
+          ]
+        ],
+        "advisory_summary": "Symfony: ReDoS in HeaderUtils::split() Reachable Through the Cache-Control Request Header \u2014 ### Description\n\n`HeaderUtils::split()` parsed header values with a pattern whose token alternative also matched whitespace, followed by a `(?<!\\s)` lookbehind. A run of whitespace placed before a separator could be divided among the iterations of the enclosing repetition in exponentially many ways, and the engine tried all of them before settling. `HeaderBag` calls it for the `Cache-Control` header whenever a `Request` is built, so any application handling HTTP requests is reachable, with no authentica",
+        "vuln_symbols": [
+          "HeaderBag",
+          "Request",
+          "preg_match_all",
+          "pcre.backtrack_limit",
+          "split"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.54",
+          "6.4.46",
+          "7.4.19",
+          "8.1.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "HeaderUtils::split is reached via HeaderBag/Request construction; Matomo never creates a Symfony Request/HeaderBag (no HttpFoundation reference in core/, plugins/, libs/). Only monolog-bridge ConsoleHandler/ConsoleFormatter are used (plugins/Monolog/config/cli.php:25), CLI-only and Request-free.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#5",
+      "facts": {
+        "package": "symfony/monolog-bridge",
+        "version": "5.4.45",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45077",
+            "GHSA-m7v2-7gxm-vc2v"
+          ],
+          [
+            "symfony/monolog-bridge"
+          ]
+        ],
+        "advisory_summary": "Symfony has Unauthenticated PHP Object Deserialization in MonologBridge server:log Listener \u2014 ### Description\n\n`Symfony\\Bridge\\Monolog\\Command\\ServerLogCommand` (the `server:log` console command) is a development-time helper that opens a TCP listener and displays log records pushed to it by the application's logging pipeline. Two unsafe defaults combine into a remotely reachable PHP object-deserialization sink:\n\n1. The listener binds to `0.0.0.0:9911` by default; it accepts connections on every interface, not only loopback.\n2. Each received frame is processed as `unserialize(base64_decode($mes",
+        "vuln_symbols": [
+          "allowed_classes",
+          "__wakeup",
+          "__destruct",
+          "unserialize"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "ServerLogCommand (server:log) never registered: Matomo's console adds only Piwik plugin commands (core/Console.php:138,173-185); grep for ServerLogCommand/server:log in core, plugins, config finds nothing. Only ConsoleHandler/ConsoleFormatter from the bridge are used (plugins/Monolog/config/cli.php:6,25).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#6",
+      "facts": {
+        "package": "symfony/process",
+        "version": "5.4.47",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24739",
+            "GHSA-r39x-jcww-82v6"
+          ],
+          [
+            "symfony/process"
+          ]
+        ],
+        "advisory_summary": "Symfony's incorrect argument escaping under MSYS2/Git Bash can lead to destructive file operations on Windows \u2014 ### Summary\nThe Symfony Process component did not correctly treat some characters (notably `=`) as \u201cspecial\u201d when escaping arguments on Windows. When PHP is executed from an MSYS2-based environment (e.g. Git Bash) and Symfony Process spawns native Windows executables, MSYS2\u2019s argument/path conversion can mishandle unquoted arguments containing these characters.\n\nThis can cause the spawned process to receive corrupted/truncated arguments compared to what Symfony intended.\n\n### Impact\n",
+        "vuln_symbols": [
+          "rmdir",
+          "del",
+          "MSYS2_ARG_CONV_EXCL"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.51",
+          "6.4.33",
+          "7.3.11",
+          "7.4.5",
+          "8.0.5"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bug only affects Windows when PHP runs under MSYS2/Git Bash spawning native executables; not a production web deployment. Symfony Process used by core/Process.php:12-17 / CliMulti async path only when feature flag CliMultiProcessSymfony is active (core/CliMulti.php:419-440), with internally built archiver commands.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#7",
+      "facts": {
+        "package": "symfony/yaml",
+        "version": "5.4.45",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-109413",
+            "GHSA-2v3c-qxhr-7vpv"
+          ],
+          [
+            "symfony/yaml"
+          ]
+        ],
+        "advisory_summary": "Symfony: Unbounded Recursion in the YAML Inline Lexer Lets a Single Document Crash the Process \u2014 ### Description\n\n`Yaml\\Parser::lexInlineStructure()` recursed through `lexInlineMapping()` and `lexInlineSequence()` for every `{` and `[` of an inline collection, without entering the nesting level that the rest of the parser bounds with `maxNestingLevel`. A document made of deeply nested inline collections, such as `[[[[...]]]]`, exhausted the stack while it was being lexed: depending on the PHP version and its stack settings, the process crashed or the request ended with a fatal error.\n\nAny code",
+        "vuln_symbols": [
+          "lexInlineMapping",
+          "lexInlineSequence",
+          "maxNestingLevel",
+          "acceptFormat",
+          "ParseException"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.54",
+          "6.4.45",
+          "7.4.18",
+          "8.1.6"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "symfony/yaml is require-dev (composer.json require-dev). Dev-only; release package built by .github/scripts/build-package.sh:91 'composer install --no-dev' (invoked from .github/workflows/release.yml:174), so not installed in production.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#8",
+      "facts": {
+        "package": "symfony/yaml",
+        "version": "5.4.45",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45304",
+            "GHSA-4qpc-3hr4-r2p4"
+          ],
+          [
+            "symfony/yaml"
+          ]
+        ],
+        "advisory_summary": "Symfony's YAML Parser Vulnerable to Exponential Memory Allocation via Recursive Collection-Alias Expansion (\"Billion Laughs\") \u2014 ### Description\n\n`Symfony\\Component\\Yaml\\Parser` resolves YAML aliases (`*anchor`) during parsing. Aliases that reference *collections* (arrays, `stdClass`, `TaggedValue`-wrapped collections) can themselves point to other collections containing aliases, creating exponential expansion at resolution time. A small input can blow up into a multi-gigabyte structure and exhaust memory: the classic \"Billion Laughs\" denial-of-service against any parser exposed to untrusted YA",
+        "vuln_symbols": [
+          "stdClass",
+          "TaggedValue",
+          "Parser",
+          "ParserState",
+          "$maxAliasesForCollections"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "symfony/yaml is require-dev. Dev-only; release package built by .github/scripts/build-package.sh:91 'composer install --no-dev' (invoked from .github/workflows/release.yml:174), so not installed in production.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#9",
+      "facts": {
+        "package": "symfony/yaml",
+        "version": "5.4.45",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45305",
+            "GHSA-9frc-8383-795m"
+          ],
+          [
+            "symfony/yaml"
+          ]
+        ],
+        "advisory_summary": "Symfony's YAML Parser has a ReDoS via Catastrophic Backtracking in Parser::cleanup() Regex \u2014 ### Description\n\n`Symfony\\Component\\Yaml\\Parser::cleanup()` strips the optional `%YAML` directive header, leading comments, and document start/end markers before parsing. The original regexes contained overlapping quantifiers, most notably `'#^%YAML[: ][\\d.]+.*\\n#u'`, whose `[\\d.]+` and `.*` overlap on the dot, that exhibit catastrophic backtracking on crafted input. A single oversized `%YAML` directive header (or comment / document-marker line) makes the parser hang for an arbitrarily long time, denyi",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "symfony/yaml is require-dev. Dev-only; release package built by .github/scripts/build-package.sh:91 'composer install --no-dev' (invoked from .github/workflows/release.yml:174), so not installed in production.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#10",
+      "facts": {
+        "package": "symfony/yaml",
+        "version": "5.4.45",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45133",
+            "GHSA-c2p3-7m5p-cv8x"
+          ],
+          [
+            "symfony/yaml"
+          ]
+        ],
+        "advisory_summary": "Symfony hardened the parser when handling untrusted input \u2014 ### Description\n\n`Symfony\\Component\\Yaml\\Parser` is the entry point for parsing YAML strings into PHP values via `Yaml::parse()`. When the parser is exposed to attacker-controlled input, deeply nested mappings or sequences cause both the block-level (`Parser::parseBlock()`) and inline (`Inline::parseSequence()` / `Inline::parseMapping()`) parsers to recurse without a depth limit. A crafted document exhausts the PHP stack and crashes the worker.\n\n### Resolution\n\nThe `Parser` now tracks recursion depth in a shared `ParserState` object a",
+        "vuln_symbols": [
+          "Parser",
+          "ParserState",
+          "$maxNestingLevel"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "symfony/yaml is require-dev. Dev-only; release package built by .github/scripts/build-package.sh:91 'composer install --no-dev' (invoked from .github/workflows/release.yml:174), so not installed in production.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#11",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46634",
+            "GHSA-24x9-r6q4-q93w"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: `template_from_string()` escapes a SourcePolicy-driven sandbox via synthesized template name \u2014 ### Description\n\nWhen the sandbox is enabled selectively via `SourcePolicyInterface` (and not globally), a sandboxed template that is allowed to call `template_from_string` and `include` can render an arbitrary inner template with no security policy enforcement.\n\n`Environment::createTemplate()` compiles the inner string under a synthesized name (`__string_template__<hash>`), so a name/path-based `SourcePolicy` returns `false` for it, and the inner template's `checkSecurity()` becomes a no-op. F",
+        "vuln_symbols": [
+          "template_from_string",
+          "SourcePolicyInterface",
+          "include",
+          "SourcePolicy",
+          "checkSecurity",
+          "constant"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig 3.11.3 used only via core/Twig.php:112 Environment with FilesystemLoader/ChainLoader + DebugExtension + Piwik EscapeFilter (core/Twig.php:107-166); no SandboxExtension/SecurityPolicy/SourcePolicy anywhere in core/, plugins/, libs/ (Piwik\\View\\SecurityPolicy is CSP, not Twig), no {% sandbox %} tag in templates; sandbox bypass needs sandbox enabled. Also no template_from_string/StringLoaderExtension/createTemplate usage.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#12",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47730",
+            "GHSA-2g2g-8p8h-fgwm"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: XSS in profiler HtmlDumper via unescaped template and profile names \u2014 ### Description\n\n`Twig\\Profiler\\Dumper\\HtmlDumper` writes `Profile::getTemplate()` and `Profile::getName()` straight into its HTML output without escaping:\n\n```php\nprotected function formatTemplate(Profile $profile, $prefix): string\n{\n    return \\sprintf('%s\u2514 <span style=\"background-color: %s\">%s</span>', $prefix, self::$colors['template'], $profile->getTemplate());\n}\n```\n\nThe template name comes from the loader (the array key for `ArrayLoader`, a row id for a database-backed loader, etc.). When that name is attacker-c",
+        "vuln_symbols": [
+          "ArrayLoader",
+          "HtmlDumper",
+          "htmlspecialchars"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Twig Profiler/HtmlDumper never used: no Twig\\Profiler, ProfilerExtension or HtmlDumper in core/, plugins/, libs/; core/Twig.php:120-166 adds only DebugExtension and EscapeFilter. Template names come from FilesystemLoader on shipped files.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#13",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24425",
+            "GHSA-2q52-x2ff-qgfr"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Possible sandbox bypass when using a source policy \u2014 # Description\n\nWhen using the sandbox with a `SourcePolicyInterface`, Twig does not always apply the sandbox restriction that forbids non-`Closure` callbacks for callback-accepting filters.\n\nThe issue affects the `sort`, `filter`, `map`, and `reduce` filters.\n\nIn the affected versions, the runtime check that rejects non-`Closure` callbacks in sandbox mode does not use the current template `Source`. As a result, when the sandbox is enabled through a source policy instead of being enabled globally, Twig can incorrectly treat the current ",
+        "vuln_symbols": [
+          "SourcePolicyInterface",
+          "Closure",
+          "sort",
+          "filter",
+          "map",
+          "reduce"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig 3.11.3 used only via core/Twig.php:112 Environment with FilesystemLoader/ChainLoader + DebugExtension + Piwik EscapeFilter (core/Twig.php:107-166); no SandboxExtension/SecurityPolicy/SourcePolicy anywhere in core/, plugins/, libs/ (Piwik\\View\\SecurityPolicy is CSP, not Twig), no {% sandbox %} tag in templates; sandbox bypass needs sandbox enabled.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#14",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46628",
+            "GHSA-4j38-f5cw-54h7"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: The `spaceless` filter implicitly marks its output as safe \u2014 ### Description\n\nThe `spaceless` filter is registered with `is_safe => ['html']`, which means Twig's autoescaper does not escape its output in an HTML context. As a result, applying `spaceless` to attacker-controlled input that contains markup emits the markup unescaped even when the developer never wrote `|raw` and autoescape is enabled.\n\nExample:\n\n```twig\n{% set payload = '<script>alert()</script>' %}\n{{ payload }}          {# escaped #}\n{{ payload|spaceless }} {# not escaped #}\n```\n\nThe filter is deprecated but still functio",
+        "vuln_symbols": [
+          "spaceless",
+          "is_safe"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "spaceless only used as '{% apply spaceless %}' block wrappers around app-authored markup (plugins/CoreHome/templates/_dataTableCell.twig:1, _topBar.twig:52, Ecommerce/templates/_actionTooltip.twig:2, Marketplace/templates/plugin-details.twig:172, CustomAlerts/templates/macros.twig:2); inside the block every {{ }} print is autoescaped before capture, so the captured body is already-escaped Markup and spaceless's is_safe does not unescape anything. No '{{ x|spaceless }}' on a raw variable in any template.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#15",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-49981",
+            "GHSA-529h-vh3j-85hq"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox filter, tag and function allow-list bypass when sandbox state changes between renders for a cached `Template` \u2014 ### Description\n\nThe per-template filter, tag and function allow-list check is compiled into the `checkSecurity()` method of each `Template` subclass and was invoked once from the constructor, gated by `SandboxExtension::isSandboxed($source)`. `Template` instances are then cached on the `Environment` in `$loadedTemplates`, so the verdict computed at construction time was sticky for the rest of the process.\n\nAny later change of sandbox state on the same `Environment` lef",
+        "vuln_symbols": [
+          "Template",
+          "checkSecurity",
+          "Environment",
+          "$loadedTemplates",
+          "disableSandbox",
+          "setSecurityPolicy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig 3.11.3 used only via core/Twig.php:112 Environment with FilesystemLoader/ChainLoader + DebugExtension + Piwik EscapeFilter (core/Twig.php:107-166); no SandboxExtension/SecurityPolicy/SourcePolicy anywhere in core/, plugins/, libs/ (Piwik\\View\\SecurityPolicy is CSP, not Twig), no {% sandbox %} tag in templates; sandbox bypass needs sandbox enabled.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#16",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48806",
+            "GHSA-5v5v-ww74-355v"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox `__toString()` policy bypass via dynamic mapping keys \u2014 ### Description\n\nThis is a residual bypass of CVE-2026-47732 / GHSA-pr2w-4gpj-cpq4 left after the initial fix for unguarded `__toString()` calls.\n\nIn 3.26.0 the sandbox visitor was extended to wrap every child node that its parent will string-coerce at runtime with `CheckToStringNode`, gated by the new `CoercesChildrenToStringInterface`. `ArrayExpression` did not implement the interface for its mapping keys: when a dynamic key expression resolves to a `Stringable` object, `ArrayExpression::compile()` emits a raw `(string)` c",
+        "vuln_symbols": [
+          "__toString",
+          "CheckToStringNode",
+          "CoercesChildrenToStringInterface",
+          "ArrayExpression",
+          "Stringable",
+          "StringCastUnary"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig 3.11.3 used only via core/Twig.php:112 Environment with FilesystemLoader/ChainLoader + DebugExtension + Piwik EscapeFilter (core/Twig.php:107-166); no SandboxExtension/SecurityPolicy/SourcePolicy anywhere in core/, plugins/, libs/ (Piwik\\View\\SecurityPolicy is CSP, not Twig), no {% sandbox %} tag in templates; sandbox bypass needs sandbox enabled.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#17",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46638",
+            "GHSA-7fxw-r6jv-74c8"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: `{% sandbox %}{% include %}` skips checkSecurity() on cached templates (incomplete fix for CVE-2024-45411) \u2014 ### Description\n\nThe fix for CVE-2024-45411 / GHSA-6j75-5wfj-gh66 added an explicit `$loaded->unwrap()->checkSecurity()` call in `CoreExtension::include()` so that a template already cached in `Environment::$loadedTemplates` is re-checked when included with `sandboxed = true`.\n\nThe deprecated but still functional `{% sandbox %}{% include ... %}{% endsandbox %}` tag path was not updated: it compiles to `enableSandbox(); yield from $this->load(...)->unwrap()->yield(...); disableSand",
+        "vuln_symbols": [
+          "checkSecurity",
+          "Environment",
+          "isSandboxed"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig 3.11.3 used only via core/Twig.php:112 Environment with FilesystemLoader/ChainLoader + DebugExtension + Piwik EscapeFilter (core/Twig.php:107-166); no SandboxExtension/SecurityPolicy/SourcePolicy anywhere in core/, plugins/, libs/ (Piwik\\View\\SecurityPolicy is CSP, not Twig), no {% sandbox %} tag in templates; sandbox bypass needs sandbox enabled.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#18",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46633",
+            "GHSA-7p85-w9px-jpjp"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: PHP code injection via `{% use %}` template name \u2014 ### Description\n\n`Compiler::string()` escapes `\"`, `$`, `\\`, NUL and TAB when generating PHP double-quoted string literals, but does not escape single quotes. In `ModuleNode::compileConstructor()`, the template name from a `{% use %}` tag is compiled via `subcompile()` -> `string()` and placed inside a surrounding PHP single-quoted string literal. A template name containing a single quote terminates that surrounding string early, allowing arbitrary PHP expressions to be injected into the compiled cache file.\n\nThe injected code executes w",
+        "vuln_symbols": [
+          "$",
+          "subcompile",
+          "SecurityPolicy",
+          "allowedTags"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No '{% use %}' tag in any Matomo template (grep core/, plugins/); templates are shipped files loaded by FilesystemLoader (core/Twig.php:307-330), so attacker cannot author a {% use %} template name.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#19",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48807",
+            "GHSA-8x9c-rmqh-456c"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox `__toString()` policy bypass via `Traversable` in `join` and `replace` filters \u2014 ### Description\n\nThis is a residual bypass of CVE-2026-47732 / GHSA-pr2w-4gpj-cpq4 left after the initial fix for unguarded `__toString()` calls. It covers two related coercion points that were not caught by the original patch.\n\n**`Traversable` in `join` and `replace` filters.** `SandboxExtension::ensureToStringAllowed()` recurses into PHP arrays so that a `Stringable` object hidden inside an array argument cannot be string-coerced without consulting the security policy. The recursion stops at PHP ar",
+        "vuln_symbols": [
+          "__toString",
+          "Traversable",
+          "join",
+          "replace",
+          "Stringable",
+          "implode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig 3.11.3 used only via core/Twig.php:112 Environment with FilesystemLoader/ChainLoader + DebugExtension + Piwik EscapeFilter (core/Twig.php:107-166); no SandboxExtension/SecurityPolicy/SourcePolicy anywhere in core/, plugins/, libs/ (Piwik\\View\\SecurityPolicy is CSP, not Twig), no {% sandbox %} tag in templates; sandbox bypass needs sandbox enabled.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#20",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48808",
+            "GHSA-h8vq-8gpg-mhcg"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox property allowlist bypass via the `column` filter under `SourcePolicyInterface` \u2014 ### Description\n\nThis is a residual bypass of CVE-2026-46635 / GHSA-vcc8-phrv-43wj that only affects sandboxing enabled through `SourcePolicyInterface` (and not the regular global sandbox mode).\n\n`CoreExtension::column()` receives the active sandbox state via the `needs_is_sandboxed` channel as a boolean `$isSandboxed`, but then routes the per-element property reads through `SandboxExtension::checkPropertyAllowed()` without forwarding the current `Source`. `SandboxExtension::checkPropertyAllowed()` ",
+        "vuln_symbols": [
+          "column",
+          "SourcePolicyInterface",
+          "needs_is_sandboxed",
+          "$isSandboxed",
+          "Source",
+          "allowedFilters"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig 3.11.3 used only via core/Twig.php:112 Environment with FilesystemLoader/ChainLoader + DebugExtension + Piwik EscapeFilter (core/Twig.php:107-166); no SandboxExtension/SecurityPolicy/SourcePolicy anywhere in core/, plugins/, libs/ (Piwik\\View\\SecurityPolicy is CSP, not Twig), no {% sandbox %} tag in templates; sandbox bypass needs sandbox enabled. No |column filter use in templates.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#21",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48805",
+            "GHSA-p42q-9prx-q5wq"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox state regression in deprecated internal wrappers in `src/Resources/core.php` \u2014 ### Description\n\nThe 3.26.0 source-policy hardening changed the signature of `CoreExtension::checkArrow()` to take a boolean `$isSandboxed` instead of an `Environment`, and added the same `$isSandboxed` argument to `CoreExtension::arraySome()` and `CoreExtension::arrayEvery()`. Compiled templates were updated to pass the per-source sandbox state computed at the call site.\n\nThe deprecated internal wrappers exposed in `src/Resources/core.php` for legacy third-party code (`twig_check_arrow_in_sandbox()`, ",
+        "vuln_symbols": [
+          "$isSandboxed",
+          "Environment",
+          "twig_check_arrow_in_sandbox",
+          "twig_array_some",
+          "twig_array_every",
+          "arrayEvery"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Regression is in the 3.26 signature change of deprecated wrappers (src/Resources/core.php twig_check_arrow_in_sandbox:536 etc.); 3.11.3 predates it and in any case the issue only matters with a sandbox, which Matomo never enables. twig 3.11.3 used only via core/Twig.php:112 Environment with FilesystemLoader/ChainLoader + DebugExtension + Piwik EscapeFilter (core/Twig.php:107-166); no SandboxExtension/SecurityPolicy/SourcePolicy anywhere in core/, plugins/, libs/ (Piwik\\View\\SecurityPolicy is CSP, not Twig), no {% sandbox %} tag in templates; sandbox bypass needs sandbox enabled.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#22",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47732",
+            "GHSA-pr2w-4gpj-cpq4"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox: multiple `__toString()` policy bypasses via unguarded string coercion points \u2014 ### Description\n\n`SandboxNodeVisitor` enforces `SecurityPolicy::checkMethodAllowed()` for implicit `__toString()` calls by wrapping selected AST nodes in `CheckToStringNode`. The set of wrapped nodes is incomplete, and several Twig language constructs still trigger PHP string coercion on a `Stringable` operand without first consulting the policy. A sandboxed template author can therefore invoke `__toString()` on any object reachable in the render context, even when `__toString` on its class is not all",
+        "vuln_symbols": [
+          "__toString",
+          "SandboxNodeVisitor",
+          "CheckToStringNode",
+          "Stringable",
+          "matches",
+          "include"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig 3.11.3 used only via core/Twig.php:112 Environment with FilesystemLoader/ChainLoader + DebugExtension + Piwik EscapeFilter (core/Twig.php:107-166); no SandboxExtension/SecurityPolicy/SourcePolicy anywhere in core/, plugins/, libs/ (Piwik\\View\\SecurityPolicy is CSP, not Twig), no {% sandbox %} tag in templates; sandbox bypass needs sandbox enabled.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-matomo#23",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.11.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46635",
+            "GHSA-vcc8-phrv-43wj"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox property allowlist bypass via the `column` filter (array_column on objects) \u2014 ### Description\n\nThe `column` filter passes its input straight to PHP's native `array_column()`. When the array elements are objects, `array_column()` reads `$obj->$name` (and `$obj->$index`) directly, including invoking `__get`/`__isset`. Because this property read happens entirely in PHP native code and never reaches `CoreExtension::getAttribute()`, `SandboxExtension::checkPropertyAllowed()` is never consulted.\n\nAn untrusted template author with `column` in their `allowedFilters` list can therefore re",
+        "vuln_symbols": [
+          "column",
+          "array_column",
+          "__get",
+          "__isset",
+          "allowedFilters",
+          "SecurityPolicy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig 3.11.3 used only via core/Twig.php:112 Environment with FilesystemLoader/ChainLoader + DebugExtension + Piwik EscapeFilter (core/Twig.php:107-166); no SandboxExtension/SecurityPolicy/SourcePolicy anywhere in core/, plugins/, libs/ (Piwik\\View\\SecurityPolicy is CSP, not Twig), no {% sandbox %} tag in templates; sandbox bypass needs sandbox enabled.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php2)"
+      }
+    }
+  ]
+}

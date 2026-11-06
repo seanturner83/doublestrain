@@ -217,6 +217,35 @@ def with_pypi_metadata(g: Graph) -> Graph:
     return Graph(nodes, edges, g.direct, g.dev_direct)
 
 
+def composer_integrity(p) -> str:
+    """How pkgsrc verifies a Composer package's source: the git commit the lock pins it to
+    (`git+<url>#<sha>`), else a dist archive with a published sha1 (`sha1:<hex> <url>`)."""
+    if p.git_url and p.git_ref:
+        return f"git+{p.git_url}#{p.git_ref}"
+    if p.dist_url and p.dist_sha1:
+        return f"sha1:{p.dist_sha1} {p.dist_url}"
+    return ""
+
+
+def _from_composer(repo: Path) -> Graph | None:
+    """composer.lock(s) as a graph: nodes are `name@version`, edges each package's own
+    `require` (resolved within its lock, `replace`/`provide` included); `dev` = only in
+    `packages-dev`."""
+    from .. import composer
+    lock = composer.load(repo)
+    if lock is None:
+        return None
+    runtime = lock.runtime()
+    nodes = {i: {"name": p.name, "version": p.version, "dev": i not in runtime,
+                 "integrity": composer_integrity(p), "local": p.local} for i, p in lock.pkgs.items()}
+    edges = {i: tuple(c for c in lock.edges.get(i, ()) if c in nodes) for i in nodes}
+    roots = (lock.prod_roots | lock.dev_roots) or set(nodes)
+    edges[ROOT] = tuple(sorted(r for r in roots if r in nodes))
+    prod = {lock.pkgs[i].name for i in lock.prod_roots}
+    dev = {lock.pkgs[i].name for i in lock.dev_roots}
+    return Graph(nodes, edges, frozenset(prod), frozenset(dev - prod))
+
+
 def load(repo: Path, ecosystem: str = "npm") -> Graph | None:
     if ecosystem == "pypi":
         return _from_pypi(Path(repo))
@@ -226,6 +255,8 @@ def load(repo: Path, ecosystem: str = "npm") -> Graph | None:
         return _from_go(Path(repo))
     if ecosystem == "maven":
         return _from_maven(Path(repo))
+    if ecosystem == "composer":
+        return _from_composer(Path(repo))
     from .. import npmlock
     lock = npmlock.find(Path(repo))
     return _load(str(lock), lock.stat().st_mtime) if lock is not None else None

@@ -16,8 +16,8 @@ held to the stricter standard throughout.
 What's in the box:
 
 - `src/doublestrain/ssvc.py`: the decision tree (`grade`, `grade_all`).
-- `src/doublestrain/osv.py`, `cargo.py`, `gomod.py`, `pylock.py`: lockfiles (npm, pip,
-  Cargo, Go) to OSV advisories to candidates. `sweep.py`: sweep JSONL records to
+- `src/doublestrain/osv.py`, `cargo.py`, `gomod.py`, `pylock.py`, `composer.py`: lockfiles (npm, pip,
+  Cargo, Go, Composer) to OSV advisories to candidates. `sweep.py`: sweep JSONL records to
   candidates; the exposure map.
 - `src/doublestrain/imagedeps.py`, `approots.py`: what the app's Dockerfile installs and
   builds counts as production (Python groups and extras, local projects, `cargo build`
@@ -32,7 +32,11 @@ What's in the box:
   advisory's classes to the app's own code, so a trigger inside a library the app calls
   is visible to the judges.
 - `src/doublestrain/names.py`: one rule per ecosystem for "is this the same package?"
-  (PEP 503, Cargo's `-`/`_`, Maven `group:artifact`).
+  (PEP 503, Cargo's `-`/`_`, Maven `group:artifact`, Composer `vendor/name`).
+- `src/doublestrain/judges/phpclients.py`: a framework default the app's code doesn't show:
+  Laravel's HTTP client gives every Guzzle client it builds a cookie jar. For Guzzle rows the
+  note cites the installed framework's source and lists the `Http::` call sites in the app
+  and in its installed production packages.
 - `src/doublestrain/judges/`: the reachability tiers, run as a cascade
   (`cascade:a,b,...`), each answer cached on disk (`SSVC_JUDGE_CACHE`):
   - `govulncheck`: Go call-graph reachability, sandboxed (type-checks, never builds or runs).
@@ -52,7 +56,8 @@ What's in the box:
 - `src/doublestrain/reach.py`: applies an accepted verdict to a candidate.
 - `src/doublestrain/harness/`: `doublestrain run`, `doublestrain score`, `doublestrain compare`;
   `doublestrain scan` grades one repo; `doublestrain usage` summarises the model-call
-  ledger. `doublestrain --help` lists every command; each is also installed as
+  ledger; `doublestrain dashboard` serves a live local view of runs, the funnel and
+  model traffic (127.0.0.1 only, no prompt or answer text). `doublestrain --help` lists every command; each is also installed as
   `ssvc-<command>`. Configuration is `SSVC_*` environment variables, caches live under
   `~/.cache/ssvc-triage`.
 - `cases/`: labelled apps. Each has `case.json`, plus `fetch.sh` for third-party checkouts.
@@ -110,8 +115,13 @@ the `not_reachable`; coverage is the share of `not_reachable` labels it settles:
 | JVM held-out (jv3, published cases), split >= 0.90 | 4 / 246 | 129 / 1 | 0.620 |
 | the same, with the deserialization-gadget rule | 4 / 246 | 129 / 0 | 0.620 |
 | JVM held-out (jv4, published cases), split >= 0.90, gadget rule | 4 / 261 | 131 / 0 | 0.575 |
+| PHP dev (php1, published cases) | 5 / 320 | 95 / 0 | 0.408 |
+| PHP held-out (php2, published cases), before the cookie-jar note | 2 / 94 | 42 / 1 | 0.532 |
+| PHP held-out (php3, published cases), cookie-jar note | 4 / 247 | 69 / 0 | 0.381 |
+| PHP held-out (php4, published cases), + package call sites | 2 / 119 | 40 / 0 | 0.426 |
 
-pip, Cargo and Maven now settle as that pair only (Maven with split at 0.90). On Maven a
+pip, Cargo, Maven and Composer now settle as that pair only (Maven with split at 0.90,
+Composer at 0.95). On Maven a
 `not_reachable` never settles for a Java deserialization gadget (the advisory's code is a
 `readObject`/`readResolve`/`readExternal`): the JDK calls those by class name, which no call
 graph sees. jv3's one miss was such a gadget; on jv4, the first fresh set for the rule, it
@@ -119,7 +129,11 @@ caught nothing and held back one right answer. jv4's matcher was the same Qwen 3
 served by a hosted endpoint (zero data retention) rather than the local box; on jv3 the
 two agreed on 81% of rows and the hosted one settled slightly more, with the same one
 miss. Five JVM cases from these sets are not published yet, so the JVM rows above count
-only the published ones. Every change and its measurement is in `docs/design.md`.
+only the published ones. On PHP, every miss was a Guzzle cookie advisory behind Laravel's
+HTTP client, which always turns Guzzle's cookie jar on: php2's misses led to the
+cookie-jar note, php3's (an `Http::` call inside an installed package) to the package
+scan. On all five php4 apps, published or not, the pair was 118 right, 0 wrong. Seven PHP
+cases are not published yet, so the PHP rows count only the published ones. Every change and its measurement is in `docs/design.md`.
 
 ## Labels and data
 
@@ -135,7 +149,9 @@ only the published ones. Every change and its measurement is in `docs/design.md`
   [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/); KEV is CISA's catalogue,
   EPSS is FIRST's. Fixture enrichment values in the shipped cases are not live data.
 - **Network use:** OSV gets package names and versions, KEV/EPSS get CVE ids, the npm
-  registry / Go proxy / crates.io / PyPI / Maven Central get names and versions (Maven
+  registry / Go proxy / crates.io / PyPI / Maven Central get names and versions; a
+  Composer package's source is fetched from the git host composer.lock names (GitHub,
+  GitLab, Bitbucket, Codeberg: `SSVC_COMPOSER_GIT_HOSTS`) at the pinned commit (Maven
   Central also serves the published `.pom` and `-sources.jar` for identified jars). What each judge tier sends is in
   `docs/data-handling.md`.
 
@@ -143,12 +159,12 @@ only the published ones. Every change and its measurement is in `docs/design.md`
 
 - **Small benchmarks.** Floors and results come from ten npm apps (most built to be
   vulnerable), three held-out npm apps labelled only where the Jelly check needed it, five
-  Go apps, and five-app Python, Rust and JVM sets of real self-hosted software. Real
+  Go apps, and five-app Python, Rust, JVM and PHP sets of real self-hosted software. Real
   codebases will hit cases these don't.
 - **AI-made labels** (see "Labels and data"): measured error rates are agreement with
   them.
 - **Ecosystems differ in how far they are measured.** npm: every tier. Go: govulncheck
-  and `split` measured. pip, Cargo and Maven: `split` with `claude` agreeing (see Results);
+  and `split` measured. pip, Cargo, Maven and Composer: `split` with `claude` agreeing (see Results);
   every other tier's `not_reachable` is held there (`SSVC_NR_UNMEASURED`).
 - **JVM inventory needs the release.** A checkout alone doesn't say which jars ship, so
   `--artifact` takes the distribution, fat jar or war the app releases. Jars are

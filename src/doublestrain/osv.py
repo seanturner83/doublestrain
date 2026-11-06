@@ -3,7 +3,8 @@
 Supported manifests: npm `package-lock.json` (lockfileVersion 1-3) or Bun `bun.lock`
 (converted by `npmlock`), pinned pip
 `requirements*.txt` (`name==version`), Cargo `Cargo.lock` (crates.io packages; see
-`cargo.py`) and Go `go.mod` (the build list; see `gomod.py`). Go reachability comes from
+`cargo.py`), Go `go.mod` (the build list; see `gomod.py`) and PHP `composer.lock`
+(Packagist packages; see `composer.py`). Go reachability comes from
 govulncheck (`judges/govulncheck.py`) where it can run.
 
 OSV is queried with /v1/querybatch (package + exact version), then each advisory's
@@ -37,7 +38,7 @@ _BATCH = 500
 class Dep:
     name: str
     version: str
-    ecosystem: str          # OSV ecosystem name: npm | PyPI | crates.io | Go | Maven
+    ecosystem: str          # OSV ecosystem name: npm | PyPI | crates.io | Go | Maven | Packagist
     direct: bool = False
     dev: bool = False
 
@@ -145,6 +146,21 @@ def parse_gomod(repo: Path) -> list[Dep]:
                    for m in b.modules.values() if not m.local), key=lambda d: (d.name, d.version))
 
 
+def parse_composer(repo: Path) -> list[Dep]:
+    """Packagist packages in the app's composer.lock files (`composer`); `dev` = only in
+    `packages-dev` (or a tooling lock); `direct` = declared in a composer.json `require`
+    or `require-dev`. The app's own `path` packages and dev branches (`dev-main`) are not
+    published versions, so they aren't queried."""
+    from . import composer
+    lock = composer.load(repo)
+    if lock is None:
+        return []
+    roots = lock.prod_roots | lock.dev_roots
+    return sorted((Dep(p.name, p.version, "Packagist", direct=i in roots, dev=p.dev)
+                   for i, p in lock.pkgs.items() if not p.local and not p.version.startswith("dev-")),
+                  key=lambda d: (d.name, d.version))
+
+
 def parse_artifact(artifact: dict) -> list[Dep]:
     """A JVM release's deployed classpath (`jvmjars`): `artifact` = {"paths": [...] (an image's
     layers in order), "include"/"exclude": globs on archive paths, "first_party": group
@@ -175,6 +191,10 @@ def find_deps(repo: Path, artifact: dict | None = None) -> tuple[list[Dep], list
     if npm is not None:
         deps += parse_npm_lock(npmlock.load(repo))
         used.append(npm.name)
+    from . import composer
+    if (locks := composer.lock_files(repo)):
+        deps += parse_composer(repo)
+        used += [f.relative_to(repo).as_posix() for f in locks]
     from . import pylock
     lock = pylock.load(repo)
     if lock is not None:
@@ -353,7 +373,8 @@ def guess_symbols(adv: Advisory, limit: int = 6) -> list[str]:
 
 
 def _eco(osv_eco: str) -> str:
-    return {"npm": "npm", "PyPI": "pypi", "crates.io": "cargo", "Go": "go"}.get(osv_eco, osv_eco.lower())
+    return {"npm": "npm", "PyPI": "pypi", "crates.io": "cargo", "Go": "go",
+            "Packagist": "composer"}.get(osv_eco, osv_eco.lower())
 
 
 # RustSec informational advisories that are not vulnerabilities in the locked code.

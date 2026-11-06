@@ -1,0 +1,3472 @@
+{
+  "id": "real-php-partdb",
+  "description": "real-php-partdb (OSV-generated; label each `expect`)",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#1",
+      "facts": {
+        "package": "api-platform/core",
+        "version": "3.4.17",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54164",
+            "GHSA-9rjg-x2p2-h68h"
+          ],
+          [
+            "api-platform/core"
+          ]
+        ],
+        "advisory_summary": "API Platform Core: Relation IRIs are not type-checked: a related resource can be denormalised as the wrong resource type (type confusion) \u2014 ## Summary\n\nThe API Platform serializer's `AbstractItemNormalizer` does not validate the resource type returned when resolving relation IRIs, allowing type confusion where a resource of an unintended type can be silently assigned to a relation property.\n\n## Impact\n\nAn attacker who can submit write requests (POST/PUT/PATCH) to an API Platform endpoint with writable relations can supply a relation IRI pointing to a resource of a different type than the relat",
+        "vuln_symbols": [
+          "AbstractItemNormalizer",
+          "getResourceFromIri",
+          "$operation",
+          "is_a",
+          "InvalidTypeException",
+          "InvalidArgumentException"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.30",
+          "4.2.26",
+          "4.3.12"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "API Platform bundle enabled (config/bundles.php ApiPlatformBundle) with many writable resources (e.g. src/Entity/Parts/Part.php, PartLot.php, Attachments/Attachment.php: Post/Patch ops) whose relation properties are denormalised from IRIs. 3.4.17 AbstractItemNormalizer.php:244 and :594 call iriConverter->getResourceFromIri() with no check that the returned object matches the expected relation class. Logged-in users/API-token holders can POST/PATCH with an IRI of a different resource type; typed setters may blunt some cases, polymorphic relations (Attachment element, parameters) may not.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#2",
+      "facts": {
+        "package": "api-platform/core",
+        "version": "3.4.17",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-49858",
+            "GHSA-pjhx-3c3w-9v23"
+          ],
+          [
+            "api-platform/core"
+          ]
+        ],
+        "advisory_summary": "API Platform Core vulnerable to cross-user attribute leak in JSON:API and HAL item normalizers due to missing isCacheKeySafe gate \u2014 ### Impact\n\n`#[ApiProperty(security: ...)]` is evaluated per request to decide whether a property is exposed. The `componentsCache` arrays in `ApiPlatform\\JsonApi\\Serializer\\ItemNormalizer` and `ApiPlatform\\Hal\\Serializer\\ItemNormalizer` are keyed on `$context['cache_key']`, which is set unconditionally before delegating to the parent normalizer. The component structure (attributes, relationships, links) computed for one request can therefore be reused for a subse",
+        "vuln_symbols": [
+          "componentsCache",
+          "ItemNormalizer",
+          "isCacheKeySafe",
+          "AbstractItemNormalizer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "4.1.29",
+          "4.2.25",
+          "4.3.8"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "jsonapi format is enabled (config/packages/api_platform.yaml:9) and 3.4.17 JsonApi/Serializer/ItemNormalizer.php:302-377 caches components by cache_key, but the leak needs per-request property security via #[ApiProperty(security: ...)]; grep of src/ finds no ApiProperty with security/securityPostDenormalize (only operation-level security on Get/Patch etc.). HAL format not enabled. Same attributes are exposed to every user, so cached components do not leak.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#3",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "3.1.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55555",
+            "GHSA-7x2p-4jvh-6384"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: File existence oracle via font-face stylesheet declaration \u2014 ## Description\n\nDompdf is vulnerable to a **File Existence Oracle** attack through the manipulation of the CSS `@font-face` directive. By providing malicious HTML that references local files via the `file://` protocol repeatedly, an attacker can trigger PHP memory exhaustion.\n\nThe critical point of this flaw is the discrepancy in system behavior:\n\n1. **If the file exists:** Dompdf attempts to process the local resource multiple times, leading to an \"Allowed memory size exhausted\" error, which crashes the creation.\n2. **If the",
+        "vuln_symbols": [
+          "CHROOT",
+          "$_dompdf_show_warnings",
+          "index.php",
+          "response.pdf"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "dompdf used for label PDFs: src/Services/LabelSystem/LabelGenerator.php:75-78 loadHtml(getLabelHTML()); HTML comes from user-editable label options: lines rendered raw (templates/label_system/labels/label_page_none.html.twig:1 `element.lines|raw`, LabelOptionsType.php:118 RichTextEditor, LabelTextReplacer.php:98 only substitutes placeholders, no sanitising) and additionalCss raw (base_label.html.twig:12). Logged-in users with labels.edit_options (config/permissions.yaml:335) control the HTML. DompdfFactory.php:48 sets only fontDir/tempDir, so default Options (isRemoteEnabled=false, default chroot = dompdf root, data: URIs allowed). dompdf 3.1.0 < 3.1.6. @font-face with file:// src can be injected via additionalCss or <style> in lines; failure vs success of label generation is visible to the user.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#4",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "3.1.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59941",
+            "GHSA-8hg6-c449-896m"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: Uncontrolled resource consumption based on declared BMP dimensions \u2014 ### Summary\n\ndompdf accepts a BMP image and generates a PDF-compatible PNG based only on its *declared* header dimensions and never bounds width \u00d7 height before the image is converted through GD. A 58-byte BMP whose header declares e.g. `6000\u00d76000` is accepted and later drives `imagecreatetruecolor($width, $height)` (and PHP's native BMP decoder) to allocate the full pixel canvas.\n \nA payload can fit in a single HTTP request: the BMP can be inlined as a `data:image/bmp;base64,\u2026` URI inside attacker-controlled HTML, so",
+        "vuln_symbols": [
+          "getimagesize",
+          "src",
+          "_convert_to_png",
+          "imagecreatefrombmp",
+          "imagecreatetruecolor",
+          "a6ddc4f"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "dompdf used for label PDFs: src/Services/LabelSystem/LabelGenerator.php:75-78 loadHtml(getLabelHTML()); HTML comes from user-editable label options: lines rendered raw (templates/label_system/labels/label_page_none.html.twig:1 `element.lines|raw`, LabelOptionsType.php:118 RichTextEditor, LabelTextReplacer.php:98 only substitutes placeholders, no sanitising) and additionalCss raw (base_label.html.twig:12). Logged-in users with labels.edit_options (config/permissions.yaml:335) control the HTML. DompdfFactory.php:48 sets only fontDir/tempDir, so default Options (isRemoteEnabled=false, default chroot = dompdf root, data: URIs allowed). dompdf 3.1.0 < 3.1.6. A data:image/bmp;base64 URI in an <img> in label lines is processed by Image/Cache.php:79 (data URI) and Helpers::imagecreatefrombmp (Helpers.php:822) without bounding declared dimensions.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#5",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "3.1.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-56722",
+            "GHSA-cx96-42px-69fm"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: Local file read due to improper file path validation in SVG images encoded as data-URI \u2014 **Description:** An attacker, who controls the HTML input supplied to dompdf, can read arbitrary images from the server\u2019s file system, bypassing the `chroot` restriction. The vulnerability is exploitable in the default configuration.\n**Exploitation conditions:** An external user\n**Researcher:** Nikita Sveshnikov (Positive Technologies)\n\n## Research\ndompdf restricts access to local files using the `chroot` mechanism. By default, `chroot` is set to the root directory of dompdf (`Options.php:350-351`)",
+        "vuln_symbols": [
+          "chroot",
+          "drawImage",
+          "file_get_contents"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "dompdf used for label PDFs: src/Services/LabelSystem/LabelGenerator.php:75-78 loadHtml(getLabelHTML()); HTML comes from user-editable label options: lines rendered raw (templates/label_system/labels/label_page_none.html.twig:1 `element.lines|raw`, LabelOptionsType.php:118 RichTextEditor, LabelTextReplacer.php:98 only substitutes placeholders, no sanitising) and additionalCss raw (base_label.html.twig:12). Logged-in users with labels.edit_options (config/permissions.yaml:335) control the HTML. DompdfFactory.php:48 sets only fontDir/tempDir, so default Options (isRemoteEnabled=false, default chroot = dompdf root, data: URIs allowed). dompdf 3.1.0 < 3.1.6. SVG in a data: URI with image references bypasses chroot in the default configuration, as the advisory states.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#6",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "3.1.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59942",
+            "GHSA-f5gf-2cj8-52g2"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: Denial of Service (DoS) via Resource Exhaustion using Oversized Image Bitmaps \u2014 ### Summary\nDompdf v3.1.5 is vulnerable to a Denial of Service (DoS) attack via resource exhaustion. An attacker can crash the PHP process by providing a specially crafted HTML document containing a single image with massive dimensions (e.g., 30,000x30,000 pixels).\n\nWhile Dompdf implements internal checks to validate image dimensions, these can be bypassed by using a high-entropy image (such as random noise) encoded in Base64 and wrapped in specific CSS containers.\n\n### Technical Deep Dive:\nStandard solid-c",
+        "vuln_symbols": [
+          "exploit.py",
+          "monitor.py",
+          "render.php"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "dompdf used for label PDFs: src/Services/LabelSystem/LabelGenerator.php:75-78 loadHtml(getLabelHTML()); HTML comes from user-editable label options: lines rendered raw (templates/label_system/labels/label_page_none.html.twig:1 `element.lines|raw`, LabelOptionsType.php:118 RichTextEditor, LabelTextReplacer.php:98 only substitutes placeholders, no sanitising) and additionalCss raw (base_label.html.twig:12). Logged-in users with labels.edit_options (config/permissions.yaml:335) control the HTML. DompdfFactory.php:48 sets only fontDir/tempDir, so default Options (isRemoteEnabled=false, default chroot = dompdf root, data: URIs allowed). dompdf 3.1.0 < 3.1.6. An oversized high-entropy base64 image in label HTML drives GD allocation.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#7",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "3.1.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59943",
+            "GHSA-j8qw-6jw8-r297"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: Embedded SVG images can leak existence of files and directories within the filesystem \u2014 ### Summary\nIf a malicious actor can supply unrestricted content for rendering by Dompdf they can utilize the SVG rendering functionality to leak filesystem information when rendering PDF files using image references within a data-URI encoded SVG document.\n\n### Details\nUsing an `<image>` element inside a data-URI embedded SVG, an attacker can attempt to embed other files via the `href` or `xlink:href` attributes. When processing a file that does not exist (e.g. `file:///DOESNOTEXIST`), dompdf behave",
+        "vuln_symbols": [
+          "href"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "dompdf used for label PDFs: src/Services/LabelSystem/LabelGenerator.php:75-78 loadHtml(getLabelHTML()); HTML comes from user-editable label options: lines rendered raw (templates/label_system/labels/label_page_none.html.twig:1 `element.lines|raw`, LabelOptionsType.php:118 RichTextEditor, LabelTextReplacer.php:98 only substitutes placeholders, no sanitising) and additionalCss raw (base_label.html.twig:12). Logged-in users with labels.edit_options (config/permissions.yaml:335) control the HTML. DompdfFactory.php:48 sets only fontDir/tempDir, so default Options (isRemoteEnabled=false, default chroot = dompdf root, data: URIs allowed). dompdf 3.1.0 < 3.1.6. data-URI SVG with <image href=file:///...> gives file-existence oracle.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#8",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "3.1.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55554",
+            "GHSA-wvh6-f5jh-8gw4"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: Chroot Validation Bypass \u2014 ### Summary\nThe chroot check for local files uses a prefix string check to enforce chroot boundaries. The simple string comparison it performs allows paths like /var/www/root_secret/file.html when chroot is /var/www/root.\n\nThis allows attacker-controlled document paths/resources to bypass intended local file restrictions.\n\n### Details\nThe `validateLocalUri()` method is used to check if a local file is within an allowed chroot directory. After normalization with `realpath()`, this check is performed with a `strpos()` comparison:\n\n\n```\n    public function valid",
+        "vuln_symbols": [
+          "validateLocalUri",
+          "realpath",
+          "strpos",
+          "$chrootPath",
+          "$realfile",
+          "jpg"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): dompdf 3.1.0 is a prod dep used for label PDFs: LabelGenerator.php:75-78 loadHtml()+render() on HTML from LabelHTMLGenerator, where user-entered label lines are emitted |raw (templates/label_system/labels/label_page_1d.html.twig:3, label_page_qr.html.twig:13); the edit_options/create_labels permissions are on by default for normal users (PermissionPresetsHelper.php:173-174). DompdfFactory.php:48 sets no chroot/allowedProtocols, so the default file:// rule (Options.php:82,632) calls validateLocalUri, whose strpos prefix check (Options.php:1267) is the vulnerable code and runs on attacker-chosen <img>/<link> paths. Caveat: default chroot = realpath(vendor/dompdf/dompdf) (Options.php:350-352, /var/www/html/vendor/dompdf/dompdf in the Dockerfile:139 image), and no sibling path sharing that prefix exists in a standard install (vendor/dompdf/ holds only dompdf, php-font-lib, php-svg-lib), so practical file disclosure looks unlikely; labelled reachable per the unsure-means-reachable rule since the flawed check runs on attacker input.",
+        "confidence": "low",
+        "labelled_by": "claude-opus blind re-review 2026-11-05, majority of 3 reads (php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#9",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67339",
+            "GHSA-94pj-82f3-465w"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Proxy-Authorization headers can be sent to origin servers \u2014 ### Impact\n\nIn affected versions, the built-in cURL handlers (`CurlHandler` and `CurlMultiHandler`) put every first-class request header in cURL's origin header list (`CURLOPT_HTTPHEADER`). These handlers are the default when the PHP cURL extension is available. They move `Proxy-Authorization` to the proxy-only list (`CURLOPT_PROXYHEADER`) only when Guzzle predicts an HTTP or HTTPS proxy. A \"first-class\" header is part of the normal request message and can be set on a PSR-7 request, through client `headers` defaults, the `head",
+        "vuln_symbols": [
+          "CurlHandler",
+          "CurlMultiHandler",
+          "CURLOPT_HTTPHEADER",
+          "CURLOPT_PROXYHEADER",
+          "headers",
+          "stream_context.http.header"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.14.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "guzzle 7.9.3 is pulled in only by league/oauth2-client (composer.lock require); swap/exchanger uses php-http/discovery which prefers Symfony Psr18Client (php-http/discovery CommonClassesStrategy.php:96-102), app src/config never references GuzzleHttp. league AbstractProvider.php:151 builds `new GuzzleHttp\\Client` with only timeout/proxy options (:173) for the fixed Digi-Key/Nexar token URLs in config/packages/knpu_oauth2_client.yaml (urlAccessToken api.digikey.com / identity.nexar.com), used by OAuthTokenManager.php:107/110/157 when PROVIDER_DIGIKEY_/PROVIDER_OCTOPART_ OAuth is configured. No Proxy-Authorization header is ever set by league or the app, and no proxy is configured; the bug needs the caller to put Proxy-Authorization in request headers.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#10",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55767",
+            "GHSA-cwxw-98qj-8qjx"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/guzzle: Dot-Only Cookie Domains Match All Hosts \u2014 ### Impact\n\n`CookieJar` incorrectly accepts cookies with a dot-only `Domain` attribute, such as `Domain=.`, `Domain=..`, `Domain=...`, and whitespace-padded variants such as `Domain= . `. In affected versions, `SetCookie::matchesDomain()` removes leading dots from the cookie domain, normalizing dot-only values to the empty string; `SetCookie::validate()` only rejected a strictly empty domain, so these cookies could be stored and the empty normalized domain was treated as matching any request host.\n\nAn attacker-controlled origin that ",
+        "vuln_symbols": [
+          "CookieJar",
+          "Domain"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "guzzle 7.9.3 is pulled in only by league/oauth2-client (composer.lock require); swap/exchanger uses php-http/discovery which prefers Symfony Psr18Client (php-http/discovery CommonClassesStrategy.php:96-102), app src/config never references GuzzleHttp. league AbstractProvider.php:151 builds `new GuzzleHttp\\Client` with only timeout/proxy options (:173) for the fixed Digi-Key/Nexar token URLs in config/packages/knpu_oauth2_client.yaml (urlAccessToken api.digikey.com / identity.nexar.com), used by OAuthTokenManager.php:107/110/157 when PROVIDER_DIGIKEY_/PROVIDER_OCTOPART_ OAuth is configured. No cookie jar: Guzzle Client.php:236 defaults 'cookies' => false and league never passes 'cookies'; CookieJar/SetCookie::matchesDomain never runs.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#11",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67353",
+            "GHSA-f283-ghqc-fg79"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Unbounded response cookies risk denial of service \u2014 ### Impact\n\nIn affected versions, Guzzle's built-in `CookieJar` accepts any number of `Set-Cookie` header fields from one response, with no limit on the size of each field. When a later request matches the stored cookies, Guzzle places every match into one generated `Cookie` header without limiting the number of cookies or the total header length.\n\nA malicious or compromised server can therefore return many large cookies, causing Guzzle to store attacker-controlled data in memory and copy it into later request headers. This can increa",
+        "vuln_symbols": [
+          "CookieJar",
+          "Cookie",
+          "attacker.example.com",
+          "service.example.com",
+          "CookieJarInterface"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "guzzle 7.9.3 is pulled in only by league/oauth2-client (composer.lock require); swap/exchanger uses php-http/discovery which prefers Symfony Psr18Client (php-http/discovery CommonClassesStrategy.php:96-102), app src/config never references GuzzleHttp. league AbstractProvider.php:151 builds `new GuzzleHttp\\Client` with only timeout/proxy options (:173) for the fixed Digi-Key/Nexar token URLs in config/packages/knpu_oauth2_client.yaml (urlAccessToken api.digikey.com / identity.nexar.com), used by OAuthTokenManager.php:107/110/157 when PROVIDER_DIGIKEY_/PROVIDER_OCTOPART_ OAuth is configured. No cookie jar (Client.php:236 'cookies'=>false; league passes none), so Set-Cookie responses are never stored.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#12",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69245",
+            "GHSA-f7vp-7xgx-4w4r"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Noncanonical cookie domain keeps subdomain scope \u2014 ### Impact\n\n`SetCookie::matchesDomain()` gives every subdomain of a cookie `Domain` that cookie unless it recognizes the `Domain` as an IP literal or a numeric host, and it decides that from the domain's own text, so two spellings a transport reads as an address keep subdomain scope. On `7.15`, hexadecimal and mixed-base forms such as `0x7f000001` and `0177.0.0.0x1` go unrecognized while libcurl 8.21.0 reads both as `127.0.0.1`, so closing them completes the rule `GHSA-g446-98w2-8p5w` (`CVE-2026-59883`) set out to establish, which cite",
+        "vuln_symbols": [
+          "Domain",
+          "Cookie",
+          "CookieJar",
+          "filter_var",
+          "FILTER_VALIDATE_IP"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.2",
+          "8.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "guzzle 7.9.3 is pulled in only by league/oauth2-client (composer.lock require); swap/exchanger uses php-http/discovery which prefers Symfony Psr18Client (php-http/discovery CommonClassesStrategy.php:96-102), app src/config never references GuzzleHttp. league AbstractProvider.php:151 builds `new GuzzleHttp\\Client` with only timeout/proxy options (:173) for the fixed Digi-Key/Nexar token URLs in config/packages/knpu_oauth2_client.yaml (urlAccessToken api.digikey.com / identity.nexar.com), used by OAuthTokenManager.php:107/110/157 when PROVIDER_DIGIKEY_/PROVIDER_OCTOPART_ OAuth is configured. No cookie jar (Client.php:236 'cookies'=>false), SetCookie::matchesDomain unused.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#13",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59883",
+            "GHSA-g446-98w2-8p5w"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Cookie Disclosure and Injection via IP-Address Domains \u2014 ### Impact\n\n`CookieJar` does not restrict a cookie scoped to an IP address to the exact host that set it. When a stored cookie's `Domain` attribute is an IPv4 literal (`Domain=192.168.0.1`), a bracketed IPv6 literal (`Domain=[::1]`), or a bare numeric value that denotes an IPv4 address (`Domain=1`, which is `0.0.0.1`), `SetCookie::matchesDomain()` applies ordinary subdomain (suffix) matching to it instead of requiring an exact host. The IP-address check inside `matchesDomain()` is applied only to the request host and never to the",
+        "vuln_symbols": [
+          "CookieJar",
+          "Domain",
+          "matchesDomain"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.12.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "guzzle 7.9.3 is pulled in only by league/oauth2-client (composer.lock require); swap/exchanger uses php-http/discovery which prefers Symfony Psr18Client (php-http/discovery CommonClassesStrategy.php:96-102), app src/config never references GuzzleHttp. league AbstractProvider.php:151 builds `new GuzzleHttp\\Client` with only timeout/proxy options (:173) for the fixed Digi-Key/Nexar token URLs in config/packages/knpu_oauth2_client.yaml (urlAccessToken api.digikey.com / identity.nexar.com), used by OAuthTokenManager.php:107/110/157 when PROVIDER_DIGIKEY_/PROVIDER_OCTOPART_ OAuth is configured. No cookie jar (Client.php:236 'cookies'=>false), SetCookie::matchesDomain unused.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#14",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67354",
+            "GHSA-h95v-h523-3mw8"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: URI fragments disclosed in redirect Referer headers \u2014 ### Impact\n\nWhen the optional `referer` redirect setting is enabled, affected versions of `RedirectMiddleware` can copy the fragment from the referring request URI into a generated `Referer` header. A URI fragment is the part after `#`. It is handled locally by the client and is not part of the HTTP request target, so the server handling the original request does not receive it. A generated `Referer` tells the redirect destination which URI led to the request. Guzzle correctly removes user information from that value, but retains th",
+        "vuln_symbols": [
+          "referer",
+          "RedirectMiddleware",
+          "Referer",
+          "allow_redirects.referer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "guzzle 7.9.3 is pulled in only by league/oauth2-client (composer.lock require); swap/exchanger uses php-http/discovery which prefers Symfony Psr18Client (php-http/discovery CommonClassesStrategy.php:96-102), app src/config never references GuzzleHttp. league AbstractProvider.php:151 builds `new GuzzleHttp\\Client` with only timeout/proxy options (:173) for the fixed Digi-Key/Nexar token URLs in config/packages/knpu_oauth2_client.yaml (urlAccessToken api.digikey.com / identity.nexar.com), used by OAuthTokenManager.php:107/110/157 when PROVIDER_DIGIKEY_/PROVIDER_OCTOPART_ OAuth is configured. Requires allow_redirects 'referer' => true; default false (RedirectMiddleware.php:33) and league/app never enable it.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#15",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69246",
+            "GHSA-v5mv-p594-2x33"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Noncanonical host can bypass host-based checks \u2014 ### Impact\n\nIn affected versions, Guzzle gives a transport the request URI as text and supplies the `Host` header separately. The cURL handlers set `CURLOPT_URL` to the URI exactly as written and push that `Host` into `CURLOPT_HTTPHEADER`; `StreamHandler` does the same through `fopen()`. libcurl then parses the authority itself, percent-decoding it and, on an IDN-capable build, applying IDNA mapping, and uses the result to resolve, connect, name the TLS peer and address a proxy `CONNECT`, while the supplied `Host` suppresses the aligned ",
+        "vuln_symbols": [
+          "Host",
+          "CURLOPT_URL",
+          "CURLOPT_HTTPHEADER",
+          "StreamHandler",
+          "fopen",
+          "CONNECT"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.2",
+          "8.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "guzzle 7.9.3 is pulled in only by league/oauth2-client (composer.lock require); swap/exchanger uses php-http/discovery which prefers Symfony Psr18Client (php-http/discovery CommonClassesStrategy.php:96-102), app src/config never references GuzzleHttp. league AbstractProvider.php:151 builds `new GuzzleHttp\\Client` with only timeout/proxy options (:173) for the fixed Digi-Key/Nexar token URLs in config/packages/knpu_oauth2_client.yaml (urlAccessToken api.digikey.com / identity.nexar.com), used by OAuthTokenManager.php:107/110/157 when PROVIDER_DIGIKEY_/PROVIDER_OCTOPART_ OAuth is configured. Bug needs an attacker-chosen noncanonical URL passing an app host-based check; the only Guzzle URLs are fixed operator config hosts, and the app has no host allowlist around Guzzle.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#16",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67355",
+            "GHSA-wm3w-8rrp-j577"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Host-only cookie scope is not preserved \u2014 ### Impact\n\nIn affected versions, `CookieJar` does not preserve whether a response cookie was set without a `Domain` attribute or with an empty one. A cookie without `Domain` is host-only and must be returned only to the exact host that set it. Under current cookie processing rules, an empty `Domain` value is also host-only. Guzzle instead stores the request host in the cookie's `Domain` field and later applies ordinary domain matching, as though the server had supplied a valid domain. For example, a host-only `sid=secret` cookie set by `exampl",
+        "vuln_symbols": [
+          "CookieJar",
+          "Domain",
+          "example.com",
+          "child.example.com",
+          "FileCookieJar",
+          "SessionCookieJar"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "guzzle 7.9.3 is pulled in only by league/oauth2-client (composer.lock require); swap/exchanger uses php-http/discovery which prefers Symfony Psr18Client (php-http/discovery CommonClassesStrategy.php:96-102), app src/config never references GuzzleHttp. league AbstractProvider.php:151 builds `new GuzzleHttp\\Client` with only timeout/proxy options (:173) for the fixed Digi-Key/Nexar token URLs in config/packages/knpu_oauth2_client.yaml (urlAccessToken api.digikey.com / identity.nexar.com), used by OAuthTokenManager.php:107/110/157 when PROVIDER_DIGIKEY_/PROVIDER_OCTOPART_ OAuth is configured. No cookie jar (Client.php:236 'cookies'=>false; league passes none), so host-only cookie scope handling never runs.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#17",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55568",
+            "GHSA-wpwq-4j6v-78m3"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/guzzle: Silent HTTPS-Proxy Downgrade to Cleartext \u2014 ### Impact\n\nThe built-in cURL handlers (`GuzzleHttp\\Handler\\CurlHandler` and `GuzzleHttp\\Handler\\CurlMultiHandler`, used by default whenever the PHP cURL extension is available) accept an `https://` proxy \u2014 a proxy reached over a TLS-encrypted connection \u2014 through the `proxy` request option, client-level `proxy` defaults, or proxy environment variables such as `http_proxy`, `https_proxy`, `HTTPS_PROXY`, `all_proxy`, and `ALL_PROXY`.\n\nWhen the installed libcurl does not support HTTPS proxies, behavior depends on the libcurl version/",
+        "vuln_symbols": [
+          "proxy",
+          "http_proxy",
+          "https_proxy",
+          "HTTPS_PROXY",
+          "all_proxy",
+          "ALL_PROXY"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "guzzle 7.9.3 is pulled in only by league/oauth2-client (composer.lock require); swap/exchanger uses php-http/discovery which prefers Symfony Psr18Client (php-http/discovery CommonClassesStrategy.php:96-102), app src/config never references GuzzleHttp. league AbstractProvider.php:151 builds `new GuzzleHttp\\Client` with only timeout/proxy options (:173) for the fixed Digi-Key/Nexar token URLs in config/packages/knpu_oauth2_client.yaml (urlAccessToken api.digikey.com / identity.nexar.com), used by OAuthTokenManager.php:107/110/157 when PROVIDER_DIGIKEY_/PROVIDER_OCTOPART_ OAuth is configured. Needs an https:// proxy configured via 'proxy' option or HTTPS_PROXY env (Client.php:249) plus a libcurl without HTTPS-proxy support; Part-DB documents no outbound proxy setting (docs/.env only mention reverse proxy, .env:256/317) and league passes no proxy; Debian bookworm libcurl supports HTTPS proxies anyway.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)",
+        "requires": "HTTPS_PROXY env (undocumented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#18",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48998",
+            "GHSA-34xg-wgjx-8xph"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7 has Host Confusion via Authority Reinterpretation \u2014 ## Impact\n\n`guzzlehttp/psr7` improperly interpreted malformed `Host` header values when constructing request URIs from inbound request data. This issue concerns inbound request parsing and server request construction. It does not require serializing a PSR-7 request, and it is not part of the normal outbound request-sending path used by `guzzlehttp/guzzle`.\n\nA vulnerable flow is:\n\n1. An attacker controls a raw HTTP request or server variable containing a `Host` value.\n2. The `Host` value contains URI authority delimiters, such ",
+        "vuln_symbols": [
+          "Host",
+          "evil.example",
+          "parse_request",
+          "parse_url"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "guzzlehttp/psr7 is only pulled in by guzzlehttp/guzzle (required by league/oauth2-client for the Digi-Key/Octopart OAuth clients, config/packages/knpu_oauth2_client.yaml) for outbound requests. Inbound requests are Symfony HttpFoundation; PSR-7 server requests (psr-http-message-bridge) use nyholm (config/packages/nyholm_psr7.yaml:5). No ServerRequest::fromGlobals/getUriFromGlobals/Message::parseRequest use in src/ or installed packages.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#19",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59882",
+            "GHSA-c2w2-prh8-qm98"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7: Host Confusion via Weak URI Host Validation \u2014 ### Impact\n\n`guzzlehttp/psr7` did not reject URI host components containing authority delimiters (`/`, `?`, `#`, `@`, or `\\`), an embedded port such as `host:8080`, or IPv6 brackets that do not frame the host (such as `[::1` or `::1]`). `Uri::assertValidHost()` rejected only control characters, so these malformed hosts were accepted both when parsing a URI string \u2014 including through `new Uri()`, an absolute-form request target passed to `Message::parseRequest()`, and the synthetic `SERVER_NAME` or `SERVER_ADDR` fallback used by `Se",
+        "vuln_symbols": [
+          "SERVER_NAME",
+          "SERVER_ADDR",
+          "getHost",
+          "getAuthority",
+          "Uri",
+          "$_SERVER"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.12.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Guzzle psr7 Uri is only used for outbound OAuth requests by league/oauth2-client to fixed operator-chosen hosts (knpu_oauth2_client.yaml: api.digikey.com, identity.nexar.com); app code (src/) never uses GuzzleHttp; PSR-17 factories are nyholm (nyholm_psr7.yaml). No attacker-controlled host string reaches new Uri()/parseRequest, and inbound host parsing does not use guzzle psr7.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#20",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-49214",
+            "GHSA-hq7v-mx3g-29hw"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7 has CRLF Injection via URI Host Component \u2014 ## Impact\n\n`guzzlehttp/psr7` did not reject ASCII control characters, whitespace, or DEL in first-party URI host components. The issue requires a PSR-7 request to be serialized into a raw HTTP/1.x message, for example with `GuzzleHttp\\Psr7\\Message::toString()` or an equivalent custom serializer. Creating a `Uri`, `Request`, or other PSR-7 object alone is not sufficient. The malformed host must be copied into the serialized `Host` header without further validation.\n\nA vulnerable flow is:\n\n1. An application accepts a user-controlled URL",
+        "vuln_symbols": [
+          "Uri",
+          "Request",
+          "Host"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires serialising a PSR-7 request with Message::toString(); only guzzle MessageFormatter does that (logging middleware not used). Guzzle use is outbound OAuth to fixed hosts (knpu_oauth2_client.yaml); no user-controlled URL reaches guzzle; app src/ has no GuzzleHttp usage.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#21",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55766",
+            "GHSA-vm85-hxw5-5432"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7: CRLF Injection in HTTP Start-Line Serialization \u2014 ### Impact\n\n`guzzlehttp/psr7` did not reject CR/LF characters in certain first-party HTTP start-line fields: the request method, protocol version, and response reason phrase. If an application placed attacker-controlled data into one of those fields and later serialized the PSR-7 message as raw HTTP/1.x, for example with `Message::toString()` or an equivalent serializer, the serialized message could contain attacker-controlled header lines. The issue can also be reached through `Message::parseRequest()` or `Message::parseRespon",
+        "vuln_symbols": [
+          "Request",
+          "Response",
+          "$_SERVER",
+          "REQUEST_METHOD",
+          "SERVER_PROTOCOL"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs attacker data in method/protocol/reason phrase plus raw serialisation (Message::toString) or Message::parseRequest/parseResponse; none used by the app (no GuzzleHttp in src/) or by installed consumers beyond guzzle's unused MessageFormatter. Guzzle only does fixed-host OAuth token requests.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#22",
+      "facts": {
+        "package": "onelogin/php-saml",
+        "version": "4.3.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-5j8p-438x-rgg5"
+          ],
+          [
+            "onelogin/php-saml"
+          ]
+        ],
+        "advisory_summary": " SAML PHP Toolkit Vulnerability on xmlseclibs CVE-2025-66475  \u2014 **Summary**\n\nThere is a critical vulnerability on xmlseclibs [CVE-2025-66475](https://github.com/robrichards/xmlseclibs/security/advisories/GHSA-c4cc-x928-vjw9), a dependency of php-saml\n\nUpdate to the following versions of php-saml which forces the use of patched versions of xmlseclibs:\n- [2.21.1](https://github.com/SAML-Toolkits/php-saml/releases/tag/2.21.1)\n- [3.8.1](https://github.com/SAML-Toolkits/php-saml/releases/tag/3.8.1)\n- [4.3.1](https://github.com/SAML-Toolkits/php-saml/releases/tag/4.3.1)\n\n\n**Impact**\n\nSignature Wrapp",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.21.1",
+          "3.8.1",
+          "4.3.1"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "onelogin/php-saml 4.3.0 used by nbgrp/onelogin-saml-bundle (config/bundles.php, config/packages/nbgrp_onelogin_saml.yaml); composer.lock pins robrichards/xmlseclibs 3.1.3 (vulnerable to CVE-2025-66475 signature wrapping). SAML SSO is documented (docs/installation/saml_sso.md, .env:250-254 SAML_ENABLED=0). When enabled, an unauthenticated attacker posts a SAMLResponse to the ACS endpoint, which php-saml verifies with xmlseclibs.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)",
+        "requires": "SAML_ENABLED=1 (documented SAML SSO)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#23",
+      "facts": {
+        "package": "paragonie/sodium_compat",
+        "version": "1.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-69277",
+            "GHSA-mrfv-m5wm-5w6w",
+            "PYSEC-2026-1448",
+            "PYSEC-2026-3002"
+          ],
+          [
+            "paragonie/sodium_compat"
+          ]
+        ],
+        "advisory_summary": "libsodium has Incomplete List of Disallowed Inputs \u2014 libsodium before ad3004e, in atypical use cases involving certain custom cryptography or untrusted data to crypto_core_ed25519_is_valid_point, mishandles checks for whether an elliptic curve point is valid because it sometimes allows points that aren't in the main cryptographic group.\n\nThis advisoory lists packages in the GitHub Advisory Database's [supported ecosystems](https://github.com/github/advisory-database?tab=readme-ov-file#supported-ecosystems) that are affected by this vulnerability due to a vulnerable dependency.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.24.0",
+          "2.5.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Advisory is libsodium's crypto_core_ed25519_is_valid_point. sodium_compat 1.21.1 defines no such function or polyfill (only ristretto255_is_valid_point, src/Compat.php:4104; lib/ristretto255.php:74); grep for ed25519_is_valid_point over the checkout and every pkgsrc dir finds nothing. Its only consumer, web-token/jwt-library EdDSA (Signature/Algorithm/EdDSA.php:79), calls sodium_crypto_sign_verify_detached, which is not the vulnerable function. The Dockerfile's sury php8.3 also ships native ext-sodium, so the compat code isn't even used.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#24",
+      "facts": {
+        "package": "phpunit/phpunit",
+        "version": "9.6.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24765",
+            "GHSA-vvj3-c3rp-c85p"
+          ],
+          [
+            "phpunit/phpunit"
+          ]
+        ],
+        "advisory_summary": "PHPUnit Vulnerable to Unsafe Deserialization in PHPT Code Coverage Handling \u2014 ### Overview\n\nA vulnerability has been discovered involving unsafe deserialization of code coverage data in PHPT test execution. The vulnerability exists in the `cleanupForCoverage()` method, which deserializes code coverage files without validation, potentially allowing remote code execution if malicious `.coverage` files are present prior to the execution of the PHPT test.\n\n### Technical Details\n\n**Affected Component:** PHPT test runner, method `cleanupForCoverage()`\n**Affected Versions:** <= 8.5.51, <= 9.6.32, <= ",
+        "vuln_symbols": [
+          "cleanupForCoverage",
+          "allowed_classes",
+          "__wakeup"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.5.62",
+          "11.5.50",
+          "12.5.8",
+          "8.5.52",
+          "9.6.33"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Dev-only package (packages-dev). Official Dockerfile:154 runs `composer install -a --no-dev` (Dockerfile-frankenphp:60 also --no-dev), so PHPUnit is not installed in production.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#25",
+      "facts": {
+        "package": "rhukster/dom-sanitizer",
+        "version": "1.0.7",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40301",
+            "GHSA-93vf-569f-22cq"
+          ],
+          [
+            "rhukster/dom-sanitizer"
+          ]
+        ],
+        "advisory_summary": "rhukster/dom-sanitizer: SVG <style> tag allows CSS injection via unfiltered url() and @import directives \u2014 ### Summary\nDOMSanitizer::sanitize() allows <style> elements in SVG content but never inspects their text content. CSS url() references and @import rules pass through unfiltered, causing the browser to issue HTTP requests to attacker-controlled hosts when the sanitized SVG is rendered.\n\n### Details\nIn src/DOMSanitizer.php, 'style' is listed in the SVG allowed-tag array (line 31). The sanitize() method (lines 111\u2013133) removes disallowed tags and strips attributes matching the EXTERNAL_URL ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.10"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "src/Services/Attachments/SVGSanitizer.php:38 calls new DOMSanitizer(DOMSanitizer::SVG)->sanitize() on every uploaded or downloaded internal .svg attachment (AttachmentSubmitHandler.php:218 -> sanitizeSVGAttachment :510-527). In 1.0.7, 'style' is in the SVG allow-list (DOMSanitizer.php:31) and its CSS content isn't filtered, so a logged-in user who uploads an attachment can get url()/@import through, and those load when other users view the SVG.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#26",
+      "facts": {
+        "package": "robrichards/xmlseclibs",
+        "version": "3.1.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-32313",
+            "GHSA-4v26-v6cg-g6f9"
+          ],
+          [
+            "robrichards/xmlseclibs"
+          ]
+        ],
+        "advisory_summary": "xmlseclibs: Missing AES-GCM Authentication Tag Validation on Encrypted Nodes Allows for Unauthorized Decryption \u2014 ### Summary\nXML nodes encrypted with either aes-128-gcm, aes-192-gcm, or aes-256-gcm lack validation of the authentication tag length.\nAn attacker can use this to brute-force an authentication tag, recover the [GHASH key](https://en.wikipedia.org/wiki/Galois/Counter_Mode#:~:text=%29%20is%20the-,hash%20key,-%2C%20a%20string%20of), and decrypt the encrypted nodes.\nIt also allows to forge arbitrary ciphertexts without knowing the encryption key.\n\n### Details\nWhen decrypting with eithe",
+        "vuln_symbols": [
+          "$authTag",
+          "substr",
+          "SAMLResponse",
+          "byte_tag_attempt"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.5"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "robrichards/xmlseclibs 3.1.3 used by onelogin/php-saml 4.3.0 via nbgrp/onelogin-saml-bundle (config/bundles.php, config/packages/nbgrp_onelogin_saml.yaml with SP privateKey). php-saml Response constructor decrypts any EncryptedAssertion in the posted SAMLResponse (src/Saml2/Response.php:114-119 -> decryptAssertion :1121 -> Utils::decryptElement -> XMLSecEnc) before signature validation, and xmlseclibs XMLSecurityKey.php:150-170/471-475 accepts aes-*-gcm with unchecked tag length. Unauthenticated POST to /saml/acs (security.yaml:38-43). SAML is off by default (.env:254 SAML_ENABLED=0) but documented in docs/installation/saml_sso.md and .env.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)",
+        "requires": "SAML_ENABLED=1 (documented SAML SSO, docs/installation/saml_sso.md)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#27",
+      "facts": {
+        "package": "robrichards/xmlseclibs",
+        "version": "3.1.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66578",
+            "GHSA-c4cc-x928-vjw9"
+          ],
+          [
+            "robrichards/xmlseclibs"
+          ]
+        ],
+        "advisory_summary": "robrichards/xmlseclibs has an Libxml2 Canonicalization error which can bypass Digest/Signature validation \u2014 ### Summary\nAn authentication bypass vulnerability exists due to a flaw in the libxml2 canonicalization process, which is used by [xmlseclibs](https://github.com/robrichards/xmlseclibs) during document transformation. This weakness allows an attacker to generate a valid signature once and reuse it indefinitely. In practice, a signature created during a previous interaction - or through a misconfigured authentication flow - can be replayed to bypass authentication checks.\n\n### Details\nWhe",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "robrichards/xmlseclibs 3.1.3 used by onelogin/php-saml 4.3.0 (nbgrp/onelogin-saml-bundle) to validate signatures on SAMLResponse posted to /saml/acs (security.yaml:38-43, config/packages/nbgrp_onelogin_saml.yaml); XMLSecurityDSig canonicalizeData uses libxml C14N (XMLSecurityDSig.php:261-296, :478) on attacker-supplied XML. Off by default (.env:254 SAML_ENABLED=0) but documented (docs/installation/saml_sso.md, .env:250-280); IdP/attacker posting responses is the attacker.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)",
+        "requires": "SAML_ENABLED=1 (documented SAML SSO, docs/installation/saml_sso.md)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#28",
+      "facts": {
+        "package": "spomky-labs/otphp",
+        "version": "11.3.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-2jx3-65f3-xr8r"
+          ],
+          [
+            "spomky-labs/otphp"
+          ]
+        ],
+        "advisory_summary": "spomky-labs/otphp: Mass-assignment in Factory::loadFromProvisioningUri lets a hostile provisioning URI corrupt OTP state or leak an uncaught TypeError \u2014 ## Summary\n\n`OTPHP\\Factory::loadFromProvisioningUri()` parses an attacker-supplied `otpauth://` URI and forwards **every** query key to `OTP::setParameter($key, $value)`. `setParameter()` resolves the name with `property_exists($this, $parameter)` and performs a dynamic write `$this->{$parameter} = $value` (`src/OTP.php:196-197`). Because the query keys are entirely controlled by whoever produced the URI, a URI can target the internal properti",
+        "vuln_symbols": [
+          "setParameter",
+          "parameters",
+          "issuer",
+          "label",
+          "issuer_included_as_parameter",
+          "clock"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "11.4.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "hijacked"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "otphp is used only via scheb/2fa-google-authenticator GoogleTotpFactory.php:33 TOTP::create($secret,30,'sha1',digits). No call to Factory::loadFromProvisioningUri in src/, config/ or scheb packages; app never parses provisioning URIs.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#29",
+      "facts": {
+        "package": "spomky-labs/otphp",
+        "version": "11.3.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g7m4-839x-ch6v"
+          ],
+          [
+            "spomky-labs/otphp"
+          ]
+        ],
+        "advisory_summary": "spomky-labs/otphp: Unbounded digits parameter in a provisioning URI triggers an uncaught DivisionByZeroError in OTP generation \u2014 ## Summary\n\nThe `digits` parameter parsed from a provisioning URI is validated only with a lower bound (`$value > 0`) and has no upper bound (`src/OTP.php:353-357`). OTP generation computes `$code % (10 ** $this->getDigits())` (`src/OTP.php:283`). When `digits` is large enough that `10 ** digits` overflows PHP's integer range and the `(int)` cast yields `0` (around `digits >= 40` on 64-bit PHP 8.x), the modulo operand becomes `0` and PHP raises a `DivisionByZeroError",
+        "vuln_symbols": [
+          "digits",
+          "DivisionByZeroError",
+          "at",
+          "now",
+          "verify",
+          "Error"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "11.4.3"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "digits comes from config/packages/scheb_2fa.yaml:8 (digits: 6) via GoogleTotpFactory.php:33, never from a provisioning URI; Factory::loadFromProvisioningUri is not called anywhere.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#30",
+      "facts": {
+        "package": "symfony/cache",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45073",
+            "GHSA-6qh9-h6wf-jgqc"
+          ],
+          [
+            "symfony/cache"
+          ]
+        ],
+        "advisory_summary": "Symfony Vulnerable to SQL Injection in PdoAdapter::doClear() via Unsanitized $prefix \u2014 ### Description\n\n`Symfony\\Component\\Cache\\Adapter\\PdoAdapter` is the PDO-backed cache adapter. Its `clear($prefix)` method (inherited from `AbstractAdapterTrait`) is documented to delete cache items whose key starts with `$prefix`.\n\nIn the non-versioning code path, the caller-supplied `$prefix` is concatenated into `$namespace = $this->namespace.$prefix` and passed to `PdoAdapter::doClear()`, which builds:\n\n```sql\nDELETE FROM <table> WHERE <id_col> LIKE '<namespace>%'\n```\n\nThe value is interpolated directly ",
+        "vuln_symbols": [
+          "AbstractAdapterTrait",
+          "$prefix",
+          "$namespace",
+          "LIKE"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Vulnerable PdoAdapter::doClear is not used: config/packages/cache.yaml uses default filesystem cache.app (Redis/APCu only as commented alternatives), no PdoAdapter/cache.adapter.pdo/doctrine_dbal adapter in config or src; app never calls clear($prefix) with user data.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#31",
+      "facts": {
+        "package": "symfony/dom-crawler",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45071",
+            "GHSA-x6g4-fwcc-jj8w"
+          ],
+          [
+            "symfony/dom-crawler"
+          ]
+        ],
+        "advisory_summary": "Symfony has XXE (Local File Disclosure) in DomCrawler::addXmlContent() via validateOnParse = true \u2014 ### Description\n\n`symfony/dom-crawler` provides the `Crawler` class for navigating HTML/XML documents with CSS/XPath selectors; `symfony/browser-kit`'s `HttpBrowser` uses it to parse fetched pages.\n\n`Crawler::addXmlContent()` sets `DOMDocument::$validateOnParse = true` before calling `loadXML()`. Setting `validateOnParse` re-enables libxml's DTD subset processing, including external entity resolution, even though `LIBXML_NONET` is passed. `LIBXML_NONET` blocks **network** fetches but not `file:/",
+        "vuln_symbols": [
+          "Crawler",
+          "HttpBrowser",
+          "loadXML",
+          "validateOnParse",
+          "LIBXML_NONET"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "symfony/dom-crawler is a production dependency used by src/Services/InfoProviderSystem/Providers/PollinProvider.php:83 and :137 `new Crawler($content)` on the HTML fetched from https://www.pollin.de (line 70). Crawler::addContent (Crawler.php:143) switches to addXmlContent when the body starts with '<?xml', and 6.4.23 sets validateOnParse = true (Crawler.php:228/1121), enabling file:// external entities. Attacker = the remote pollin.de server (documented optional connection); parsed text is shown back to the user.",
+        "confidence": "low",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)",
+        "requires": "PROVIDER_POLLIN_ENABLED=1 (.env:238, docs/usage/information_provider_system.md:247-253)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#32",
+      "facts": {
+        "package": "symfony/http-foundation",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48736",
+            "GHSA-38cx-cq6f-5755"
+          ],
+          [
+            "symfony/http-foundation"
+          ]
+        ],
+        "advisory_summary": "Symfony: IpUtils::PRIVATE_SUBNETS Omits IPv6 Transition Forms (6to4, NAT64, Teredo, IPv4-compatible): SSRF Bypass in NoPrivateNetworkHttpClient \u2014 ### Description\n\n`Symfony\\Component\\HttpClient\\NoPrivateNetworkHttpClient` is documented as a decorator that blocks requests to private networks by default. The list of blocked subnets (`Symfony\\Component\\HttpFoundation\\IpUtils::PRIVATE_SUBNETS` on 6.4+, a private constant in `NoPrivateNetworkHttpClient` on 5.4) enumerates RFC1918, loopback, link-local and IPv4-mapped IPv6 (`::ffff:0:0/96`) prefixes, but omits the remaining IPv6 transition forms that",
+        "vuln_symbols": [
+          "NoPrivateNetworkHttpClient"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.4.41",
+          "7.4.13",
+          "8.0.13"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "symfony/http-foundation 6.4.23 is the framework Request/HeaderBag for every HTTP request (public/index.php via symfony/runtime, framework-bundle). The flaw is the IPv6 transition-prefix omission in IpUtils::PRIVATE_SUBNETS as used by NoPrivateNetworkHttpClient; neither the app (only IpUtils::anonymize, src/Helpers/IPAnonymizer.php:47) nor any installed prod package uses NoPrivateNetworkHttpClient/PRIVATE_SUBNETS (only defined in symfony/http-client NoPrivateNetworkHttpClient.php). Attachment URL downloads (off by default, .env:44) use the plain HTTP client without private-network filtering.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#33",
+      "facts": {
+        "package": "symfony/http-foundation",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-64500",
+            "GHSA-3rg7-wf37-54rm"
+          ],
+          [
+            "symfony/http-foundation"
+          ]
+        ],
+        "advisory_summary": "Symfony's incorrect parsing of PATH_INFO can lead to limited authorization bypass \u2014 ### Description\n\nThe `Request` class improperly interprets some `PATH_INFO` in a way that leads to representing some URLs with a path that doesn't start with a `/`. This can allow bypassing some access control rules that are built with this `/`-prefix assumption.\n\n### Resolution\n\nThe `Request` class now ensures that URL paths always start with a `/`.\n\nThe patch for this issue is available [here](https://github.com/symfony/symfony/commit/9962b91b12bb791322fa73836b350836b6db7cac) for branch 5.4.\n\n### Credits\n\nWe ",
+        "vuln_symbols": [
+          "Request",
+          "PATH_INFO"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.50",
+          "6.4.29",
+          "7.3.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "symfony/http-foundation 6.4.23 is the framework Request/HeaderBag for every HTTP request (public/index.php via symfony/runtime, framework-bundle). Installed Request::preparePathInfo (Request.php:1919-1925) returns substr(requestUri, baseUrl) without forcing a leading '/', the pre-fix behaviour. App relies on ^/-anchored access_control rules (config/packages/security.yaml:64-75, e.g. ^/api, ^/kicad-api) and getPathInfo checks (src/EventListener/AddEditCommentRequestListener.php:51); unauthenticated requests reach it. Exploitability depends on web server PATH_INFO/REQUEST_URI handling; controllers also check permissions.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#34",
+      "facts": {
+        "package": "symfony/http-foundation",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-108082",
+            "GHSA-r925-mgvr-h9cc"
+          ],
+          [
+            "symfony/http-foundation"
+          ]
+        ],
+        "advisory_summary": "Symfony: ReDoS in HeaderUtils::split() Reachable Through the Cache-Control Request Header \u2014 ### Description\n\n`HeaderUtils::split()` parsed header values with a pattern whose token alternative also matched whitespace, followed by a `(?<!\\s)` lookbehind. A run of whitespace placed before a separator could be divided among the iterations of the enclosing repetition in exponentially many ways, and the engine tried all of them before settling. `HeaderBag` calls it for the `Cache-Control` header whenever a `Request` is built, so any application handling HTTP requests is reachable, with no authentica",
+        "vuln_symbols": [
+          "HeaderBag",
+          "Request",
+          "preg_match_all",
+          "pcre.backtrack_limit",
+          "split"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.54",
+          "6.4.46",
+          "7.4.19",
+          "8.1.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "symfony/http-foundation 6.4.23 is the framework Request/HeaderBag for every HTTP request (public/index.php via symfony/runtime, framework-bundle). HeaderBag::set/constructor parses the Cache-Control request header with parseCacheControl -> HeaderUtils::split (HeaderBag.php:156-157, :284-286; HeaderUtils.php:45-53 vulnerable regex) on every request, unauthenticated.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#35",
+      "facts": {
+        "package": "symfony/mailer",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45068",
+            "GHSA-xx3c-qf5g-hc39"
+          ],
+          [
+            "symfony/mailer"
+          ]
+        ],
+        "advisory_summary": "Symfony has an Argument Injection in SendmailTransport via Dash-Prefixed Recipient Address \u2014 ### Description\n\nSymfony Mailer selects a transport via the `MAILER_DSN` environment variable / configuration (e.g. `smtp://...`, `sendmail://...`, `native://default`). `SendmailTransport` invokes the local `sendmail` binary and supports two modes: `-bs` (speak SMTP over stdin: the default) and `-t` (read the message on stdin, pass recipients as command-line arguments).\n\nIn `-t` mode, recipient addresses are appended to the sendmail command line **without a `--` end-of-options separator**. A recipient ",
+        "vuln_symbols": [
+          "MAILER_DSN",
+          "SendmailTransport",
+          "sendmail"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The flaw is only in SendmailTransport's -t mode (recipients passed as argv). The default is MAILER_DSN=null://null (.env:71). The app documents only smtp:// DSNs (.env:72; docs/configuration.md:102-105; docs/installation/email.md:20-27). A sendmail DSN with '-t' is documented only by Symfony, so it counts as undocumented. Also, recipients come from User.email, which has Assert\\Email in html5 mode (User.php:208; config/packages/validator.yaml:3), so a leading-dash address can't get in through the UI.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)",
+        "requires": "MAILER_DSN=sendmail://...?command=...-t (Symfony-documented only)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#36",
+      "facts": {
+        "package": "symfony/mime",
+        "version": "6.4.21",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45067",
+            "GHSA-qpmx-3rfj-7rhv"
+          ],
+          [
+            "symfony/mime"
+          ]
+        ],
+        "advisory_summary": "Symfony has Email Header / SMTP Command Injection via CRLF in Symfony\\Component\\Mime\\Address \u2014 ### Description\n\n`Symfony\\Component\\Mime\\Address` is the value-object every Symfony Mailer address (to/cc/bcc/from/reply-to) flows through; its constructor is documented as validating the address and throwing on invalid input, so developers treat it as a security boundary.\n\nThe constructor accepts email addresses whose local-part (the part before `@`) is an RFC-5322 *quoted string* containing raw `\\r\\n` bytes, e.g. `\"x\\r\\nBcc: attacker@evil\"@example.com`. The stored address is later emitted verbatim ",
+        "vuln_symbols": [
+          "SmtpTransport",
+          "Address"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "new Address($user->getEmail(), ...) is built in PasswordResetManager.php:66 for the password-reset mail. Unauthenticated users trigger it via /pw_reset/request (SecurityController.php:73) when ALLOW_EMAIL_PW_RESET (.env:79, docs/configuration.md:109) and MAILER_DSN are set. Locally entered emails pass Assert\\Email html5 (User.php:208, validator.yaml:3), which rejects quoted local parts and CRLF. But User::setSamlAttributes (User.php:996-1021) stores the IdP-supplied email with no validation. With documented SAML SSO on, the IdP side (or a user who can edit their IdP email) can plant a quoted local part containing CRLF, and it reaches the Address constructor and then the headers. The path is narrow, and I chose reachable because I wasn't sure.",
+        "confidence": "low",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)",
+        "requires": "ALLOW_EMAIL_PW_RESET=1 + MAILER_DSN (SMTP) + SAML_ENABLED (for an unvalidated email)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#37",
+      "facts": {
+        "package": "symfony/mime",
+        "version": "6.4.21",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45070",
+            "GHSA-vqc8-7275-q272"
+          ],
+          [
+            "symfony/mime"
+          ]
+        ],
+        "advisory_summary": "Symfony has Email Header Injection via Non-Token Characters in Mime Parameter Names \u2014 ### Description\n\n`Symfony\\Component\\Mime\\Header\\ParameterizedHeader` (and the related parameter handling reachable from `Symfony\\Component\\Mime\\Header\\Headers`) is responsible for serializing structured headers such as `Content-Type` and `Content-Disposition`, which carry `key=value` parameters (e.g. `Content-Disposition: attachment; filename=\"x\"`).\n\nRFC 2045 / RFC 5322 require parameter *names* to be `tokens`: a restricted ASCII subset that excludes whitespace, CR/LF, and the `tspecials` set. Symfony's param",
+        "vuln_symbols": [
+          "tokens",
+          "tspecials",
+          "ParameterizedHeader",
+          "token"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs attacker-controlled MIME parameter NAMES in ParameterizedHeader. The app's only mails are the password-reset TemplatedEmail (PasswordResetManager.php:66-77, no attachments) and a From address (SetMailFromSubscriber.php:41). Parameter names (charset, filename, boundary, ...) are fixed by Symfony Mime and never come from user data.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#38",
+      "facts": {
+        "package": "symfony/monolog-bridge",
+        "version": "6.4.13",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45077",
+            "GHSA-m7v2-7gxm-vc2v"
+          ],
+          [
+            "symfony/monolog-bridge"
+          ]
+        ],
+        "advisory_summary": "Symfony has Unauthenticated PHP Object Deserialization in MonologBridge server:log Listener \u2014 ### Description\n\n`Symfony\\Bridge\\Monolog\\Command\\ServerLogCommand` (the `server:log` console command) is a development-time helper that opens a TCP listener and displays log records pushed to it by the application's logging pipeline. Two unsafe defaults combine into a remotely reachable PHP object-deserialization sink:\n\n1. The listener binds to `0.0.0.0:9911` by default; it accepts connections on every interface, not only loopback.\n2. Each received frame is processed as `unserialize(base64_decode($mes",
+        "vuln_symbols": [
+          "allowed_classes",
+          "__wakeup",
+          "__destruct",
+          "unserialize"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "symfony/monolog-bridge 6.4.13 ServerLogCommand (Command/ServerLogCommand.php:33 'server:log', :65 0.0.0.0:9911, :113 unserialize) is a console command that only listens when an operator runs bin/console server:log; nothing in Part-DB config, docs or Dockerfile starts it, and the web app never runs it.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#39",
+      "facts": {
+        "package": "symfony/polyfill-intl-idn",
+        "version": "1.32.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46644",
+            "GHSA-2xf4-cg6j-vhgq"
+          ],
+          [
+            "symfony/polyfill-intl-idn"
+          ]
+        ],
+        "advisory_summary": "symfony/polyfill-intl-idn: xn-- labels with ASCII-only Punycode payloads are treated as equivalent to their decoded form \u2014 ### Description\n\n`symfony/polyfill-intl-idn` provides a userland implementation of `idn_to_utf8()` and `idn_to_ascii()` for runtimes that lack the `intl` extension. Its `Idn::process()` method decodes labels prefixed with `xn--` using Punycode but never enforces the validity criterion added in UTS #46 revision 33 Section 4 step 4.1.2: after a successful Punycode decode, the result must contain at least one non-ASCII code point.\n\nAs a consequence, `xn--` labels whose Punyco",
+        "vuln_symbols": [
+          "idn_to_utf8",
+          "idn_to_ascii",
+          "intl",
+          "IDNA_ERROR_INVALID_ACE_LABEL",
+          "poc.kc1zs4.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.1"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Polyfill only active when ext-intl is missing; composer.json:11 requires ext-intl and the official Dockerfile:33 installs php-intl (Dockerfile-frankenphp:29, Debian guide too), so native idn_to_* is used. No direct use of Symfony\\Polyfill\\Intl\\Idn\\Idn in src/ or in egulias/email-validator/symfony/mime.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#40",
+      "facts": {
+        "package": "symfony/process",
+        "version": "6.4.20",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24739",
+            "GHSA-r39x-jcww-82v6"
+          ],
+          [
+            "symfony/process"
+          ]
+        ],
+        "advisory_summary": "Symfony's incorrect argument escaping under MSYS2/Git Bash can lead to destructive file operations on Windows \u2014 ### Summary\nThe Symfony Process component did not correctly treat some characters (notably `=`) as \u201cspecial\u201d when escaping arguments on Windows. When PHP is executed from an MSYS2-based environment (e.g. Git Bash) and Symfony Process spawns native Windows executables, MSYS2\u2019s argument/path conversion can mishandle unquoted arguments containing these characters.\n\nThis can cause the spawned process to receive corrupted/truncated arguments compared to what Symfony intended.\n\n### Impact\n",
+        "vuln_symbols": [
+          "rmdir",
+          "del",
+          "MSYS2_ARG_CONV_EXCL"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.51",
+          "6.4.33",
+          "7.3.11",
+          "7.4.5",
+          "8.0.5"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The bug is only in Windows argument escaping when PHP runs under MSYS2/Git Bash. The official deployment is the Linux debian:bookworm-slim Docker image (Dockerfile:1-40), and the documented installs are Linux servers. The Windows escaping path never runs.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#41",
+      "facts": {
+        "package": "symfony/routing",
+        "version": "6.4.22",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45065",
+            "GHSA-72xp-p242-47p9"
+          ],
+          [
+            "symfony/routing"
+          ]
+        ],
+        "advisory_summary": "Symfony has a UrlGenerator Route-Requirement Bypass via Unanchored Regex Alternation \u2192 Off-Site //host URL Injection \u2014 ### Description\n\nSymfony routes can declare a requirements regex per path parameter, e.g. a route `/{_locale}/blog` with `requirements: { _locale: 'en|fr|de' }`. The Twig `path()` / `url()` helpers (backed by `UrlGenerator`) validate supplied parameter values against that regex before building the URL.\n\nUrlGenerator constructs the validation pattern as `'#^'.$req.'$#'`, where `$req` is the raw requirement string. For a requirement expressed as an alternation, e.g. `_locale: 'a",
+        "vuln_symbols": [
+          "path",
+          "url",
+          "UrlGenerator",
+          "$req",
+          "$",
+          "vi"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "symfony/routing 6.4.22 UrlGenerator flaw needs a route requirement that is an unanchored top-level alternation (a|b). Part-DB requirements are \\d+, .*, .+ and the _locale prefix '^[a-z]{2}(_[A-Z]{2})?$' (config/routes/attributes.yaml:10-12; config/routes.yaml:15; src/Controller/* #[Route] requirements); none contain a top-level '|', nor do bundle routes (api-platform ApiLoader.php:98 takes operation requirements, none defined with alternation).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#42",
+      "facts": {
+        "package": "symfony/routing",
+        "version": "6.4.22",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48784",
+            "GHSA-h5x3-xfc9-m39h"
+          ],
+          [
+            "symfony/routing"
+          ]
+        ],
+        "advisory_summary": "Symfony: UrlGenerator Dot-Segment Encoding Skips Every Other Chained `../` or `./` \u2192 Generated URL Collapses Off-Route Under RFC 3986 Normalization \u2014 ### Description\n\n`Symfony\\Component\\Routing\\Generator\\UrlGenerator::doGenerate()` percent-encodes `.` and `..` path segments so that the generated URL still resolves to the originating route after RFC 3986 \u00a75.2.4 dot-segment removal (which strict RFC-3986 consumers \u2014 routers, reverse proxies, HTTP clients \u2014 perform *before* percent-decoding).\n\nThe encoding was implemented as `strtr($url, ['/../' => '/%2E%2E/', '/./' => '/%2E/'])` plus a trailing-",
+        "vuln_symbols": [
+          "strtr",
+          "path",
+          "url",
+          "UrlGenerator",
+          "preg_replace_callback"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.53",
+          "6.4.41",
+          "7.4.13",
+          "8.0.13"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "symfony/routing 6.4.22 UrlGenerator::doGenerate dot-segment encoding runs when parameters allowing '/' are generated: path('part_list_tags', {tag}) with requirement '.*' (src/Controller/PartListsController.php:279) on user-entered part tags (templates/helper.twig:35, src/DataTables/Column/TagsColumn.php:64), and info_providers_create_part providerId '.+' (PartController.php:224, templates/info_providers/search/part_search.html.twig:115) from remote provider responses. A user who edits part tags can supply '/../../' sequences.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#43",
+      "facts": {
+        "package": "symfony/runtime",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47767",
+            "GHSA-fqc7-9xjw-jrh3"
+          ],
+          [
+            "symfony/runtime"
+          ]
+        ],
+        "advisory_summary": "SymfonyRuntime CVE-2024-50340 Patch Bypass: Web Requests Can Still Set APP_ENV/APP_DEBUG via parse_str/SAPI Argv Mismatch \u2014 ### Description\n\nCVE-2024-50340 (GHSA-x8vp-gf4q-mw5j) addressed an issue where, with `register_argc_argv=On`, a crafted query string let an unauthenticated GET change the kernel environment and debug flag by feeding `--env`/`--no-debug` through `$_SERVER['argv']`. The fix shipped in `symfony/runtime` 5.4.46 / 6.4.14 / 7.1.7 gated the argv read on `empty($_GET)` as a proxy for \"is this a CLI invocation\".\n\nThat proxy is unsafe: `parse_str()` (which builds `$_GET`) and the w",
+        "vuln_symbols": [
+          "parse_str",
+          "$_GET",
+          "APP_ENV",
+          "APP_DEBUG",
+          "SymfonyRuntime",
+          "QUERY_STRING"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "symfony/runtime 6.4.23 SymfonyRuntime.php:98 reads $_SERVER['argv'] for web requests only when register_argc_argv=On. Official Dockerfile installs Debian/sury php8.3-fpm packages (php.ini-production defaults, register_argc_argv=Off) and only adds opcache/realpath ini; Dockerfile-frankenphp:48 uses php.ini-production. Part-DB documents no register_argc_argv change.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)",
+        "requires": "register_argc_argv=On (undocumented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#44",
+      "facts": {
+        "package": "symfony/security-http",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45069",
+            "GHSA-29fc-p6c4-24cg"
+          ],
+          [
+            "symfony/security-http"
+          ]
+        ],
+        "advisory_summary": "Symfony's OidcTokenHandler Accepts JWTs Missing aud/iss/exp Claims \u2014 ### Description\n\n`OidcTokenHandler` is Symfony's built-in access-token handler for OpenID Connect: it validates a bearer JWT and returns the authenticated user identity. It delegates claim validation to the `web-token/jwt-checker` library's `ClaimCheckerManager`.\n\n`OidcTokenHandler::verifyClaims()` registers audience (`aud`), issuer (`iss`), and expiry (`exp`) checkers, but never passes the `$mandatoryClaims` argument to `ClaimCheckerManager::check()`. That method only validates claims that are *present* in the token: a check",
+        "vuln_symbols": [
+          "OidcTokenHandler",
+          "ClaimCheckerManager",
+          "aud",
+          "iss",
+          "exp",
+          "$mandatoryClaims"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "OidcTokenHandler is only used through a firewall access_token: token_handler: oidc config. config/packages/security.yaml has none: the main firewall uses form_login, saml, remember_me and the custom App\\Security\\ApiTokenAuthenticator. grep for oidc over config/ and src/ finds nothing.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#45",
+      "facts": {
+        "package": "symfony/security-http",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48489",
+            "GHSA-6h46-9jf5-q59x"
+          ],
+          [
+            "symfony/security-http"
+          ]
+        ],
+        "advisory_summary": "Symfony: Security Firewall Bypass via failure_forward Subrequest: Unauthenticated Access to access_control-Protected GET Routes \u2014 ### Description\n\nWhen a firewall is configured with `form-login` (or any authenticator using `DefaultAuthenticationFailureHandler`) and the `failure_forward: true` option, the handler reads the `_failure_path` parameter from the failing login request and uses it as the path of an internal subrequest dispatched through `HttpKernelInterface::SUB_REQUEST`.\n\nSymfony's `Firewall::onKernelRequest` listener intentionally skips subrequests under the assumption they are inte",
+        "vuln_symbols": [
+          "DefaultAuthenticationFailureHandler",
+          "_failure_path",
+          "AccessListener",
+          "access_control",
+          "ROLE_ADMIN",
+          "failure_forward"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.53",
+          "6.4.41",
+          "7.4.13",
+          "8.0.13"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs failure_forward: true on form_login or another authenticator using DefaultAuthenticationFailureHandler. security.yaml's form_login (login_path/check_path/enable_csrf/use_referer/default_target_path) and saml (failure_path: login) don't set it, and the default is false. grep for failure_forward in config/ finds nothing.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#46",
+      "facts": {
+        "package": "symfony/security-http",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45063",
+            "GHSA-ph86-p8f6-f9r2"
+          ],
+          [
+            "symfony/security-http"
+          ]
+        ],
+        "advisory_summary": "Symfony Vulnerable to Identity Spoofing via Unanchored DN Regex in X509Authenticator \u2014 ### Description\n\n`X509Authenticator` implements client-certificate (mTLS) authentication: the web server validates the client's certificate against a trusted CA, then passes the certificate's Subject DN (Distinguished Name: a string like `CN=Alice,O=Example,emailAddress=alice@example.com`) to Symfony via `$_SERVER['SSL_CLIENT_S_DN']`. Symfony extracts the user identifier from that string.\n\nThe extraction uses an **unanchored** regex that matches `emailAddress=` anywhere in the DN string: including inside the",
+        "vuln_symbols": [
+          "X509Authenticator",
+          "CN"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "X509Authenticator is only enabled by a firewall x509: key. security.yaml has none. The only x509 strings are the SAML cert settings (nbgrp_onelogin_saml.yaml:20,29).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#47",
+      "facts": {
+        "package": "symfony/yaml",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-109413",
+            "GHSA-2v3c-qxhr-7vpv"
+          ],
+          [
+            "symfony/yaml"
+          ]
+        ],
+        "advisory_summary": "Symfony: Unbounded Recursion in the YAML Inline Lexer Lets a Single Document Crash the Process \u2014 ### Description\n\n`Yaml\\Parser::lexInlineStructure()` recursed through `lexInlineMapping()` and `lexInlineSequence()` for every `{` and `[` of an inline collection, without entering the nesting level that the rest of the parser bounds with `maxNestingLevel`. A document made of deeply nested inline collections, such as `[[[[...]]]]`, exhausted the stack while it was being lexed: depending on the PHP version and its stack settings, the process crashed or the request ended with a fatal error.\n\nAny code",
+        "vuln_symbols": [
+          "lexInlineMapping",
+          "lexInlineSequence",
+          "maxNestingLevel",
+          "acceptFormat",
+          "ParseException"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.54",
+          "6.4.45",
+          "7.4.18",
+          "8.1.6"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "symfony/yaml 6.4.23: user-uploaded import files with format yaml (src/Form/AdminPages/ImportType.php:61, EntityImporter.php:275/349, called from PartImportExportController.php:84 and admin pages e.g. CurrencyController.php:136) are deserialized via $this->serializer->deserialize(...,'yaml') (EntityImporter.php:191) -> framework-bundle serializer.encoder.yaml (Resources/config/serializer.php:189, removed only if Yaml is absent, FrameworkExtension.php:1934) -> YamlEncoder.php:91 Parser::parse on the attacker's file. Attacker: logged-in user with import permission. Parser::lexInlineStructure/lexInlineMapping/lexInlineSequence (Parser.php:1181-1191) recurse without depth limit in this version.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#48",
+      "facts": {
+        "package": "symfony/yaml",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45304",
+            "GHSA-4qpc-3hr4-r2p4"
+          ],
+          [
+            "symfony/yaml"
+          ]
+        ],
+        "advisory_summary": "Symfony's YAML Parser Vulnerable to Exponential Memory Allocation via Recursive Collection-Alias Expansion (\"Billion Laughs\") \u2014 ### Description\n\n`Symfony\\Component\\Yaml\\Parser` resolves YAML aliases (`*anchor`) during parsing. Aliases that reference *collections* (arrays, `stdClass`, `TaggedValue`-wrapped collections) can themselves point to other collections containing aliases, creating exponential expansion at resolution time. A small input can blow up into a multi-gigabyte structure and exhaust memory: the classic \"Billion Laughs\" denial-of-service against any parser exposed to untrusted YA",
+        "vuln_symbols": [
+          "stdClass",
+          "TaggedValue",
+          "Parser",
+          "ParserState",
+          "$maxAliasesForCollections"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "symfony/yaml 6.4.23: user-uploaded import files with format yaml (src/Form/AdminPages/ImportType.php:61, EntityImporter.php:275/349, called from PartImportExportController.php:84 and admin pages e.g. CurrencyController.php:136) are deserialized via $this->serializer->deserialize(...,'yaml') (EntityImporter.php:191) -> framework-bundle serializer.encoder.yaml (Resources/config/serializer.php:189, removed only if Yaml is absent, FrameworkExtension.php:1934) -> YamlEncoder.php:91 Parser::parse on the attacker's file. Attacker: logged-in user with import permission. Alias resolution of collection aliases is unbounded in this version (Parser.php only tracks circular refs, refsBeingParsed :40/:237/:713, no expansion limit).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#49",
+      "facts": {
+        "package": "symfony/yaml",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45305",
+            "GHSA-9frc-8383-795m"
+          ],
+          [
+            "symfony/yaml"
+          ]
+        ],
+        "advisory_summary": "Symfony's YAML Parser has a ReDoS via Catastrophic Backtracking in Parser::cleanup() Regex \u2014 ### Description\n\n`Symfony\\Component\\Yaml\\Parser::cleanup()` strips the optional `%YAML` directive header, leading comments, and document start/end markers before parsing. The original regexes contained overlapping quantifiers, most notably `'#^%YAML[: ][\\d.]+.*\\n#u'`, whose `[\\d.]+` and `.*` overlap on the dot, that exhibit catastrophic backtracking on crafted input. A single oversized `%YAML` directive header (or comment / document-marker line) makes the parser hang for an arbitrarily long time, denyi",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "symfony/yaml 6.4.23: user-uploaded import files with format yaml (src/Form/AdminPages/ImportType.php:61, EntityImporter.php:275/349, called from PartImportExportController.php:84 and admin pages e.g. CurrencyController.php:136) are deserialized via $this->serializer->deserialize(...,'yaml') (EntityImporter.php:191) -> framework-bundle serializer.encoder.yaml (Resources/config/serializer.php:189, removed only if Yaml is absent, FrameworkExtension.php:1934) -> YamlEncoder.php:91 Parser::parse on the attacker's file. Attacker: logged-in user with import permission. Parser::cleanup still uses the backtracking regex '#^\\%YAML[: ][\\d\\.]+.*\\n#u' (Parser.php:973-979).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#50",
+      "facts": {
+        "package": "symfony/yaml",
+        "version": "6.4.23",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45133",
+            "GHSA-c2p3-7m5p-cv8x"
+          ],
+          [
+            "symfony/yaml"
+          ]
+        ],
+        "advisory_summary": "Symfony hardened the parser when handling untrusted input \u2014 ### Description\n\n`Symfony\\Component\\Yaml\\Parser` is the entry point for parsing YAML strings into PHP values via `Yaml::parse()`. When the parser is exposed to attacker-controlled input, deeply nested mappings or sequences cause both the block-level (`Parser::parseBlock()`) and inline (`Inline::parseSequence()` / `Inline::parseMapping()`) parsers to recurse without a depth limit. A crafted document exhausts the PHP stack and crashes the worker.\n\n### Resolution\n\nThe `Parser` now tracks recursion depth in a shared `ParserState` object a",
+        "vuln_symbols": [
+          "Parser",
+          "ParserState",
+          "$maxNestingLevel"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "symfony/yaml 6.4.23: user-uploaded import files with format yaml (src/Form/AdminPages/ImportType.php:61, EntityImporter.php:275/349, called from PartImportExportController.php:84 and admin pages e.g. CurrencyController.php:136) are deserialized via $this->serializer->deserialize(...,'yaml') (EntityImporter.php:191) -> framework-bundle serializer.encoder.yaml (Resources/config/serializer.php:189, removed only if Yaml is absent, FrameworkExtension.php:1934) -> YamlEncoder.php:91 Parser::parse on the attacker's file. Attacker: logged-in user with import permission. Block/inline parsers (Parser::parseBlock, Inline::parseSequence/parseMapping Inline.php:349-381) recurse without a depth limit in this version.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#51",
+      "facts": {
+        "package": "twig/cssinliner-extra",
+        "version": "3.21.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46637",
+            "GHSA-jv8m-2544-3pg3"
+          ],
+          [
+            "twig/cssinliner-extra"
+          ]
+        ],
+        "advisory_summary": "Twig: HTML-output filters in twig/* extras incorrectly declared `is_safe => ['all']` \u2014 ### Description\n\nSeveral filters in the `twig/*` extras packages are registered with `is_safe => ['all']`, which tells Twig's autoescaper to treat their output as safe in every context (`html`, `js`, `css`, `url`, ...). The output of these filters is plain text or HTML markup, neither of which is safe in every escaping context.\n\nAffected filters:\n\n- `html_to_markdown` (`twig/markdown-extra`) emits plain Markdown text. `league/html-to-markdown` decodes HTML entities when producing code spans and fenced blocks",
+        "vuln_symbols": [
+          "html",
+          "js",
+          "css",
+          "url",
+          "html_to_markdown",
+          "markdown_to_html"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "inline_css (CssInlinerExtension.php:23 is_safe all) is used only in templates/mail/base.html.twig:1 as `{% apply inky_to_html|inline_css(...) %}` over a whole HTML email body, i.e. in HTML context where is_safe html (the fix) behaves identically; never printed inside a js/css/url/attribute context, so there is no autoescape skip.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#52",
+      "facts": {
+        "package": "twig/intl-extra",
+        "version": "3.21.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46629",
+            "GHSA-35wc-cvqg-78fp"
+          ],
+          [
+            "twig/intl-extra"
+          ]
+        ],
+        "advisory_summary": "twig/intl-extra: Unbounded formatter memoisation in keyed on template-controlled arguments \u2014 ### Description\n\n`IntlExtension` memoises every `\\IntlDateFormatter` and `\\NumberFormatter` it creates in instance-level arrays keyed on a hash that includes `locale`, `pattern`, `attrs` and other values that are ordinary named arguments of the `format_datetime` / `format_date` / `format_time` / `format_number` / `format_currency` filters. There is no size limit and no eviction.\n\nA template that iterates over many distinct `pattern` (or `locale`, or `grouping_used`, ...) values therefore allocates one ",
+        "vuln_symbols": [
+          "IntlExtension",
+          "locale",
+          "pattern",
+          "attrs",
+          "format_datetime",
+          "format_date"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "SandboxedTwigFactory.php:184 adds new IntlExtension() to the label sandbox and allows format_date/format_datetime/format_time/format_number/format_currency (ALLOWED_FILTERS :89-92), along with 'for' and 'range'. A user with @labels.use_twig (LabelOptionsType.php:153; permissions.yaml:354) writes the label template, so they control pattern/locale/attrs. In 3.21.0 the formatter caches are unbounded (IntlExtension.php:148-149, 443-447, 489-490), so a loop over distinct patterns exhausts memory.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#53",
+      "facts": {
+        "package": "twig/markdown-extra",
+        "version": "3.21.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46637",
+            "GHSA-jv8m-2544-3pg3"
+          ],
+          [
+            "twig/markdown-extra"
+          ]
+        ],
+        "advisory_summary": "Twig: HTML-output filters in twig/* extras incorrectly declared `is_safe => ['all']` \u2014 ### Description\n\nSeveral filters in the `twig/*` extras packages are registered with `is_safe => ['all']`, which tells Twig's autoescaper to treat their output as safe in every context (`html`, `js`, `css`, `url`, ...). The output of these filters is plain text or HTML markup, neither of which is safe in every escaping context.\n\nAffected filters:\n\n- `html_to_markdown` (`twig/markdown-extra`) emits plain Markdown text. `league/html-to-markdown` decodes HTML entities when producing code spans and fenced blocks",
+        "vuln_symbols": [
+          "html",
+          "js",
+          "css",
+          "url",
+          "html_to_markdown",
+          "markdown_to_html"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "twig/markdown-extra 3.21.0 registers html_to_markdown (static self::htmlToMarkdown) and markdown_to_html with is_safe=>['all'] (MarkdownExtension.php:23-24). Part-DB adds MarkdownExtension to the sandboxed label Twig (src/Services/LabelSystem/SandboxedTwigFactory.php:185) and whitelists both filters (:90-91), so a label template using html_to_markdown on part fields that other users control (descriptions/comments) emits unescaped output. Needs a twig-mode label profile using the filter (privileged users) and is limited to label HTML->PDF output; the sandbox also allows 'raw', so impact is low.",
+        "confidence": "low",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)",
+        "requires": "label profile in Twig mode using html_to_markdown"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#54",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46634",
+            "GHSA-24x9-r6q4-q93w"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: `template_from_string()` escapes a SourcePolicy-driven sandbox via synthesized template name \u2014 ### Description\n\nWhen the sandbox is enabled selectively via `SourcePolicyInterface` (and not globally), a sandboxed template that is allowed to call `template_from_string` and `include` can render an arbitrary inner template with no security policy enforcement.\n\n`Environment::createTemplate()` compiles the inner string under a synthesized name (`__string_template__<hash>`), so a name/path-based `SourcePolicy` returns `false` for it, and the inner template's `checkSecurity()` becomes a no-op. F",
+        "vuln_symbols": [
+          "template_from_string",
+          "SourcePolicyInterface",
+          "include",
+          "SourcePolicy",
+          "checkSecurity",
+          "constant"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Affects only a sandbox enabled selectively via SourcePolicyInterface. Part-DB turns the sandbox on globally (new SandboxExtension($policy, true), SandboxedTwigFactory.php:178-179) with no source policy, so inner templates are sandboxed too. 'include' isn't in ALLOWED_FUNCTIONS or ALLOWED_TAGS (:84-99) either.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#55",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47730",
+            "GHSA-2g2g-8p8h-fgwm"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: XSS in profiler HtmlDumper via unescaped template and profile names \u2014 ### Description\n\n`Twig\\Profiler\\Dumper\\HtmlDumper` writes `Profile::getTemplate()` and `Profile::getName()` straight into its HTML output without escaping:\n\n```php\nprotected function formatTemplate(Profile $profile, $prefix): string\n{\n    return \\sprintf('%s\u2514 <span style=\"background-color: %s\">%s</span>', $prefix, self::$colors['template'], $profile->getTemplate());\n}\n```\n\nThe template name comes from the loader (the array key for `ArrayLoader`, a row id for a database-backed loader, etc.). When that name is attacker-c",
+        "vuln_symbols": [
+          "ArrayLoader",
+          "HtmlDumper",
+          "htmlspecialchars"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Twig\\Profiler\\Dumper\\HtmlDumper is only used by the Twig profiler and the Symfony web profiler data collector, which are dev/debug only (config/packages/web_profiler.yaml and the dev firewall). The prod image runs APP_ENV=prod with --no-dev. Template names come from fixed loaders anyway.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#56",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24425",
+            "GHSA-2q52-x2ff-qgfr"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Possible sandbox bypass when using a source policy \u2014 # Description\n\nWhen using the sandbox with a `SourcePolicyInterface`, Twig does not always apply the sandbox restriction that forbids non-`Closure` callbacks for callback-accepting filters.\n\nThe issue affects the `sort`, `filter`, `map`, and `reduce` filters.\n\nIn the affected versions, the runtime check that rejects non-`Closure` callbacks in sandbox mode does not use the current template `Source`. As a result, when the sandbox is enabled through a source policy instead of being enabled globally, Twig can incorrectly treat the current ",
+        "vuln_symbols": [
+          "SourcePolicyInterface",
+          "Closure",
+          "sort",
+          "filter",
+          "map",
+          "reduce"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only applies when the sandbox is enabled via SourcePolicyInterface. Part-DB's label sandbox is global (SandboxedTwigFactory.php:178-179), so CoreExtension::checkArrow's global isSandboxed() check rejects non-Closure callbacks.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#57",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46640",
+            "GHSA-45vw-wh46-2vx8"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Arbitrary PHP code execution via `_self.(<string>)` macro-reference compilation \u2014 ### Description\n\nThe `obj.(expr)` dynamic-attribute syntax (added in 3.15.0 as the replacement for the deprecated `attribute()` function) lets the attribute be an arbitrary expression. When the receiver is `_self` (or any `{% import %}` alias) and the parenthesised expression is a string literal, `DotExpressionParser` short-circuits to the macro-call path and concatenates the attacker-controlled string into a `MacroReferenceExpression` name with no identifier validation. `MacroReferenceExpression::compile()",
+        "vuln_symbols": [
+          "attribute",
+          "_self",
+          "DotExpressionParser",
+          "MacroReferenceExpression",
+          "checkSecurity",
+          "SandboxExtension"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "In 3.21.1, DotExpressionParser.php:71-74 turns _self.(<string literal>) into MacroReferenceExpression('macro_'.value), and MacroReferenceExpression::compile (:46-53) writes the name into PHP raw, so the template injects PHP code. A label template author with @labels.use_twig writes the 'lines' template (ArrayLoader in SandboxedTwigFactory.php:173-176, rendered in LabelHTMLGenerator.php:84). It is compiled and eval'd (no cache). The sandbox only checks tags/filters/functions at runtime (checkSecurity) and doesn't stop compile-time injection, so this gives RCE. The attacker is the privileged label-template editor.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#58",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46628",
+            "GHSA-4j38-f5cw-54h7"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: The `spaceless` filter implicitly marks its output as safe \u2014 ### Description\n\nThe `spaceless` filter is registered with `is_safe => ['html']`, which means Twig's autoescaper does not escape its output in an HTML context. As a result, applying `spaceless` to attacker-controlled input that contains markup emits the markup unescaped even when the developer never wrote `|raw` and autoescape is enabled.\n\nExample:\n\n```twig\n{% set payload = '<script>alert()</script>' %}\n{{ payload }}          {# escaped #}\n{{ payload|spaceless }} {# not escaped #}\n```\n\nThe filter is deprecated but still functio",
+        "vuln_symbols": [
+          "spaceless",
+          "is_safe"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "'spaceless' is allowed in the label sandbox (SandboxedTwigFactory.php:92). Its is_safe=>html output skips autoescaping when a template uses {{ part.name|spaceless }} on data written by other, lower-privileged editors. The label HTML is printed |raw (templates/label_system/labels/label_page_qr.html.twig:13) and rendered by dompdf. The impact is small because the template author can already use |raw. I chose reachable because I wasn't sure. The app's own templates never use spaceless.",
+        "confidence": "low",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#59",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-49981",
+            "GHSA-529h-vh3j-85hq"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox filter, tag and function allow-list bypass when sandbox state changes between renders for a cached `Template` \u2014 ### Description\n\nThe per-template filter, tag and function allow-list check is compiled into the `checkSecurity()` method of each `Template` subclass and was invoked once from the constructor, gated by `SandboxExtension::isSandboxed($source)`. `Template` instances are then cached on the `Environment` in `$loadedTemplates`, so the verdict computed at construction time was sticky for the rest of the process.\n\nAny later change of sandbox state on the same `Environment` lef",
+        "vuln_symbols": [
+          "Template",
+          "checkSecurity",
+          "Environment",
+          "$loadedTemplates",
+          "disableSandbox",
+          "setSecurityPolicy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs sandbox state to change between renders of a cached Template on one Environment. Part-DB builds a fresh Environment for each label generation with the sandbox globally on from construction (SandboxedTwigFactory.php:177-179) and never calls enableSandbox/disableSandbox. The main app Environment is never sandboxed.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#60",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48806",
+            "GHSA-5v5v-ww74-355v"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox `__toString()` policy bypass via dynamic mapping keys \u2014 ### Description\n\nThis is a residual bypass of CVE-2026-47732 / GHSA-pr2w-4gpj-cpq4 left after the initial fix for unguarded `__toString()` calls.\n\nIn 3.26.0 the sandbox visitor was extended to wrap every child node that its parent will string-coerce at runtime with `CheckToStringNode`, gated by the new `CoercesChildrenToStringInterface`. `ArrayExpression` did not implement the interface for its mapping keys: when a dynamic key expression resolves to a `Stringable` object, `ArrayExpression::compile()` emits a raw `(string)` c",
+        "vuln_symbols": [
+          "__toString",
+          "CheckToStringNode",
+          "CoercesChildrenToStringInterface",
+          "ArrayExpression",
+          "Stringable",
+          "StringCastUnary"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "In 3.21.1, ArrayExpression::compile wraps ContextVariable keys in StringCastUnary (ArrayExpression.php:88-89) without a sandbox __toString check. SandboxNodeVisitor only wraps print/set/concat/filter/function args (SandboxNodeVisitor.php:78-129). A label-template author (@labels.use_twig) can write {(obj): 1} to call __toString on context objects (element, user and related entities from LabelHTMLGenerator.php:86-93) that InheritanceSecurityPolicy doesn't allow. The impact is a minor policy bypass.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#61",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46638",
+            "GHSA-7fxw-r6jv-74c8"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: `{% sandbox %}{% include %}` skips checkSecurity() on cached templates (incomplete fix for CVE-2024-45411) \u2014 ### Description\n\nThe fix for CVE-2024-45411 / GHSA-6j75-5wfj-gh66 added an explicit `$loaded->unwrap()->checkSecurity()` call in `CoreExtension::include()` so that a template already cached in `Environment::$loadedTemplates` is re-checked when included with `sandboxed = true`.\n\nThe deprecated but still functional `{% sandbox %}{% include ... %}{% endsandbox %}` tag path was not updated: it compiles to `enableSandbox(); yield from $this->load(...)->unwrap()->yield(...); disableSand",
+        "vuln_symbols": [
+          "checkSecurity",
+          "Environment",
+          "isSandboxed"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs the {% sandbox %}{% include %} tag path. 'sandbox' and 'include' are not in ALLOWED_TAGS/ALLOWED_FUNCTIONS (SandboxedTwigFactory.php:84-99, so checkSecurity rejects them). The sandbox is global anyway (:178-179), and the main app templates don't use the sandbox tag.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#62",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46633",
+            "GHSA-7p85-w9px-jpjp"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: PHP code injection via `{% use %}` template name \u2014 ### Description\n\n`Compiler::string()` escapes `\"`, `$`, `\\`, NUL and TAB when generating PHP double-quoted string literals, but does not escape single quotes. In `ModuleNode::compileConstructor()`, the template name from a `{% use %}` tag is compiled via `subcompile()` -> `string()` and placed inside a surrounding PHP single-quoted string literal. A template name containing a single quote terminates that surrounding string early, allowing arbitrary PHP expressions to be injected into the compiled cache file.\n\nThe injected code executes w",
+        "vuln_symbols": [
+          "$",
+          "subcompile",
+          "SecurityPolicy",
+          "allowedTags"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "In 3.21.1, ModuleNode::compileConstructor puts the {% use %} template name inside a single-quoted PHP string (ModuleNode.php:251-254, 'Block ... is not defined in trait '.subcompile), and Compiler::string (Compiler.php:144-146) doesn't escape single quotes. A label-template author (@labels.use_twig) controls the 'lines' source. It is compiled and eval'd before the constructor's checkSecurity() (constructor_end, SandboxNodeVisitor.php:111). Even though 'use' isn't an allowed tag, a crafted name can break out of the class body into top-level code, so the injected PHP runs. Medium confidence because exploitation depends on the payload shape.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#63",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48807",
+            "GHSA-8x9c-rmqh-456c"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox `__toString()` policy bypass via `Traversable` in `join` and `replace` filters \u2014 ### Description\n\nThis is a residual bypass of CVE-2026-47732 / GHSA-pr2w-4gpj-cpq4 left after the initial fix for unguarded `__toString()` calls. It covers two related coercion points that were not caught by the original patch.\n\n**`Traversable` in `join` and `replace` filters.** `SandboxExtension::ensureToStringAllowed()` recurses into PHP arrays so that a `Stringable` object hidden inside an array argument cannot be string-coerced without consulting the security policy. The recursion stops at PHP ar",
+        "vuln_symbols": [
+          "__toString",
+          "Traversable",
+          "join",
+          "replace",
+          "Stringable",
+          "implode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "In 3.21.1, SandboxExtension::ensureToStringAllowed recurses only into PHP arrays (SandboxExtension.php:123-165). The join and replace filters are allowed in the label sandbox (SandboxedTwigFactory.php:89-92), and CoreExtension::join implodes Traversables (:841). A label-template author can join a Doctrine collection (e.g. element.attachments or getPartLots via allowed methods) or another Traversable of Stringable objects to call __toString with no policy check. The attacker is the privileged template editor.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#64",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48808",
+            "GHSA-h8vq-8gpg-mhcg"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox property allowlist bypass via the `column` filter under `SourcePolicyInterface` \u2014 ### Description\n\nThis is a residual bypass of CVE-2026-46635 / GHSA-vcc8-phrv-43wj that only affects sandboxing enabled through `SourcePolicyInterface` (and not the regular global sandbox mode).\n\n`CoreExtension::column()` receives the active sandbox state via the `needs_is_sandboxed` channel as a boolean `$isSandboxed`, but then routes the per-element property reads through `SandboxExtension::checkPropertyAllowed()` without forwarding the current `Source`. `SandboxExtension::checkPropertyAllowed()` ",
+        "vuln_symbols": [
+          "column",
+          "SourcePolicyInterface",
+          "needs_is_sandboxed",
+          "$isSandboxed",
+          "Source",
+          "allowedFilters"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "The column-filter variant only applies to SourcePolicyInterface sandboxing (and 3.21.1 predates the code that has it). Part-DB's sandbox is global (SandboxedTwigFactory.php:178-179). The global-mode column issue is row 66.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#65",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48805",
+            "GHSA-p42q-9prx-q5wq"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox state regression in deprecated internal wrappers in `src/Resources/core.php` \u2014 ### Description\n\nThe 3.26.0 source-policy hardening changed the signature of `CoreExtension::checkArrow()` to take a boolean `$isSandboxed` instead of an `Environment`, and added the same `$isSandboxed` argument to `CoreExtension::arraySome()` and `CoreExtension::arrayEvery()`. Compiled templates were updated to pass the per-source sandbox state computed at the call site.\n\nThe deprecated internal wrappers exposed in `src/Resources/core.php` for legacy third-party code (`twig_check_arrow_in_sandbox()`, ",
+        "vuln_symbols": [
+          "$isSandboxed",
+          "Environment",
+          "twig_check_arrow_in_sandbox",
+          "twig_array_some",
+          "twig_array_every",
+          "arrayEvery"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "This regression came with the 3.26.0 signature change to checkArrow/arraySome/arrayEvery. In 3.21.1 the deprecated wrappers in src/Resources/core.php still pass the Environment and are unaffected. They are only called by legacy third-party code, and Part-DB doesn't call twig_check_arrow_in_sandbox etc.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#66",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47732",
+            "GHSA-pr2w-4gpj-cpq4"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox: multiple `__toString()` policy bypasses via unguarded string coercion points \u2014 ### Description\n\n`SandboxNodeVisitor` enforces `SecurityPolicy::checkMethodAllowed()` for implicit `__toString()` calls by wrapping selected AST nodes in `CheckToStringNode`. The set of wrapped nodes is incomplete, and several Twig language constructs still trigger PHP string coercion on a `Stringable` operand without first consulting the policy. A sandboxed template author can therefore invoke `__toString()` on any object reachable in the render context, even when `__toString` on its class is not all",
+        "vuln_symbols": [
+          "__toString",
+          "SandboxNodeVisitor",
+          "CheckToStringNode",
+          "Stringable",
+          "matches",
+          "include"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "In 3.21.1, SandboxNodeVisitor wraps only print/set/concat/filter/function args in CheckToStringNode (SandboxNodeVisitor.php:78-129). Other coercion points (comparisons, string tests, mapping keys, etc.) call __toString unchecked. The label sandbox is global with an InheritanceSecurityPolicy method allow-list (SandboxedTwigFactory.php:100-160). A label-template author (@labels.use_twig) can call __toString on context objects whose __toString isn't allowed (e.g. brick/math BigDecimal from Pricedetail::getPrice, Doctrine collections). The impact is a policy bypass by a privileged template editor.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#67",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46635",
+            "GHSA-vcc8-phrv-43wj"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox property allowlist bypass via the `column` filter (array_column on objects) \u2014 ### Description\n\nThe `column` filter passes its input straight to PHP's native `array_column()`. When the array elements are objects, `array_column()` reads `$obj->$name` (and `$obj->$index`) directly, including invoking `__get`/`__isset`. Because this property read happens entirely in PHP native code and never reaches `CoreExtension::getAttribute()`, `SandboxExtension::checkPropertyAllowed()` is never consulted.\n\nAn untrusted template author with `column` in their `allowedFilters` list can therefore re",
+        "vuln_symbols": [
+          "column",
+          "array_column",
+          "__get",
+          "__isset",
+          "allowedFilters",
+          "SecurityPolicy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "'column' is an allowed filter in the label sandbox (SandboxedTwigFactory.php:89), and ALLOWED_PROPERTIES is empty (:161), so all property reads should be blocked. In 3.21.1, CoreExtension::column (CoreExtension.php:1939-1949) runs iterator_to_array and then array_column on objects, reading public properties and __get with no checkPropertyAllowed. A label-template author can run it over entity collections (getPartLots, getAttachments, ...). Doctrine entities expose few public properties, so impact is small. I chose reachable because the code path runs.",
+        "confidence": "low",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#68",
+      "facts": {
+        "package": "web-auth/webauthn-lib",
+        "version": "4.9.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-gq4g-fpc9-vjfq"
+          ],
+          [
+            "web-auth/webauthn-lib"
+          ]
+        ],
+        "advisory_summary": "Webauthn: SimpleFakeCredentialGenerator with an empty secret produces predictable fake credentials, weakening username enumeration protection \u2014 ## Impact\n\n`Webauthn\\SimpleFakeCredentialGenerator` is the library-provided default implementation of the `FakeCredentialGenerator` interface. It returns a stable list of decoy `PublicKeyCredentialDescriptor` objects for a given username so that an assertion request for an unknown user looks the same as a request for a real one, which mitigates username enumeration.\n\nThe generator derives the whole decoy list from a single seed:\n\n```php\n$seed = hash('s",
+        "vuln_symbols": [
+          "FakeCredentialGenerator",
+          "PublicKeyCredentialDescriptor",
+          "SimpleFakeCredentialGenerator",
+          "kernel.secret"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.3.5"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SimpleFakeCredentialGenerator is used only by web-auth/webauthn-symfony-bundle's passwordless assertion controllers/ProfileBasedRequestOptionsBuilder for unknown usernames. Part-DB configures no webauthn bundle firewall/controllers (no `webauthn:` config; only tfa_webauthn in config/packages/webauthn_2fa.yaml); WebAuthn is used as 2FA via jbtronics/2fa-webauthn for an already-identified user, which never calls the fake credential generator.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#69",
+      "facts": {
+        "package": "web-auth/webauthn-symfony-bundle",
+        "version": "4.9.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-q683-8468-r6h6"
+          ],
+          [
+            "web-auth/webauthn-symfony-bundle"
+          ]
+        ],
+        "advisory_summary": "WebauthnAuthenticator leaks sensitive HTTP headers through INFO-level logs \u2014 ## Impact\n\n`Webauthn\\Bundle\\Security\\Http\\Authenticator\\WebauthnAuthenticator` logs the full `Symfony\\Component\\HttpFoundation\\Request` object inside the log context of both `onAuthenticationSuccess()` and `onAuthenticationFailure()` at INFO level:\n\n```php\n$this->logger->info('User has been authenticated successfully with Webauthn.', [\n    'request' => $request,\n    'firewallName' => $firewallName,\n    'identifier' => $token->getUserIdentifier(),\n]);\n\n$this->logger->info('Webauthn authentication request failed.', [\n  ",
+        "vuln_symbols": [
+          "onAuthenticationSuccess",
+          "onAuthenticationFailure",
+          "LineFormatter",
+          "JsonFormatter",
+          "NormalizerFormatter",
+          "Cookie"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.3.4"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Webauthn\\Bundle\\Security\\Http\\Authenticator\\WebauthnAuthenticator is only enabled by a firewall webauthn: key (bundle's Resources/config/security.php). security.yaml has none. WebAuthn is used only as a 2FA provider through jbtronics/2fa-webauthn, which has its own Jbtronics\\TFAWebauthn\\Services\\WebauthnAuthenticator (WebauthnFormRenderer.php:7) and never calls the bundle's HTTP authenticator.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#70",
+      "facts": {
+        "package": "web-token/jwt-library",
+        "version": "3.4.8",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-3prj-6hqw-cm82"
+          ],
+          [
+            "web-token/jwt-library"
+          ]
+        ],
+        "advisory_summary": "PHP JWT Library: PBES2-HS*+A*KW unwrap accepts an unbounded p2c iteration count, enabling CPU-amplification denial of service \u2014 ### Impact\n\nWhen a JWE uses a password-based key-encryption algorithm (`PBES2-HS256+A128KW`, `PBES2-HS384+A192KW`, `PBES2-HS512+A256KW`), `PBES2AESKW::unwrapKey()` reads the `p2c` (PBKDF2 iteration count) parameter directly from the attacker-controlled JOSE header and passes it to `hash_pbkdf2()` with **no upper bound**. The only validation performed (`checkHeaderAdditionalParameters()`) was `is_int($p2c) && $p2c > 0`.\n\nAn unauthenticated attacker can craft a single J",
+        "vuln_symbols": [
+          "p2c",
+          "hash_pbkdf2",
+          "checkHeaderAdditionalParameters",
+          "PHP_INT_MAX",
+          "AlgorithmManager",
+          "PBES2AESKW"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.4.10",
+          "4.0.7",
+          "4.1.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No JWE decryption anywhere: web-token is only referenced by webauthn-lib AndroidSafetyNetAttestationStatementSupport (JWS) and MetadataService, plus bundle android_safetynet.php config; no JWEDecrypter/PBES2 use in src/, jbtronics/2fa-webauthn or the bundle.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#71",
+      "facts": {
+        "package": "web-token/jwt-library",
+        "version": "3.4.8",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-5739-39v2-5754"
+          ],
+          [
+            "web-token/jwt-library"
+          ]
+        ],
+        "advisory_summary": "PHP JWT Library: RSA1_5 (RSAES-PKCS1-v1_5) decryption lacks implicit rejection, exposing a Bleichenbacher/Marvin padding oracle \u2014 ### Impact\n\n`RSACrypt::decryptWithRSA15()` (used by the `RSA1_5` key-encryption algorithm) implements RSAES-PKCS1-v1_5 decryption by inspecting the padding after RSADP and throwing `InvalidArgumentException` as soon as the padding is malformed. It does **not** implement the implicit-rejection countermeasure required by RFC 3447 \u00a77.2.2 / RFC 8017 \u00a77.1.2 (return a deterministic pseudo-random value of the expected length on padding failure and let the downstream step f",
+        "vuln_symbols": [
+          "RSA1_5",
+          "InvalidArgumentException",
+          "encrypted_key",
+          "JWEDecrypter",
+          "AlgorithmManager"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.4.10",
+          "4.0.7",
+          "4.1.7"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "RSA1_5 is a JWE key-encryption algorithm; nothing in the app (src/), jbtronics/2fa-webauthn or webauthn bundle decrypts JWEs.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#72",
+      "facts": {
+        "package": "web-token/jwt-library",
+        "version": "3.4.8",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-6vvh-pxr4-25r7"
+          ],
+          [
+            "web-token/jwt-library"
+          ]
+        ],
+        "advisory_summary": "PHP JWT Framework: Chacha20Poly1305 key-encryption algorithm discards the Poly1305 authentication tag, performing no authentication on decryption \u2014 ### Impact\n\nThe experimental `Chacha20Poly1305` key-encryption algorithm generates the 16-byte Poly1305 authentication tag during `encryptKey()` but **discards it**: the tag is never written to the header and therefore never reaches the wire. On the receiving side, `decryptKey()` calls `openssl_decrypt('chacha20-poly1305', ...)` **without the tag argument**, which makes OpenSSL skip authentication entirely.\n\nAs a result the AEAD construction is sil",
+        "vuln_symbols": [
+          "Chacha20Poly1305",
+          "encryptKey",
+          "decryptKey",
+          "alg",
+          "tag",
+          "openssl_decrypt"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.4.10",
+          "4.0.7",
+          "4.1.7"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Chacha20Poly1305 is an experimental JWE key-encryption algorithm; no JWE decryption in the app or its webauthn packages.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-partdb#73",
+      "facts": {
+        "package": "web-token/jwt-library",
+        "version": "3.4.8",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-jc38-x7x8-2xc8"
+          ],
+          [
+            "web-token/jwt-library"
+          ]
+        ],
+        "advisory_summary": "PHP JWT Framework: JWSVerifier uses algorithm from unprotected header, enabling algorithm confusion attacks \u2014 ## Summary\n\n`JWSVerifier::getAlgorithm()` in `src/Library/Signature/JWSVerifier.php` (line 144) merges protected and unprotected headers using PHP's spread operator:\n\n```php\n$completeHeader = [...$signature->getProtectedHeader(), ...$signature->getHeader()];\n```\n\nIn PHP, when spreading arrays with duplicate string keys, the **last array's values take precedence**. Since the unprotected header (`getHeader()`) is spread second, an attacker can override the integrity-protected `alg` param",
+        "vuln_symbols": [
+          "getHeader",
+          "alg",
+          "HeaderCheckerManager",
+          "JWSVerifier",
+          "JWEDecrypter.php",
+          "array_merge"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.4.10",
+          "4.0.7",
+          "4.1.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "JWSVerifier is used only by webauthn-lib AndroidSafetyNetAttestationStatementSupport. Part-DB's WebAuthn (jbtronics/2fa-webauthn WebauthnProvider.php:48-101) builds its own AttestationStatementSupportManager with only NoneAttestationStatementSupport, and android_safetynet is not enabled in config/; MetadataService not configured. No JWS verification on attacker data.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php3)"
+      }
+    }
+  ]
+}

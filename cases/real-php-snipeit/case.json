@@ -1,0 +1,3298 @@
+{
+  "id": "real-php-snipeit",
+  "description": "Snipe-IT v8.1.4 (IT asset management, Laravel): PHP dev set (php1), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#1",
+      "facts": {
+        "package": "aws/aws-sdk-php",
+        "version": "3.337.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-27qh-8cxx-2cr5"
+          ],
+          [
+            "aws/aws-sdk-php"
+          ]
+        ],
+        "advisory_summary": "AWS SDK for PHP has CloudFront Policy Document Injection via Special Characters \u2014 ### Summary\n\nThis notification is related to the [CloudFront signing utilities](https://github.com/aws/aws-sdk-php/blob/master/src/CloudFront/Signer.php) in the AWS SDK for PHP, which are used to generate Amazon CloudFront signed URLs and signed cookies. A defense-in-depth enhancement has been implemented to improve handling of special characters, such as double quotes and backslashes, in input values.\n\n### Impact\n\nThe CloudFront signing utilities build policy documents that define access restrictions for signed ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.371.4"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CloudFront Signer/policy builder never used: no CloudFront references in app/config; aws-sdk is only pulled by league/flysystem-aws-s3-v3 for S3 disks (laravel Filesystem/AwsS3V3Adapter.php), which uses S3Client only.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#2",
+      "facts": {
+        "package": "aws/aws-sdk-php",
+        "version": "3.337.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-14761",
+            "GHSA-x8cp-jf6f-r4xh"
+          ],
+          [
+            "aws/aws-sdk-php"
+          ]
+        ],
+        "advisory_summary": "AWS SDK for PHP's S3 Encryption Client has a Key Commitment Issue \u2014 ## Summary\n\nS3 Encryption Client for PHP is an open-source client-side encryption library used to facilitate writing and reading encrypted records to S3.  \n\nWhen the encrypted data key (EDK) is stored in an \"Instruction File\" instead of S3's metadata record, the EDK is exposed to an \"Invisible Salamanders\" attack  (https://eprint.iacr.org/2019/016), which could allow the EDK to be replaced with a new key. \n\n\n\n## Impact\n\n### Background - Key Commitment\n\nThere is a cryptographic property whereby under certain conditions, a singl",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.368.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "S3EncryptionClient/instruction-file decryption never used: no EncryptionClient reference in app, config, laravel Filesystem or flysystem-aws-s3-v3 (S3 disks use plain S3Client).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#3",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "2.0.8",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55555",
+            "GHSA-7x2p-4jvh-6384"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: File existence oracle via font-face stylesheet declaration \u2014 ## Description\n\nDompdf is vulnerable to a **File Existence Oracle** attack through the manipulation of the CSS `@font-face` directive. By providing malicious HTML that references local files via the `file://` protocol repeatedly, an attacker can trigger PHP memory exhaustion.\n\nThe critical point of this flaw is the discrepancy in system behavior:\n\n1. **If the file exists:** Dompdf attempts to process the local resource multiple times, leading to an \"Allowed memory size exhausted\" error, which crashes the creation.\n2. **If the",
+        "vuln_symbols": [
+          "CHROOT",
+          "$_dompdf_show_warnings",
+          "index.php",
+          "response.pdf"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only dompdf entry is acceptance PDF (app/Http/Controllers/Account/AcceptanceController.php:238,330 Pdf::loadView of account/accept/*-eula views, which echo {...). @font-face needs attacker CSS: all Blade fields are escaped {{ }}, the EULA goes through Parsedown setSafeMode(true) (Helper.php:94) which escapes raw HTML/<style>, so attacker cannot inject a stylesheet.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#4",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "2.0.8",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59941",
+            "GHSA-8hg6-c449-896m"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: Uncontrolled resource consumption based on declared BMP dimensions \u2014 ### Summary\n\ndompdf accepts a BMP image and generates a PDF-compatible PNG based only on its *declared* header dimensions and never bounds width \u00d7 height before the image is converted through GD. A 58-byte BMP whose header declares e.g. `6000\u00d76000` is accepted and later drives `imagecreatetruecolor($width, $height)` (and PHP's native BMP decoder) to allocate the full pixel canvas.\n \nA payload can fit in a single HTTP request: the BMP can be inlined as a `data:image/bmp;base64,\u2026` URI inside attacker-controlled HTML, so",
+        "vuln_symbols": [
+          "getimagesize",
+          "src",
+          "_convert_to_png",
+          "imagecreatefrombmp",
+          "imagecreatetruecolor",
+          "a6ddc4f"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "BMP via declared header dims: app/Http/Controllers/Account/AcceptanceController.php:238,330 Pdf::loadView of account/accept/*-eula views, which echo {!! $eula !!} (Parsedown safe-mode markdown from category/default EULA, app/Helpers/Helper.php:91-97, set by users with category edit rights) and an <img> of the user-supplied signature_output bytes (AcceptanceController.php:~270); config/dompdf.php defines enable_remote=true, chroot=base_path+/var/lib/snipeit/data/(private_)uploads, read by barryvdh ServiceProvider.php:31. dompdf sniffs image type by content (Helpers.php:662-703), so markdown ![](data:image/png;base64,...) or ![](https://attacker/...) delivers arbitrary image/SVG bytes. A BMP (data URI, remote URL, or signature bytes) reaches Helpers::dompdf_getimagesize BMP branch (Helpers.php:688-691) and imagecreatefrombmp (Helpers.php:712) in 2.0.8.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "Asset acceptance (category 'require acceptance' / EULA, documented in UI); signature path needs require_accept_signature"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#5",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "2.0.8",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-56722",
+            "GHSA-cx96-42px-69fm"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: Local file read due to improper file path validation in SVG images encoded as data-URI \u2014 **Description:** An attacker, who controls the HTML input supplied to dompdf, can read arbitrary images from the server\u2019s file system, bypassing the `chroot` restriction. The vulnerability is exploitable in the default configuration.\n**Exploitation conditions:** An external user\n**Researcher:** Nikita Sveshnikov (Positive Technologies)\n\n## Research\ndompdf restricts access to local files using the `chroot` mechanism. By default, `chroot` is set to the root directory of dompdf (`Options.php:350-351`)",
+        "vuln_symbols": [
+          "chroot",
+          "drawImage",
+          "file_get_contents"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "SVG data-URI local-file read: app/Http/Controllers/Account/AcceptanceController.php:238,330 Pdf::loadView of account/accept/*-eula views, which echo {!! $eula !!} (Parsedown safe-mode markdown from category/default EULA, app/Helpers/Helper.php:91-97, set by users with category edit rights) and an <img> of the user-supplied signature_output bytes (AcceptanceController.php:~270); config/dompdf.php defines enable_remote=true, chroot=base_path+/var/lib/snipeit/data/(private_)uploads, read by barryvdh ServiceProvider.php:31. dompdf sniffs image type by content (Helpers.php:662-703), so markdown ![](data:image/png;base64,...) or ![](https://attacker/...) delivers arbitrary image/SVG bytes. SVG content is accepted (Helpers.php:693) and inner <image href> resolved in Image/Cache.php:138-166 relative to the data: base.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "Asset acceptance (category 'require acceptance' / EULA, documented in UI); signature path needs require_accept_signature"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#6",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "2.0.8",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59942",
+            "GHSA-f5gf-2cj8-52g2"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: Denial of Service (DoS) via Resource Exhaustion using Oversized Image Bitmaps \u2014 ### Summary\nDompdf v3.1.5 is vulnerable to a Denial of Service (DoS) attack via resource exhaustion. An attacker can crash the PHP process by providing a specially crafted HTML document containing a single image with massive dimensions (e.g., 30,000x30,000 pixels).\n\nWhile Dompdf implements internal checks to validate image dimensions, these can be bypassed by using a high-entropy image (such as random noise) encoded in Base64 and wrapped in specific CSS containers.\n\n### Technical Deep Dive:\nStandard solid-c",
+        "vuln_symbols": [
+          "exploit.py",
+          "monitor.py",
+          "render.php"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Oversized image bitmap DoS: app/Http/Controllers/Account/AcceptanceController.php:238,330 Pdf::loadView of account/accept/*-eula views, which echo {!! $eula !!} (Parsedown safe-mode markdown from category/default EULA, app/Helpers/Helper.php:91-97, set by users with category edit rights) and an <img> of the user-supplied signature_output bytes (AcceptanceController.php:~270); config/dompdf.php defines enable_remote=true, chroot=base_path+/var/lib/snipeit/data/(private_)uploads, read by barryvdh ServiceProvider.php:31. dompdf sniffs image type by content (Helpers.php:662-703), so markdown ![](data:image/png;base64,...) or ![](https://attacker/...) delivers arbitrary image/SVG bytes. Attacker-chosen images (remote fetch enabled) are decoded by GD in 2.0.8.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "Asset acceptance (category 'require acceptance' / EULA, documented in UI); signature path needs require_accept_signature"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#7",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "2.0.8",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59943",
+            "GHSA-j8qw-6jw8-r297"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: Embedded SVG images can leak existence of files and directories within the filesystem \u2014 ### Summary\nIf a malicious actor can supply unrestricted content for rendering by Dompdf they can utilize the SVG rendering functionality to leak filesystem information when rendering PDF files using image references within a data-URI encoded SVG document.\n\n### Details\nUsing an `<image>` element inside a data-URI embedded SVG, an attacker can attempt to embed other files via the `href` or `xlink:href` attributes. When processing a file that does not exist (e.g. `file:///DOESNOTEXIST`), dompdf behave",
+        "vuln_symbols": [
+          "href"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "SVG <image href> file-existence leak: app/Http/Controllers/Account/AcceptanceController.php:238,330 Pdf::loadView of account/accept/*-eula views, which echo {!! $eula !!} (Parsedown safe-mode markdown from category/default EULA, app/Helpers/Helper.php:91-97, set by users with category edit rights) and an <img> of the user-supplied signature_output bytes (AcceptanceController.php:~270); config/dompdf.php defines enable_remote=true, chroot=base_path+/var/lib/snipeit/data/(private_)uploads, read by barryvdh ServiceProvider.php:31. dompdf sniffs image type by content (Helpers.php:662-703), so markdown ![](data:image/png;base64,...) or ![](https://attacker/...) delivers arbitrary image/SVG bytes. Image/Cache.php:138-166 resolves inner hrefs of attacker SVG and errors differ.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "Asset acceptance (category 'require acceptance' / EULA, documented in UI); signature path needs require_accept_signature"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#8",
+      "facts": {
+        "package": "dompdf/dompdf",
+        "version": "2.0.8",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55554",
+            "GHSA-wvh6-f5jh-8gw4"
+          ],
+          [
+            "dompdf/dompdf"
+          ]
+        ],
+        "advisory_summary": "Dompdf: Chroot Validation Bypass \u2014 ### Summary\nThe chroot check for local files uses a prefix string check to enforce chroot boundaries. The simple string comparison it performs allows paths like /var/www/root_secret/file.html when chroot is /var/www/root.\n\nThis allows attacker-controlled document paths/resources to bypass intended local file restrictions.\n\n### Details\nThe `validateLocalUri()` method is used to check if a local file is within an allowed chroot directory. After normalization with `realpath()`, this check is performed with a `strpos()` comparison:\n\n\n```\n    public function valid",
+        "vuln_symbols": [
+          "validateLocalUri",
+          "realpath",
+          "strpos",
+          "$chrootPath",
+          "$realfile",
+          "jpg"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.6"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "validateLocalUri strpos prefix check present (dompdf Options.php:1162-1175). chroot = realpath(base_path()) + /var/lib/snipeit/data/uploads + private_uploads (config/dompdf.php); attacker-influenced local paths reach it via relative markdown image URLs (Parsedown safe mode allows scheme-less URLs) or file:// hrefs in SVGs. app/Http/Controllers/Account/AcceptanceController.php:238,330 Pdf::loadView of account/accept/*-eula views, which echo {!! $eula !!} (Parsedown safe-mode markdown from category/default EULA, app/Helpe Exploit needs a sibling dir sharing the prefix.",
+        "confidence": "low",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "Asset acceptance (category 'require acceptance' / EULA, documented in UI); signature path needs require_accept_signature"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#9",
+      "facts": {
+        "package": "enshrined/svg-sanitize",
+        "version": "0.15.4",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-55166",
+            "GHSA-22wq-q86m-83fh"
+          ],
+          [
+            "enshrined/svg-sanitize"
+          ]
+        ],
+        "advisory_summary": "svg-sanitizer Bypasses Attribute Sanitization \u2014 #### Problem\n\nThe sanitization logic at https://github.com/darylldoyle/svg-sanitizer/blob/0.21.0/src/Sanitizer.php#L454-L481 only searches for lower-case attribute names (e.g. `xlink:href` instead of `xlink:HrEf`), which allows to by-pass the `isHrefSafeValue` check. As a result this allows cross-site scripting or linking to external domains.\n\n#### Proof-of-concept\n_provided by azizk_\n\n```\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"100\" height=\"100\">\n  <a xlink:",
+        "vuln_symbols": [
+          "isHrefSafeValue"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.22.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Direct use on uploaded SVGs: app/Http/Requests/ImageUploadRequest.php:107-109 and UploadFileRequest.php:52-56 (any user uploading images/attachments). 0.15.4 cleanAttributesOnWhitelist lowercases for the whitelist but checks strpos($attrName,'href') case-sensitively (Sanitizer.php:372,386), so xlink:HrEf skips isHrefSafeValue.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#10",
+      "facts": {
+        "package": "enshrined/svg-sanitize",
+        "version": "0.15.4",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-107380",
+            "GHSA-9rjx-3jch-6vjf"
+          ],
+          [
+            "enshrined/svg-sanitize"
+          ]
+        ],
+        "advisory_summary": "enshrined/svg-sanitize: Stored XSS via DTD Entity / HTML5 Named Character Reference Collision \u2014 ## Summary\n\nA crafted SVG bypasses `enshrined/svg-sanitize`'s href validation and delivers a `javascript:` URL through the sanitizer unchanged. The bypass exploits a semantic mismatch between XML entity resolution (used during sanitization) and HTML5 Named Character Reference resolution (used by the browser when the SVG is rendered inline).\n\n**This is a logic bug in svg-sanitize. It does NOT depend on any PHP ext/dom bug \u2014 it works on any PHP version.**\n\n**Affected installations:**\n- **enshrined/svg",
+        "vuln_symbols": [
+          "isHrefSafeValue",
+          "saveXML",
+          "XSS_CONFIRMED_POC.html",
+          "document.cookie",
+          "getAttribute"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "account takeover"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Sanitizer runs on attacker-uploaded SVGs (ImageUploadRequest.php:107-109, UploadFileRequest.php:52-56); 0.15.4 loads DTD/entities via loadXML (Sanitizer.php:201) with no DOCTYPE stripping. Impact needs the SVG rendered by an HTML parser (Snipe-IT serves it as a file/img, not inlined), but the sanitizer logic bug is on the path; unsure, so reachable.",
+        "confidence": "low",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#11",
+      "facts": {
+        "package": "enshrined/svg-sanitize",
+        "version": "0.15.4",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-107381",
+            "GHSA-m9xh-6747-9r6f"
+          ],
+          [
+            "enshrined/svg-sanitize"
+          ]
+        ],
+        "advisory_summary": "svg-sanitizer: Mixed-case xlink:HrEf skips the `<use>` nesting-DoS check in Resolver::processReferences \u2014 ## Summary\n\n`Resolver::processReferences()` collects `<use>` elements with the XPath predicate `use[@href or @xlink:href]`, which is case sensitive. A `<use>` element written as `xlink:HrEf` is therefore never added to the reference graph, so the nesting-DoS nullification never marks it for removal. `Sanitizer::cleanHrefAttributes()` then runs later in the same pass and rewrites `xlink:HrEf` back to the canonical `xlink:href`. The sanitizer hands back a fully live nesting bomb that it woul",
+        "vuln_symbols": [
+          "HrEf",
+          "href",
+          "useNestingLimit",
+          "useDosTest.svg",
+          "use",
+          "cleanHrefAttributes"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Sanitizer is called on attacker-uploaded SVGs (app/Http/Requests/ImageUploadRequest.php:108-110, UploadFileRequest.php:54-56), and 0.15.4 Resolver::processReferences does use the case-sensitive XPath 'use[@href or @xlink:href]' (src/ElementReference/Resolver.php:102). But the exploit needs Sanitizer::cleanHrefAttributes to rewrite xlink:HrEf back to xlink:href. 0.15.4 has no such method and never renames attributes (src/Sanitizer.php function list; cleanAttributesOnWhitelist:365 only calls removeAttribute). So a mixed-case href survives as xlink:HrEf, which case-sensitive XML/SVG renderers ignore, and no live nesting bomb comes out. SVGs are stored and served as files, not inlined into HTML.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus blind re-review 2026-11-05, majority of 3 reads (php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#12",
+      "facts": {
+        "package": "enshrined/svg-sanitize",
+        "version": "0.15.4",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-107379",
+            "GHSA-v383-3rw5-q8rf"
+          ],
+          [
+            "enshrined/svg-sanitize"
+          ]
+        ],
+        "advisory_summary": "enshrined/svg-sanitize: Denial of Service via DTD Attribute Declaration Crash \u2014 ## Summary\n\nA crafted SVG file (1009 bytes) crashes the PHP process when sanitized by `enshrined/svg-sanitize` (any version through 0.22.x). The sanitizer's `cleanAttributesOnWhitelist()` method calls `DOMElement::removeAttribute()` twice on the same attribute name \u2014 first removing the explicit attribute, then attempting to remove the DTD `#FIXED` default \u2014 triggering a PHP ext/dom type confusion that kills the PHP-FPM worker.\n\n**Affected installations:**\n- **enshrined/svg-sanitize:** 45.2M Packagist downloads, 1.3",
+        "vuln_symbols": [
+          "cleanAttributesOnWhitelist",
+          "removeAttribute",
+          "cleanHrefAttributes",
+          "HrEf",
+          "href",
+          "setAttribute"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "cleanAttributesOnWhitelist can call removeAttribute twice on one attribute (Sanitizer.php:374 then 389/401) on attacker-uploaded SVGs (ImageUploadRequest.php:107-109, UploadFileRequest.php:52-56, logged-in uploaders); DoS crash path present.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#13",
+      "facts": {
+        "package": "firebase/php-jwt",
+        "version": "6.10.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-45769",
+            "GHSA-2x45-7fc3-mxwq"
+          ],
+          [
+            "firebase/php-jwt"
+          ]
+        ],
+        "advisory_summary": "php-jwt contains weak encryption \u2014 php-jwt v6.11.0 was discovered to contain weak encryption.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.0.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "php-jwt used only by laravel/passport ApiTokenCookieFactory.php:76 / Guards/TokenGuard.php:300 (CreateFreshApiToken in app/Http/Kernel.php:45) with HS256 keyed by Passport::tokenEncryptionKey (APP_KEY, 32 random bytes); the 'weak encryption' issue (no minimum key length) needs a weak key, which this path never uses. No EdDSA/other use.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#14",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67339",
+            "GHSA-94pj-82f3-465w"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Proxy-Authorization headers can be sent to origin servers \u2014 ### Impact\n\nIn affected versions, the built-in cURL handlers (`CurlHandler` and `CurlMultiHandler`) put every first-class request header in cURL's origin header list (`CURLOPT_HTTPHEADER`). These handlers are the default when the PHP cURL extension is available. They move `Proxy-Authorization` to the proxy-only list (`CURLOPT_PROXYHEADER`) only when Guzzle predicts an HTTP or HTTPS proxy. A \"first-class\" header is part of the normal request message and can be set on a PSR-7 request, through client `headers` defaults, the `head",
+        "vuln_symbols": [
+          "CurlHandler",
+          "CurlMultiHandler",
+          "CURLOPT_HTTPHEADER",
+          "CURLOPT_PROXYHEADER",
+          "headers",
+          "stream_context.http.header"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.14.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs the app to set a Proxy-Authorization request header; no Guzzle/Http call in app (SlackSettingsForm.php:144,226,261,271; SettingsController.php:137) or notification channels sets one, and no proxy configuration is documented (.env.example has none).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#15",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55767",
+            "GHSA-cwxw-98qj-8qjx"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/guzzle: Dot-Only Cookie Domains Match All Hosts \u2014 ### Impact\n\n`CookieJar` incorrectly accepts cookies with a dot-only `Domain` attribute, such as `Domain=.`, `Domain=..`, `Domain=...`, and whitespace-padded variants such as `Domain= . `. In affected versions, `SetCookie::matchesDomain()` removes leading dots from the cookie domain, normalizing dot-only values to the empty string; `SetCookie::validate()` only rejected a strictly empty domain, so these cookies could be stored and the empty normalized domain was treated as matching any request host.\n\nAn attacker-controlled origin that ",
+        "vuln_symbols": [
+          "CookieJar",
+          "Domain"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Laravel Http:: client (cookies=>true, laravel/framework 11.44.1 src/Illuminate/Http/Client/PendingRequest.php:1247-1250, redirects followed by default) is used to POST to the admin-configured webhook endpoint in app/Livewire/SlackSettingsForm.php:226, :261, :271 (Google Chat/Teams test). That puts the remote webhook server's Set-Cookie responses, and redirect hops, through Guzzle 7.9.2 CookieJar::extractCookies/withCookieHeader (src/Cookie/CookieJar.php). The remote end of this documented optional connection counts as the attacker. Runtime notifications use direct Guzzle Clients without a jar (slack-notification-channel SlackWebhookChannel, microsoft-teams provider, osa-eg TeamsNotification), so only the Http:: test path counts. 7.9.2 SetCookie::matchesDomain ltrims dots and treats '' as matching every host (src/Cookie/SetCookie.php matchesDomain); validate only rejects a strictly empty domain (SetCookie.php:479-483), so Domain=. is stored and sent to every redirect host.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus blind re-review 2026-11-05, majority of 3 reads (php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#16",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67353",
+            "GHSA-f283-ghqc-fg79"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Unbounded response cookies risk denial of service \u2014 ### Impact\n\nIn affected versions, Guzzle's built-in `CookieJar` accepts any number of `Set-Cookie` header fields from one response, with no limit on the size of each field. When a later request matches the stored cookies, Guzzle places every match into one generated `Cookie` header without limiting the number of cookies or the total header length.\n\nA malicious or compromised server can therefore return many large cookies, causing Guzzle to store attacker-controlled data in memory and copy it into later request headers. This can increa",
+        "vuln_symbols": [
+          "CookieJar",
+          "Cookie",
+          "attacker.example.com",
+          "service.example.com",
+          "CookieJarInterface"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Laravel Http:: client (cookies=>true, laravel/framework 11.44.1 src/Illuminate/Http/Client/PendingRequest.php:1247-1250, redirects followed by default) is used to POST to the admin-configured webhook endpoint in app/Livewire/SlackSettingsForm.php:226, :261, :271 (Google Chat/Teams test). That puts the remote webhook server's Set-Cookie responses, and redirect hops, through Guzzle 7.9.2 CookieJar::extractCookies/withCookieHeader (src/Cookie/CookieJar.php). The remote end of this documented optional connection counts as the attacker. Runtime notifications use direct Guzzle Clients without a jar (slack-notification-channel SlackWebhookChannel, microsoft-teams provider, osa-eg TeamsNotification), so only the Http:: test path counts. 7.9.2 extractCookies stores every Set-Cookie with no count or size limit, and they all go into the Cookie header of the following redirect request.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus blind re-review 2026-11-05, majority of 3 reads (php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#17",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69245",
+            "GHSA-f7vp-7xgx-4w4r"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Noncanonical cookie domain keeps subdomain scope \u2014 ### Impact\n\n`SetCookie::matchesDomain()` gives every subdomain of a cookie `Domain` that cookie unless it recognizes the `Domain` as an IP literal or a numeric host, and it decides that from the domain's own text, so two spellings a transport reads as an address keep subdomain scope. On `7.15`, hexadecimal and mixed-base forms such as `0x7f000001` and `0177.0.0.0x1` go unrecognized while libcurl 8.21.0 reads both as `127.0.0.1`, so closing them completes the rule `GHSA-g446-98w2-8p5w` (`CVE-2026-59883`) set out to establish, which cite",
+        "vuln_symbols": [
+          "Domain",
+          "Cookie",
+          "CookieJar",
+          "filter_var",
+          "FILTER_VALIDATE_IP"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.2",
+          "8.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Laravel Http:: client (cookies=>true, laravel/framework 11.44.1 src/Illuminate/Http/Client/PendingRequest.php:1247-1250, redirects followed by default) is used to POST to the admin-configured webhook endpoint in app/Livewire/SlackSettingsForm.php:226, :261, :271 (Google Chat/Teams test). That puts the remote webhook server's Set-Cookie responses, and redirect hops, through Guzzle 7.9.2 CookieJar::extractCookies/withCookieHeader (src/Cookie/CookieJar.php). The remote end of this documented optional connection counts as the attacker. Runtime notifications use direct Guzzle Clients without a jar (slack-notification-channel SlackWebhookChannel, microsoft-teams provider, osa-eg TeamsNotification), so only the Http:: test path counts. 7.9.2 matchesDomain has no IP-literal check on the cookie Domain at all, only FILTER_VALIDATE_IP on the request host, so hex/mixed-base numeric domains (and every other IP form) keep subdomain scope. The behaviour predates the 7.15.2 fix.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus blind re-review 2026-11-05, majority of 3 reads (php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#18",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59883",
+            "GHSA-g446-98w2-8p5w"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Cookie Disclosure and Injection via IP-Address Domains \u2014 ### Impact\n\n`CookieJar` does not restrict a cookie scoped to an IP address to the exact host that set it. When a stored cookie's `Domain` attribute is an IPv4 literal (`Domain=192.168.0.1`), a bracketed IPv6 literal (`Domain=[::1]`), or a bare numeric value that denotes an IPv4 address (`Domain=1`, which is `0.0.0.1`), `SetCookie::matchesDomain()` applies ordinary subdomain (suffix) matching to it instead of requiring an exact host. The IP-address check inside `matchesDomain()` is applied only to the request host and never to the",
+        "vuln_symbols": [
+          "CookieJar",
+          "Domain",
+          "matchesDomain"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.12.3"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Laravel Http:: client (cookies=>true, laravel/framework 11.44.1 src/Illuminate/Http/Client/PendingRequest.php:1247-1250, redirects followed by default) is used to POST to the admin-configured webhook endpoint in app/Livewire/SlackSettingsForm.php:226, :261, :271 (Google Chat/Teams test). That puts the remote webhook server's Set-Cookie responses, and redirect hops, through Guzzle 7.9.2 CookieJar::extractCookies/withCookieHeader (src/Cookie/CookieJar.php). The remote end of this documented optional connection counts as the attacker. Runtime notifications use direct Guzzle Clients without a jar (slack-notification-channel SlackWebhookChannel, microsoft-teams provider, osa-eg TeamsNotification), so only the Http:: test path counts. 7.9.2 matchesDomain applies suffix matching to IPv4/IPv6/numeric cookie Domain values; only the request host goes through filter_var IP.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus blind re-review 2026-11-05, majority of 3 reads (php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#19",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67354",
+            "GHSA-h95v-h523-3mw8"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: URI fragments disclosed in redirect Referer headers \u2014 ### Impact\n\nWhen the optional `referer` redirect setting is enabled, affected versions of `RedirectMiddleware` can copy the fragment from the referring request URI into a generated `Referer` header. A URI fragment is the part after `#`. It is handled locally by the client and is not part of the HTTP request target, so the server handling the original request does not receive it. A generated `Referer` tells the redirect destination which URI led to the request. Guzzle correctly removes user information from that value, but retains th",
+        "vuln_symbols": [
+          "referer",
+          "RedirectMiddleware",
+          "Referer",
+          "allow_redirects.referer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs allow_redirects with referer=true; app sets allow_redirects=false (SlackSettingsForm.php:149) and nothing enables referer.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#20",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69246",
+            "GHSA-v5mv-p594-2x33"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Noncanonical host can bypass host-based checks \u2014 ### Impact\n\nIn affected versions, Guzzle gives a transport the request URI as text and supplies the `Host` header separately. The cURL handlers set `CURLOPT_URL` to the URI exactly as written and push that `Host` into `CURLOPT_HTTPHEADER`; `StreamHandler` does the same through `fopen()`. libcurl then parses the authority itself, percent-decoding it and, on an IDN-capable build, applying IDNA mapping, and uses the result to resolve, connect, name the TLS peer and address a proxy `CONNECT`, while the supplied `Host` suppresses the aligned ",
+        "vuln_symbols": [
+          "Host",
+          "CURLOPT_URL",
+          "CURLOPT_HTTPHEADER",
+          "StreamHandler",
+          "fopen",
+          "CONNECT"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.2",
+          "8.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs the app to make host-based allow/deny decisions on a URL it then fetches with Guzzle; Snipe-IT does none (webhook endpoint is an admin setting fetched as-is, SlackSettingsForm.php:144; SettingsController.php:137 fetches its own URL).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#21",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67355",
+            "GHSA-wm3w-8rrp-j577"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Host-only cookie scope is not preserved \u2014 ### Impact\n\nIn affected versions, `CookieJar` does not preserve whether a response cookie was set without a `Domain` attribute or with an empty one. A cookie without `Domain` is host-only and must be returned only to the exact host that set it. Under current cookie processing rules, an empty `Domain` value is also host-only. Guzzle instead stores the request host in the cookie's `Domain` field and later applies ordinary domain matching, as though the server had supplied a valid domain. For example, a host-only `sid=secret` cookie set by `exampl",
+        "vuln_symbols": [
+          "CookieJar",
+          "Domain",
+          "example.com",
+          "child.example.com",
+          "FileCookieJar",
+          "SessionCookieJar"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Laravel Http:: client (cookies=>true, laravel/framework 11.44.1 src/Illuminate/Http/Client/PendingRequest.php:1247-1250, redirects followed by default) is used to POST to the admin-configured webhook endpoint in app/Livewire/SlackSettingsForm.php:226, :261, :271 (Google Chat/Teams test). That puts the remote webhook server's Set-Cookie responses, and redirect hops, through Guzzle 7.9.2 CookieJar::extractCookies/withCookieHeader (src/Cookie/CookieJar.php). The remote end of this documented optional connection counts as the attacker. Runtime notifications use direct Guzzle Clients without a jar (slack-notification-channel SlackWebhookChannel, microsoft-teams provider, osa-eg TeamsNotification), so only the Http:: test path counts. 7.9.2 CookieJar::extractCookies sets Domain to the request host when Domain is missing (CookieJar.php extractCookies: setDomain(getHost())), so host-only cookies pick up subdomain scope.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus blind re-review 2026-11-05, majority of 3 reads (php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#22",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55568",
+            "GHSA-wpwq-4j6v-78m3"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/guzzle: Silent HTTPS-Proxy Downgrade to Cleartext \u2014 ### Impact\n\nThe built-in cURL handlers (`GuzzleHttp\\Handler\\CurlHandler` and `GuzzleHttp\\Handler\\CurlMultiHandler`, used by default whenever the PHP cURL extension is available) accept an `https://` proxy \u2014 a proxy reached over a TLS-encrypted connection \u2014 through the `proxy` request option, client-level `proxy` defaults, or proxy environment variables such as `http_proxy`, `https_proxy`, `HTTPS_PROXY`, `all_proxy`, and `ALL_PROXY`.\n\nWhen the installed libcurl does not support HTTPS proxies, behavior depends on the libcurl version/",
+        "vuln_symbols": [
+          "proxy",
+          "http_proxy",
+          "https_proxy",
+          "HTTPS_PROXY",
+          "all_proxy",
+          "ALL_PROXY"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs an https:// proxy via 'proxy' option or proxy env vars; the app sets no proxy and documents none (.env.example, .env.docker have no proxy).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "https proxy env (undocumented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#23",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48998",
+            "GHSA-34xg-wgjx-8xph"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7 has Host Confusion via Authority Reinterpretation \u2014 ## Impact\n\n`guzzlehttp/psr7` improperly interpreted malformed `Host` header values when constructing request URIs from inbound request data. This issue concerns inbound request parsing and server request construction. It does not require serializing a PSR-7 request, and it is not part of the normal outbound request-sending path used by `guzzlehttp/guzzle`.\n\nA vulnerable flow is:\n\n1. An attacker controls a raw HTTP request or server variable containing a `Host` value.\n2. The `Host` value contains URI authority delimiters, such ",
+        "vuln_symbols": [
+          "Host",
+          "evil.example",
+          "parse_request",
+          "parse_url"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Inbound server-request construction (ServerRequest::fromGlobals/getUriFromGlobals, Message::parseRequest) never used: no app or prod-package call (grep of app/ and prod pkgsrc). Laravel builds inbound requests with symfony/http-foundation; PSR-7 ServerRequest binding uses symfony/psr-http-message-bridge PsrHttpFactory with nyholm/psr7 (laravel/framework Illuminate/Routing/RoutingServiceProvider.php:135-146; passport PersonalAccessTokenFactory.php:8 uses Nyholm\\Psr7\\ServerRequest).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#24",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59882",
+            "GHSA-c2w2-prh8-qm98"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7: Host Confusion via Weak URI Host Validation \u2014 ### Impact\n\n`guzzlehttp/psr7` did not reject URI host components containing authority delimiters (`/`, `?`, `#`, `@`, or `\\`), an embedded port such as `host:8080`, or IPv6 brackets that do not frame the host (such as `[::1` or `::1]`). `Uri::assertValidHost()` rejected only control characters, so these malformed hosts were accepted both when parsing a URI string \u2014 including through `new Uri()`, an absolute-form request target passed to `Message::parseRequest()`, and the synthetic `SERVER_NAME` or `SERVER_ADDR` fallback used by `Se",
+        "vuln_symbols": [
+          "SERVER_NAME",
+          "SERVER_ADDR",
+          "getHost",
+          "getAuthority",
+          "Uri",
+          "$_SERVER"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.12.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): Transitive via guzzle 7.9.2 (requires psr7 ^2.7.0). 2.7.0 Uri has no host validation at all: filterHost only lowercases (src/Uri.php:610-616) and Uri::parse is parse_url-based (Uri.php:106). Guzzle RedirectMiddleware builds new Psr7\\Uri(Location) from the remote response (guzzle src/RedirectMiddleware.php:218). That happens on the Laravel Http:: webhook test POSTs (app/Livewire/SlackSettingsForm.php:226/261/271) and the direct Guzzle webhook/notification clients, so a malicious webhook server's Location header gets parsed. Passport uses nyholm/psr7 for incoming requests and Laravel uses Symfony HttpFoundation, so incoming requests do not reach it. The app does no host-based validation of its own, so the host-confusion impact is weak. Marked reachable because the vulnerable parsing runs on remote-server data.",
+        "confidence": "low",
+        "labelled_by": "claude-opus blind re-review 2026-11-05, majority of 3 reads (php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#25",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-49214",
+            "GHSA-hq7v-mx3g-29hw"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7 has CRLF Injection via URI Host Component \u2014 ## Impact\n\n`guzzlehttp/psr7` did not reject ASCII control characters, whitespace, or DEL in first-party URI host components. The issue requires a PSR-7 request to be serialized into a raw HTTP/1.x message, for example with `GuzzleHttp\\Psr7\\Message::toString()` or an equivalent custom serializer. Creating a `Uri`, `Request`, or other PSR-7 object alone is not sufficient. The malformed host must be copied into the serialized `Host` header without further validation.\n\nA vulnerable flow is:\n\n1. An application accepts a user-controlled URL",
+        "vuln_symbols": [
+          "Uri",
+          "Request",
+          "Host"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a PSR-7 request serialized with Message::toString(); only callers are guzzle MessageFormatter (used solely by Middleware::log, never registered by app or packages) and laravel RequestException.php:79 which serializes a response (no Host) and only when truncation is disabled (dontTruncate never called). Outbound requests go through curl handler, not raw serialization.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#26",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55766",
+            "GHSA-vm85-hxw5-5432"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7: CRLF Injection in HTTP Start-Line Serialization \u2014 ### Impact\n\n`guzzlehttp/psr7` did not reject CR/LF characters in certain first-party HTTP start-line fields: the request method, protocol version, and response reason phrase. If an application placed attacker-controlled data into one of those fields and later serialized the PSR-7 message as raw HTTP/1.x, for example with `Message::toString()` or an equivalent serializer, the serialized message could contain attacker-controlled header lines. The issue can also be reached through `Message::parseRequest()` or `Message::parseRespon",
+        "vuln_symbols": [
+          "Request",
+          "Response",
+          "$_SERVER",
+          "REQUEST_METHOD",
+          "SERVER_PROTOCOL"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Start-line CRLF only matters on Message::toString/parseRequest/parseResponse. Not used: guzzle curl handler parses responses via HeaderProcessor (line-split, no CRLF in reason phrase); RequestException.php:79 Message::toString only when dontTruncate() (never called; default bodySummary). App never sets method/protocol from user input.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#27",
+      "facts": {
+        "package": "laravel/framework",
+        "version": "11.44.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48019",
+            "GHSA-5vg9-5847-vvmq"
+          ],
+          [
+            "laravel/framework"
+          ]
+        ],
+        "advisory_summary": "Laravel Framework: CRLF injection in default email rule  \u2014 ## Summary\nA CRLF injection vulnerability in Laravel's email validation, in combination with how Symfony Mailer and Symfony Mime handle certain character sequences, may allow an unauthenticated attacker to interfere with outbound email processing in applications that send mail to user-supplied addresses.\n\n## Description\nLaravel applications that send email to addresses provided by users \u2014 for example during authentication flows or contact forms \u2014 may be vulnerable to manipulation of outbound mail content if the address is not adequatel",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.60.0",
+          "13.10.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "User emails validated by the default 'email' rule (app/Models/User.php:93; also CSV user import) by users with user-create rights, then mail/notifications (welcome, checkout, acceptance) are sent to them via Symfony Mailer over the documented SMTP config (.env.example:53-62).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "MAIL_* SMTP (documented in .env.example)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#28",
+      "facts": {
+        "package": "laravel/framework",
+        "version": "11.44.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-crmm-hgp2-wgrp"
+          ],
+          [
+            "laravel/framework"
+          ]
+        ],
+        "advisory_summary": "Laravel Framework: Temporary Signed URL Path Confusion \u2014 A vulnerability in Laravel's local filesystem driver allows temporary signed URLs to be parsed ambiguously, potentially misrouting requests and bypassing expiration enforcement.\n\nUnder certain conditions, a generated temporary signed URL can be interpreted differently by the server than intended at signing time. This may cause requests to resolve to an unintended resource, and can prevent expiration from being enforced, allowing expired URLs to remain valid indefinitely.\n\n### Impact\n- Expired temporary URLs may continue to be accepted\n- ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.61.1",
+          "13.12.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Local-driver temporary signed URLs require a disk with 'serve' => true (FilesystemServiceProvider.php:80-117); config/filesystems.php local disks have no serve; temporaryUrl only called for s3 disks (StorageHelper.php:23, ActionlogController.php:24,45).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#29",
+      "facts": {
+        "package": "laravel/framework",
+        "version": "11.44.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-114509",
+            "GHSA-f9x3-7vq9-cph6"
+          ],
+          [
+            "laravel/framework"
+          ]
+        ],
+        "advisory_summary": "Laravel TokenGuard authentication bypass through non-string API credentials \u2014 Laravel's built-in TokenGuard, **when configured with a standard token-based API guard**, may be bypassed to authenticate as an arbitrary existing user without knowledge of their valid API token. \n\n**Under certain database configurations (MySQL/MariaDB)** an attacker can submit a specially crafted, non-string credential value that is mishandled during the authentication lookup, causing the underlying query to match an unintended user record rather than failing authentication as expected.\n\n### Impact\nAn unauthenticate",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.68.0",
+          "13.29.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "account takeover"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Affects Illuminate\\Auth\\TokenGuard ('token' driver); config/auth.php:40,45 use only 'session' and 'passport' guards (Passport has its own TokenGuard).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#30",
+      "facts": {
+        "package": "laravel/framework",
+        "version": "11.44.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102279",
+            "GHSA-jh5r-qr3c-85q8"
+          ],
+          [
+            "laravel/framework"
+          ]
+        ],
+        "advisory_summary": "Laravel: XSS in Debug Page Information \u2014 ### Impact\nWhen `APP_DEBUG=true`, attacker-controlled input is passed to a Tippy.js tooltip configured with `allowHTML: true`, enabling DOM-based XSS during mouse hover.\n\n### Patches\n[#61381](https://github.com/laravel/framework/pull/61381)",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.69.0",
+          "13.30.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Debug exception page only, APP_DEBUG=true (debug-only setting).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "APP_DEBUG=true"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#31",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-71478",
+            "GHSA-29pj-957v-52mc"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: AttributesExtension href/src unsafe-link filter bypass via embedded control bytes \u2014 \ufeff## Summary\n\nThe `AttributesExtension`'s `href`/`src` unsafe-link filter (`AttributesHelper::filterAttributes()`) can be bypassed by embedding control bytes in a `javascript:` URL that browsers discard before parsing the scheme. Two variants:\n\n- **Tab/newline inside the scheme** \u2014 a literal ASCII TAB (0x09), CR (0x0D), or LF (0x0A), e.g. `java<TAB>script:alert(1)`. Per the WHATWG URL Standard's \"basic URL parser\" step 3, browsers \"remove all ASCII tab or newline from input\".\n- **Leading C0 co",
+        "vuln_symbols": [
+          "AttributesExtension",
+          "href",
+          "src",
+          "parseAttributes",
+          "trim",
+          "REGEX_UNSAFE_PROTOCOL"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "account takeover"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AttributesExtension never registered. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#32",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-71488",
+            "GHSA-2q4p-g7hv-5rgv"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Quadratic-time denial of service when parsing crafted Markdown \u2014 ### Impact\n\nAffected versions of `league/commonmark` can have quadratic time complexity when parsing specially crafted Markdown lines. In practical terms, doubling the length of an affected line can make the parser perform roughly four times as much work. The parser identifies locations using character positions, but regular-expression matches report byte positions. These positions differ when a UTF-8 character uses more than one byte. Several parsing paths repeatedly rescan growing portions of the line to tran",
+        "vuln_symbols": [
+          "CommonMarkConverter",
+          "GithubFlavoredMarkdownConverter",
+          "AutolinkExtension",
+          "GithubFlavoredMarkdownExtension",
+          "html_input",
+          "allow_unsafe_links"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Core inline parser quadratic on multibyte UTF-8 lines; runs on mail-notification markdown which embeds user-controlled text (request notes, asset names, custom fields; Blade-escaped HTML but markdown punctuation and UTF-8 pass). laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "Outbound mail configured (MAIL_* in .env.example:53-62)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#33",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-105830",
+            "GHSA-3q6v-r5mr-hxv8"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Quadratic-time denial of service in the GitHub Flavored Markdown Table extension block-start scan \u2014 ## Summary\n\n`league/commonmark`'s GitHub Flavored Markdown Table extension registers `TableStartParser` as a block-start parser. While a paragraph is the active block, the core block parser calls `TableStartParser::tryStart()` on every non-blank line. Its first action fetches the entire growing paragraph buffer via `getParagraphContent()` and runs `strpos($paragraph, '|')` across all of it. For a paragraph of M pipe-free lines, line k rescans about k lines of buffer, so total ",
+        "vuln_symbols": [
+          "TableStartParser",
+          "getParagraphContent",
+          "GithubFlavoredMarkdownConverter",
+          "TableExtension",
+          "strrpos",
+          "substr"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.2"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "TableExtension IS registered and mail templates use tables with user-controlled cells; TableStartParser runs on every paragraph line. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "Outbound mail configured (MAIL_* in .env.example:53-62)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#34",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-30838",
+            "GHSA-4v6x-c7xx-hw9f"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "CommonMark has DisallowedRawHtml extension bypass via whitespace in HTML tag names \u2014 ### Impact\n\nThe `DisallowedRawHtml` extension can be bypassed by inserting a newline, tab, or other ASCII whitespace character between a disallowed HTML tag name and the closing `>`. For example, `<script\\n>` would pass through unfiltered and be rendered as a valid HTML tag by browsers. This is a cross-site scripting (XSS) vector for any application that relies on this extension to sanitize untrusted user input.\n\nAll applications using the `DisallowedRawHtml` extension to process untrusted markdown are affecte",
+        "vuln_symbols": [
+          "DisallowedRawHtml",
+          "html_input"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.8.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DisallowedRawHtml extension not registered (no GFM extension). laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#35",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-86428",
+            "GHSA-8rr7-cvq3-gmfh"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service via distinctly-named attributes in the Attributes extension \u2014 ### Impact\n\n`AttributesExtension` ships with the library but must be explicitly registered on the `Environment`; it is not included in `CommonMarkConverter`, `GithubFlavoredMarkdownConverter`, or `GithubFlavoredMarkdownExtension`. **Applications that do not register `AttributesExtension` are not affected by this advisory.**\n\nTwo paths in the extension re-process every attribute a node has already collected each time another attribute is applied to it. When the attributes carry distinct names, the",
+        "vuln_symbols": [
+          "AttributesExtension",
+          "Environment",
+          "CommonMarkConverter",
+          "GithubFlavoredMarkdownConverter",
+          "GithubFlavoredMarkdownExtension",
+          "array_merge"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AttributesExtension never registered. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#36",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-105829",
+            "GHSA-97jj-33gv-5xf9"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: DisallowedRawHtml bypassed when a disallowed tag name ends the raw-HTML literal \u2014 \ufeff## Summary\n\nThe `DisallowedRawHtml` extension does not escape a disallowed tag when the tag name is the last thing in the raw HTML. A Markdown line containing just `<script` is emitted unchanged, and the next block can supply its attributes. With the shipped GFM defaults this allows stored XSS by anyone who can post Markdown.\n\n## Details\n\n`DisallowedRawHtmlRenderer` escapes tags with this regex:\n\n```\n/<(\\/?(?:title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext)[\\s\\/>])/i\n```\n\nThe",
+        "vuln_symbols": [
+          "DisallowedRawHtml",
+          "DisallowedRawHtmlRenderer",
+          "HtmlBlock",
+          "GithubFlavoredMarkdownConverter",
+          "html_input",
+          "allow"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DisallowedRawHtml (GFM) not registered. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#37",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-86431",
+            "GHSA-f8fg-pg57-v4j8"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark XSS: `on*` event-handler filter in `AttributesExtension` bypassed with a U+000C form feed \u2014 ### Summary\n\nThe `AttributesExtension` documents a security guarantee:\n\n> **Note:** Attributes starting with `on` (e.g. `onclick` or `onerror`) are capable of executing\n> JavaScript code and are therefore **never allowed by default**. You must explicitly add them to\n> the `allow` list if you want to use them.\n>\n> \u2014 `docs/2.x/extensions/attributes.md`\n\nPrefixing the attribute name with a single U+000C FORM FEED byte defeats that guarantee.\n`{<FF>onclick=\"alert(1)\"}` passes through `Attr",
+        "vuln_symbols": [
+          "AttributesExtension",
+          "on",
+          "onclick",
+          "onerror",
+          "allow",
+          "allow_unsafe_links"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "account takeover"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AttributesExtension never registered. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#38",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g2gp-3wwq-f4ph"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service via adjacent inline attribute blocks \u2014 ### Impact\n\nWith the Attributes extension enabled, `AttributesListener::findTargetAndDirection()` resolves each attribute node's target by walking outward through its siblings. For a run of N adjacent inline attribute blocks placed at the start of a block (with nothing to their left), each node scans the **entire** sibling list to the far-right end before giving up and falling back to the parent. Each resolution is therefore \u0398(N) and the whole run is **\u0398(N\u00b2)**.\n\nReaching the path requires `AttributesExtension` (opt-in,",
+        "vuln_symbols": [
+          "AttributesExtension",
+          "allow_unsafe_links"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AttributesExtension never registered. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#39",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33347",
+            "GHSA-hh8v-hgvp-g3f5"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark has an embed extension allowed_domains bypass \u2014 ### Impact\n\nThe `DomainFilteringAdapter` in the Embed extension is vulnerable to an allowlist bypass due to a missing hostname boundary assertion in the domain-matching regex. An attacker-controlled domain like `youtube.com.evil` passes the allowlist check when `youtube.com` is an allowed domain.\n\nThis enables two attack vectors:\n\n- **SSRF**: The `OscaroteroEmbedAdapter` makes server-side HTTP requests to the embed URL via the `embed/embed` library. A bypassed domain filter causes the server to make outbound requests to an attac",
+        "vuln_symbols": [
+          "DomainFilteringAdapter",
+          "youtube.com.evil",
+          "youtube.com",
+          "OscaroteroEmbedAdapter",
+          "EmbedRenderer",
+          "Embed"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.8.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Embed extension never registered. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#40",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-86430",
+            "GHSA-j8pm-gj4c-rq4x"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service via crafted code fences, reference links, and emphasis delimiters \u2014 ### Impact\n\nAffected versions of `league/commonmark` perform super-linear work on three independent parsing paths, all of which are reachable on a stock `new CommonMarkConverter()` with default configuration and no extensions registered. Each trigger fits on a single line of input, so no complex Markdown structure is required.\n\nThe three paths were introduced at different times. This advisory's version range is their union; the individual ranges are:\n\n| Path | Affected from | Affected throu",
+        "vuln_symbols": [
+          "_",
+          "FencedCodeStartParser",
+          "x",
+          "preg_last_error",
+          "pcre.backtrack_limit",
+          "trim"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Advisory paths (code fences, reference links, emphasis delimiters) are in core parser reachable with default config; mail markdown embeds user-controlled text. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "Outbound mail configured (MAIL_* in .env.example:53-62)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#41",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-jfm3-95jq-q3rf"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark:  Denial of service via duplicate footnote definitions \u2014 ### Impact\n\nThe Footnote extension records one backref per footnote *reference* and then appends the **entire** backref list for **every** footnote *definition* block in the document, without ever de-duplicating or removing repeated definitions of the same label (`GatherFootnotesListener`, populated by `NumberFootnotesListener`). A document that references a single label N times and also supplies N duplicate `[^a]:` definitions of that label therefore produces **N \u00d7 N** `FootnoteBackref` nodes, so output size, parse tim",
+        "vuln_symbols": [
+          "GatherFootnotesListener",
+          "NumberFootnotesListener",
+          "FootnoteBackref",
+          "FootnoteExtension",
+          "Environment"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Footnote extension never registered. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#42",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-86429",
+            "GHSA-jjv6-8j6v-6j52"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service in the SmartPunct and Attributes extensions \u2014 ### Impact\n\nTwo first-party extensions contain quadratic parsing paths. Both ship with the library but must be explicitly registered on the `Environment`; neither is included in `CommonMarkConverter`, `GithubFlavoredMarkdownConverter`, or `GithubFlavoredMarkdownExtension`. **Applications that do not register `SmartPunctExtension` or `AttributesExtension` are not affected by this advisory.**\n\n**1. `SmartPunctExtension` \u2014 quote replacement recopies the whole text node (affected from 2.0.0).**\n\n`ReplaceUnpairedQuot",
+        "vuln_symbols": [
+          "Environment",
+          "CommonMarkConverter",
+          "GithubFlavoredMarkdownConverter",
+          "GithubFlavoredMarkdownExtension",
+          "SmartPunctExtension",
+          "AttributesExtension"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.1"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SmartPunct/Attributes extensions never registered. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#43",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-86434",
+            "GHSA-mh25-x5hq-wrqp"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service via colliding heading slugs \u2014 ### Impact\n\n`UniqueSlugNormalizer::normalize()` makes each slug document-unique by searching for an unused numeric suffix, but **restarts that search from `1` on every collision**. The k-th heading that collapses to the same base slug performs k\u22121 array lookups, so K colliding slugs cost \u03a3(k\u22121) = **O(K\u00b2)**. An attacker can force every heading onto a single base slug trivially \u2014 many empty ATX headings, identical heading text, or punctuation-only headings that normalize to the empty string.\n\nThe path is reached whenever the shar",
+        "vuln_symbols": [
+          "HeadingPermalinkExtension",
+          "HeadingPermalinkProcessor",
+          "FootnoteExtension",
+          "AnonymousFootnoteRefParser",
+          "TableOfContentsExtension",
+          "UniqueSlugNormalizer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "UniqueSlugNormalizer only used via getSlugNormalizer() by HeadingPermalink and Footnote extensions (commonmark src/Extension/HeadingPermalink/HeadingPermalinkProcessor.php:45, Footnote/Parser/AnonymousFootnoteRefParser.php:64), neither registered. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#44",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-mj63-m3rc-8ppr"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service via deeply nested XML output \u2014 ### Impact\n\n`XmlRenderer` pretty-prints XML by emitting depth-proportional indentation whitespace for **every** opening and closing tag. For a tree of depth n, the indentation alone sums to **O(n\u00b2)** bytes of output (and corresponding memory), reachable through `MarkdownToXmlConverter` \u2014 e.g. `str_repeat('> ', $depth) . \"x\\n\"`, a single line of nested blockquotes \u2014 or through a direct `XmlRenderer::renderDocument()` call on an attacker-influenced AST.\n\nThis affects applications that convert untrusted Markdown to XML, which is ",
+        "vuln_symbols": [
+          "XmlRenderer",
+          "MarkdownToXmlConverter",
+          "max_nesting_level"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "XmlRenderer / MarkdownToXmlConverter never used; only HTML conversion via MarkdownConverter. laravel/framework Illuminate/Mail/Markdown.php:106-117 parses mail markdown with only CommonMarkCoreExtension + TableExtension (allow_unsafe_links=false); app mail notifications use ->markdown() views (e.g. app/Notifications/RequestAssetNotification.php:109, resources/views/notifications/markdown/asset-requested.blade.php) whose layout calls Markdown::parse($slot) (resources/views/vendor/mail/html/layout.blade.php:39, table.blade.php:2). App's own markdown uses Parsedown (app/Helpers/Helper.php:93).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#45",
+      "facts": {
+        "package": "league/flysystem",
+        "version": "3.29.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102601",
+            "GHSA-cxf4-7mrp-vvpr"
+          ],
+          [
+            "league/flysystem"
+          ]
+        ],
+        "advisory_summary": "Flysystem: WhitespacePathNormalizer's control-character (CorruptedPathDetected) check is bypassed by malformed UTF-8 in the path, affecting every adapter \u2014 ## Related public issue (context, not a duplicate)\n\nClosed issue #1429 (\"Handle non-UTF-8 paths\", 2024-03-24) raised exactly this general concern and\neven suggested detection via `preg_match('//u', $path) !== 1` -- note the reporter's suggested check\nexplicitly compares `!== 1`, which *would* correctly treat PCRE's `false` return as \"reject.\" The\nmaintainer's reply pointed to the `PathNormalizer` interface as the place to implement this. Th",
+        "vuln_symbols": [
+          "PathNormalizer",
+          "WhitespacePathNormalizer",
+          "normalizePath",
+          "Filesystem",
+          "preg_match",
+          "if"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.35.3"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Attacker-controlled path reaches Flysystem WhitespacePathNormalizer on the default local disk: route stored-eula-file/{filename} (routes/web.php:119) -> ActionlogController::getStoredEula Storage::exists('private_uploads/eula-pdfs/'.$filename) (app/Http/Controllers/ActionlogController.php:48); any logged-in user with asset view permission controls raw bytes (malformed UTF-8 + control chars) in the path. Other Storage calls use DB/generated names.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#46",
+      "facts": {
+        "package": "livewire/livewire",
+        "version": "3.5.18",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-54068",
+            "GHSA-29cq-5w36-x7w3"
+          ],
+          [
+            "livewire/livewire"
+          ]
+        ],
+        "advisory_summary": "Livewire is vulnerable to remote command execution during component property update hydration \u2014 ### Impact\nIn Livewire v3 (\u2264 3.6.3), a vulnerability allows unauthenticated attackers to achieve remote command execution in specific scenarios. The issue stems from how certain component property updates are hydrated. This vulnerability is unique to Livewire v3 and does not affect prior major versions. Exploitation requires a component to be mounted and configured in a particular way, but does not require authentication or user interaction.\n\n### Patches\nThis issue has been patched in Livewire v3.6.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.6.4"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Livewire 3.5.18 (<3.6.4) components with untyped public properties are mounted for logged-in users, e.g. app/Livewire/PersonalAccessTokens.php:12 (account/api.blade.php, any user), Importer.php:13-36, OauthClients.php:14-20; property update hydration from /livewire/update is attacker-controlled.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#47",
+      "facts": {
+        "package": "livewire/livewire",
+        "version": "3.5.18",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-81887",
+            "GHSA-g3hc-697w-wm82"
+          ],
+          [
+            "livewire/livewire"
+          ]
+        ],
+        "advisory_summary": "Livewire DOM-based cross-site scripting during client-side state handling \u2014 ### Impact\nIn Livewire v3 (\u2264 3.8.2) and v4 (\u2264 4.3.3), a vulnerability allows unauthenticated attackers to execute arbitrary JavaScript in the origin of an affected application in specific scenarios. The issue stems from how certain client-side component state is handled. This vulnerability does not affect prior major versions. Exploitation requires user interaction, but does not require authentication or prior access to the application. The issue does not bypass server-side authorisation and grants an attacker no privi",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.8.3",
+          "4.3.4"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Livewire client-side runtime (served by the package) is loaded on pages with components (resources/views/account/api.blade.php, settings/*.blade.php, categories/edit.blade.php, models/edit.blade.php); 3.5.18 <= 3.8.2. Advisory scenario details sparse; kept reachable.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#48",
+      "facts": {
+        "package": "mtdowling/jmespath.php",
+        "version": "2.8.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-54133",
+            "GHSA-pcw8-m77r-2528"
+          ],
+          [
+            "mtdowling/jmespath.php"
+          ]
+        ],
+        "advisory_summary": "jmespath.php has CompilerRuntime code injection via unescaped function names \u2014 ## Impact\n\n`mtdowling/jmespath.php` can generate and execute attacker-controlled PHP code when `JmesPath\\CompilerRuntime` is used with an attacker-controlled JMESPath expression. The compiler emits parsed JMESPath function names into generated PHP source without sufficient escaping. A crafted expression can cause the generated cache file to contain executable attacker-controlled PHP, which is then loaded by the compiler runtime.\n\nA vulnerable flow is:\n\n1. An application accepts or constructs a JMESPath expression us",
+        "vuln_symbols": [
+          "JP_PHP_COMPILE",
+          "CompilerRuntime",
+          "AstRuntime"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.1"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "CompilerRuntime only selected via JP_PHP_COMPILE env (jmespath src/Env.php:15,46-47), unset/undocumented; aws-sdk uses JmesPath with SDK-internal expressions only; app never builds JMESPath expressions.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#49",
+      "facts": {
+        "package": "onelogin/php-saml",
+        "version": "3.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-5j8p-438x-rgg5"
+          ],
+          [
+            "onelogin/php-saml"
+          ]
+        ],
+        "advisory_summary": " SAML PHP Toolkit Vulnerability on xmlseclibs CVE-2025-66475  \u2014 **Summary**\n\nThere is a critical vulnerability on xmlseclibs [CVE-2025-66475](https://github.com/robrichards/xmlseclibs/security/advisories/GHSA-c4cc-x928-vjw9), a dependency of php-saml\n\nUpdate to the following versions of php-saml which forces the use of patched versions of xmlseclibs:\n- [2.21.1](https://github.com/SAML-Toolkits/php-saml/releases/tag/2.21.1)\n- [3.8.1](https://github.com/SAML-Toolkits/php-saml/releases/tag/3.8.1)\n- [4.3.1](https://github.com/SAML-Toolkits/php-saml/releases/tag/4.3.1)\n\n\n**Impact**\n\nSignature Wrapp",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.21.1",
+          "3.8.1",
+          "4.3.1"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "SAML SSO is a documented admin setting; SamlServiceProvider registers ACS route (app/Providers/SamlServiceProvider.php:34) -> SamlController::acs $auth->processResponse() (app/Http/Controllers/Auth/SamlController.php:104) validating an unauthenticated attacker-posted SAMLResponse signature via php-saml 3.7.0 + xmlseclibs 3.1.3 (pre-fix).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "SAML enabled in Admin > SAML settings"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#50",
+      "facts": {
+        "package": "paragonie/sodium_compat",
+        "version": "1.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-69277",
+            "GHSA-mrfv-m5wm-5w6w",
+            "PYSEC-2026-1448",
+            "PYSEC-2026-3002"
+          ],
+          [
+            "paragonie/sodium_compat"
+          ]
+        ],
+        "advisory_summary": "libsodium has Incomplete List of Disallowed Inputs \u2014 libsodium before ad3004e, in atypical use cases involving certain custom cryptography or untrusted data to crypto_core_ed25519_is_valid_point, mishandles checks for whether an elliptic curve point is valid because it sometimes allows points that aren't in the main cryptographic group.\n\nThis advisoory lists packages in the GitHub Advisory Database's [supported ecosystems](https://github.com/github/advisory-database?tab=readme-ov-file#supported-ecosystems) that are affected by this vulnerability due to a vulnerable dependency.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.24.0",
+          "2.5.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No caller of ed25519/ristretto is_valid_point (only defined in sodium_compat Compat.php:4104, Core/Ristretto255.php:363); app does not use sodium; php-jwt EdDSA unused (Passport HS256/RSA). ",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#51",
+      "facts": {
+        "package": "phpseclib/phpseclib",
+        "version": "3.0.43",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44167",
+            "GHSA-3qpq-r242-jqj7"
+          ],
+          [
+            "phpseclib/phpseclib"
+          ]
+        ],
+        "advisory_summary": "phpseclib has a CVE-2024-27355 mitigation bypass \u2014 OID amplification DoS in ASN1::decodeOID() \u2014 ### Impact\nAnyone loading untrusted ASN1 files (eg. X509 certificates, RSA PKCS8 private or public keys, etc)\n\n### Patches\nhttps://github.com/phpseclib/phpseclib/commit/d53d2021bcb9f6a04d5d44ec99e6bbef219a71bc\n\n### Workarounds\nNo.\n\n### References\nhttps://github.com/phpseclib/phpseclib/commit/d53d2021bcb9f6a04d5d44ec99e6bbef219a71bc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.29",
+          "2.0.54",
+          "3.0.52"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "phpseclib only used by passport KeysCommand (operator CLI key generation, laravel/passport src/Console/KeysCommand.php:9) and socialite FacebookProvider (src/Two/FacebookProvider.php:10; app only uses Socialite google driver, app/Http/Controllers/GoogleAuthController.php:30). flysystem-sftp-v3 not installed. No untrusted ASN.1/X.509/key parsing.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#52",
+      "facts": {
+        "package": "phpseclib/phpseclib",
+        "version": "3.0.43",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-32935",
+            "GHSA-94g3-g5v7-q4jg"
+          ],
+          [
+            "phpseclib/phpseclib"
+          ]
+        ],
+        "advisory_summary": "phpseclib's AES-CBC unpadding susceptible to padding oracle timing attack \u2014 ### Impact\nThose using AES in CBC mode may be susceptible to a padding oracle timing attack.\n\n### Patches\nhttps://github.com/phpseclib/phpseclib/commit/ccc21aef71eb170e9bf819b167e67d1fd9e6e788\n\n### Workarounds\nUse AES in CTR, CFB or OFB modes\n\n### References\nhttps://github.com/phpseclib/phpseclib/commit/ccc21aef71eb170e9bf819b167e67d1fd9e6e788",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.27",
+          "2.0.52",
+          "3.0.50"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No AES-CBC decryption via phpseclib anywhere; only uses are passport KeysCommand (CLI RSA keygen) and unused socialite FacebookProvider. App encryption uses Laravel Encrypter (openssl).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#53",
+      "facts": {
+        "package": "phpseclib/phpseclib",
+        "version": "3.0.43",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55599",
+            "GHSA-m557-wrgg-6rp4"
+          ],
+          [
+            "phpseclib/phpseclib"
+          ]
+        ],
+        "advisory_summary": "phpseclib: X.509 certificate validation sends attacker-controlled outbound requests (server-side request forgery) via Authority Information Access \u2014 ### Summary\n\nWhen an application validates an untrusted X.509 certificate with phpseclib, **X509::validateSignature()** reads a URL out of that certificate's Authority Information Access (AIA) extension and connects to it. Attacker who supplies certificate fully controls host, port, and path of that connection. URL fetching is enabled by default, and no destination is blocked. An unauthenticated attacker can therefore make a validating server open",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.30",
+          "2.0.55",
+          "3.0.54"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "X509::validateSignature never called; phpseclib only used by passport KeysCommand (CLI) and unused socialite FacebookProvider; no X.509 handling of untrusted certs.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#54",
+      "facts": {
+        "package": "phpseclib/phpseclib",
+        "version": "3.0.43",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-84308",
+            "GHSA-q97c-8qh3-fpc6"
+          ],
+          [
+            "phpseclib/phpseclib"
+          ]
+        ],
+        "advisory_summary": "phpseclib \u2014 non-constant-time X25519 scalar multiplication permits full private-key recovery \u2014 The pure-PHP X25519 scalar multiplication in phpseclib is not constant-time. Field addition and subtraction each perform a **data-dependent conditional modular reduction**, so the cost of each Montgomery-ladder step is a linear function of that step's reduction count which is a quantity determined by the secret scalar's *prefix*.\n\nAn observer with per-ladder-step resolution recovers the 251-bit clamped private scalar. This is a per-step leak, not an aggregate one: an instrumented code proof-of-concep",
+        "vuln_symbols": [
+          "add",
+          "subtract",
+          "doubleAndAddPoint",
+          "MontgomeryPrivate",
+          "c",
+          "IS_INVISIBLE"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.0.57",
+          "4.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No X25519/EC usage of phpseclib; only RSA keygen in passport KeysCommand (CLI) and unused socialite FacebookProvider.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#55",
+      "facts": {
+        "package": "phpseclib/phpseclib",
+        "version": "3.0.43",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40194",
+            "GHSA-r854-jrxh-36qx"
+          ],
+          [
+            "phpseclib/phpseclib"
+          ]
+        ],
+        "advisory_summary": "phpseclib has a variable-time HMAC comparison in SSH2::get_binary_packet() using != instead of hash_equals() \u2014 # phpseclib SSH2: Variable-time comparison in HMAC verification\n\n## Summary\n\n`phpseclib\\Net\\SSH2::get_binary_packet()` uses PHP's `!=` operator to compare a received SSH packet HMAC against the locally computed HMAC. `!=` on equal-length binary strings in PHP uses `memcmp()`, which short-circuits on the first differing byte. This is a real variable-time comparison (CWE-208), proven by scaling benchmarks.\n\nThe finding is **Low severity (defense-in-depth)**, not Critical. Practical expl",
+        "vuln_symbols": [
+          "memcmp",
+          "hash_equals",
+          "e819a163c",
+          "master",
+          "$hmac",
+          "zend_binary_strcmp"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.28",
+          "2.0.53",
+          "3.0.51"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "phpseclib Net\\SSH2 never used: flysystem-sftp-v3 not installed (only league/flysystem require-dev), no app SSH/SFTP code.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#56",
+      "facts": {
+        "package": "phpunit/phpunit",
+        "version": "10.5.41",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24765",
+            "GHSA-vvj3-c3rp-c85p"
+          ],
+          [
+            "phpunit/phpunit"
+          ]
+        ],
+        "advisory_summary": "PHPUnit Vulnerable to Unsafe Deserialization in PHPT Code Coverage Handling \u2014 ### Overview\n\nA vulnerability has been discovered involving unsafe deserialization of code coverage data in PHPT test execution. The vulnerability exists in the `cleanupForCoverage()` method, which deserializes code coverage files without validation, potentially allowing remote code execution if malicious `.coverage` files are present prior to the execution of the PHPT test.\n\n### Technical Details\n\n**Affected Component:** PHPT test runner, method `cleanupForCoverage()`\n**Affected Versions:** <= 8.5.51, <= 9.6.32, <= ",
+        "vuln_symbols": [
+          "cleanupForCoverage",
+          "allowed_classes",
+          "__wakeup"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.5.62",
+          "11.5.50",
+          "12.5.8",
+          "8.5.52",
+          "9.6.33"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Dev-only package; official image Dockerfile:113 runs composer install --no-dev (also snipeit.sh:273 and Dockerfile.fpm-alpine production branch use --no-dev), so not installed in production. PHPT coverage runner is test tooling only.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#57",
+      "facts": {
+        "package": "psy/psysh",
+        "version": "0.12.7",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-25129",
+            "GHSA-4486-gxhx-5mg7"
+          ],
+          [
+            "psy/psysh"
+          ]
+        ],
+        "advisory_summary": "PsySH has Local Privilege Escalation via CWD .psysh.php auto-load \u2014 ### Summary\nPsySH automatically loads and executes a `.psysh.php` file from the Current Working Directory (CWD) on startup. If an attacker can write to a directory that a victim later uses as their CWD when launching PsySH, the attacker can trigger arbitrary code execution in the victim's context. When the victim runs PsySH with elevated privileges (e.g., root), this results in local privilege escalation.\n\n### Details\nPsySH supports per-directory configuration via a `.psysh.php` file located in the process CWD. This file is ex",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "0.11.23",
+          "0.12.19"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "PsySH is only used by laravel/tinker (artisan tinker, operator CLI); the .psysh.php CWD auto-load is a local operator-session issue, not reachable from the web app.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#58",
+      "facts": {
+        "package": "robrichards/xmlseclibs",
+        "version": "3.1.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-32313",
+            "GHSA-4v26-v6cg-g6f9"
+          ],
+          [
+            "robrichards/xmlseclibs"
+          ]
+        ],
+        "advisory_summary": "xmlseclibs: Missing AES-GCM Authentication Tag Validation on Encrypted Nodes Allows for Unauthorized Decryption \u2014 ### Summary\nXML nodes encrypted with either aes-128-gcm, aes-192-gcm, or aes-256-gcm lack validation of the authentication tag length.\nAn attacker can use this to brute-force an authentication tag, recover the [GHASH key](https://en.wikipedia.org/wiki/Galois/Counter_Mode#:~:text=%29%20is%20the-,hash%20key,-%2C%20a%20string%20of), and decrypt the encrypted nodes.\nIt also allows to forge arbitrary ciphertexts without knowing the encryption key.\n\n### Details\nWhen decrypting with eithe",
+        "vuln_symbols": [
+          "$authTag",
+          "substr",
+          "SAMLResponse",
+          "byte_tag_attempt"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.5"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Encrypted assertions in attacker-posted SAMLResponse are decrypted: php-saml Response.php:107-112 -> decryptAssertion (1115-1160) uses algorithm from the attacker's EncryptionMethod via XMLSecEnc::locateKey and decryptNode; xmlseclibs 3.1.3 XMLSecurityKey.php:471-478 takes GCM tag without length check. Snipe-IT auto-generates the SP private key when SAML is configured (app/Http/Requests/SettingsSamlRequest.php:110-131; app/Services/Saml.php:170), so decryption runs on unauthenticated ACS input (SamlController.php:104).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "SAML enabled in Admin > SAML settings"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#59",
+      "facts": {
+        "package": "robrichards/xmlseclibs",
+        "version": "3.1.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-66578",
+            "GHSA-c4cc-x928-vjw9"
+          ],
+          [
+            "robrichards/xmlseclibs"
+          ]
+        ],
+        "advisory_summary": "robrichards/xmlseclibs has an Libxml2 Canonicalization error which can bypass Digest/Signature validation \u2014 ### Summary\nAn authentication bypass vulnerability exists due to a flaw in the libxml2 canonicalization process, which is used by [xmlseclibs](https://github.com/robrichards/xmlseclibs) during document transformation. This weakness allows an attacker to generate a valid signature once and reuse it indefinitely. In practice, a signature created during a previous interaction - or through a misconfigured authentication flow - can be replayed to bypass authentication checks.\n\n### Details\nWhe",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.1.4"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Same SAML ACS path as php-saml row: unauthenticated SAMLResponse signature/digest validation with xmlseclibs 3.1.3 (< 3.1.4) via OneLogin\\Saml2\\Auth::processResponse (app/Http/Controllers/Auth/SamlController.php:104; ACS route app/Providers/SamlServiceProvider.php:34).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "SAML enabled in Admin > SAML settings"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#60",
+      "facts": {
+        "package": "squizlabs/php_codesniffer",
+        "version": "3.11.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67434",
+            "GHSA-hmqg-cxww-wqhq"
+          ],
+          [
+            "squizlabs/php_codesniffer"
+          ]
+        ],
+        "advisory_summary": "PHP_CodeSniffer gitblame report command injection via crafted filename \u2014 ### Impact\n\nPHP_CodeSniffer versions before v3.13.6 and v4.0.2 contain a command injection vulnerability in the code creating the `Gitblame`, `Hgblame` and `Svnblame` report(s).\n\nAs a result, running PHP_CodeSniffer over untrusted files, for example, in a CI pipeline that scans pull requests, or on a developer machine reviewing third-party code, could result in attacker-controlled shell commands being executed when the `Gitblame`, `Hgblame` or `Svnblame` report(s) would process a file whose name contains shell metacharact",
+        "vuln_symbols": [
+          "Gitblame",
+          "Hgblame",
+          "Svnblame",
+          "Full"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.13.6",
+          "4.0.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Dev-only package; official image Dockerfile:113 runs composer install --no-dev (also snipeit.sh:273 and Dockerfile.fpm-alpine production branch use --no-dev), so not installed in production. phpcs blame reports are dev tooling only.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#61",
+      "facts": {
+        "package": "symfony/cache",
+        "version": "7.2.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45073",
+            "GHSA-6qh9-h6wf-jgqc"
+          ],
+          [
+            "symfony/cache"
+          ]
+        ],
+        "advisory_summary": "Symfony Vulnerable to SQL Injection in PdoAdapter::doClear() via Unsanitized $prefix \u2014 ### Description\n\n`Symfony\\Component\\Cache\\Adapter\\PdoAdapter` is the PDO-backed cache adapter. Its `clear($prefix)` method (inherited from `AbstractAdapterTrait`) is documented to delete cache items whose key starts with `$prefix`.\n\nIn the non-versioning code path, the caller-supplied `$prefix` is concatenated into `$namespace = $this->namespace.$prefix` and passed to `PdoAdapter::doClear()`, which builds:\n\n```sql\nDELETE FROM <table> WHERE <id_col> LIKE '<namespace>%'\n```\n\nThe value is interpolated directly ",
+        "vuln_symbols": [
+          "AbstractAdapterTrait",
+          "$prefix",
+          "$namespace",
+          "LIKE"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Dev-only package; official Dockerfile:113 runs composer install --no-dev. Also Laravel cache does not use Symfony PdoAdapter.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#62",
+      "facts": {
+        "package": "symfony/dom-crawler",
+        "version": "4.4.45",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45071",
+            "GHSA-x6g4-fwcc-jj8w"
+          ],
+          [
+            "symfony/dom-crawler"
+          ]
+        ],
+        "advisory_summary": "Symfony has XXE (Local File Disclosure) in DomCrawler::addXmlContent() via validateOnParse = true \u2014 ### Description\n\n`symfony/dom-crawler` provides the `Crawler` class for navigating HTML/XML documents with CSS/XPath selectors; `symfony/browser-kit`'s `HttpBrowser` uses it to parse fetched pages.\n\n`Crawler::addXmlContent()` sets `DOMDocument::$validateOnParse = true` before calling `loadXML()`. Setting `validateOnParse` re-enables libxml's DTD subset processing, including external entity resolution, even though `LIBXML_NONET` is passed. `LIBXML_NONET` blocks **network** fetches but not `file:/",
+        "vuln_symbols": [
+          "Crawler",
+          "HttpBrowser",
+          "loadXML",
+          "validateOnParse",
+          "LIBXML_NONET"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Dev-only package; official image Dockerfile:113 runs composer install --no-dev (also snipeit.sh:273 and Dockerfile.fpm-alpine production branch use --no-dev), so not installed in production. No DomCrawler use in app/ (tests only).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#63",
+      "facts": {
+        "package": "symfony/http-foundation",
+        "version": "7.2.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48736",
+            "GHSA-38cx-cq6f-5755"
+          ],
+          [
+            "symfony/http-foundation"
+          ]
+        ],
+        "advisory_summary": "Symfony: IpUtils::PRIVATE_SUBNETS Omits IPv6 Transition Forms (6to4, NAT64, Teredo, IPv4-compatible): SSRF Bypass in NoPrivateNetworkHttpClient \u2014 ### Description\n\n`Symfony\\Component\\HttpClient\\NoPrivateNetworkHttpClient` is documented as a decorator that blocks requests to private networks by default. The list of blocked subnets (`Symfony\\Component\\HttpFoundation\\IpUtils::PRIVATE_SUBNETS` on 6.4+, a private constant in `NoPrivateNetworkHttpClient` on 5.4) enumerates RFC1918, loopback, link-local and IPv4-mapped IPv6 (`::ffff:0:0/96`) prefixes, but omits the remaining IPv6 transition forms that",
+        "vuln_symbols": [
+          "NoPrivateNetworkHttpClient"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.4.41",
+          "7.4.13",
+          "8.0.13"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "NoPrivateNetworkHttpClient lives in symfony/http-client, which composer.lock lists only under packages-dev; no prod code references IpUtils::PRIVATE_SUBNETS/NoPrivateNetworkHttpClient.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#64",
+      "facts": {
+        "package": "symfony/http-foundation",
+        "version": "7.2.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-64500",
+            "GHSA-3rg7-wf37-54rm"
+          ],
+          [
+            "symfony/http-foundation"
+          ]
+        ],
+        "advisory_summary": "Symfony's incorrect parsing of PATH_INFO can lead to limited authorization bypass \u2014 ### Description\n\nThe `Request` class improperly interprets some `PATH_INFO` in a way that leads to representing some URLs with a path that doesn't start with a `/`. This can allow bypassing some access control rules that are built with this `/`-prefix assumption.\n\n### Resolution\n\nThe `Request` class now ensures that URL paths always start with a `/`.\n\nThe patch for this issue is available [here](https://github.com/symfony/symfony/commit/9962b91b12bb791322fa73836b350836b6db7cac) for branch 5.4.\n\n### Credits\n\nWe ",
+        "vuln_symbols": [
+          "Request",
+          "PATH_INFO"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.50",
+          "6.4.29",
+          "7.3.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Request::preparePathInfo in installed 7.2.2 can return a path without leading '/' (symfony/http-foundation Request.php:1894-1904, fix not present); runs on every inbound request (Laravel request built on HttpFoundation) with attacker-controlled REQUEST_URI. Practical authz impact in Laravel routing is limited but code path is hit.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#65",
+      "facts": {
+        "package": "symfony/http-foundation",
+        "version": "7.2.2",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-108082",
+            "GHSA-r925-mgvr-h9cc"
+          ],
+          [
+            "symfony/http-foundation"
+          ]
+        ],
+        "advisory_summary": "Symfony: ReDoS in HeaderUtils::split() Reachable Through the Cache-Control Request Header \u2014 ### Description\n\n`HeaderUtils::split()` parsed header values with a pattern whose token alternative also matched whitespace, followed by a `(?<!\\s)` lookbehind. A run of whitespace placed before a separator could be divided among the iterations of the enclosing repetition in exponentially many ways, and the engine tried all of them before settling. `HeaderBag` calls it for the `Cache-Control` header whenever a `Request` is built, so any application handling HTTP requests is reachable, with no authentica",
+        "vuln_symbols": [
+          "HeaderBag",
+          "Request",
+          "preg_match_all",
+          "pcre.backtrack_limit",
+          "split"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.54",
+          "6.4.46",
+          "7.4.19",
+          "8.1.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "HeaderBag::set for cache-control calls parseCacheControl -> HeaderUtils::split (http-foundation HeaderBag.php:150, 269; vulnerable regex HeaderUtils.php:53-68) on every Request built from globals; unauthenticated attacker controls the Cache-Control header.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#66",
+      "facts": {
+        "package": "symfony/mailer",
+        "version": "7.2.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45068",
+            "GHSA-xx3c-qf5g-hc39"
+          ],
+          [
+            "symfony/mailer"
+          ]
+        ],
+        "advisory_summary": "Symfony has an Argument Injection in SendmailTransport via Dash-Prefixed Recipient Address \u2014 ### Description\n\nSymfony Mailer selects a transport via the `MAILER_DSN` environment variable / configuration (e.g. `smtp://...`, `sendmail://...`, `native://default`). `SendmailTransport` invokes the local `sendmail` binary and supports two modes: `-bs` (speak SMTP over stdin: the default) and `-t` (read the message on stdin, pass recipients as command-line arguments).\n\nIn `-t` mode, recipient addresses are appended to the sendmail command line **without a `--` end-of-options separator**. A recipient ",
+        "vuln_symbols": [
+          "MAILER_DSN",
+          "SendmailTransport",
+          "sendmail"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "SendmailTransport -t mode required; .env.example uses MAIL_MAILER=smtp and config/mail.php:199 defaults sendmail path to '-bs -i'; -t is undocumented by the app.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "MAIL_MAILER=sendmail with -t path (undocumented)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#67",
+      "facts": {
+        "package": "symfony/mime",
+        "version": "7.2.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45067",
+            "GHSA-qpmx-3rfj-7rhv"
+          ],
+          [
+            "symfony/mime"
+          ]
+        ],
+        "advisory_summary": "Symfony has Email Header / SMTP Command Injection via CRLF in Symfony\\Component\\Mime\\Address \u2014 ### Description\n\n`Symfony\\Component\\Mime\\Address` is the value-object every Symfony Mailer address (to/cc/bcc/from/reply-to) flows through; its constructor is documented as validating the address and throwing on invalid input, so developers treat it as a security boundary.\n\nThe constructor accepts email addresses whose local-part (the part before `@`) is an RFC-5322 *quoted string* containing raw `\\r\\n` bytes, e.g. `\"x\\r\\nBcc: attacker@evil\"@example.com`. The stored address is later emitted verbatim ",
+        "vuln_symbols": [
+          "SmtpTransport",
+          "Address"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Recipient addresses from user records (User.php:93 'email' rule, CSV user import) flow into Symfony Mime Address for notifications/welcome mails over documented SMTP (.env.example:53-62); quoted local part with CRLF passes the default email rule per the Laravel advisory (i26).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "MAIL_* SMTP (documented in .env.example)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#68",
+      "facts": {
+        "package": "symfony/mime",
+        "version": "7.2.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45070",
+            "GHSA-vqc8-7275-q272"
+          ],
+          [
+            "symfony/mime"
+          ]
+        ],
+        "advisory_summary": "Symfony has Email Header Injection via Non-Token Characters in Mime Parameter Names \u2014 ### Description\n\n`Symfony\\Component\\Mime\\Header\\ParameterizedHeader` (and the related parameter handling reachable from `Symfony\\Component\\Mime\\Header\\Headers`) is responsible for serializing structured headers such as `Content-Type` and `Content-Disposition`, which carry `key=value` parameters (e.g. `Content-Disposition: attachment; filename=\"x\"`).\n\nRFC 2045 / RFC 5322 require parameter *names* to be `tokens`: a restricted ASCII subset that excludes whitespace, CR/LF, and the `tspecials` set. Symfony's param",
+        "vuln_symbols": [
+          "tokens",
+          "tspecials",
+          "ParameterizedHeader",
+          "token"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs attacker-controlled MIME parameter NAMES; Laravel/Snipe-IT mail only uses fixed parameter names (filename, name, charset, boundary); attacker data reaches parameter values only.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#69",
+      "facts": {
+        "package": "symfony/polyfill-intl-idn",
+        "version": "1.31.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46644",
+            "GHSA-2xf4-cg6j-vhgq"
+          ],
+          [
+            "symfony/polyfill-intl-idn"
+          ]
+        ],
+        "advisory_summary": "symfony/polyfill-intl-idn: xn-- labels with ASCII-only Punycode payloads are treated as equivalent to their decoded form \u2014 ### Description\n\n`symfony/polyfill-intl-idn` provides a userland implementation of `idn_to_utf8()` and `idn_to_ascii()` for runtimes that lack the `intl` extension. Its `Idn::process()` method decodes labels prefixed with `xn--` using Punycode but never enforces the validity criterion added in UTS #46 revision 33 Section 4 step 4.1.2: after a successful Punycode decode, the result must contain at least one non-ASCII code point.\n\nAs a consequence, `xn--` labels whose Punyco",
+        "vuln_symbols": [
+          "idn_to_utf8",
+          "idn_to_ascii",
+          "intl",
+          "IDNA_ERROR_INVALID_ACE_LABEL",
+          "poc.kc1zs4.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.1"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Official Dockerfile (Ubuntu 24.04, Dockerfile:17-27) installs no php8.3-intl, so the polyfill's idn_to_ascii is active. It is called on user-influenced data: symfony/mime IdnAddressEncoder.php:38 for recipient addresses with non-ASCII domains (user emails), egulias DomainPart.php:309 during Laravel 'email' validation (app/Models/User.php:93), guzzle Utils.php:379 for non-ASCII URL hosts. Security impact of xn-- equivalence here is minimal (no allowlist comparisons), but the code runs.",
+        "confidence": "low",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "Outbound mail configured for the mime path"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#70",
+      "facts": {
+        "package": "symfony/routing",
+        "version": "7.2.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45065",
+            "GHSA-72xp-p242-47p9"
+          ],
+          [
+            "symfony/routing"
+          ]
+        ],
+        "advisory_summary": "Symfony has a UrlGenerator Route-Requirement Bypass via Unanchored Regex Alternation \u2192 Off-Site //host URL Injection \u2014 ### Description\n\nSymfony routes can declare a requirements regex per path parameter, e.g. a route `/{_locale}/blog` with `requirements: { _locale: 'en|fr|de' }`. The Twig `path()` / `url()` helpers (backed by `UrlGenerator`) validate supplied parameter values against that regex before building the URL.\n\nUrlGenerator constructs the validation pattern as `'#^'.$req.'$#'`, where `$req` is the raw requirement string. For a requirement expressed as an alternation, e.g. `_locale: 'a",
+        "vuln_symbols": [
+          "path",
+          "url",
+          "UrlGenerator",
+          "$req",
+          "$",
+          "vi"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Symfony UrlGenerator never used: Laravel uses its own Illuminate\\Routing\\UrlGenerator and only Symfony's RouteCompiler/CompiledUrlMatcher (laravel/framework Illuminate/Routing/CompiledRouteCollection.php, AbstractRouteCollection.php); no prod reference to Symfony\\Component\\Routing\\Generator.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-snipeit#71",
+      "facts": {
+        "package": "symfony/routing",
+        "version": "7.2.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48784",
+            "GHSA-h5x3-xfc9-m39h"
+          ],
+          [
+            "symfony/routing"
+          ]
+        ],
+        "advisory_summary": "Symfony: UrlGenerator Dot-Segment Encoding Skips Every Other Chained `../` or `./` \u2192 Generated URL Collapses Off-Route Under RFC 3986 Normalization \u2014 ### Description\n\n`Symfony\\Component\\Routing\\Generator\\UrlGenerator::doGenerate()` percent-encodes `.` and `..` path segments so that the generated URL still resolves to the originating route after RFC 3986 \u00a75.2.4 dot-segment removal (which strict RFC-3986 consumers \u2014 routers, reverse proxies, HTTP clients \u2014 perform *before* percent-decoding).\n\nThe encoding was implemented as `strtr($url, ['/../' => '/%2E%2E/', '/./' => '/%2E/'])` plus a trailing-",
+        "vuln_symbols": [
+          "strtr",
+          "path",
+          "url",
+          "UrlGenerator",
+          "preg_replace_callback"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.53",
+          "6.4.41",
+          "7.4.13",
+          "8.0.13"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Symfony UrlGenerator::doGenerate never used; Laravel generates URLs with Illuminate\\Routing\\UrlGenerator; no prod reference to Symfony\\Component\\Routing\\Generator.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    }
+  ]
+}

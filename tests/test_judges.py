@@ -1132,6 +1132,24 @@ def test_cargo_settles_only_split_then_claude(app):
     assert not settles(sp, weak) and not settles(ws, cl) and not settles(sp) and not settles(cl)
 
 
+def test_composer_settles_only_split_095_then_claude(app):
+    # held-out php4 (2026-11-06): split not_reachable >= 0.95 with opus >= 0.7 agreeing, 118 / 0
+    nr = lambda name, c, src, m="": lambda: _Fixed(name, JudgeResult(Verdict.NOT_REACHABLE, c, src, model=m))  # noqa: E731
+    ws, sp = nr("workstation", 0.95, "workstation", QWEN), nr("split", 0.95, "split:workstation", QWEN)
+    sp90 = nr("split", 0.90, "split:workstation", QWEN)
+    cl, weak = nr("claude", 0.8, "claude"), nr("claude", 0.6, "claude")
+
+    def settles(*tiers):
+        c = _cand(bumped_package="guzzlehttp/guzzle", ecosystem="composer")
+        judge = tiers[0]() if len(tiers) == 1 else CascadeJudge([t() for t in tiers])
+        resolve_reachability(c, judge, str(app), "CVE-1")
+        return c.reachability == Reachability.UNREACHABLE
+
+    assert settles(sp, cl) and settles(ws, sp, cl)
+    assert not settles(sp90, cl) and not settles(sp, weak) and not settles(ws, cl)
+    assert not settles(sp) and not settles(cl)
+
+
 def test_maven_settles_only_split_090_then_claude_and_never_a_gadget(app):
     # jv3 (2026-10-29, held-out): split not_reachable >= 0.90 with opus >= 0.7 agreeing, 159 / 1;
     # the miss a deserialization gadget, which never settles on maven
@@ -1154,7 +1172,7 @@ def test_maven_settles_only_split_090_then_claude_and_never_a_gadget(app):
 
 def test_cargo_and_pypi_default_to_opus(monkeypatch):
     from doublestrain.judges.claude_code import MODEL_BY_ECOSYSTEM
-    assert MODEL_BY_ECOSYSTEM == {"pypi": "opus", "cargo": "opus", "maven": "opus"}
+    assert MODEL_BY_ECOSYSTEM == {"pypi": "opus", "cargo": "opus", "maven": "opus", "composer": "opus"}
 
 
 def test_cache_fills_in_the_answering_model(app, tmp_path, monkeypatch):

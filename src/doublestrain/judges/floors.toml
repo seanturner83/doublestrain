@@ -86,7 +86,7 @@ corroborate_by = ["endpoint", "split", "shape", "claude"]
 # six-app run: matcher 0.90s 6 right / 1 wrong (goof dustjs) against 77 / 0 at >= 0.95
 reachable = inf
 not_reachable = 0.95
-# Ecosystems held for every model tier (SSVC_NR_UNMEASURED, default cargo,go,pypi,maven) where this
+# Ecosystems held for every model tier (SSVC_NR_UNMEASURED, default cargo,go,pypi,maven,composer) where this
 # role's not_reachable may still settle: go5-split-raw (2026-10-18, five Go apps, 145
 # blind labels): not_reachable 128 right / 0 wrong, reachable 6/6 on reachable labels.
 # pypi only as a pair (corroborate_ecosystems): split's not_reachable >= 0.95 settles when
@@ -102,8 +102,20 @@ not_reachable = 0.95
 # split say 0.90 where it said 0.95). jv2 (re-run as a dev set after the call-graph fixes) 327 / 0
 # at 0.90; held-out jv3 (2026-10-29, five apps, 306 blind labels, re-reviewed) 159 / 1, coverage
 # 0.619: the miss a deserialization gadget, which reach.py now never lets settle on maven.
-measured_ecosystems = ["go", "pypi", "cargo", "maven"]
-corroborate_ecosystems = ["pypi", "cargo", "maven"]
+# Held-out jv4 (2026-11-02, five apps, 377 blind labels, re-reviewed; Wafer's Qwen3.8-27B as the
+# matcher, calibrated against the box on jv3): 205 / 0, coverage 0.612; 202 / 0 with the gadget guard.
+# composer stays held. Dev php1 (2026-11-05, five apps, 320 blind labels, re-reviewed; Wafer's matcher):
+# pair 95 / 0 at split >= 0.95 (coverage 0.408), 139 / 0 at >= 0.90 (0.597); held-out php2 decides.
+# Held-out php2 (2026-11-05, five apps, 308 labels, re-reviewed): pair 93 / 2 at >= 0.95, 165 / 3 at >= 0.90,
+# all Guzzle cookie rows behind Laravel's Http client (always a cookie jar); composer stays held.
+# Held-out php3 (2026-11-05, five apps, 311 labels, re-reviewed; Laravel Http cookie-jar note): pair 95 / 1 at
+# >= 0.95, 146 / 5 at >= 0.90, all Lychee cookie rows whose Http:: call is in an installed package; still held.
+# Held-out php4 (2026-11-06, five apps, 335 labels, re-reviewed; + installed-package Http:: call sites): pair
+# 118 / 0 at >= 0.95 (0.449), 171 / 0 at >= 0.90 (0.650). composer is lifted only as the pair, at split's
+# default 0.95 (php2 and php3 at 0.90 had 3 and 5 wrong before the cookie-jar note and package scan; 0.90 waits
+# for a replay of them on the current notes).
+measured_ecosystems = ["go", "pypi", "cargo", "maven", "composer"]
+corroborate_ecosystems = ["pypi", "cargo", "maven", "composer"]
 not_reachable_by_ecosystem = { maven = 0.90 }
 corroborate_by = ["claude"]
 

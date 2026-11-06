@@ -361,11 +361,16 @@ class OpenAIJudge:
             "response_format": {"type": "json_schema",
                                 "json_schema": {"name": "reachability", "strict": True, "schema": schema}},
         }
-        t0, acct = time.monotonic(), {"model": model, "endpoint": self.name}
+        # sizes and the destination only: the ledger never holds prompt or answer text
+        t0, acct = time.monotonic(), {"model": model, "endpoint": self.name,
+                                      "dest": urllib.parse.urlparse(self.base_url).netloc,
+                                      "sent_bytes": len(system.encode()) + len(user.encode())}
         try:
             out = self._req("/chat/completions", payload, self.timeout)
             acct.update(accounting.endpoint_fields(out))
-            d = _parse(out["choices"][0]["message"].get("content") or "")
+            reply = out["choices"][0]["message"].get("content") or ""
+            acct["recv_bytes"] = len(reply.encode())
+            d = _parse(reply)
         except urllib.error.HTTPError as exc:
             body = exc.read().decode(errors="replace")[:300] if exc.fp else ""
             accounting.record("endpoint", purpose, outcome="error", latency_s=round(time.monotonic() - t0, 3), **acct)

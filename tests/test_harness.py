@@ -16,9 +16,13 @@ def test_null_run_over_fixture_cases(tmp_path, capsys):
     assert s["labelled"] == len(labelled) >= 10       # OSV-generated real-* cases may be unlabelled
     # no judge -> nothing resolved, nothing wrongly suppressed
     assert s["resolved"] == 0 and s["false_not_reachable"] == 0
-    # every not_reachable case is over-escalated without a judge (that's the gap judges close)
+    # not_reachable cases are over-escalated without a judge (that's the gap judges close), and
+    # none lands below its oracle; a few advisories stay Attend even when unreachable (php2's
+    # composer/composer rows), so their decision already equals the oracle's
+    rank = {"Track": 0, "Track*": 1, "Attend": 2, "Act": 3}
     nr = [r for r in labelled if r["expect"]["reachability"] == "not_reachable"]
-    assert nr and all(r["got"]["decision"] != r["oracle_decision"] for r in nr)
+    assert all(rank[r["got"]["decision"]] >= rank[r["oracle_decision"]] for r in nr)
+    assert sum(r["got"]["decision"] != r["oracle_decision"] for r in nr) >= 0.95 * len(nr) > 0
 
 
 def test_workers_write_the_same_rows_in_the_same_order(tmp_path):

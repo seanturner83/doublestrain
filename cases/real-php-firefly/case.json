@@ -1,0 +1,3054 @@
+{
+  "id": "real-php-firefly",
+  "description": "Firefly III v6.2.13 (personal finance, Laravel): PHP dev set (php1), labelled blind",
+  "repo": "repo",
+  "exposure": "public-internet",
+  "_note": "enrichment empty: run the harness with --enrich live",
+  "enrichment": {},
+  "candidates": [
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#1",
+      "facts": {
+        "package": "firebase/php-jwt",
+        "version": "6.11.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-45769",
+            "GHSA-2x45-7fc3-mxwq"
+          ],
+          [
+            "firebase/php-jwt"
+          ]
+        ],
+        "advisory_summary": "php-jwt contains weak encryption \u2014 php-jwt v6.11.0 was discovered to contain weak encryption.",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.0.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.97
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "laravel/passport 13.0.1 (prod) uses php-jwt: Guards/TokenGuard.php:244 JWT::decode of the attacker-supplied laravel_token cookie (HS256, key derived from app key) on api guard (config/auth.php api driver passport); ApiTokenCookieFactory.php:50 JWT::encode, CreateFreshApiToken middleware app/Http/Kernel.php:91,156,174. The disputed 'weak encryption' concerns php-jwt's HMAC/key handling which this path exercises on unauthenticated input.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#2",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67339",
+            "GHSA-94pj-82f3-465w"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Proxy-Authorization headers can be sent to origin servers \u2014 ### Impact\n\nIn affected versions, the built-in cURL handlers (`CurlHandler` and `CurlMultiHandler`) put every first-class request header in cURL's origin header list (`CURLOPT_HTTPHEADER`). These handlers are the default when the PHP cURL extension is available. They move `Proxy-Authorization` to the proxy-only list (`CURLOPT_PROXYHEADER`) only when Guzzle predicts an HTTP or HTTPS proxy. A \"first-class\" header is part of the normal request message and can be set on a PSR-7 request, through client `headers` defaults, the `head",
+        "vuln_symbols": [
+          "CurlHandler",
+          "CurlMultiHandler",
+          "CURLOPT_HTTPHEADER",
+          "CURLOPT_PROXYHEADER",
+          "headers",
+          "stream_context.http.header"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.14.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs a first-class Proxy-Authorization header plus a proxy Guzzle does not predict as HTTP(S). No app code sets Proxy-Authorization or any proxy option (app/Services/Webhook/StandardWebhookSender.php:99-113, app/Services/Password/PwndVerifierV2.php:57, app/Services/FireflyIIIOrg/Update/UpdateRequest.php:75, app/Jobs/DownloadExchangeRates.php:99); outbound proxy is not documented by Firefly (.env.example:36 mentions only TRUSTED_PROXIES for inbound).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#3",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55767",
+            "GHSA-cwxw-98qj-8qjx"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/guzzle: Dot-Only Cookie Domains Match All Hosts \u2014 ### Impact\n\n`CookieJar` incorrectly accepts cookies with a dot-only `Domain` attribute, such as `Domain=.`, `Domain=..`, `Domain=...`, and whitespace-padded variants such as `Domain= . `. In affected versions, `SetCookie::matchesDomain()` removes leading dots from the cookie domain, normalizing dot-only values to the empty string; `SetCookie::validate()` only rejected a strictly empty domain, so these cookies could be stored and the empty normalized domain was treated as matching any request host.\n\nAn attacker-controlled origin that ",
+        "vuln_symbols": [
+          "CookieJar",
+          "Domain"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Guzzle CookieJar never enabled: every app Client is `new Client()` with no 'cookies' option (app/Services/Webhook/StandardWebhookSender.php:99-113, app/Services/Password/PwndVerifierV2.php:57, app/Services/FireflyIIIOrg/Update/UpdateRequest.php:75, app/Jobs/DownloadExchangeRates.php:99); Guzzle default cookies=false; app does not use Laravel Http facade (only alias config/app.php:230); pushover channel source has no cookie use. Dot-only Domain cookie handling in SetCookie never runs.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#4",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67353",
+            "GHSA-f283-ghqc-fg79"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Unbounded response cookies risk denial of service \u2014 ### Impact\n\nIn affected versions, Guzzle's built-in `CookieJar` accepts any number of `Set-Cookie` header fields from one response, with no limit on the size of each field. When a later request matches the stored cookies, Guzzle places every match into one generated `Cookie` header without limiting the number of cookies or the total header length.\n\nA malicious or compromised server can therefore return many large cookies, causing Guzzle to store attacker-controlled data in memory and copy it into later request headers. This can increa",
+        "vuln_symbols": [
+          "CookieJar",
+          "Cookie",
+          "attacker.example.com",
+          "service.example.com",
+          "CookieJarInterface"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Guzzle CookieJar never enabled: every app Client is `new Client()` with no 'cookies' option (app/Services/Webhook/StandardWebhookSender.php:99-113, app/Services/Password/PwndVerifierV2.php:57, app/Services/FireflyIIIOrg/Update/UpdateRequest.php:75, app/Jobs/DownloadExchangeRates.php:99); Guzzle default cookies=false; app does not use Laravel Http facade (only alias config/app.php:230); pushover channel source has no cookie use. Unbounded Set-Cookie storage never happens without a jar.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#5",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69245",
+            "GHSA-f7vp-7xgx-4w4r"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Noncanonical cookie domain keeps subdomain scope \u2014 ### Impact\n\n`SetCookie::matchesDomain()` gives every subdomain of a cookie `Domain` that cookie unless it recognizes the `Domain` as an IP literal or a numeric host, and it decides that from the domain's own text, so two spellings a transport reads as an address keep subdomain scope. On `7.15`, hexadecimal and mixed-base forms such as `0x7f000001` and `0177.0.0.0x1` go unrecognized while libcurl 8.21.0 reads both as `127.0.0.1`, so closing them completes the rule `GHSA-g446-98w2-8p5w` (`CVE-2026-59883`) set out to establish, which cite",
+        "vuln_symbols": [
+          "Domain",
+          "Cookie",
+          "CookieJar",
+          "filter_var",
+          "FILTER_VALIDATE_IP"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.2",
+          "8.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Guzzle CookieJar never enabled: every app Client is `new Client()` with no 'cookies' option (app/Services/Webhook/StandardWebhookSender.php:99-113, app/Services/Password/PwndVerifierV2.php:57, app/Services/FireflyIIIOrg/Update/UpdateRequest.php:75, app/Jobs/DownloadExchangeRates.php:99); Guzzle default cookies=false; app does not use Laravel Http facade (only alias config/app.php:230); pushover channel source has no cookie use. SetCookie::matchesDomain not reached.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#6",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59883",
+            "GHSA-g446-98w2-8p5w"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Cookie Disclosure and Injection via IP-Address Domains \u2014 ### Impact\n\n`CookieJar` does not restrict a cookie scoped to an IP address to the exact host that set it. When a stored cookie's `Domain` attribute is an IPv4 literal (`Domain=192.168.0.1`), a bracketed IPv6 literal (`Domain=[::1]`), or a bare numeric value that denotes an IPv4 address (`Domain=1`, which is `0.0.0.1`), `SetCookie::matchesDomain()` applies ordinary subdomain (suffix) matching to it instead of requiring an exact host. The IP-address check inside `matchesDomain()` is applied only to the request host and never to the",
+        "vuln_symbols": [
+          "CookieJar",
+          "Domain",
+          "matchesDomain"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.12.3"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Guzzle CookieJar never enabled: every app Client is `new Client()` with no 'cookies' option (app/Services/Webhook/StandardWebhookSender.php:99-113, app/Services/Password/PwndVerifierV2.php:57, app/Services/FireflyIIIOrg/Update/UpdateRequest.php:75, app/Jobs/DownloadExchangeRates.php:99); Guzzle default cookies=false; app does not use Laravel Http facade (only alias config/app.php:230); pushover channel source has no cookie use. IP-literal cookie domain matching not reached.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#7",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67354",
+            "GHSA-h95v-h523-3mw8"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: URI fragments disclosed in redirect Referer headers \u2014 ### Impact\n\nWhen the optional `referer` redirect setting is enabled, affected versions of `RedirectMiddleware` can copy the fragment from the referring request URI into a generated `Referer` header. A URI fragment is the part after `#`. It is handled locally by the client and is not part of the HTTP request target, so the server handling the original request does not receive it. A generated `Referer` tells the redirect destination which URI led to the request. Guzzle correctly removes user information from that value, but retains th",
+        "vuln_symbols": [
+          "referer",
+          "RedirectMiddleware",
+          "Referer",
+          "allow_redirects.referer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires allow_redirects 'referer'=>true (off by default). No app code sets allow_redirects/referer (app/Services/Webhook/StandardWebhookSender.php:99-113, app/Services/Password/PwndVerifierV2.php:57, app/Services/FireflyIIIOrg/Update/UpdateRequest.php:75, app/Jobs/DownloadExchangeRates.php:99); grep finds no 'referer' option in app/config.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#8",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-69246",
+            "GHSA-v5mv-p594-2x33"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Noncanonical host can bypass host-based checks \u2014 ### Impact\n\nIn affected versions, Guzzle gives a transport the request URI as text and supplies the `Host` header separately. The cURL handlers set `CURLOPT_URL` to the URI exactly as written and push that `Host` into `CURLOPT_HTTPHEADER`; `StreamHandler` does the same through `fopen()`. libcurl then parses the authority itself, percent-decoding it and, on an IDN-capable build, applying IDNA mapping, and uses the result to resolve, connect, name the TLS peer and address a proxy `CONNECT`, while the supplied `Host` suppresses the aligned ",
+        "vuln_symbols": [
+          "Host",
+          "CURLOPT_URL",
+          "CURLOPT_HTTPHEADER",
+          "StreamHandler",
+          "fopen",
+          "CONNECT"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.2",
+          "8.0.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Impact needs the app to make a host-based decision on the URI that libcurl then reinterprets. Attacker-chosen URLs reach Guzzle only via user webhooks (ALLOW_WEBHOOKS=false default, .env.example:281; validation is only url:protocols, Api/V1/Requests/Models/Webhook/CreateRequest.php:81, no host check to bypass, attacker already picks the host) and the Slack/Discord URL, whose check is a literal prefix 'https://hooks.slack.com/services/' (app/Rules/Admin/IsValidSlackOrDiscordUrl.php:47) that pins the authority text so no noncanonical spelling can pass. Other clients hit operator-fixed hosts. Low-medium confidence: transport code runs on attacker URLs, but no bypassable check exists.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "ALLOW_WEBHOOKS"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#9",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-67355",
+            "GHSA-wm3w-8rrp-j577"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "Guzzle: Host-only cookie scope is not preserved \u2014 ### Impact\n\nIn affected versions, `CookieJar` does not preserve whether a response cookie was set without a `Domain` attribute or with an empty one. A cookie without `Domain` is host-only and must be returned only to the exact host that set it. Under current cookie processing rules, an empty `Domain` value is also host-only. Guzzle instead stores the request host in the cookie's `Domain` field and later applies ordinary domain matching, as though the server had supplied a valid domain. For example, a host-only `sid=secret` cookie set by `exampl",
+        "vuln_symbols": [
+          "CookieJar",
+          "Domain",
+          "example.com",
+          "child.example.com",
+          "FileCookieJar",
+          "SessionCookieJar"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.15.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Guzzle CookieJar never enabled: every app Client is `new Client()` with no 'cookies' option (app/Services/Webhook/StandardWebhookSender.php:99-113, app/Services/Password/PwndVerifierV2.php:57, app/Services/FireflyIIIOrg/Update/UpdateRequest.php:75, app/Jobs/DownloadExchangeRates.php:99); Guzzle default cookies=false; app does not use Laravel Http facade (only alias config/app.php:230); pushover channel source has no cookie use. Host-only cookie scope logic not reached.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#10",
+      "facts": {
+        "package": "guzzlehttp/guzzle",
+        "version": "7.9.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55568",
+            "GHSA-wpwq-4j6v-78m3"
+          ],
+          [
+            "guzzlehttp/guzzle"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/guzzle: Silent HTTPS-Proxy Downgrade to Cleartext \u2014 ### Impact\n\nThe built-in cURL handlers (`GuzzleHttp\\Handler\\CurlHandler` and `GuzzleHttp\\Handler\\CurlMultiHandler`, used by default whenever the PHP cURL extension is available) accept an `https://` proxy \u2014 a proxy reached over a TLS-encrypted connection \u2014 through the `proxy` request option, client-level `proxy` defaults, or proxy environment variables such as `http_proxy`, `https_proxy`, `HTTPS_PROXY`, `all_proxy`, and `ALL_PROXY`.\n\nWhen the installed libcurl does not support HTTPS proxies, behavior depends on the libcurl version/",
+        "vuln_symbols": [
+          "proxy",
+          "http_proxy",
+          "https_proxy",
+          "HTTPS_PROXY",
+          "all_proxy",
+          "ALL_PROXY"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "7.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.98
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs an https:// proxy configured via proxy option or proxy env vars; app passes no proxy (app/Services/Webhook/StandardWebhookSender.php:99-113, app/Services/Password/PwndVerifierV2.php:57, app/Services/FireflyIIIOrg/Update/UpdateRequest.php:75, app/Jobs/DownloadExchangeRates.php:99) and Firefly docs/.env.example document no outbound proxy (only TRUSTED_PROXIES, .env.example:36). Framework/env-only setting = undocumented.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#11",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48998",
+            "GHSA-34xg-wgjx-8xph"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7 has Host Confusion via Authority Reinterpretation \u2014 ## Impact\n\n`guzzlehttp/psr7` improperly interpreted malformed `Host` header values when constructing request URIs from inbound request data. This issue concerns inbound request parsing and server request construction. It does not require serializing a PSR-7 request, and it is not part of the normal outbound request-sending path used by `guzzlehttp/guzzle`.\n\nA vulnerable flow is:\n\n1. An attacker controls a raw HTTP request or server variable containing a `Host` value.\n2. The `Host` value contains URI authority delimiters, such ",
+        "vuln_symbols": [
+          "Host",
+          "evil.example",
+          "parse_request",
+          "parse_url"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Inbound requests are Symfony HttpFoundation; PSR-7 server requests (for Passport/oauth2-server) come from Laravel RoutingServiceProvider.php:136 PsrHttpFactory (symfony bridge, discovers nyholm/psr7 which is installed) built from the Symfony request's already-validated host. App never calls GuzzleHttp\\Psr7\\ServerRequest::fromGlobals/getUriFromGlobals or Message::parseRequest (grep of app/, config/, passport, laravel src). Guzzle psr7 is only used for outbound client requests.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#12",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-59882",
+            "GHSA-c2w2-prh8-qm98"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7: Host Confusion via Weak URI Host Validation \u2014 ### Impact\n\n`guzzlehttp/psr7` did not reject URI host components containing authority delimiters (`/`, `?`, `#`, `@`, or `\\`), an embedded port such as `host:8080`, or IPv6 brackets that do not frame the host (such as `[::1` or `::1]`). `Uri::assertValidHost()` rejected only control characters, so these malformed hosts were accepted both when parsing a URI string \u2014 including through `new Uri()`, an absolute-form request target passed to `Message::parseRequest()`, and the synthetic `SERVER_NAME` or `SERVER_ADDR` fallback used by `Se",
+        "vuln_symbols": [
+          "SERVER_NAME",
+          "SERVER_ADDR",
+          "getHost",
+          "getAuthority",
+          "Uri",
+          "$_SERVER"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.12.3"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Re-review majority (2 of 3 blind reads): psr7 2.7.1 (prod, transitive via guzzle/laravel) Uri::filterHost (src/Uri.php:610) only lowercases; no host validation at all, so the vulnerable lax parsing (Uri::parse/applyParts, Uri.php:106,552) is present. Attacker-influenced URLs reach it by default: logged-in users set slack_webhook_url (PreferencesRequest.php:41, prefix check IsValidSlackOrDiscordUrl / UrlValidator.php str_ends_with('/slack') allows any host; slack channel enabled by default config/notifications.php:28), sent through Guzzle (SlackWebhookChannel ->post($url)) -> Utils::uriFor -> new Uri(); also webhook URLs from the API (Api/V1/Requests/Models/Webhook/CreateRequest.php:81, only 'url' rule) posted via new Guzzle Client (Services/Webhook/StandardWebhookSender.php:110-113) when ALLOW_WEBHOOKS (documented .env.example:279-281). Caveat: Firefly has no psr7-based host allowlist to confuse (its checks are string-prefix), so concrete impact is weak; labelled reachable because the vulnerable parsing runs on attacker URLs.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus blind re-review 2026-11-05, majority of 3 reads (php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#13",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-49214",
+            "GHSA-hq7v-mx3g-29hw"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7 has CRLF Injection via URI Host Component \u2014 ## Impact\n\n`guzzlehttp/psr7` did not reject ASCII control characters, whitespace, or DEL in first-party URI host components. The issue requires a PSR-7 request to be serialized into a raw HTTP/1.x message, for example with `GuzzleHttp\\Psr7\\Message::toString()` or an equivalent custom serializer. Creating a `Uri`, `Request`, or other PSR-7 object alone is not sufficient. The malformed host must be copied into the serialized `Host` header without further validation.\n\nA vulnerable flow is:\n\n1. An application accepts a user-controlled URL",
+        "vuln_symbols": [
+          "Uri",
+          "Request",
+          "Host"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.2"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires serializing a request with a CR/LF/control-char host via Message::toString or similar. Firefly never serializes PSR-7 messages: no Message::toString in app/; Guzzle MessageFormatter/log middleware not configured; Laravel Http client (RequestException.php:78) unused by app. Outbound URLs (webhook) pass Laravel 'url' validation which rejects whitespace/control chars; other Guzzle targets are fixed hosts (DownloadExchangeRates, PwndVerifierV2, UpdateRequest).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#14",
+      "facts": {
+        "package": "guzzlehttp/psr7",
+        "version": "2.7.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55766",
+            "GHSA-vm85-hxw5-5432"
+          ],
+          [
+            "guzzlehttp/psr7"
+          ]
+        ],
+        "advisory_summary": "guzzlehttp/psr7: CRLF Injection in HTTP Start-Line Serialization \u2014 ### Impact\n\n`guzzlehttp/psr7` did not reject CR/LF characters in certain first-party HTTP start-line fields: the request method, protocol version, and response reason phrase. If an application placed attacker-controlled data into one of those fields and later serialized the PSR-7 message as raw HTTP/1.x, for example with `Message::toString()` or an equivalent serializer, the serialized message could contain attacker-controlled header lines. The issue can also be reached through `Message::parseRequest()` or `Message::parseRespon",
+        "vuln_symbols": [
+          "Request",
+          "Response",
+          "$_SERVER",
+          "REQUEST_METHOD",
+          "SERVER_PROTOCOL"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.12.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Needs attacker data in request method/protocol version/reason phrase and later raw serialization (Message::toString) or Message::parseRequest/parseResponse. App's Guzzle calls use fixed methods ('POST' in StandardWebhookSender.php:113, GET elsewhere); responses are parsed by Guzzle's curl handler, not Message::parseResponse, and never re-serialized (no Message::toString in app or configured middleware).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#15",
+      "facts": {
+        "package": "laravel/framework",
+        "version": "12.15.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48019",
+            "GHSA-5vg9-5847-vvmq"
+          ],
+          [
+            "laravel/framework"
+          ]
+        ],
+        "advisory_summary": "Laravel Framework: CRLF injection in default email rule  \u2014 ## Summary\nA CRLF injection vulnerability in Laravel's email validation, in combination with how Symfony Mailer and Symfony Mime handle certain character sequences, may allow an unauthenticated attacker to interfere with outbound email processing in applications that send mail to user-supplied addresses.\n\n## Description\nLaravel applications that send email to addresses provided by users \u2014 for example during authentication flows or contact forms \u2014 may be vulnerable to manipulation of outbound mail content if the address is not adequatel",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.60.0",
+          "13.10.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Unauthenticated registration validates email with Laravel 'email' rule (app/Support/Http/Controllers/RequestInformation.php:191) on raw $request->all() (Auth/RegisterController.php:94-95) then RegisteredUser event mails that address (Handlers/Events/UserEventHandler.php:371-376). Registration open when no user exists or via invite / single_user_mode off (RegisterController.php:116-133). Email-change path strips CR/LF via convertString (Support/Request/ConvertsDataTypes.php:112) but the registration path does not. Mail only leaves the box when an SMTP-type mailer is set (MAIL_MAILER=log default, documented .env.example:158).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "MAIL_MAILER (SMTP etc., .env.example:158)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#16",
+      "facts": {
+        "package": "laravel/framework",
+        "version": "12.15.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-crmm-hgp2-wgrp"
+          ],
+          [
+            "laravel/framework"
+          ]
+        ],
+        "advisory_summary": "Laravel Framework: Temporary Signed URL Path Confusion \u2014 A vulnerability in Laravel's local filesystem driver allows temporary signed URLs to be parsed ambiguously, potentially misrouting requests and bypassing expiration enforcement.\n\nUnder certain conditions, a generated temporary signed URL can be interpreted differently by the server than intended at signing time. This may cause requests to resolve to an unintended resource, and can prevent expiration from being enforced, allowing expired URLs to remain valid indefinitely.\n\n### Impact\n- Expired temporary URLs may continue to be accepted\n- ",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.61.1",
+          "13.12.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Local-disk temporary URLs need a local disk with 'serve'=>true (Illuminate/Filesystem/FilesystemServiceProvider.php:117) and temporaryUrl use; config/filesystems.php local disks have no 'serve' key and app never calls temporaryUrl/temporarySignedRoute.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#17",
+      "facts": {
+        "package": "laravel/framework",
+        "version": "12.15.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-114509",
+            "GHSA-f9x3-7vq9-cph6"
+          ],
+          [
+            "laravel/framework"
+          ]
+        ],
+        "advisory_summary": "Laravel TokenGuard authentication bypass through non-string API credentials \u2014 Laravel's built-in TokenGuard, **when configured with a standard token-based API guard**, may be bypassed to authenticate as an arbitrary existing user without knowledge of their valid API token. \n\n**Under certain database configurations (MySQL/MariaDB)** an attacker can submit a specially crafted, non-string credential value that is mishandled during the authentication lookup, causing the underlying query to match an unintended user record rather than failing authentication as expected.\n\n### Impact\nAn unauthenticate",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.68.0",
+          "13.29.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "account takeover"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Laravel TokenGuard ('token' driver) unused: config/auth.php:65-73 guards are session, remote_user_guard, passport; API uses auth:api,sanctum (routes/api.php:936); no TokenGuard/api_token reference in app.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#18",
+      "facts": {
+        "package": "laravel/framework",
+        "version": "12.15.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102279",
+            "GHSA-jh5r-qr3c-85q8"
+          ],
+          [
+            "laravel/framework"
+          ]
+        ],
+        "advisory_summary": "Laravel: XSS in Debug Page Information \u2014 ### Impact\nWhen `APP_DEBUG=true`, attacker-controlled input is passed to a Tippy.js tooltip configured with `allowHTML: true`, enabling DOM-based XSS during mouse hover.\n\n### Patches\n[#61381](https://github.com/laravel/framework/pull/61381)",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "12.69.0",
+          "13.30.0"
+        ],
+        "severity": "LOW",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Only rendered when APP_DEBUG=true; default APP_DEBUG=false (.env.example:6); debug-only setting is not_reachable per rules.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "APP_DEBUG=true"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#19",
+      "facts": {
+        "package": "laravel/passport",
+        "version": "13.0.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-39976",
+            "GHSA-349c-2h2f-mxf6"
+          ],
+          [
+            "laravel/passport"
+          ]
+        ],
+        "advisory_summary": "Laravel Passport: TokenGuard Authenticates Unrelated User for Client Credentials Tokens \u2014 ### Impact\nAuthentication Bypass for `client_credentials` tokens. the league/oauth2-server library sets the JWT sub claim to the client identifier (since there's no user). The token guard then passes this value to retrieveById() without validating it's actually a user identifier, potentially resolving an unrelated real user. Any machine-to-machine token can inadvertently authenticate as an actual user.\n\n\nUsage of `EnsureClientIsResourceOwner` middleware together with `Passport::$clientUuids` set to `false",
+        "vuln_symbols": [
+          "client_credentials",
+          "EnsureClientIsResourceOwner"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "13.7.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Passport::$clientUuids=false (app/Providers/AppServiceProvider.php:44) so integer client id could collide with user id, and ClientCredentialsGrant is enabled (passport src/PassportServiceProvider.php:160). But Firefly's oauth_clients table has no grant_types column (database/migrations/2018_01_01_000004_create_oauth_clients_table.php:57-65), so Client::grantTypes (src/Client.php:155-165) allows client_credentials only for confidential first-party clients (user_id empty). User-created clients via /oauth/clients (routes/web.php:50, ClientController::store passes $request->user()) are owned so cannot use client_credentials; only operator-held clients (personal access client, CLI) can, whose secrets attackers lack. No EnsureClientIsResourceOwner use.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#20",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-71478",
+            "GHSA-29pj-957v-52mc"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: AttributesExtension href/src unsafe-link filter bypass via embedded control bytes \u2014 \ufeff## Summary\n\nThe `AttributesExtension`'s `href`/`src` unsafe-link filter (`AttributesHelper::filterAttributes()`) can be bypassed by embedding control bytes in a `javascript:` URL that browsers discard before parsing the scheme. Two variants:\n\n- **Tab/newline inside the scheme** \u2014 a literal ASCII TAB (0x09), CR (0x0D), or LF (0x0A), e.g. `java<TAB>script:alert(1)`. Per the WHATWG URL Standard's \"basic URL parser\" step 3, browsers \"remove all ASCII tab or newline from input\".\n- **Leading C0 co",
+        "vuln_symbols": [
+          "AttributesExtension",
+          "href",
+          "src",
+          "parseAttributes",
+          "trim",
+          "REGEX_UNSAFE_PROTOCOL"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "account takeover"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AttributesExtension not registered: only converter is GithubFlavoredMarkdownConverter (app/Support/Twig/General.php:160) = core+Autolink,DisallowedRawHtml,Strikethrough,Table,TaskList (src/Extension/GithubFlavoredMarkdownExtension.php:27-31); Laravel mail Markdown adds only Core+Table (Illuminate/Mail/Markdown.php:188-189).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#21",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-71488",
+            "GHSA-2q4p-g7hv-5rgv"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Quadratic-time denial of service when parsing crafted Markdown \u2014 ### Impact\n\nAffected versions of `league/commonmark` can have quadratic time complexity when parsing specially crafted Markdown lines. In practical terms, doubling the length of an affected line can make the parser perform roughly four times as much work. The parser identifies locations using character positions, but regular-expression matches report byte positions. These positions differ when a UTF-8 character uses more than one byte. Several parsing paths repeatedly rescan growing portions of the line to tran",
+        "vuln_symbols": [
+          "CommonMarkConverter",
+          "GithubFlavoredMarkdownConverter",
+          "AutolinkExtension",
+          "GithubFlavoredMarkdownExtension",
+          "html_input",
+          "allow_unsafe_links"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Core inline parsing on user text: Twig 'markdown' filter (app/Support/Twig/General.php:155-168, GFM converter) applied to user-controlled notes/descriptions in views e.g. resources/views/transactions/show.twig, accounts/show.twig, bills/show.twig; logged-in user (also via API-stored notes) supplies multibyte crafted lines. max_nesting_level=5 does not bound line length.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#22",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-105830",
+            "GHSA-3q6v-r5mr-hxv8"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Quadratic-time denial of service in the GitHub Flavored Markdown Table extension block-start scan \u2014 ## Summary\n\n`league/commonmark`'s GitHub Flavored Markdown Table extension registers `TableStartParser` as a block-start parser. While a paragraph is the active block, the core block parser calls `TableStartParser::tryStart()` on every non-blank line. Its first action fetches the entire growing paragraph buffer via `getParagraphContent()` and runs `strpos($paragraph, '|')` across all of it. For a paragraph of M pipe-free lines, line k rescans about k lines of buffer, so total ",
+        "vuln_symbols": [
+          "TableStartParser",
+          "getParagraphContent",
+          "GithubFlavoredMarkdownConverter",
+          "TableExtension",
+          "strrpos",
+          "substr"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.2"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "GFM converter registers TableExtension (GithubFlavoredMarkdownExtension.php:30) and is used by the Twig markdown filter on user notes (app/Support/Twig/General.php:160, views transactions/show.twig etc.); long pipe-free paragraphs trigger TableStartParser rescans.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#23",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-30838",
+            "GHSA-4v6x-c7xx-hw9f"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "CommonMark has DisallowedRawHtml extension bypass via whitespace in HTML tag names \u2014 ### Impact\n\nThe `DisallowedRawHtml` extension can be bypassed by inserting a newline, tab, or other ASCII whitespace character between a disallowed HTML tag name and the closing `>`. For example, `<script\\n>` would pass through unfiltered and be rendered as a valid HTML tag by browsers. This is a cross-site scripting (XSS) vector for any application that relies on this extension to sanitize untrusted user input.\n\nAll applications using the `DisallowedRawHtml` extension to process untrusted markdown are affecte",
+        "vuln_symbols": [
+          "DisallowedRawHtml",
+          "html_input"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.8.1"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "DisallowedRawHtml is active via GFM but app sets html_input=>'escape' (app/Support/Twig/General.php:164), so HtmlInline/HtmlBlock renderers htmlspecialchars all raw HTML (src/Util/HtmlFilter.php:47-48) before DisallowedRawHtmlRenderer's regex; whitespace bypass yields no live tag. Laravel mail Markdown has no DisallowedRawHtml.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#24",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-86428",
+            "GHSA-8rr7-cvq3-gmfh"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service via distinctly-named attributes in the Attributes extension \u2014 ### Impact\n\n`AttributesExtension` ships with the library but must be explicitly registered on the `Environment`; it is not included in `CommonMarkConverter`, `GithubFlavoredMarkdownConverter`, or `GithubFlavoredMarkdownExtension`. **Applications that do not register `AttributesExtension` are not affected by this advisory.**\n\nTwo paths in the extension re-process every attribute a node has already collected each time another attribute is applied to it. When the attributes carry distinct names, the",
+        "vuln_symbols": [
+          "AttributesExtension",
+          "Environment",
+          "CommonMarkConverter",
+          "GithubFlavoredMarkdownConverter",
+          "GithubFlavoredMarkdownExtension",
+          "array_merge"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AttributesExtension never registered (General.php:160 GFM only; Mail/Markdown.php:188-189).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#25",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-105829",
+            "GHSA-97jj-33gv-5xf9"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: DisallowedRawHtml bypassed when a disallowed tag name ends the raw-HTML literal \u2014 \ufeff## Summary\n\nThe `DisallowedRawHtml` extension does not escape a disallowed tag when the tag name is the last thing in the raw HTML. A Markdown line containing just `<script` is emitted unchanged, and the next block can supply its attributes. With the shipped GFM defaults this allows stored XSS by anyone who can post Markdown.\n\n## Details\n\n`DisallowedRawHtmlRenderer` escapes tags with this regex:\n\n```\n/<(\\/?(?:title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext)[\\s\\/>])/i\n```\n\nThe",
+        "vuln_symbols": [
+          "DisallowedRawHtml",
+          "DisallowedRawHtmlRenderer",
+          "HtmlBlock",
+          "GithubFlavoredMarkdownConverter",
+          "html_input",
+          "allow"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.10.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Bypass needs raw HTML passed through; html_input=>'escape' (app/Support/Twig/General.php:164) escapes every raw HTML literal (src/Util/HtmlFilter.php:47-48), so the '<script' tail is rendered as &lt;script.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#26",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-86431",
+            "GHSA-f8fg-pg57-v4j8"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark XSS: `on*` event-handler filter in `AttributesExtension` bypassed with a U+000C form feed \u2014 ### Summary\n\nThe `AttributesExtension` documents a security guarantee:\n\n> **Note:** Attributes starting with `on` (e.g. `onclick` or `onerror`) are capable of executing\n> JavaScript code and are therefore **never allowed by default**. You must explicitly add them to\n> the `allow` list if you want to use them.\n>\n> \u2014 `docs/2.x/extensions/attributes.md`\n\nPrefixing the attribute name with a single U+000C FORM FEED byte defeats that guarantee.\n`{<FF>onclick=\"alert(1)\"}` passes through `Attr",
+        "vuln_symbols": [
+          "AttributesExtension",
+          "on",
+          "onclick",
+          "onerror",
+          "allow",
+          "allow_unsafe_links"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [
+          "account takeover"
+        ],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AttributesExtension not registered (General.php:160; GithubFlavoredMarkdownExtension.php:27-31).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#27",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-g2gp-3wwq-f4ph"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service via adjacent inline attribute blocks \u2014 ### Impact\n\nWith the Attributes extension enabled, `AttributesListener::findTargetAndDirection()` resolves each attribute node's target by walking outward through its siblings. For a run of N adjacent inline attribute blocks placed at the start of a block (with nothing to their left), each node scans the **entire** sibling list to the far-right end before giving up and falling back to the parent. Each resolution is therefore \u0398(N) and the whole run is **\u0398(N\u00b2)**.\n\nReaching the path requires `AttributesExtension` (opt-in,",
+        "vuln_symbols": [
+          "AttributesExtension",
+          "allow_unsafe_links"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "AttributesExtension not registered (General.php:160; GithubFlavoredMarkdownExtension.php:27-31).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#28",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-33347",
+            "GHSA-hh8v-hgvp-g3f5"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark has an embed extension allowed_domains bypass \u2014 ### Impact\n\nThe `DomainFilteringAdapter` in the Embed extension is vulnerable to an allowlist bypass due to a missing hostname boundary assertion in the domain-matching regex. An attacker-controlled domain like `youtube.com.evil` passes the allowlist check when `youtube.com` is an allowed domain.\n\nThis enables two attack vectors:\n\n- **SSRF**: The `OscaroteroEmbedAdapter` makes server-side HTTP requests to the embed URL via the `embed/embed` library. A bypassed domain filter causes the server to make outbound requests to an attac",
+        "vuln_symbols": [
+          "DomainFilteringAdapter",
+          "youtube.com.evil",
+          "youtube.com",
+          "OscaroteroEmbedAdapter",
+          "EmbedRenderer",
+          "Embed"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.8.2"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Embed extension / DomainFilteringAdapter not registered anywhere (General.php:160 GFM only; Mail/Markdown.php:188-189).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#29",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-86430",
+            "GHSA-j8pm-gj4c-rq4x"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service via crafted code fences, reference links, and emphasis delimiters \u2014 ### Impact\n\nAffected versions of `league/commonmark` perform super-linear work on three independent parsing paths, all of which are reachable on a stock `new CommonMarkConverter()` with default configuration and no extensions registered. Each trigger fits on a single line of input, so no complex Markdown structure is required.\n\nThe three paths were introduced at different times. This advisory's version range is their union; the individual ranges are:\n\n| Path | Affected from | Affected throu",
+        "vuln_symbols": [
+          "_",
+          "FencedCodeStartParser",
+          "x",
+          "preg_last_error",
+          "pcre.backtrack_limit",
+          "trim"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Paths are in the stock core parser; Twig markdown filter converts user-controlled notes with GFM converter (app/Support/Twig/General.php:155-168) in views such as transactions/show.twig, accounts/show.twig; logged-in attacker controls the text.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#30",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-jfm3-95jq-q3rf"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark:  Denial of service via duplicate footnote definitions \u2014 ### Impact\n\nThe Footnote extension records one backref per footnote *reference* and then appends the **entire** backref list for **every** footnote *definition* block in the document, without ever de-duplicating or removing repeated definitions of the same label (`GatherFootnotesListener`, populated by `NumberFootnotesListener`). A document that references a single label N times and also supplies N duplicate `[^a]:` definitions of that label therefore produces **N \u00d7 N** `FootnoteBackref` nodes, so output size, parse tim",
+        "vuln_symbols": [
+          "GatherFootnotesListener",
+          "NumberFootnotesListener",
+          "FootnoteBackref",
+          "FootnoteExtension",
+          "Environment"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "FootnoteExtension not registered (General.php:160; GithubFlavoredMarkdownExtension.php:27-31).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#31",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-86429",
+            "GHSA-jjv6-8j6v-6j52"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service in the SmartPunct and Attributes extensions \u2014 ### Impact\n\nTwo first-party extensions contain quadratic parsing paths. Both ship with the library but must be explicitly registered on the `Environment`; neither is included in `CommonMarkConverter`, `GithubFlavoredMarkdownConverter`, or `GithubFlavoredMarkdownExtension`. **Applications that do not register `SmartPunctExtension` or `AttributesExtension` are not affected by this advisory.**\n\n**1. `SmartPunctExtension` \u2014 quote replacement recopies the whole text node (affected from 2.0.0).**\n\n`ReplaceUnpairedQuot",
+        "vuln_symbols": [
+          "Environment",
+          "CommonMarkConverter",
+          "GithubFlavoredMarkdownConverter",
+          "GithubFlavoredMarkdownExtension",
+          "SmartPunctExtension",
+          "AttributesExtension"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.1"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Neither SmartPunctExtension nor AttributesExtension registered (General.php:160; GFM list GithubFlavoredMarkdownExtension.php:27-31; Mail/Markdown.php:188-189).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#32",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-86434",
+            "GHSA-mh25-x5hq-wrqp"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service via colliding heading slugs \u2014 ### Impact\n\n`UniqueSlugNormalizer::normalize()` makes each slug document-unique by searching for an unused numeric suffix, but **restarts that search from `1` on every collision**. The k-th heading that collapses to the same base slug performs k\u22121 array lookups, so K colliding slugs cost \u03a3(k\u22121) = **O(K\u00b2)**. An attacker can force every heading onto a single base slug trivially \u2014 many empty ATX headings, identical heading text, or punctuation-only headings that normalize to the empty string.\n\nThe path is reached whenever the shar",
+        "vuln_symbols": [
+          "HeadingPermalinkExtension",
+          "HeadingPermalinkProcessor",
+          "FootnoteExtension",
+          "AnonymousFootnoteRefParser",
+          "TableOfContentsExtension",
+          "UniqueSlugNormalizer"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "UniqueSlugNormalizer::normalize is called only by HeadingPermalink (src/Extension/HeadingPermalink/HeadingPermalinkProcessor.php:45) and Footnote (Footnote/Parser/AnonymousFootnoteRefParser.php:64) / TOC; none registered in GFM converter (General.php:160) or Laravel mail Markdown.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#33",
+      "facts": {
+        "package": "league/commonmark",
+        "version": "2.7.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "GHSA-mj63-m3rc-8ppr"
+          ],
+          [
+            "league/commonmark"
+          ]
+        ],
+        "advisory_summary": "league/commonmark: Denial of service via deeply nested XML output \u2014 ### Impact\n\n`XmlRenderer` pretty-prints XML by emitting depth-proportional indentation whitespace for **every** opening and closing tag. For a tree of depth n, the indentation alone sums to **O(n\u00b2)** bytes of output (and corresponding memory), reachable through `MarkdownToXmlConverter` \u2014 e.g. `str_repeat('> ', $depth) . \"x\\n\"`, a single line of nested blockquotes \u2014 or through a direct `XmlRenderer::renderDocument()` call on an attacker-influenced AST.\n\nThis affects applications that convert untrusted Markdown to XML, which is ",
+        "vuln_symbols": [
+          "XmlRenderer",
+          "MarkdownToXmlConverter",
+          "max_nesting_level"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "2.9.0"
+        ],
+        "severity": "MODERATE",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "No MarkdownToXmlConverter/XmlRenderer use; app renders HTML only (General.php:168).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#34",
+      "facts": {
+        "package": "league/flysystem",
+        "version": "3.29.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-102601",
+            "GHSA-cxf4-7mrp-vvpr"
+          ],
+          [
+            "league/flysystem"
+          ]
+        ],
+        "advisory_summary": "Flysystem: WhitespacePathNormalizer's control-character (CorruptedPathDetected) check is bypassed by malformed UTF-8 in the path, affecting every adapter \u2014 ## Related public issue (context, not a duplicate)\n\nClosed issue #1429 (\"Handle non-UTF-8 paths\", 2024-03-24) raised exactly this general concern and\neven suggested detection via `preg_match('//u', $path) !== 1` -- note the reporter's suggested check\nexplicitly compares `!== 1`, which *would* correctly treat PCRE's `false` return as \"reject.\" The\nmaintainer's reply pointed to the `PathNormalizer` interface as the place to implement this. Th",
+        "vuln_symbols": [
+          "PathNormalizer",
+          "WhitespacePathNormalizer",
+          "normalizePath",
+          "Filesystem",
+          "preg_match",
+          "if"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.35.3"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Flysystem only used via Laravel local disks (config/filesystems.php:55-91). All paths are app-generated: attachments use sprintf('at-%s.data', id) (app/Models/Attachment.php:94-97; AttachmentHelper.php:71,163,249; AttachmentRepository.php:57-92); other disk uses are fixed resource paths (VerifySecurityAlerts.php:52). No user-controlled path reaches WhitespacePathNormalizer.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#35",
+      "facts": {
+        "package": "phpseclib/phpseclib",
+        "version": "3.0.43",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-44167",
+            "GHSA-3qpq-r242-jqj7"
+          ],
+          [
+            "phpseclib/phpseclib"
+          ]
+        ],
+        "advisory_summary": "phpseclib has a CVE-2024-27355 mitigation bypass \u2014 OID amplification DoS in ASN1::decodeOID() \u2014 ### Impact\nAnyone loading untrusted ASN1 files (eg. X509 certificates, RSA PKCS8 private or public keys, etc)\n\n### Patches\nhttps://github.com/phpseclib/phpseclib/commit/d53d2021bcb9f6a04d5d44ec99e6bbef219a71bc\n\n### Workarounds\nNo.\n\n### References\nhttps://github.com/phpseclib/phpseclib/commit/d53d2021bcb9f6a04d5d44ec99e6bbef219a71bc",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.29",
+          "2.0.54",
+          "3.0.52"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "phpseclib (prod, required only by laravel/passport) is used only for RSA key generation: app/Support/Http/Controllers/CreateStuff.php:105 and app/Http/Controllers/System/InstallController.php:163 RSA::createKey(4096) + export; passport src/Console/KeysCommand.php:45 (artisan). Passport/oauth2-server load keys via openssl/lcobucci, not phpseclib. No ASN1 decoding of untrusted X509/keys (no X509/ASN1 load calls).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#36",
+      "facts": {
+        "package": "phpseclib/phpseclib",
+        "version": "3.0.43",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-32935",
+            "GHSA-94g3-g5v7-q4jg"
+          ],
+          [
+            "phpseclib/phpseclib"
+          ]
+        ],
+        "advisory_summary": "phpseclib's AES-CBC unpadding susceptible to padding oracle timing attack \u2014 ### Impact\nThose using AES in CBC mode may be susceptible to a padding oracle timing attack.\n\n### Patches\nhttps://github.com/phpseclib/phpseclib/commit/ccc21aef71eb170e9bf819b167e67d1fd9e6e788\n\n### Workarounds\nUse AES in CTR, CFB or OFB modes\n\n### References\nhttps://github.com/phpseclib/phpseclib/commit/ccc21aef71eb170e9bf819b167e67d1fd9e6e788",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.27",
+          "2.0.52",
+          "3.0.50"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "phpseclib (prod, required only by laravel/passport) is used only for RSA key generation: app/Support/Http/Controllers/CreateStuff.php:105 and app/Http/Controllers/System/InstallController.php:163 RSA::createKey(4096) + export; passport src/Console/KeysCommand.php:45 (artisan). Passport/oauth2-server load keys via openssl/lcobucci, not phpseclib. No AES/CBC decryption via phpseclib anywhere.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#37",
+      "facts": {
+        "package": "phpseclib/phpseclib",
+        "version": "3.0.43",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-55599",
+            "GHSA-m557-wrgg-6rp4"
+          ],
+          [
+            "phpseclib/phpseclib"
+          ]
+        ],
+        "advisory_summary": "phpseclib: X.509 certificate validation sends attacker-controlled outbound requests (server-side request forgery) via Authority Information Access \u2014 ### Summary\n\nWhen an application validates an untrusted X.509 certificate with phpseclib, **X509::validateSignature()** reads a URL out of that certificate's Authority Information Access (AIA) extension and connects to it. Attacker who supplies certificate fully controls host, port, and path of that connection. URL fetching is enabled by default, and no destination is blocked. An unauthenticated attacker can therefore make a validating server open",
+        "vuln_symbols": [],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.30",
+          "2.0.55",
+          "3.0.54"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "phpseclib (prod, required only by laravel/passport) is used only for RSA key generation: app/Support/Http/Controllers/CreateStuff.php:105 and app/Http/Controllers/System/InstallController.php:163 RSA::createKey(4096) + export; passport src/Console/KeysCommand.php:45 (artisan). Passport/oauth2-server load keys via openssl/lcobucci, not phpseclib. X509::validateSignature never called; no certificate handling via phpseclib.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#38",
+      "facts": {
+        "package": "phpseclib/phpseclib",
+        "version": "3.0.43",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-84308",
+            "GHSA-q97c-8qh3-fpc6"
+          ],
+          [
+            "phpseclib/phpseclib"
+          ]
+        ],
+        "advisory_summary": "phpseclib \u2014 non-constant-time X25519 scalar multiplication permits full private-key recovery \u2014 The pure-PHP X25519 scalar multiplication in phpseclib is not constant-time. Field addition and subtraction each perform a **data-dependent conditional modular reduction**, so the cost of each Montgomery-ladder step is a linear function of that step's reduction count which is a quantity determined by the secret scalar's *prefix*.\n\nAn observer with per-ladder-step resolution recovers the 251-bit clamped private scalar. This is a per-step leak, not an aggregate one: an instrumented code proof-of-concep",
+        "vuln_symbols": [
+          "add",
+          "subtract",
+          "doubleAndAddPoint",
+          "MontgomeryPrivate",
+          "c",
+          "IS_INVISIBLE"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.0.57",
+          "4.0.1"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 0.94
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "phpseclib (prod, required only by laravel/passport) is used only for RSA key generation: app/Support/Http/Controllers/CreateStuff.php:105 and app/Http/Controllers/System/InstallController.php:163 RSA::createKey(4096) + export; passport src/Console/KeysCommand.php:45 (artisan). Passport/oauth2-server load keys via openssl/lcobucci, not phpseclib. No X25519/EC usage.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#39",
+      "facts": {
+        "package": "phpseclib/phpseclib",
+        "version": "3.0.43",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-40194",
+            "GHSA-r854-jrxh-36qx"
+          ],
+          [
+            "phpseclib/phpseclib"
+          ]
+        ],
+        "advisory_summary": "phpseclib has a variable-time HMAC comparison in SSH2::get_binary_packet() using != instead of hash_equals() \u2014 # phpseclib SSH2: Variable-time comparison in HMAC verification\n\n## Summary\n\n`phpseclib\\Net\\SSH2::get_binary_packet()` uses PHP's `!=` operator to compare a received SSH packet HMAC against the locally computed HMAC. `!=` on equal-length binary strings in PHP uses `memcmp()`, which short-circuits on the first differing byte. This is a real variable-time comparison (CWE-208), proven by scaling benchmarks.\n\nThe finding is **Low severity (defense-in-depth)**, not Critical. Practical expl",
+        "vuln_symbols": [
+          "memcmp",
+          "hash_equals",
+          "e819a163c",
+          "master",
+          "$hmac",
+          "zend_binary_strcmp"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.0.28",
+          "2.0.53",
+          "3.0.51"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "phpseclib (prod, required only by laravel/passport) is used only for RSA key generation: app/Support/Http/Controllers/CreateStuff.php:105 and app/Http/Controllers/System/InstallController.php:163 RSA::createKey(4096) + export; passport src/Console/KeysCommand.php:45 (artisan). Passport/oauth2-server load keys via openssl/lcobucci, not phpseclib. No Net\\SSH2 (no SFTP flysystem adapter installed).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#40",
+      "facts": {
+        "package": "phpunit/phpunit",
+        "version": "12.1.6",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24765",
+            "GHSA-vvj3-c3rp-c85p"
+          ],
+          [
+            "phpunit/phpunit"
+          ]
+        ],
+        "advisory_summary": "PHPUnit Vulnerable to Unsafe Deserialization in PHPT Code Coverage Handling \u2014 ### Overview\n\nA vulnerability has been discovered involving unsafe deserialization of code coverage data in PHPT test execution. The vulnerability exists in the `cleanupForCoverage()` method, which deserializes code coverage files without validation, potentially allowing remote code execution if malicious `.coverage` files are present prior to the execution of the PHPT test.\n\n### Technical Details\n\n**Affected Component:** PHPT test runner, method `cleanupForCoverage()`\n**Affected Versions:** <= 8.5.51, <= 9.6.32, <= ",
+        "vuln_symbols": [
+          "cleanupForCoverage",
+          "allowed_classes",
+          "__wakeup"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "10.5.62",
+          "11.5.50",
+          "12.5.8",
+          "8.5.52",
+          "9.6.33"
+        ],
+        "severity": "HIGH",
+        "direct": true,
+        "dev": true,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Dev-only (packages-dev); production builds use --no-dev (.github/workflows/release.yml:158, project docs per brief); PHPT coverage runner only runs under test execution anyway.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#41",
+      "facts": {
+        "package": "predis/predis",
+        "version": "3.0.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-84372",
+            "GHSA-w6f5-v2h6-g786"
+          ],
+          [
+            "predis/predis"
+          ]
+        ],
+        "advisory_summary": "Predis: Redis command injection and denial of service via CRLF smuggling in pipelined commands on aggregate connections \u2014 ### Summary\n\nAn improper CRLF neutralization flaw in Predis' pipeline handling on\naggregate connections lets an unauthenticated attacker who can influence any\npipelined argument \u2014 a value **or** a key, e.g. a URL slug used as a cache key \u2014\nsmuggle arbitrary Redis commands into the connection.\n\n- On **cluster** connections (`cluster` option, incl. client-side sharding) this\n  is remote command injection: shard-wide `FLUSHDB`, targeted `DEL`/`SET`,\n  same-slot key theft via `",
+        "vuln_symbols": [
+          "cluster",
+          "FLUSHDB",
+          "DEL",
+          "SET",
+          "GET",
+          "replication"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.3.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": true,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Predis used only when operator picks redis (CACHE_DRIVER/SESSION_DRIVER default file, .env.example:121-122). config/database.php:133-159 defines only single 'default'/'cache' servers (assoc arrays) and no 'clusters' key, so Predis Client::createConnection (src/Client.php:133-134) builds a single connection; the 'cluster' option (database.php:136) only applies to a list of servers. Aggregate (cluster/replication) connections required by the advisory are never created.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#42",
+      "facts": {
+        "package": "symfony/cache",
+        "version": "7.2.6",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45073",
+            "GHSA-6qh9-h6wf-jgqc"
+          ],
+          [
+            "symfony/cache"
+          ]
+        ],
+        "advisory_summary": "Symfony Vulnerable to SQL Injection in PdoAdapter::doClear() via Unsanitized $prefix \u2014 ### Description\n\n`Symfony\\Component\\Cache\\Adapter\\PdoAdapter` is the PDO-backed cache adapter. Its `clear($prefix)` method (inherited from `AbstractAdapterTrait`) is documented to delete cache items whose key starts with `$prefix`.\n\nIn the non-versioning code path, the caller-supplied `$prefix` is concatenated into `$namespace = $this->namespace.$prefix` and passed to `PdoAdapter::doClear()`, which builds:\n\n```sql\nDELETE FROM <table> WHERE <id_col> LIKE '<namespace>%'\n```\n\nThe value is interpolated directly ",
+        "vuln_symbols": [
+          "AbstractAdapterTrait",
+          "$prefix",
+          "$namespace",
+          "LIKE"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "symfony/cache only pulled by symfony/expression-language, which uses ArrayAdapter (expression-language ExpressionLanguage.php:39); app builds new ExpressionLanguage() with no cache (app/Providers/FireflyServiceProvider.php:194); Laravel cache does not use Symfony PdoAdapter; no PdoAdapter reference in app or checked package sources.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#43",
+      "facts": {
+        "package": "symfony/http-foundation",
+        "version": "7.2.6",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48736",
+            "GHSA-38cx-cq6f-5755"
+          ],
+          [
+            "symfony/http-foundation"
+          ]
+        ],
+        "advisory_summary": "Symfony: IpUtils::PRIVATE_SUBNETS Omits IPv6 Transition Forms (6to4, NAT64, Teredo, IPv4-compatible): SSRF Bypass in NoPrivateNetworkHttpClient \u2014 ### Description\n\n`Symfony\\Component\\HttpClient\\NoPrivateNetworkHttpClient` is documented as a decorator that blocks requests to private networks by default. The list of blocked subnets (`Symfony\\Component\\HttpFoundation\\IpUtils::PRIVATE_SUBNETS` on 6.4+, a private constant in `NoPrivateNetworkHttpClient` on 5.4) enumerates RFC1918, loopback, link-local and IPv4-mapped IPv6 (`::ffff:0:0/96`) prefixes, but omits the remaining IPv6 transition forms that",
+        "vuln_symbols": [
+          "NoPrivateNetworkHttpClient"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "6.4.41",
+          "7.4.13",
+          "8.0.13"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Advisory is an SSRF bypass in Symfony HttpClient NoPrivateNetworkHttpClient using IpUtils::PRIVATE_SUBNETS. No use of NoPrivateNetworkHttpClient, IpUtils or PRIVATE_SUBNETS in app/, config/, bootstrap/ or laravel/framework src; outbound HTTP uses Guzzle without private-network filtering.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#44",
+      "facts": {
+        "package": "symfony/http-foundation",
+        "version": "7.2.6",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2025-64500",
+            "GHSA-3rg7-wf37-54rm"
+          ],
+          [
+            "symfony/http-foundation"
+          ]
+        ],
+        "advisory_summary": "Symfony's incorrect parsing of PATH_INFO can lead to limited authorization bypass \u2014 ### Description\n\nThe `Request` class improperly interprets some `PATH_INFO` in a way that leads to representing some URLs with a path that doesn't start with a `/`. This can allow bypassing some access control rules that are built with this `/`-prefix assumption.\n\n### Resolution\n\nThe `Request` class now ensures that URL paths always start with a `/`.\n\nThe patch for this issue is available [here](https://github.com/symfony/symfony/commit/9962b91b12bb791322fa73836b350836b6db7cac) for branch 5.4.\n\n### Credits\n\nWe ",
+        "vuln_symbols": [
+          "Request",
+          "PATH_INFO"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.50",
+          "6.4.29",
+          "7.3.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Every HTTP request goes through Symfony Request; http-foundation 7.2.6 Request.php:1894-1904 preparePathInfo returns substr after baseUrl without forcing a leading '/', the unfixed code. Firefly is often deployed in a subdirectory (root index.php + public/), and route/middleware matching runs on that path from unauthenticated requests. Impact depends on prefix-based checks, so medium.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#45",
+      "facts": {
+        "package": "symfony/http-foundation",
+        "version": "7.2.6",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-108082",
+            "GHSA-r925-mgvr-h9cc"
+          ],
+          [
+            "symfony/http-foundation"
+          ]
+        ],
+        "advisory_summary": "Symfony: ReDoS in HeaderUtils::split() Reachable Through the Cache-Control Request Header \u2014 ### Description\n\n`HeaderUtils::split()` parsed header values with a pattern whose token alternative also matched whitespace, followed by a `(?<!\\s)` lookbehind. A run of whitespace placed before a separator could be divided among the iterations of the enclosing repetition in exponentially many ways, and the engine tried all of them before settling. `HeaderBag` calls it for the `Cache-Control` header whenever a `Request` is built, so any application handling HTTP requests is reachable, with no authentica",
+        "vuln_symbols": [
+          "HeaderBag",
+          "Request",
+          "preg_match_all",
+          "pcre.backtrack_limit",
+          "split"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.54",
+          "6.4.46",
+          "7.4.19",
+          "8.1.7"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "HeaderBag parses Cache-Control on every Request (HeaderBag.php:150-151, 180 -> parseCacheControl :267-269 -> HeaderUtils::split with the vulnerable (?!\\s)...(?<!\\s) pattern, HeaderUtils.php:51-68). Unauthenticated client controls the Cache-Control header on any route.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#46",
+      "facts": {
+        "package": "symfony/mailer",
+        "version": "7.2.6",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45068",
+            "GHSA-xx3c-qf5g-hc39"
+          ],
+          [
+            "symfony/mailer"
+          ]
+        ],
+        "advisory_summary": "Symfony has an Argument Injection in SendmailTransport via Dash-Prefixed Recipient Address \u2014 ### Description\n\nSymfony Mailer selects a transport via the `MAILER_DSN` environment variable / configuration (e.g. `smtp://...`, `sendmail://...`, `native://default`). `SendmailTransport` invokes the local `sendmail` binary and supports two modes: `-bs` (speak SMTP over stdin: the default) and `-t` (read the message on stdin, pass recipients as command-line arguments).\n\nIn `-t` mode, recipient addresses are appended to the sendmail command line **without a `--` end-of-options separator**. A recipient ",
+        "vuln_symbols": [
+          "MAILER_DSN",
+          "SendmailTransport",
+          "sendmail"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "SendmailTransport used when MAIL_MAILER=sendmail (config/mail.php:73-75); default command '/usr/sbin/sendmail -bs' is not vulnerable, but MAIL_SENDMAIL_COMMAND is documented (.env.example:165) and operators can set a -t command. Recipients are user-supplied email addresses (registration RegisterController.php:95-96 takes $request->all() with only 'email' rule, UserRegistrationRequest.php:54; profile email change EmailFormRequest.php:47), and a dash-prefixed local part passes the email rule.",
+        "confidence": "low",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "MAIL_MAILER=sendmail with MAIL_SENDMAIL_COMMAND using -t (.env.example:158,165)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#47",
+      "facts": {
+        "package": "symfony/mime",
+        "version": "7.2.6",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45067",
+            "GHSA-qpmx-3rfj-7rhv"
+          ],
+          [
+            "symfony/mime"
+          ]
+        ],
+        "advisory_summary": "Symfony has Email Header / SMTP Command Injection via CRLF in Symfony\\Component\\Mime\\Address \u2014 ### Description\n\n`Symfony\\Component\\Mime\\Address` is the value-object every Symfony Mailer address (to/cc/bcc/from/reply-to) flows through; its constructor is documented as validating the address and throwing on invalid input, so developers treat it as a security boundary.\n\nThe constructor accepts email addresses whose local-part (the part before `@`) is an RFC-5322 *quoted string* containing raw `\\r\\n` bytes, e.g. `\"x\\r\\nBcc: attacker@evil\"@example.com`. The stored address is later emitted verbatim ",
+        "vuln_symbols": [
+          "SmtpTransport",
+          "Address"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "reachable",
+        "note": "Laravel mail notifications build Symfony Mime Address from user email addresses. Registration passes the raw request email (RegisterController.php:95-96, CreateStuff.php:144) validated only by Laravel 'email' (egulias RFC, the same check Address uses, which the advisory says accepts quoted local-parts with CRLF); the new user gets mail via RegisteredUser event. Profile change uses convertString which strips CR/LF (ConvertsDataTypes.php:112), so registration is the path: open on a fresh install, when single-user mode is turned off, or with an invite code. Real delivery needs a mail transport (default MAIL_MAILER=log).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)",
+        "requires": "MAIL_MAILER=smtp/mailgun/etc. (.env.example:158); registration open (single_user_mode off in admin settings, or invite code)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#48",
+      "facts": {
+        "package": "symfony/mime",
+        "version": "7.2.6",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45070",
+            "GHSA-vqc8-7275-q272"
+          ],
+          [
+            "symfony/mime"
+          ]
+        ],
+        "advisory_summary": "Symfony has Email Header Injection via Non-Token Characters in Mime Parameter Names \u2014 ### Description\n\n`Symfony\\Component\\Mime\\Header\\ParameterizedHeader` (and the related parameter handling reachable from `Symfony\\Component\\Mime\\Header\\Headers`) is responsible for serializing structured headers such as `Content-Type` and `Content-Disposition`, which carry `key=value` parameters (e.g. `Content-Disposition: attachment; filename=\"x\"`).\n\nRFC 2045 / RFC 5322 require parameter *names* to be `tokens`: a restricted ASCII subset that excludes whitespace, CR/LF, and the `tspecials` set. Symfony's param",
+        "vuln_symbols": [
+          "tokens",
+          "tspecials",
+          "ParameterizedHeader",
+          "token"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Requires attacker-controlled MIME parameter names in ParameterizedHeader. Firefly/Laravel set only fixed parameter names (charset, filename, name, boundary); no app code adds custom header parameters (no Mime Header usage in app/). User data can reach parameter values at most, not names.",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#49",
+      "facts": {
+        "package": "symfony/polyfill-intl-idn",
+        "version": "1.32.0",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46644",
+            "GHSA-2xf4-cg6j-vhgq"
+          ],
+          [
+            "symfony/polyfill-intl-idn"
+          ]
+        ],
+        "advisory_summary": "symfony/polyfill-intl-idn: xn-- labels with ASCII-only Punycode payloads are treated as equivalent to their decoded form \u2014 ### Description\n\n`symfony/polyfill-intl-idn` provides a userland implementation of `idn_to_utf8()` and `idn_to_ascii()` for runtimes that lack the `intl` extension. Its `Idn::process()` method decodes labels prefixed with `xn--` using Punycode but never enforces the validity criterion added in UTS #46 revision 33 Section 4 step 4.1.2: after a successful Punycode decode, the result must contain at least one non-ASCII code point.\n\nAs a consequence, `xn--` labels whose Punyco",
+        "vuln_symbols": [
+          "idn_to_utf8",
+          "idn_to_ascii",
+          "intl",
+          "IDNA_ERROR_INVALID_ACE_LABEL",
+          "poc.kc1zs4.com"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "1.38.1"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "composer.json requires ext-intl (line 73), so native idn_to_ascii/idn_to_utf8 exist and the polyfill's function shims (defined only if !function_exists) never load; no code calls Symfony\\Polyfill\\Intl\\Idn\\Idn directly (egulias/email-validator, symfony/mime use the functions).",
+        "confidence": "medium",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#50",
+      "facts": {
+        "package": "symfony/routing",
+        "version": "7.2.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-45065",
+            "GHSA-72xp-p242-47p9"
+          ],
+          [
+            "symfony/routing"
+          ]
+        ],
+        "advisory_summary": "Symfony has a UrlGenerator Route-Requirement Bypass via Unanchored Regex Alternation \u2192 Off-Site //host URL Injection \u2014 ### Description\n\nSymfony routes can declare a requirements regex per path parameter, e.g. a route `/{_locale}/blog` with `requirements: { _locale: 'en|fr|de' }`. The Twig `path()` / `url()` helpers (backed by `UrlGenerator`) validate supplied parameter values against that regex before building the URL.\n\nUrlGenerator constructs the validation pattern as `'#^'.$req.'$#'`, where `$req` is the raw requirement string. For a requirement expressed as an alternation, e.g. `_locale: 'a",
+        "vuln_symbols": [
+          "path",
+          "url",
+          "UrlGenerator",
+          "$req",
+          "$",
+          "vi"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.52",
+          "6.4.40",
+          "7.4.12",
+          "8.0.12"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Symfony UrlGenerator unused: Laravel uses its own Illuminate\\Routing\\UrlGenerator and only Symfony's RouteCompiler/matcher; no Symfony\\Component\\Routing\\Generator reference in app or laravel/framework src.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#51",
+      "facts": {
+        "package": "symfony/routing",
+        "version": "7.2.3",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48784",
+            "GHSA-h5x3-xfc9-m39h"
+          ],
+          [
+            "symfony/routing"
+          ]
+        ],
+        "advisory_summary": "Symfony: UrlGenerator Dot-Segment Encoding Skips Every Other Chained `../` or `./` \u2192 Generated URL Collapses Off-Route Under RFC 3986 Normalization \u2014 ### Description\n\n`Symfony\\Component\\Routing\\Generator\\UrlGenerator::doGenerate()` percent-encodes `.` and `..` path segments so that the generated URL still resolves to the originating route after RFC 3986 \u00a75.2.4 dot-segment removal (which strict RFC-3986 consumers \u2014 routers, reverse proxies, HTTP clients \u2014 perform *before* percent-decoding).\n\nThe encoding was implemented as `strtr($url, ['/../' => '/%2E%2E/', '/./' => '/%2E/'])` plus a trailing-",
+        "vuln_symbols": [
+          "strtr",
+          "path",
+          "url",
+          "UrlGenerator",
+          "preg_replace_callback"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "5.4.53",
+          "6.4.41",
+          "7.4.13",
+          "8.0.13"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "Symfony UrlGenerator::doGenerate unused (Laravel generates URLs with Illuminate\\Routing\\UrlGenerator); no Symfony Routing\\Generator reference in app or framework src.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#52",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46634",
+            "GHSA-24x9-r6q4-q93w"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: `template_from_string()` escapes a SourcePolicy-driven sandbox via synthesized template name \u2014 ### Description\n\nWhen the sandbox is enabled selectively via `SourcePolicyInterface` (and not globally), a sandboxed template that is allowed to call `template_from_string` and `include` can render an arbitrary inner template with no security policy enforcement.\n\n`Environment::createTemplate()` compiles the inner string under a synthesized name (`__string_template__<hash>`), so a name/path-based `SourcePolicy` returns `false` for it, and the inner template's `checkSecurity()` becomes a no-op. F",
+        "vuln_symbols": [
+          "template_from_string",
+          "SourcePolicyInterface",
+          "include",
+          "SourcePolicy",
+          "checkSecurity",
+          "constant"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Sandbox/SourcePolicy and template_from_string not used.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#53",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47730",
+            "GHSA-2g2g-8p8h-fgwm"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: XSS in profiler HtmlDumper via unescaped template and profile names \u2014 ### Description\n\n`Twig\\Profiler\\Dumper\\HtmlDumper` writes `Profile::getTemplate()` and `Profile::getName()` straight into its HTML output without escaping:\n\n```php\nprotected function formatTemplate(Profile $profile, $prefix): string\n{\n    return \\sprintf('%s\u2514 <span style=\"background-color: %s\">%s</span>', $prefix, self::$colors['template'], $profile->getTemplate());\n}\n```\n\nThe template name comes from the loader (the array key for `ArrayLoader`, a row id for a database-backed loader, etc.). When that name is attacker-c",
+        "vuln_symbols": [
+          "ArrayLoader",
+          "HtmlDumper",
+          "htmlspecialchars"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Twig profiler HtmlDumper never used in production (no ProfilerExtension).",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#54",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-24425",
+            "GHSA-2q52-x2ff-qgfr"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Possible sandbox bypass when using a source policy \u2014 # Description\n\nWhen using the sandbox with a `SourcePolicyInterface`, Twig does not always apply the sandbox restriction that forbids non-`Closure` callbacks for callback-accepting filters.\n\nThe issue affects the `sort`, `filter`, `map`, and `reduce` filters.\n\nIn the affected versions, the runtime check that rejects non-`Closure` callbacks in sandbox mode does not use the current template `Source`. As a result, when the sandbox is enabled through a source policy instead of being enabled globally, Twig can incorrectly treat the current ",
+        "vuln_symbols": [
+          "SourcePolicyInterface",
+          "Closure",
+          "sort",
+          "filter",
+          "map",
+          "reduce"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. No sandbox/SourcePolicy.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#55",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46640",
+            "GHSA-45vw-wh46-2vx8"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Arbitrary PHP code execution via `_self.(<string>)` macro-reference compilation \u2014 ### Description\n\nThe `obj.(expr)` dynamic-attribute syntax (added in 3.15.0 as the replacement for the deprecated `attribute()` function) lets the attribute be an arbitrary expression. When the receiver is `_self` (or any `{% import %}` alias) and the parenthesised expression is a string literal, `DotExpressionParser` short-circuits to the macro-call path and concatenates the attacker-controlled string into a `MacroReferenceExpression` name with no identifier validation. `MacroReferenceExpression::compile()",
+        "vuln_symbols": [
+          "attribute",
+          "_self",
+          "DotExpressionParser",
+          "MacroReferenceExpression",
+          "checkSecurity",
+          "SandboxExtension"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Needs attacker-authored template source; users cannot supply templates.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#56",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46628",
+            "GHSA-4j38-f5cw-54h7"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: The `spaceless` filter implicitly marks its output as safe \u2014 ### Description\n\nThe `spaceless` filter is registered with `is_safe => ['html']`, which means Twig's autoescaper does not escape its output in an HTML context. As a result, applying `spaceless` to attacker-controlled input that contains markup emits the markup unescaped even when the developer never wrote `|raw` and autoescape is enabled.\n\nExample:\n\n```twig\n{% set payload = '<script>alert()</script>' %}\n{{ payload }}          {# escaped #}\n{{ payload|spaceless }} {# not escaped #}\n```\n\nThe filter is deprecated but still functio",
+        "vuln_symbols": [
+          "spaceless",
+          "is_safe"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. grep of resources/views finds no 'spaceless' filter usage.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#57",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-49981",
+            "GHSA-529h-vh3j-85hq"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox filter, tag and function allow-list bypass when sandbox state changes between renders for a cached `Template` \u2014 ### Description\n\nThe per-template filter, tag and function allow-list check is compiled into the `checkSecurity()` method of each `Template` subclass and was invoked once from the constructor, gated by `SandboxExtension::isSandboxed($source)`. `Template` instances are then cached on the `Environment` in `$loadedTemplates`, so the verdict computed at construction time was sticky for the rest of the process.\n\nAny later change of sandbox state on the same `Environment` lef",
+        "vuln_symbols": [
+          "Template",
+          "checkSecurity",
+          "Environment",
+          "$loadedTemplates",
+          "disableSandbox",
+          "setSecurityPolicy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Sandbox never enabled; advisory requires untrusted sandboxed templates.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#58",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48806",
+            "GHSA-5v5v-ww74-355v"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox `__toString()` policy bypass via dynamic mapping keys \u2014 ### Description\n\nThis is a residual bypass of CVE-2026-47732 / GHSA-pr2w-4gpj-cpq4 left after the initial fix for unguarded `__toString()` calls.\n\nIn 3.26.0 the sandbox visitor was extended to wrap every child node that its parent will string-coerce at runtime with `CheckToStringNode`, gated by the new `CoercesChildrenToStringInterface`. `ArrayExpression` did not implement the interface for its mapping keys: when a dynamic key expression resolves to a `Stringable` object, `ArrayExpression::compile()` emits a raw `(string)` c",
+        "vuln_symbols": [
+          "__toString",
+          "CheckToStringNode",
+          "CoercesChildrenToStringInterface",
+          "ArrayExpression",
+          "Stringable",
+          "StringCastUnary"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Sandbox never enabled; advisory requires untrusted sandboxed templates.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#59",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46638",
+            "GHSA-7fxw-r6jv-74c8"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: `{% sandbox %}{% include %}` skips checkSecurity() on cached templates (incomplete fix for CVE-2024-45411) \u2014 ### Description\n\nThe fix for CVE-2024-45411 / GHSA-6j75-5wfj-gh66 added an explicit `$loaded->unwrap()->checkSecurity()` call in `CoreExtension::include()` so that a template already cached in `Environment::$loadedTemplates` is re-checked when included with `sandboxed = true`.\n\nThe deprecated but still functional `{% sandbox %}{% include ... %}{% endsandbox %}` tag path was not updated: it compiles to `enableSandbox(); yield from $this->load(...)->unwrap()->yield(...); disableSand",
+        "vuln_symbols": [
+          "checkSecurity",
+          "Environment",
+          "isSandboxed"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Sandbox never enabled; advisory requires untrusted sandboxed templates.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#60",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46633",
+            "GHSA-7p85-w9px-jpjp"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: PHP code injection via `{% use %}` template name \u2014 ### Description\n\n`Compiler::string()` escapes `\"`, `$`, `\\`, NUL and TAB when generating PHP double-quoted string literals, but does not escape single quotes. In `ModuleNode::compileConstructor()`, the template name from a `{% use %}` tag is compiled via `subcompile()` -> `string()` and placed inside a surrounding PHP single-quoted string literal. A template name containing a single quote terminates that surrounding string early, allowing arbitrary PHP expressions to be injected into the compiled cache file.\n\nThe injected code executes w",
+        "vuln_symbols": [
+          "$",
+          "subcompile",
+          "SecurityPolicy",
+          "allowedTags"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "CRITICAL",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Needs attacker-controlled {% use %} template name in template source; templates are trusted app files.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#61",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48807",
+            "GHSA-8x9c-rmqh-456c"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox `__toString()` policy bypass via `Traversable` in `join` and `replace` filters \u2014 ### Description\n\nThis is a residual bypass of CVE-2026-47732 / GHSA-pr2w-4gpj-cpq4 left after the initial fix for unguarded `__toString()` calls. It covers two related coercion points that were not caught by the original patch.\n\n**`Traversable` in `join` and `replace` filters.** `SandboxExtension::ensureToStringAllowed()` recurses into PHP arrays so that a `Stringable` object hidden inside an array argument cannot be string-coerced without consulting the security policy. The recursion stops at PHP ar",
+        "vuln_symbols": [
+          "__toString",
+          "Traversable",
+          "join",
+          "replace",
+          "Stringable",
+          "implode"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Sandbox never enabled; advisory requires untrusted sandboxed templates.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#62",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48808",
+            "GHSA-h8vq-8gpg-mhcg"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox property allowlist bypass via the `column` filter under `SourcePolicyInterface` \u2014 ### Description\n\nThis is a residual bypass of CVE-2026-46635 / GHSA-vcc8-phrv-43wj that only affects sandboxing enabled through `SourcePolicyInterface` (and not the regular global sandbox mode).\n\n`CoreExtension::column()` receives the active sandbox state via the `needs_is_sandboxed` channel as a boolean `$isSandboxed`, but then routes the per-element property reads through `SandboxExtension::checkPropertyAllowed()` without forwarding the current `Source`. `SandboxExtension::checkPropertyAllowed()` ",
+        "vuln_symbols": [
+          "column",
+          "SourcePolicyInterface",
+          "needs_is_sandboxed",
+          "$isSandboxed",
+          "Source",
+          "allowedFilters"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "MODERATE",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Sandbox never enabled; advisory requires untrusted sandboxed templates.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#63",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-48805",
+            "GHSA-p42q-9prx-q5wq"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox state regression in deprecated internal wrappers in `src/Resources/core.php` \u2014 ### Description\n\nThe 3.26.0 source-policy hardening changed the signature of `CoreExtension::checkArrow()` to take a boolean `$isSandboxed` instead of an `Environment`, and added the same `$isSandboxed` argument to `CoreExtension::arraySome()` and `CoreExtension::arrayEvery()`. Compiled templates were updated to pass the per-source sandbox state computed at the call site.\n\nThe deprecated internal wrappers exposed in `src/Resources/core.php` for legacy third-party code (`twig_check_arrow_in_sandbox()`, ",
+        "vuln_symbols": [
+          "$isSandboxed",
+          "Environment",
+          "twig_check_arrow_in_sandbox",
+          "twig_array_some",
+          "twig_array_every",
+          "arrayEvery"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.27.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Sandbox never enabled; advisory requires untrusted sandboxed templates.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#64",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-47732",
+            "GHSA-pr2w-4gpj-cpq4"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox: multiple `__toString()` policy bypasses via unguarded string coercion points \u2014 ### Description\n\n`SandboxNodeVisitor` enforces `SecurityPolicy::checkMethodAllowed()` for implicit `__toString()` calls by wrapping selected AST nodes in `CheckToStringNode`. The set of wrapped nodes is incomplete, and several Twig language constructs still trigger PHP string coercion on a `Stringable` operand without first consulting the policy. A sandboxed template author can therefore invoke `__toString()` on any object reachable in the render context, even when `__toString` on its class is not all",
+        "vuln_symbols": [
+          "__toString",
+          "SandboxNodeVisitor",
+          "CheckToStringNode",
+          "Stringable",
+          "matches",
+          "include"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "HIGH",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Sandbox never enabled; advisory requires untrusted sandboxed templates.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    },
+    {
+      "kind": "keep",
+      "pr": "local/real-php-firefly#65",
+      "facts": {
+        "package": "twig/twig",
+        "version": "3.21.1",
+        "ecosystem": "composer",
+        "is_go": false,
+        "advisories": [
+          [
+            "CVE-2026-46635",
+            "GHSA-vcc8-phrv-43wj"
+          ],
+          [
+            "twig/twig"
+          ]
+        ],
+        "advisory_summary": "Twig: Sandbox property allowlist bypass via the `column` filter (array_column on objects) \u2014 ### Description\n\nThe `column` filter passes its input straight to PHP's native `array_column()`. When the array elements are objects, `array_column()` reads `$obj->$name` (and `$obj->$index`) directly, including invoking `__get`/`__isset`. Because this property read happens entirely in PHP native code and never reaches `CoreExtension::getAttribute()`, `SandboxExtension::checkPropertyAllowed()` is never consulted.\n\nAn untrusted template author with `column` in their `allowedFilters` list can therefore re",
+        "vuln_symbols": [
+          "column",
+          "array_column",
+          "__get",
+          "__isset",
+          "allowedFilters",
+          "SecurityPolicy"
+        ],
+        "vuln_symbols_source": "heuristic",
+        "fixed": [
+          "3.26.0"
+        ],
+        "severity": "LOW",
+        "direct": false,
+        "dev": false,
+        "malicious": false,
+        "suspected_malicious": false,
+        "malware_hints": [],
+        "malware_check": {
+          "verdict": "vulnerability",
+          "confidence": 1.0
+        }
+      },
+      "expect": {
+        "reachability": "not_reachable",
+        "note": "twig/twig used via rcrowe/twigbridge for the app's own templates in resources/views (trusted, shipped with the app). config/twigbridge.php:104-124 enables no SandboxExtension, StringLoaderExtension or Profiler; twigbridge src only references SandboxExtension conditionally (Node/GetAttrNode.php:142). No createTemplate/template_from_string in app/. Sandbox never enabled; advisory requires untrusted sandboxed templates.",
+        "confidence": "high",
+        "labelled_by": "claude-opus code read 2026-11-05 (blind to judge verdicts; agent-labelled; php1)"
+      }
+    }
+  ]
+}

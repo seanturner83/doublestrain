@@ -202,6 +202,10 @@ def main(argv=None) -> int:
         print(f"enrichment: {json.dumps(enrich_prov)}", flush=True)
 
     tasks = [(case_dir, case, rec) for case_dir, case in cases for rec in case["candidates"]]
+    # what this run will do, for progress while it runs (the dashboard): summary.json comes at the end
+    (run_dir / "plan.json").write_text(json.dumps({"judge": args.judge, "rows": len(tasks),
+                                                   "cases": [c["id"] for _, c in cases],
+                                                   "started": datetime.now().isoformat(timespec="seconds")}))
 
     def one(task):
         case_dir, case, rec = task

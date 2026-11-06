@@ -9,6 +9,7 @@ model cited `jackson-databind@2.17.1/...` for `com.fasterxml.jackson.core:jackso
 - pypi:  PEP 503, case-insensitive with runs of `-_.` equal (`PyYAML` == `pyyaml`,
          `zope.interface` == `zope-interface`).
 - cargo: crates.io treats `-` and `_` as one and ignores case (`serde_json` == `serde-json`).
+- composer: `vendor/package`, case-insensitive (`Symfony/HTTP-Kernel` == `symfony/http-kernel`).
 - maven: `group:artifact`, exact; a bare `artifact` names it when the group is left out
          (models and file names drop it), never the other way round.
 - npm, go: exact (`@scope/name`; a Go module path).
@@ -26,6 +27,8 @@ def canonical(ecosystem: str, name: str) -> str:
         return re.sub(r"[-_.]+", "-", name).lower()
     if ecosystem == "cargo":
         return name.replace("_", "-").lower()
+    if ecosystem == "composer":
+        return name.lower()
     return name
 
 

@@ -425,7 +425,8 @@ def for_query(repo: str | Path, dependency: str, version: str = "", limit: int =
     if not cs:
         return [], []
     target = cs[0][-1]
-    get = {"cargo": fetch_crate, "go": fetch_gomodule, "pypi": fetch_pypi, "maven": fetch_maven}.get(ecosystem, fetch)
+    get = {"cargo": fetch_crate, "go": fetch_gomodule, "pypi": fetch_pypi, "maven": fetch_maven,
+           "composer": fetch_composer}.get(ecosystem, fetch)
     dependents = sorted((p for p, kids in g.edges.items() if p and target in kids),
                         key=lambda p: (p.count("node_modules/"), g.nodes[p]["name"]))
     got, notes, seen = [], [], set()
@@ -447,7 +448,7 @@ def for_query(repo: str | Path, dependency: str, version: str = "", limit: int =
             break
         n = g.nodes[p]
         spec = f"{n['name']}@{n['version']}"
-        if spec in seen:
+        if spec in seen or n.get("local"):        # the app's own (Composer path) package: in the checkout
             continue
         seen.add(spec)
         try:
@@ -917,4 +918,207 @@ def _fetch_maven(name: str, version: str, integrity: str) -> Path:
                                     else {"shaded": True, "sources_sha1": sha},
                                     "fetched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), **stats}, indent=1))
     logger.info("pkgsrc: maven %s:%s -> %s (%d files)", name, version, final, stats["written"])
+    return final
+
+
+# --- Packagist (Composer) ---------------------------------------------------------------
+# A Composer lock pins each package to a git commit (`source.reference`); the `dist`
+# zipball's `shasum` is usually empty (GitHub zipballs aren't byte-stable), so there is no
+# archive hash to check. The commit is the integrity: the commit is fetched alone
+# (`git fetch --depth 1 <url> <sha>`) into a fresh bare repository, and git names every
+# object it receives by its own hash, so the tree read is the one the lock pinned (SHA-1,
+# git's object format). Nothing is checked out: blobs are read with `git cat-file`, so no
+# .gitattributes filter, hook or checkout-time conversion runs. Only `https` URLs on
+# SSVC_COMPOSER_GIT_HOSTS (default github.com, gitlab.com, bitbucket.org, codeberg.org) are contacted,
+# with redirects off and the user's git config ignored. A `dist` with a published sha1
+# (some private and non-GitHub repositories) is fetched as an archive and checked instead.
+
+PHP_EXT = (".php", ".phtml", ".inc")
+# what a Composer package's source dir keeps: its PHP, plus the configuration and templates
+# bundles load by convention (Symfony validation/routing/services .xml/.yml, Twig templates,
+# .neon). Judges read the PHP only (usage._EXTS); the rest is for code readers (php2's
+# labellers lacked FOSUser's validation.xml, elFinder's routing.yaml, bundles' .twig).
+COMPOSER_KEEP = PHP_EXT + (".xml", ".yml", ".yaml", ".twig", ".neon")
+MAX_GIT_REPO = 300 * 2**20
+_GIT_URL = re.compile(r"^https://([A-Za-z0-9.-]+)/([A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+){1,3})/?$")
+_SHA1 = re.compile(r"^[0-9a-f]{40}$")
+_COMPOSER_NAME = re.compile(r"^[a-z0-9](?:[a-z0-9_.-]{0,99})/[a-z0-9](?:[a-z0-9_.-]{0,99})$")
+
+
+def composer_git_hosts() -> set[str]:
+    return {h.strip().lower() for h in os.environ.get("SSVC_COMPOSER_GIT_HOSTS",
+                                                      "github.com,gitlab.com,bitbucket.org,codeberg.org").split(",") if h.strip()}
+
+
+def _git(args: list[str], cwd: Path, timeout: float, inp: bytes | None = None) -> bytes:
+    import subprocess
+    env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": str(cwd), "GIT_CONFIG_NOSYSTEM": "1",
+           "GIT_CONFIG_GLOBAL": os.devnull, "GIT_TERMINAL_PROMPT": "0", "GIT_ASKPASS": "false",
+           "GIT_NO_LAZY_FETCH": "1", "LC_ALL": "C"}
+    cfg = ["-c", "protocol.allow=never", "-c", "protocol.https.allow=always", "-c", "http.followRedirects=false",
+           "-c", "transfer.fsckObjects=true", "-c", "core.hooksPath=/dev/null", "-c", "credential.helper="]
+    try:
+        r = subprocess.run(["git", *cfg, *args], cwd=cwd, env=env, input=inp, capture_output=True,
+                           timeout=timeout, check=False)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise Rejected(f"git {args[0]} failed: {exc}") from exc
+    if r.returncode:
+        raise Rejected(f"git {args[0]} failed: {r.stderr.decode('utf-8', 'replace').strip()[:300]}")
+    return r.stdout
+
+
+def _dir_bytes(d: Path) -> int:
+    return sum(f.stat().st_size for f in d.rglob("*") if f.is_file() and not f.is_symlink())
+
+
+def _git_extract(gitdir: Path, sha: str, dest: Path, keep: tuple[str, ...]) -> dict:
+    """The pinned commit's tree, files ending in `keep` only, written like `extract` does."""
+    stats = {"written": 0, "bytes": 0, "skipped_type": 0, "skipped_ext": 0, "skipped_size": 0, "skipped_dup": 0}
+    if _git(["cat-file", "-t", sha], gitdir, 30).strip() != b"commit":
+        raise Rejected(f"{sha} is not a commit")
+    listing = _git(["ls-tree", "-r", "-l", "-z", "--full-tree", sha], gitdir, 60).split(b"\0")
+    want = []
+    for ent in listing:
+        if not ent:
+            continue
+        meta, _, path = ent.partition(b"\t")
+        mode, typ, oid, size = meta.split()
+        name = path.decode("utf-8", "replace")
+        if typ != b"blob" or mode not in (b"100644", b"100755"):          # symlinks, submodules
+            stats["skipped_type"] += 1
+            continue
+        parts = _safe_parts(name, strip=0)
+        if not parts or not (parts[-1].lower().endswith(keep) or parts == ["composer.json"]):
+            stats["skipped_ext"] += 1
+            continue
+        n = int(size)
+        if n > MAX_FILE or stats["bytes"] + n > MAX_WRITTEN:
+            stats["skipped_size"] += 1
+            continue
+        stats["bytes"] += n
+        want.append((oid.decode(), parts))
+    if len(want) > MAX_MEMBERS:
+        raise Rejected("too many files")
+    dest.mkdir(mode=0o755)
+    out = _git(["cat-file", "--batch"], gitdir, 120, inp="".join(f"{o}\n" for o, _ in want).encode())
+    pos, seen = 0, set()
+    for oid, parts in want:
+        nl = out.index(b"\n", pos)
+        head = out[pos:nl].split()
+        if len(head) != 3 or head[0].decode() != oid or head[1] != b"blob":
+            raise Rejected(f"git cat-file: unexpected object header {out[pos:nl][:80]!r}")
+        size = int(head[2])
+        body = out[nl + 1:nl + 1 + size]
+        pos = nl + 1 + size + 1
+        key = "/".join(parts).casefold()
+        if key in seen:
+            stats["skipped_dup"] += 1
+            continue
+        seen.add(key)
+        target = dest.joinpath(*parts)
+        try:
+            target.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
+            fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+        except (FileExistsError, NotADirectoryError):
+            stats["skipped_dup"] += 1
+            continue
+        with os.fdopen(fd, "wb") as fh:
+            fh.write(body)
+        os.chmod(target, 0o444)
+        stats["written"] += 1
+    return stats
+
+
+def _composer_current(final: Path, manifest: Path) -> bool:
+    """A cached dir extracted with today's COMPOSER_KEEP (older ones kept PHP only)."""
+    if not (final.is_dir() and manifest.is_file()):
+        return False
+    try:
+        return json.loads(manifest.read_text()).get("keep") == list(COMPOSER_KEEP)
+    except (OSError, ValueError, AttributeError):
+        return False
+
+
+def _composer_install(new: Path, final: Path, manifest: Path) -> None:
+    """Put a fresh extraction in place, replacing an older (PHP-only) one; another process
+    that finished first with the same contents wins."""
+    if _composer_current(final, manifest):
+        shutil.rmtree(new, ignore_errors=True)
+        return
+    if final.exists():
+        old = final.with_name(f".old-{final.name}-{os.getpid()}")
+        os.rename(final, old)
+        for f in old.rglob("*"):
+            if f.is_dir() and not f.is_symlink():
+                f.chmod(0o755)
+        shutil.rmtree(old, ignore_errors=True)
+    os.rename(new, final)
+
+
+def fetch_composer(name: str, version: str, integrity: str) -> Path:
+    with keylock(("pkgsrc", "composer", name, version, integrity)):
+        return _fetch_composer(name, version, integrity)
+
+
+def _fetch_composer(name: str, version: str, integrity: str) -> Path:
+    """Directory holding a Composer package's source at the commit its lock pins (.php /
+    .phtml / .inc and its composer.json). `integrity` is depgraph.composer_integrity's
+    `git+<url>#<sha>` or `sha1:<hex> <url>`. Only the repository URL and commit (or the
+    archive URL) are sent. Raises Rejected."""
+    if not _COMPOSER_NAME.fullmatch(name) or len(version) > 64 or not _PYVER.fullmatch(version.replace(" ", "")):
+        raise Rejected(f"invalid Composer package {name!r} {version!r}")
+    root = cache_root()
+    if integrity.startswith("git+"):
+        url, _, sha = integrity[4:].rpartition("#")
+        sha = sha.lower()
+        m = _GIT_URL.fullmatch(url)
+        if not m or not _SHA1.fullmatch(sha) or any(p in (".", "..") for p in m.group(2).split("/")):
+            raise Rejected(f"{name}@{version}: unusable git source {url!r}")
+        if m.group(1).lower() not in composer_git_hosts():
+            raise Rejected(f"{name}@{version}: git host {m.group(1)} not in SSVC_COMPOSER_GIT_HOSTS")
+        repo_url = f"https://{m.group(1)}/{m.group(2).removesuffix('.git')}"
+        final = root / f"composer+{name.replace('/', '+')}@{version}-{sha[:12]}"
+        manifest = final.with_name(final.name + ".json")
+        if _composer_current(final, manifest):
+            return final
+        root.mkdir(parents=True, exist_ok=True)
+        staging = Path(tempfile.mkdtemp(prefix=".staging-", dir=root))
+        try:
+            gitdir = staging / "g.git"
+            gitdir.mkdir()
+            _git(["init", "-q", "--bare", "."], gitdir, 30)
+            _git(["fetch", "-q", "--depth", "1", "--no-tags", "--no-write-fetch-head",
+                  repo_url + ".git", sha], gitdir, 300)
+            if _dir_bytes(gitdir) > MAX_GIT_REPO:
+                raise Rejected(f"{name}@{version}: repository too large")
+            stats = _git_extract(gitdir, sha, staging / "src", COMPOSER_KEEP)
+            _composer_install(staging / "src", final, manifest)
+        finally:
+            shutil.rmtree(staging, ignore_errors=True)
+        verified = {"git_commit": sha, "repository": repo_url}
+    elif integrity.startswith("sha1:"):
+        want, _, url = integrity[5:].partition(" ")
+        if not _SHA1.fullmatch(want) or not url.startswith("https://"):
+            raise Rejected(f"{name}@{version}: unusable dist {url!r}")
+        final = root / f"composer+{name.replace('/', '+')}@{version}-{want[:12]}"
+        manifest = final.with_name(final.name + ".json")
+        if _composer_current(final, manifest):
+            return final
+        data = _get(url, MAX_SOURCES_JAR)
+        if hashlib.sha1(data).hexdigest() != want:
+            raise Rejected(f"{name}@{version}: dist archive does not match the lock's shasum")
+        root.mkdir(parents=True, exist_ok=True)
+        staging = Path(tempfile.mkdtemp(prefix=".staging-", dir=root))
+        try:
+            stats = _extract_zip(data, staging / "src", COMPOSER_KEEP)
+            _composer_install(staging / "src", final, manifest)
+        finally:
+            shutil.rmtree(staging, ignore_errors=True)
+        verified = {"dist_sha1": want, "url": url}
+    else:
+        raise Rejected(f"{name}@{version}: no pinned commit or dist hash in composer.lock")
+    manifest.write_text(json.dumps({"name": name, "version": version, "ecosystem": "composer", "verified": verified,
+                                    "keep": list(COMPOSER_KEEP),
+                                    "fetched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), **stats}, indent=1))
+    logger.info("pkgsrc: composer %s@%s -> %s (%d files)", name, version, final, stats["written"])
     return final

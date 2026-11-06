@@ -27,6 +27,7 @@ ssvc-nofix = "doublestrain.nofix:main"
 ssvc-watch = "doublestrain.watch:main"
 ssvc-mitigate = "doublestrain.mitigate:main"
 ssvc-usage = "doublestrain.accounting:main"
+ssvc-dashboard = "doublestrain.harness.dashboard:main"
 
 [dependency-groups]
 dev = ["pytest>=8"]
